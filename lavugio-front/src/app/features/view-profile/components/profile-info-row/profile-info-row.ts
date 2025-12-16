@@ -9,4 +9,5 @@ import { Component, Input } from '@angular/core';
 export class ProfileInfoRow {
   @Input() label = "Label";
   @Input() value = "Value";
+  @Input() width: "half" | "full" = "half";
 }

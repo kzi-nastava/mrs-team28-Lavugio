@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { ProfileInfoRow } from '../profile-info-row/profile-info-row';
+import { Button } from "../../../../components/button/button";
 
 @Component({
   selector: 'app-profile-info-section',
-  imports: [ProfileInfoRow],
+  imports: [ProfileInfoRow, Button],
   templateUrl: './profile-info-section.html',
   styleUrl: './profile-info-section.css',
 })

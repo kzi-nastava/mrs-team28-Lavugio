@@ -21,14 +21,27 @@
   </span>
 
   <!-- Value -->
-  <span
-    class="
-      text-base font-medium
-      text-[#BC6C25]
-      break-words
-    "
-  >
-    <b>{{ value }}</b>
-  </span>
+  <!-- If info row is only half and value has more than 20 chars,
+        font needs to be smaller so it can fit -->
+   @if (value.length > 20 && width == "half") {
+     <span
+       class="
+         font-medium
+         text-[#BC6C25]
+         md:text-sm
+         text-lg
+         ">
+       <b>{{ value }}</b>
+     </span>
+   } @else {
+    <span
+       class="
+         font-medium
+         text-[#BC6C25]
+         text-lg
+         ">
+       <b>{{ value }}</b>
+     </span>
+   }
 
 </div>
