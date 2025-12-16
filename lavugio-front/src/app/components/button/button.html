@@ -1,0 +1,11 @@
+<button 
+  [type]="type()"
+  [disabled]="disabled()"
+  [class]="'btn btn-' + variant() + ' btn-' + size()"
+  [class.btn-full-width]="fullWidth()"
+  [class.btn-disabled]="disabled()"
+  [class.btn-outline-custom]="!fill() && variant() !== 'outline'"
+  (click)="onClick()">
+  <span *ngIf="icon()" class="btn-icon">{{ icon() }}</span>
+  <ng-content></ng-content>
+</button>
