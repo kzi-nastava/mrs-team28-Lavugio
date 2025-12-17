@@ -1,0 +1,83 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 mt-8">
+
+  <app-profile-info-row
+    label="Name"
+    value="Lazar">
+  </app-profile-info-row>
+
+  <app-profile-info-row
+    label="Surname"
+    value="Jović">
+  </app-profile-info-row>
+
+  <app-profile-info-row
+    label="Phone number"
+    value="069123456">
+  </app-profile-info-row>
+
+
+  <app-profile-info-row
+    label="Email"
+    value="bm230294d@student.etf.bg.ac.rs">
+  </app-profile-info-row>
+
+  <div class="sm:col-span-2">
+      <app-profile-info-row
+        label="Adress"
+        value="Beogradska 35, Požarevac 12000"
+        width="full">
+      </app-profile-info-row>
+  </div>
+
+  <!-- If logged in User is driver... -->
+  <div class="sm:col-span-2 text-center">
+    <h2
+       class="
+         text-xl
+         sm:text-2xl
+         md:text-3xl
+         font-bold
+         text-[#606C38]
+         leading-tight
+       ">
+       Driving information
+     </h2>
+  </div>
+  
+  <div class="sm:col-span-2">
+    <app-profile-info-row
+        label="Vehicle"
+        value="Smart Crossblade"
+        width="full">
+      </app-profile-info-row>
+  </div>
+
+  <app-profile-info-row
+        label="Vehicle Type"
+        value="Standard">
+  </app-profile-info-row>
+  
+  <app-profile-info-row
+        label="Active in last 24h"
+        value="4h30min">
+  </app-profile-info-row>
+
+  <div class="grid grid-cols-2 sm:col-span-2">
+  
+    <!-- Left button -->
+    <div class="justify-self-start">
+      <app-button variant="dark-brown">
+        Activate
+      </app-button>
+    </div>
+
+    <!-- Right button -->
+    <div class="justify-self-end">
+      <app-button size="medium" variant="light-green">
+        Edit
+      </app-button>
+    </div>
+
+  </div>
+
+</div>
