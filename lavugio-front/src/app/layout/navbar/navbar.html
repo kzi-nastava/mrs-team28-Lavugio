@@ -1,0 +1,18 @@
+<div class="w-full">
+  <div class="flex items-center justify-between bg-[#BC6C25] px-8 h-16 sm:drop-shadow-sm">
+    <app-logo></app-logo>
+    <app-links (isMenuOpenOutput)="isMenuOpen = $event"></app-links>
+  </div>
+  @if (isMenuOpen){
+    <script>
+      console.log("burger menu shown");
+    </script>
+    <div class="w-screen flex flex-col bg-[#BC6C25] sm:hidden sm:drop-shadow-sm">
+      <app-link class="border-t border-[#DDA15E]">Trips</app-link>
+      <app-link class="border-t border-[#DDA15E]">History</app-link>
+      <app-link class="border-t border-[#DDA15E]">Reports</app-link>
+      <app-link class="border-t border-[#DDA15E]">Profile</app-link>
+    </div>
+  }
+
+</div>
