@@ -1,0 +1,47 @@
+<div
+  class="
+    border-b-2 border-[#606C38] pb-2
+    flex flex-col
+    items-center
+    justify-between
+    sm:flex-row sm:items-baseline
+    sm:gap-3
+  "
+>
+
+  <!-- Label -->
+  <span
+    class="
+      text-md
+      text-[#606C38]
+      sm:whitespace-nowrap
+    "
+  >
+    {{ label }}
+  </span>
+
+  <!-- Value -->
+  <!-- If info row is only half and value has more than 20 chars,
+        font needs to be smaller so it can fit -->
+   @if (value.length > 20 && width == "half") {
+     <span
+       class="
+         font-medium
+         text-[#BC6C25]
+         md:text-sm
+         text-lg
+         ">
+       <b>{{ value }}</b>
+     </span>
+   } @else {
+    <span
+       class="
+         font-medium
+         text-[#BC6C25]
+         text-lg
+         ">
+       <b>{{ value }}</b>
+     </span>
+   }
+
+</div>
