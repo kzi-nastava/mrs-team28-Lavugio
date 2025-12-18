@@ -1,0 +1,51 @@
+<app-navbar></app-navbar>
+<div class="min-h-screen
+            flex
+            justify-center
+            items-center
+            bg-white
+            md:bg-linear-to-br
+            md:from-[#606C38]
+            md:to-[#283618]">
+    <div class="w-full h-full md:min-h-screen
+                bg-white
+                md:max-w-2xl
+                shadow-none md:shadow-2xl
+                p-6 md:p-10
+                flex flex-col justify-center items-center">
+        <!-- VERIFY EMAIL Title -->
+        <h1 class="text-3xl font-bold text-center text-white bg-[#BC6C25] rounded-lg py-4 mb-8 w-full max-w-md">
+            VERIFY EMAIL
+        </h1>
+
+        <!-- Description -->
+        <p class="text-center text-gray-600 mb-6 text-sm max-w-md">
+            A code has been sent to your email address. Enter the code below to confirm.
+        </p>
+
+        <!-- Form -->
+        <form (ngSubmit)="handleConfirm()" class="space-y-6 w-full max-w-md">
+            <!-- Code Field -->
+            <input
+                type="text"
+                [(ngModel)]="code"
+                name="code"
+                placeholder="Code"
+                class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25]"
+            />
+
+            <!-- Confirm Button -->
+            <button
+                type="submit"
+                class="w-full bg-[#3E4C42] text-white font-semibold py-3 rounded hover:bg-[#2F3A32] transition"
+            >
+                Confirm
+            </button>
+        </form>
+
+        <!-- Footer Links -->
+        <div class="flex justify-start items-center mt-6 text-sm text-gray-600 w-full max-w-md">
+            <a href="/login" class="hover:text-[#BC6C25] hover:underline">Login</a>
+        </div>
+    </div>
+</div>
