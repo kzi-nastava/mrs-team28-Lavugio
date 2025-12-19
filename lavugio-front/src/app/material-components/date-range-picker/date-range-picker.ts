@@ -8,6 +8,7 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
 @Component({
   selector: 'app-date-range-picker',
   templateUrl: 'date-range-picker.html',
+  styleUrl: 'date-range-picker.css',
   imports: [MatFormFieldModule, MatDatepickerModule, MatInputModule],
   providers: [provideNativeDateAdapter(),
     {provide: MAT_DATE_LOCALE, useValue: 'en-GB'}],
