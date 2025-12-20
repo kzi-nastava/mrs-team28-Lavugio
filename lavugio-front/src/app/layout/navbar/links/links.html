@@ -1,8 +1,16 @@
-<div class="hidden sm:flex text-[#FEFAE0]">
+<div class="hidden sm:flex text-[#FEFAE0] gap-4">
   <app-link>Trips</app-link>
   <app-link>History</app-link>
-  <app-link>Reports</app-link>
-  <app-link>Profile</app-link>
+  <app-link route="">Reports</app-link>
+  <app-link route="Profile">Profile</app-link>
+  <button 
+  class="border-2 border-[#FEFAE0] rounded-md cursor-pointer hover:bg-[#FEFAE0] hover:text-[#BC6C25] hover:border-[#BC6C25] transition duration-300 px-4 py-2">
+    Log in
+  </button>
+  <button 
+  class="bg-[#283618] rounded-md cursor-pointer hover:bg-[#606C38] transition duration-300 px-4 py-2">
+    Register
+  </button>
 </div>
 
 <button (click)="toggleMenu()" class="sm:hidden focus:outline-none text-[#FEFAE0] w-10 h-10 cursor-pointer">

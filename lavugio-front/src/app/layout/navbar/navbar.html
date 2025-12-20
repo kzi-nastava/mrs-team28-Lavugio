@@ -7,11 +7,13 @@
     <script>
       console.log("burger menu shown");
     </script>
-    <div class="w-screen flex flex-col bg-[#BC6C25] sm:hidden sm:drop-shadow-sm">
+    <div class="w-screen flex flex-col bg-[#BC6C25] sm:hidden sm:drop-shadow-sm [&>*]:py-2 [&>*]:px-4">
       <app-link class="border-t border-[#DDA15E]">Trips</app-link>
       <app-link class="border-t border-[#DDA15E]">History</app-link>
       <app-link class="border-t border-[#DDA15E]">Reports</app-link>
-      <app-link class="border-t border-[#DDA15E]">Profile</app-link>
+      <app-link class="border-t border-[#DDA15E]" route="Profile">Profile</app-link>
+      <app-link class="border-t border-[#DDA15E]">Log in</app-link>
+      <app-link class="border-t border-[#DDA15E]">Register</app-link>
     </div>
   }
 
