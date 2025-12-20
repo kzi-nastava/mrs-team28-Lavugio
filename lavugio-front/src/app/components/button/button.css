@@ -1,0 +1,148 @@
+.btn {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+}
+
+/* Variants - FILLED */
+.btn-light-green {
+  background: #606C38;
+  color: white;
+  border: 2px solid #606C38;
+}
+
+.btn-light-green:hover:not(.btn-disabled) {
+  background: #8b9c51;
+  border-color: #8b9c51;
+}
+
+.btn-dark-green {
+  background: #283618;
+  color: white;
+  border: 2px solid #283618;
+}
+
+.btn-dark-green:hover:not(.btn-disabled) {
+  background: #445c29;
+  border-color: #445c29;
+}
+
+.btn-light-brown {
+  background: #DDA15E;
+  color: white;
+  border: 2px solid #DDA15E;
+}
+
+.btn-light-brown:hover:not(.btn-disabled) {
+  background: #e4ad6f;
+  border-color: #e4ad6f;
+}
+
+.btn-dark-brown {
+  background: #BC6C25;
+  color: white;
+  border: 2px solid #BC6C25;
+}
+
+.btn-dark-brown:hover:not(.btn-disabled) {
+  background: #b1713a;
+  border-color: #b1713a;
+}
+
+.btn-outline {
+  background: white;
+  color: #666;
+  border: 2px solid #ddd;
+}
+
+.btn-outline:hover:not(.btn-disabled) {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+/* Variants - OUTLINE (when fill=false) */
+.btn-outline-custom.btn-light-green {
+  background: white;
+  color: #606C38;
+  border: 2px solid #606C38;
+}
+
+.btn-outline-custom.btn-light-green:hover:not(.btn-disabled) {
+  background: #606C38;
+  color: white;
+  border-color: #606C38;
+}
+
+.btn-outline-custom.btn-dark-green {
+  background: white;
+  color: #283618;
+  border: 2px solid #283618;
+}
+
+.btn-outline-custom.btn-dark-green:hover:not(.btn-disabled) {
+  background: #283618;
+  color: white;
+  border-color: #283618;
+}
+
+.btn-outline-custom.btn-light-brown {
+  background: white;
+  color: #DDA15E;
+  border: 2px solid #DDA15E;
+}
+
+.btn-outline-custom.btn-light-brown:hover:not(.btn-disabled) {
+  background: #DDA15E;
+  color: white;
+  border-color: #DDA15E;
+}
+
+.btn-outline-custom.btn-dark-brown {
+  background: white;
+  color: #BC6C25;
+  border: 2px solid #BC6C25;
+}
+
+.btn-outline-custom.btn-dark-brown:hover:not(.btn-disabled) {
+  background: #BC6C25;
+  color: white;
+  border-color: #BC6C25;
+}
+
+/* Sizes */
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-medium {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-large {
+  padding: 1.5rem 2rem;
+  font-size: 1.125rem;
+}
+
+/* States */
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-full-width {
+  width: 100%;
+}
+
+/* Icon */
+.btn-icon {
+  font-size: 1.2em;
+}
