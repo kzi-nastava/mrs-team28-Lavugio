@@ -27,7 +27,6 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void markMessagesAsRead(Long userId, List<Long> messageIds) {
-        // Implementacija bez @Query anotacije
         List<Message> messages = messageRepository.findAllById(messageIds);
         for (Message message : messages) {
             if (message.getReceiver().getId().equals(userId)) {
@@ -40,21 +39,6 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<Message> getUnreadMessages(Long userId) {
         return messageRepository.findByReceiverIdAndReadFalse(userId);
-    }
-
-    @Override
-    public Map<AccountType, Long> getMessageStatisticsBySenderType() {
-        // Pošto Account nema accountType polje, možemo koristiti drugačiju logiku
-        // Ova metoda sada vraća praznu mapu - možete je implementirati drugačije ako vam treba
-        Map<AccountType, Long> statistics = new HashMap<>();
-
-        // Ako vam stvarno treba statistika po tipu korisnika, morate dodati accountType polje u Account
-        // Za sada vraćamo praznu mapu
-        for (AccountType type : AccountType.values()) {
-            statistics.put(type, 0L);
-        }
-
-        return statistics;
     }
 
     @Override
@@ -77,7 +61,6 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void clearChatHistory(Long userId) {
-        // Implementacija bez @Query anotacije
         List<Message> sentMessages = messageRepository.findBySenderId(userId);
         List<Message> receivedMessages = messageRepository.findByReceiverId(userId);
 

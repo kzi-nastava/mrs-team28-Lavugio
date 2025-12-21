@@ -10,7 +10,6 @@ public interface ChatService {
     List<Message> getChatHistory(Long userId);
     void markMessagesAsRead(Long userId, List<Long> messageIds);
     List<Message> getUnreadMessages(Long userId);
-    Map<AccountType, Long> getMessageStatisticsBySenderType();
     List<Message> searchInMessages(Long userId, String searchTerm);
     void clearChatHistory(Long userId);
     List<Message> getMessagesBetweenUsers(Long user1Id, Long user2Id);

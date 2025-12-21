@@ -55,11 +55,6 @@ public class NotificationServiceImpl implements NotificationService {
 
         validateNotification(notification);
 
-        // Ne dozvoljavamo promenu korisnika niti datuma slanja
-        // existing.setSentTo(notification.getSentTo()); // Ovo ne menjamo
-        // existing.setSentDate(notification.getSentDate()); // Ovo ne menjamo
-        // existing.setSentTime(notification.getSentTime()); // Ovo ne menjamo
-
         existing.setTitle(notification.getTitle());
         existing.setText(notification.getText());
         existing.setLinkToRide(notification.getLinkToRide());
