@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DriverServiceImpl implements DriverService {
@@ -82,7 +83,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public DriverStatus activateDriver(Long driverId, double longitude, double latitude) {
+    public DriverStatus activateDriver(Long driverId, double longitude, double latitude) throws RuntimeException{
         if (getDriverById(driverId) == null) {
             throw new RuntimeException("Driver not found with id: " + driverId);
         };
@@ -169,5 +170,15 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public List<Driver> getDriversWithoutVehicle() {
         return driverRepository.findByVehicleIsNull();
+    }
+
+    @Override
+    public Map<Long, DriverStatus> getAllActiveDriverStatuses() {
+        return activeDriverStatusService.getAllActiveDriverStatuses();
+    }
+
+    @Override
+    public DriverStatus getDriverStatus(Long driverId) {
+        return activeDriverStatusService.getDriverStatus(driverId);
     }
 }

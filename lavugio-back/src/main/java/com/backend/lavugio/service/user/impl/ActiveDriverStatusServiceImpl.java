@@ -10,7 +10,7 @@ import java.util.HashMap;
 @Service
 public class ActiveDriverStatusServiceImpl implements ActiveDriverStatusService {
 
-    private HashMap<Long,DriverStatus> activeDriverStatuses;
+    private final HashMap<Long,DriverStatus> activeDriverStatuses = new HashMap<>();
 
     @Override
     public HashMap<Long, DriverStatus> getAllActiveDriverStatuses() {

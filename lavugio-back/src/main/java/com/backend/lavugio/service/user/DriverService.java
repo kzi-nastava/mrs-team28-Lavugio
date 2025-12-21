@@ -3,8 +3,10 @@ package com.backend.lavugio.service.user;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverStatus;
 import com.backend.lavugio.model.vehicle.Vehicle;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DriverService {
     Driver createDriver(Driver driver);
@@ -26,4 +28,8 @@ public interface DriverService {
     boolean isDriverAvailable(Long driverId);
     long countActiveDrivers();
     List<Driver> getDriversWithoutVehicle();
+
+    Map<Long, DriverStatus> getAllActiveDriverStatuses();
+
+    DriverStatus getDriverStatus(Long driverId);
 }
