@@ -1,8 +1,10 @@
 package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.model.user.Driver;
+import com.backend.lavugio.model.user.DriverStatus;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.repository.user.DriverRepository;
+import com.backend.lavugio.service.user.ActiveDriverStatusService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,9 @@ public class DriverServiceImpl implements DriverService {
 
     @Autowired
     private DriverRepository driverRepository;
+
+    @Autowired
+    private ActiveDriverStatusService activeDriverStatusService;
 
     @Override
     @Transactional
@@ -77,19 +82,26 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    @Transactional
-    public Driver activateDriver(Long driverId) {
-        Driver driver = getDriverById(driverId);
-        driver.setActive(true);
-        return driverRepository.save(driver);
+    public DriverStatus activateDriver(Long driverId, double longitude, double latitude) {
+        if (getDriverById(driverId) == null) {
+            throw new RuntimeException("Driver not found with id: " + driverId);
+        };
+        return activeDriverStatusService.addActiveDriverStatus(driverId, longitude, latitude);
     }
 
     @Override
-    @Transactional
-    public Driver deactivateDriver(Long driverId) {
-        Driver driver = getDriverById(driverId);
-        driver.setActive(false);
-        return driverRepository.save(driver);
+    public DriverStatus updateDriverLocation(Long driverId, double longitude, double latitude) throws RuntimeException{
+        return activeDriverStatusService.updateDriverLocation(driverId, longitude, latitude);
+    }
+
+    @Override
+    public DriverStatus updateDriverAvailability(Long driverId, boolean isAvailable) throws RuntimeException{
+        return activeDriverStatusService.updateDriverAvailability(driverId, isAvailable);
+    }
+
+    @Override
+    public void deactivateDriver(Long driverId) {
+        activeDriverStatusService.deleteDriverStatus(driverId);
     }
 
     @Override

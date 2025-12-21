@@ -1,6 +1,7 @@
 package com.backend.lavugio.service.user;
 
 import com.backend.lavugio.model.user.Driver;
+import com.backend.lavugio.model.user.DriverStatus;
 import com.backend.lavugio.model.vehicle.Vehicle;
 
 import java.util.List;
@@ -12,8 +13,10 @@ public interface DriverService {
     Driver getDriverById(Long id);
     Driver getDriverByEmail(String email);
     List<Driver> getAllDrivers();
-    Driver activateDriver(Long driverId);
-    Driver deactivateDriver(Long driverId);
+    DriverStatus activateDriver(Long driverId, double longitude, double latitude);
+    DriverStatus updateDriverLocation(Long driverId, double longitude, double latitude);
+    DriverStatus updateDriverAvailability(Long driverId, boolean isAvailable);
+    void deactivateDriver(Long driverId);
     Driver blockDriver(Long driverId, String reason);
     Driver unblockDriver(Long driverId);
     List<Driver> getActiveDrivers();
