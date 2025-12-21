@@ -17,7 +17,7 @@ public class Driver extends BlockableAccount {
 	@Column
 	private boolean active;
 
-	@OneToOne()
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "vehicle_id")
 	private Vehicle vehicle;
 }
