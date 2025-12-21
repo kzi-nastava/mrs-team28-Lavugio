@@ -5,6 +5,10 @@ import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.user.Driver;
@@ -13,10 +17,14 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "rides")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Ride {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "driver_id")
@@ -50,7 +58,7 @@ public class Ride {
 	private float distance;
 
 	@Column(nullable = false)
-	private boolean isCancelled;
+	private boolean cancelled;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)

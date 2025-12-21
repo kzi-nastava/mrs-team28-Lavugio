@@ -2,13 +2,21 @@ package com.backend.lavugio.model.ride;
 
 import com.backend.lavugio.model.user.RegularUser;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "reviews")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private int carRating;
