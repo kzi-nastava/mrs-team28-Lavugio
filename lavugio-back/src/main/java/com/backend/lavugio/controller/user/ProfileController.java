@@ -31,12 +31,13 @@ public class ProfileController {
     public ProfileController(AccountService accountService,
                              RegularUserService regularUserService,
                              DriverService driverService,
-                             AdministratorService administratorService) {
+                             AdministratorService administratorService,
+                             ModelMapper modelMapper) {
         this.accountService = accountService;
         this.regularUserService = regularUserService;
         this.driverService = driverService;
         this.administratorService = administratorService;
-        this.modelMapper = new ModelMapper();
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/{id}")
