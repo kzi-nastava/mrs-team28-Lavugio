@@ -3,18 +3,17 @@
     <app-logo></app-logo>
     <app-links (isMenuOpenOutput)="isMenuOpen = $event"></app-links>
   </div>
-  @if (isMenuOpen){
-    <script>
-      console.log("burger menu shown");
-    </script>
-    <div class="w-screen flex flex-col bg-[#BC6C25] sm:hidden sm:drop-shadow-sm">
+  
+  @if (isMenuOpen) {
+    <div class="w-screen flex flex-col bg-[#BC6C25] sm:hidden sm:drop-shadow-sm [&>*]:py-2 [&>*]:px-4">
       <app-link class="border-t border-[#DDA15E]">Trips</app-link>
-      <app-link class="border-t border-[#DDA15E]">History</app-link>
+      <app-link class="border-t border-[#DDA15E]" [route]="'/trip-history-driver'">History</app-link>
       <app-link class="border-t border-[#DDA15E]">Reports</app-link>
-      <app-link class="border-t border-[#DDA15E]">Profile</app-link>
+      
+      <app-link class="border-t border-[#DDA15E]" [route]="'/profile'">Profile</app-link>
+      
       <app-link class="border-t border-[#DDA15E]" [route]="'/login'">Login</app-link>
       <app-link class="border-t border-[#DDA15E]" [route]="'/register'">Register</app-link>
     </div>
   }
-
 </div>
