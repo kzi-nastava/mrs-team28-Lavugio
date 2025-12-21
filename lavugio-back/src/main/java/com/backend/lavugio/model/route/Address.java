@@ -1,13 +1,21 @@
 package com.backend.lavugio.model.route;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "addresses")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Address {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 
 	@Column(nullable = false)
 	private String streetName;

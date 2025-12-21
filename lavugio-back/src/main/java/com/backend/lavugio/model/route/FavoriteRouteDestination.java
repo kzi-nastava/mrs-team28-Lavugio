@@ -1,13 +1,21 @@
 package com.backend.lavugio.model.route;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "favorite_route_destinations")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class FavoriteRouteDestination {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "favorite_route_id", nullable = false)

@@ -1,32 +1,43 @@
 package com.backend.lavugio.model.chat;
 
 import com.backend.lavugio.model.user.Account;
-import com.backend.lavugio.model.user.AccountType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "messages")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Account chatOwner;
+    @JoinColumn(name = "sender_id", nullable = false)
+    private Account sender;
+
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private Account receiver;
 
     @Column(nullable = false)
     private LocalDate messageDate;
+
     @Column(nullable = false)
     private LocalTime messageTime;
 
     @Column(nullable = false)
     private String text;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private AccountType senderType;
+    @Column(name = "is_read", nullable = false)
+    private boolean read = false;
 }

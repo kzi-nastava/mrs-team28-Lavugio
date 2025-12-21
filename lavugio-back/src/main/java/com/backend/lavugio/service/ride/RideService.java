@@ -1,0 +1,39 @@
+package com.backend.lavugio.service.ride;
+
+import com.backend.lavugio.model.ride.Ride;
+import com.backend.lavugio.model.ride.RideStatus;
+import java.time.LocalDate;
+import java.util.List;
+
+public interface RideService {
+
+    // Create operations
+    Ride createRide(Ride ride);
+
+    // Read operations
+    Ride getRideById(Long id);
+    List<Ride> getAllRides();
+    List<Ride> getRidesByDriverId(Long driverId);
+    List<Ride> getRidesByPassengerId(Long passengerId);
+    List<Ride> getRidesByDate(LocalDate date);
+    List<Ride> getRidesByStatus(RideStatus status);
+    List<Ride> getUpcomingRidesForDriver(Long driverId);
+    List<Ride> getRidesInDateRange(LocalDate startDate, LocalDate endDate);
+    List<Ride> getActiveRides();
+
+    // Update operations
+    Ride updateRide(Long id, Ride ride);
+    Ride updateRideStatus(Long id, RideStatus newStatus);
+    Ride addPassengerToRide(Long rideId, Long passengerId);
+    Ride removePassengerFromRide(Long rideId, Long passengerId);
+
+    // Delete operations
+    void cancelRide(Long id);
+    void deleteRide(Long id);
+
+    // Business logic operations
+    boolean isRideAvailable(Long rideId);
+    Float calculateTotalEarningsForDriver(Long driverId);
+    Float calculateTotalDistanceForDriver(Long driverId);
+    Float calculateAverageFareForDriver(Long driverId);
+}
