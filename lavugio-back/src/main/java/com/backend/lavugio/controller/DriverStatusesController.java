@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/driver-statuses")
+@RequestMapping("/api/drivers")
 public class DriverStatusesController {
 
     private final DriverService driverService;
@@ -28,7 +28,7 @@ public class DriverStatusesController {
         return new ResponseEntity<>(statuses, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{driverId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{driverId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverStatus> getDriverStatus(@PathVariable Long driverId){
         DriverStatus driverStatus = driverService.getDriverStatus(driverId);
         if (driverStatus == null){
@@ -37,7 +37,7 @@ public class DriverStatusesController {
         return new ResponseEntity<>(driverStatus, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{driverId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{driverId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverStatus> activateDriver(@PathVariable Long driverId,
                                                        @RequestParam double longitude,
                                                        @RequestParam double latitude) {
