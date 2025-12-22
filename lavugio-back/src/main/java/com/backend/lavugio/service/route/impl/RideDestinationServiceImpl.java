@@ -67,7 +67,7 @@ public class RideDestinationServiceImpl implements RideDestinationService {
     }
 
     @Override
-    public List<RideDestination> getDestinationsByRideId(Long rideId) {
+    public List<RideDestination> getOrderedDestinationsByRideId(Long rideId) {
         return rideDestinationRepository.findByRideIdOrderByDestinationOrder(rideId);
     }
 
