@@ -1,5 +1,7 @@
 package com.backend.lavugio.service.ride;
 
+import com.backend.lavugio.dto.ride.RideRequestDTO;
+import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.ride.RideStatus;
 import java.time.LocalDate;
@@ -9,6 +11,7 @@ public interface RideService {
 
     // Create operations
     Ride createRide(Ride ride);
+    RideResponseDTO bookRide(String userEmail, RideRequestDTO request) throws Exception;
 
     // Read operations
     Ride getRideById(Long id);
@@ -25,6 +28,7 @@ public interface RideService {
     Ride updateRide(Long id, Ride ride);
     Ride updateRideStatus(Long id, RideStatus newStatus);
     Ride addPassengerToRide(Long rideId, Long passengerId);
+    Ride addPassengerToRide(Ride ride, List<String> passengerEmails);
     Ride removePassengerFromRide(Long rideId, Long passengerId);
 
     // Delete operations
