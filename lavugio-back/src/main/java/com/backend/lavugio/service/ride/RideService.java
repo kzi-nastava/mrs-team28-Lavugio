@@ -11,7 +11,6 @@ public interface RideService {
 
     // Create operations
     Ride createRide(Ride ride);
-    RideResponseDTO bookRide(String userEmail, RideRequestDTO request) throws Exception;
 
     // Read operations
     Ride getRideById(Long id);

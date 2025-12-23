@@ -1,8 +1,11 @@
 package com.backend.lavugio.controller.ride;
 
+import com.backend.lavugio.dto.ride.RideEstimateDTO;
+import com.backend.lavugio.dto.ride.RideEstimateRequestDTO;
 import com.backend.lavugio.dto.ride.RideRequestDTO;
 import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.model.ride.Ride;
+import com.backend.lavugio.model.ride.RideStatus;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,27 +26,60 @@ public class RideController {
     @Autowired
     private DriverService driverService;
 
-    @PostMapping("/book")
-    public ResponseEntity<?> bookRide(@RequestBody RideRequestDTO request) {
-        // IMPLEMENTIRATI KADA SE URADI AUTENTIFIKACIJA LOGOVANOG KORISNIKA
-        // @AuthenticationPrincipal UserDetails userDetails
-        // String userEmail = userDetails.getUsername();
+    @PostMapping("/estimate")
+    public ResponseEntity<?> estimateRideInfo(@RequestBody RideEstimateRequestDTO request) {
         try {
-            String emailPlaceholder = "probni@email.com";
-            RideResponseDTO response = rideService.bookRide(emailPlaceholder, request);
-            return ResponseEntity.ok(response);
+            //RideEstimateDTO estimate = rideService.estimateRide(request);
+            RideEstimateDTO estimate = new RideEstimateDTO(300, 10.0f, 23); // Placeholder vrednosti
+            return ResponseEntity.ok(estimate);
         } catch (Exception e) {
+            return ResponseEntity.badRequest( ).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/instant")
+    public ResponseEntity<?> createInstantRide(
+            @RequestBody RideRequestDTO request) {
+        // @AuthenticationPrincipal UserDetails userDetails,
+        try {
+            //String userEmail = userDetails.getUsername();
+            String userEmail = "email@emailovic.com"; // Placeholder vrednost
+            //RideDTO ride = rideService.createInstantRide(userEmail, request);
+            RideResponseDTO ride = new RideResponseDTO(); // Placeholder vrednost
+            return ResponseEntity.status(HttpStatus.CREATED).body(ride);
+        } catch (Exception e) {
+            // notificationService.sendNoDriversAvailable(userDetails.getUsername());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
         }
-        /* IMPLEMENTIRATI EXCEPTIONS
-        } catch (NoAvailableDriversException e) {
-            notificationService.sendNoDriversAvailable(userDetails.getUsername());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body("No available drivers at the moment");
+    }
 
-        } catch (InvalidRideException e) {
+    // 3. Create scheduled ride (for future)
+    @PostMapping("/schedule")
+    public ResponseEntity<?> createScheduledRide(
+            @RequestBody RideRequestDTO request) {
+        // @AuthenticationPrincipal UserDetails userDetails,
+        try {
+            //String userEmail = userDetails.getUsername();
+            String userEmail = "email@emailovic.com"; // Placeholder vrednost
+            //RideDTO ride = rideService.createScheduledRide(userEmail, request);
+            RideResponseDTO ride = new RideResponseDTO(); // Placeholder vrednost
+            return ResponseEntity.status(HttpStatus.CREATED).body(ride);
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }*/
+        }
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getRegularUserRides() {
+        // @AuthenticationPrincipal UserDetails userDetails
+        Long idPlaceholder = 1L;
+        try {
+            List<Ride> rides = rideService.getRidesByPassengerId(idPlaceholder);
+            // KONVERTOVATI U DTO
+            return ResponseEntity.ok(rides);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
@@ -70,5 +106,24 @@ public class RideController {
         // String userEmail = userDetails.getUsername();
         rideService.cancelRide(id);
         return ResponseEntity.ok("Ride cancelled successfully");
+    }
+
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<?> activateRide(@PathVariable Long id) {
+        // IMPLEMENTIRATI KADA SE URADI AUTENTIFIKACIJA LOGOVANOG KORISNIKA
+        // @AuthenticationPrincipal UserDetails userDetails
+        // String userEmail = userDetails.getUsername();
+        rideService.updateRideStatus(id, RideStatus.ACTIVE);
+        return ResponseEntity.ok("Ride activated successfully");
+    }
+
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<?> panicRide(@PathVariable Long id) {
+        // IMPLEMENTIRATI KADA SE URADI AUTENTIFIKACIJA LOGOVANOG KORISNIKA
+        // @AuthenticationPrincipal UserDetails userDetails
+        // String userEmail = userDetails.getUsername();
+        rideService.updateRideStatus(id, RideStatus.STOPPED);
+        // send notifications to authorities and emergency contacts
+        return ResponseEntity.ok("Ride panic activated successfully");
     }
 }
