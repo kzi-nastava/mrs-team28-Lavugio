@@ -5,12 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewDTO {
-    private int driverRating;
+public class GetRideReviewDTO {
+    private Long reviewId;
     private int vehicleRating;
+    private int driverRating;
     private String comment;
 }

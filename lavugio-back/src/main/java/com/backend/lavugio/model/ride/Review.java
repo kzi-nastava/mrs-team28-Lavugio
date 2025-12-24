@@ -1,6 +1,6 @@
 package com.backend.lavugio.model.ride;
 
-import com.backend.lavugio.dto.ReviewDTO;
+import com.backend.lavugio.dto.RideReviewDTO;
 import com.backend.lavugio.model.user.RegularUser;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -37,10 +37,10 @@ public class Review {
     @Nullable
     private RegularUser reviewer;
 
-    public Review(Ride ride, ReviewDTO reviewDTO) {
-        this.carRating = reviewDTO.getVehicleRating();
-        this.driverRating = reviewDTO.getDriverRating();
-        this.comment = reviewDTO.getComment();
+    public Review(Ride ride, RideReviewDTO rideReviewDTO) {
+        this.carRating = rideReviewDTO.getVehicleRating();
+        this.driverRating = rideReviewDTO.getDriverRating();
+        this.comment = rideReviewDTO.getComment();
         this.reviewedRide = ride;
     }
 }

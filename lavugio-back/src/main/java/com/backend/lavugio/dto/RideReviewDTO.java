@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DriverStatusDTO {
-    private Long driverId;
-    private CoordinatesDTO driverLocation;
-    private boolean isAvailable;
+public class RideReviewDTO {
+    private int driverRating;
+    private int vehicleRating;
+    private String comment;
 }

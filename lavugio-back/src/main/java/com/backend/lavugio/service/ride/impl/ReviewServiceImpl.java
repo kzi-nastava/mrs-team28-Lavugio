@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.ride.impl;
 
-import com.backend.lavugio.dto.ReviewDTO;
+import com.backend.lavugio.dto.RideReviewDTO;
 import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.repository.ride.ReviewRepository;
@@ -25,9 +25,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public Review createReview(Long rideId, ReviewDTO reviewDTO) {
+    public Review createReview(Long rideId, RideReviewDTO rideReviewDTO) {
         Ride ride = rideService.getRideById(rideId);
-        Review review = new Review(ride,  reviewDTO);
+        Review review = new Review(ride, rideReviewDTO);
         if (review.getReviewedRide() == null) {
             throw new IllegalArgumentException("Ride cannot be null");
         }

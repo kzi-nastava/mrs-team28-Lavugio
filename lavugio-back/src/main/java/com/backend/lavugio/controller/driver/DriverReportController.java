@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/drivers/{driverId}/reports")
@@ -25,15 +26,18 @@ public class DriverReportController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideReportedDTO>> getDriverReports(@PathVariable Long driverId){
-        Collection<RideReport> reports = rideReportService.getReportsForDriver(driverId);
-        Collection<RideReportedDTO> reportDTOs = new ArrayList<>();
-        for (RideReport report : reports) {
-            RideReportedDTO rideReportedDTO = new RideReportedDTO();
-            rideReportedDTO.setReporterId(report.getReporter().getId());
-            rideReportedDTO.setReportId(report.getReportId());
-            rideReportedDTO.setReportText(report.getReportMessage());
-            reportDTOs.add(rideReportedDTO);
-        }
+//        Collection<RideReport> reports = rideReportService.getReportsForDriver(driverId);
+//        Collection<RideReportedDTO> reportDTOs = new ArrayList<>();
+//        for (RideReport report : reports) {
+//            RideReportedDTO rideReportedDTO = new RideReportedDTO();
+//            rideReportedDTO.setReporterId(report.getReporter().getId());
+//            rideReportedDTO.setReportId(report.getReportId());
+//            rideReportedDTO.setReportText(report.getReportMessage());
+//            reportDTOs.add(rideReportedDTO);
+//        }
+        List<RideReportedDTO> reportDTOs = new ArrayList<>();
+        reportDTOs.add(new RideReportedDTO(1L, 1L, 2L, "Driver was rude"));
+        reportDTOs.add(new RideReportedDTO(2L, 1L, 3L, "Driver took a longer route"));
         return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
     }
 

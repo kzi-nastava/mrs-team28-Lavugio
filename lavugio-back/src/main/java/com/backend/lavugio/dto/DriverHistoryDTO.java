@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.swing.text.DateFormatter;
 import java.time.format.DateTimeFormatter;
 
 @Getter
@@ -22,10 +21,10 @@ public class DriverHistoryDTO {
 
     public DriverHistoryDTO(Ride ride){
         this.rideId = ride.getId();
-        this.startAddress = ride.getStart().toString();
-        this.endAddress = ride.getEnd().toString();
+        this.startAddress = ride.getStartDateTime().toString();
+        this.endAddress = ride.getEndDateTime().toString();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
-        this.startDate = ride.getStart().format(formatter);
-        this.endDate = ride.getEnd().format(formatter);
+        this.startDate = ride.getStartDateTime().format(formatter);
+        this.endDate = ride.getEndDateTime().format(formatter);
     }
 }

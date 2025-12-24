@@ -12,12 +12,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PassengerTableRowDTO {
     private Long id;
-    private String iconUrl;
     private String name;
+    private ImageDTO profilePicture;
 
     public PassengerTableRowDTO(RegularUser user){
         this.id = user.getId();
-        this.iconUrl = user.getProfilePhotoPath();
         this.name = user.getName() + " " + user.getLastName();
     }
 }

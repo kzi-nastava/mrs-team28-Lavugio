@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,10 +28,10 @@ public class RideServiceImpl implements RideService {
         if (ride.getDriver() == null) {
             throw new IllegalArgumentException("Driver cannot be null");
         }
-        if (ride.getStart() == null) {
+        if (ride.getStartDateTime() == null) {
             throw new IllegalArgumentException("Start date cannot be null");
         }
-        if (ride.getEnd() == null) {
+        if (ride.getEndDateTime() == null) {
             throw new IllegalArgumentException("End date cannot be null");
         }
 
@@ -66,7 +65,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Ride> getRidesByDate(LocalDateTime date) {
-        return rideRepository.findByStart(date);
+        return rideRepository.findByStartDateTime(date);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return rideRepository.findByStartBetween(startDate, endDate);
+        return rideRepository.findByStartDateTimeBetween(startDate, endDate);
     }
 
     @Override
@@ -107,8 +106,8 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot update ride in status: " + existingRide.getRideStatus());
         }
 
-        existingRide.setStart(updatedRide.getStart());
-        existingRide.setEnd(updatedRide.getEnd());
+        existingRide.setStartDateTime(updatedRide.getStartDateTime());
+        existingRide.setEndDateTime(updatedRide.getEndDateTime());
         existingRide.setPrice(updatedRide.getPrice());
         existingRide.setDistance(updatedRide.getDistance());
 

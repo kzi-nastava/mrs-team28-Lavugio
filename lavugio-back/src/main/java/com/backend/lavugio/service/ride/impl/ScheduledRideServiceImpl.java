@@ -37,7 +37,7 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
                     rides.get(i).getId(),
                     rideDestinations.get(i*2).getAddress().toString(),
                     rideDestinations.get(i*2+1).getAddress().toString(),
-                    rides.get(i).getStart().format(formatter)
+                    rides.get(i).getStartDateTime().format(formatter)
             ));
         }
         return scheduledRides;

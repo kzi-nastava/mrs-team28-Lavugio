@@ -10,15 +10,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RideStatusDTO {
+    private Long rideId;
 
-    private double currentLatitude;
-    private double currentLongitude;
+    private CoordinatesDTO driverCoordinates;
 
-    private double startLatitude;
-    private double startLongitude;
+    private CoordinatesDTO rideStartCoordinates;
 
-    private double destinationLatitude;
-    private double destinationLongitude;
+    private CoordinatesDTO rideEndCoordinates;
 
     private double remainingTimeSeconds;
 }

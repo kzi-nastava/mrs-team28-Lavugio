@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DriverStatusDTO {
-    private Long driverId;
-    private CoordinatesDTO driverLocation;
-    private boolean isAvailable;
+public class FinishRideDTO {
+    private double finalPrice;
+    private CoordinatesDTO finalDestination;
+    private String endTime;
 }

@@ -44,10 +44,10 @@ public class Ride {
     private RegularUser creator;
 
     @Column(nullable = false)
-    private LocalDateTime start;
+    private LocalDateTime startDateTime;
 
     @Column
-    private LocalDateTime end;
+    private LocalDateTime endDateTime;
 
 	@Column(nullable = false)
 	private float price;

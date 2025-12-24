@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/rides/{rideId}/reports")
@@ -33,32 +34,36 @@ public class RideReportController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideReportedDTO>> getRideReports(@PathVariable Long rideId){
-        Collection<RideReport> reports = rideReportService.getReportsByRideId(rideId);
-        Collection<RideReportedDTO> reportDTOs = new ArrayList<>();
-        for (RideReport report : reports) {
-            RideReportedDTO rideReportedDTO = new RideReportedDTO();
-            rideReportedDTO.setReporterId(report.getReporter().getId());
-            rideReportedDTO.setReportId(report.getReportId());
-            rideReportedDTO.setReportText(report.getReportMessage());
-            reportDTOs.add(rideReportedDTO);
-        }
+//        Collection<RideReport> reports = rideReportService.getReportsByRideId(rideId);
+//        Collection<RideReportedDTO> reportDTOs = new ArrayList<>();
+//        for (RideReport report : reports) {
+//            RideReportedDTO rideReportedDTO = new RideReportedDTO();
+//            rideReportedDTO.setReporterId(report.getReporter().getId());
+//            rideReportedDTO.setReportId(report.getReportId());
+//            rideReportedDTO.setReportText(report.getReportMessage());
+//            reportDTOs.add(rideReportedDTO);
+//        }
+        List<RideReportedDTO> reportDTOs = new ArrayList<>();
+        reportDTOs.add(new RideReportedDTO(1L, rideId, 2L, "Driver was late"));
+        reportDTOs.add(new RideReportedDTO(2L, rideId, 3L, "Car was unclean"));
         return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RideReportedDTO> postRideReport(@PathVariable Long rideId, @RequestBody RideReportDTO reportDTO){
-        RideReport report = new RideReport();
-        Ride ride = rideService.getRideById(rideId);
-        RegularUser user =  regularUserService.getRegularUserById(reportDTO.getReporterId());
-        report.setRide(ride);
-        report.setReportMessage(reportDTO.getReportText());
-        report.setReporter(user);
-        rideReportService.createReport(report);
-
-        RideReportedDTO rideReportedDTO = new RideReportedDTO();
-        rideReportedDTO.setReporterId(report.getReporter().getId());
-        rideReportedDTO.setReportId(report.getReportId());
-        rideReportedDTO.setReportText(report.getReportMessage());
+//        RideReport report = new RideReport();
+//        Ride ride = rideService.getRideById(rideId);
+//        RegularUser user =  regularUserService.getRegularUserById(reportDTO.getReporterId());
+//        report.setRide(ride);
+//        report.setReportMessage(reportDTO.getReportText());
+//        report.setReporter(user);
+//        rideReportService.createReport(report);
+//
+//        RideReportedDTO rideReportedDTO = new RideReportedDTO();
+//        rideReportedDTO.setReporterId(report.getReporter().getId());
+//        rideReportedDTO.setReportId(report.getReportId());
+//        rideReportedDTO.setReportText(report.getReportMessage());
+        RideReportedDTO rideReportedDTO = new RideReportedDTO(1L, rideId, reportDTO.getReporterId(), reportDTO.getReportText());
         return new ResponseEntity<>(rideReportedDTO, HttpStatus.OK);
     }
 }

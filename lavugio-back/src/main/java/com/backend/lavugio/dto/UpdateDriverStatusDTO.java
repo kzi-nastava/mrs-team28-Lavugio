@@ -10,7 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateDriverStatusDTO {
-    private double longitude;
-    private double latitude;
+    private CoordinatesDTO driverLocation;
     private boolean available;
 }

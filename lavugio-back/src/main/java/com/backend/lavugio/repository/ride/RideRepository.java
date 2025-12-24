@@ -40,9 +40,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     // Custom queries
     @Query("SELECT r FROM Ride r WHERE r.driver.id = :driverId " +
-            "AND r.start >= :fromDate " +
+            "AND r.startDateTime >= :fromDate " +
             "AND r.rideStatus = 'SCHEDULED' " +
-            "ORDER BY r.start ASC")
+            "ORDER BY r.startDateTime ASC")
     List<Ride> findUpcomingRidesByDriver(@Param("driverId") Long driverId,
                                          @Param("fromDate") LocalDateTime fromDate);
 
@@ -62,9 +62,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     @Query("SELECT r FROM Ride r JOIN r.passengers p " +
             "WHERE p.id = :passengerId " +
-            "AND r.start BETWEEN :startDate AND :endDate " +
-            "AND r.end BETWEEN :startDate AND :endDate " +
-            "ORDER BY r.start DESC")
+            "AND r.startDateTime BETWEEN :startDate AND :endDate " +
+            "AND r.endDateTime BETWEEN :startDate AND :endDate " +
+            "ORDER BY r.startDateTime DESC")
     List<Ride> findRidesForPassengerInDateRange(@Param("passengerId") Long passengerId,
                                                 @Param("startDate") LocalDateTime startDate,
                                                 @Param("endDate") LocalDateTime endDate);
@@ -91,11 +91,11 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     // Find available rides for a date
     @Query("SELECT r FROM Ride r " +
-            "WHERE r.start = :date " +
+            "WHERE r.startDateTime = :date " +
             "AND r.rideStatus = 'SCHEDULED' ")
     List<Ride> findAvailableRidesForDate(@Param("date") LocalDateTime date);
 
-    List<Ride> findByStartBetween(LocalDateTime startDate, LocalDateTime endDate);
+    List<Ride> findByStartDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-    List<Ride> findByStart(LocalDateTime date);
+    List<Ride> findByStartDateTime(LocalDateTime date);
 }

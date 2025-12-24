@@ -29,6 +29,5 @@ public interface DriverService {
     List<Driver> getDriversWithoutVehicle();
 
     Map<Long, DriverLocation> getAllActiveDriverStatuses();
-
     DriverLocation getDriverStatus(Long driverId);
 }

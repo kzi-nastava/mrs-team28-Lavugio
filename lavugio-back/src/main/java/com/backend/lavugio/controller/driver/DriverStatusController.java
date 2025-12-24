@@ -31,9 +31,9 @@ public class DriverStatusController {
     public ResponseEntity<Collection<DriverStatusDTO>> getDriverStatuses(){
         //Map<Long, DriverLocation> statuses = driverService.getAllActiveDriverStatuses();
         List<DriverStatusDTO> statuses = new ArrayList<>();
-        statuses.add(new DriverStatusDTO(1L, 45.2671, 19.8335, true));
-        statuses.add(new DriverStatusDTO(2L, 44.7866, 20.4489, false));
-        statuses.add(new DriverStatusDTO(3L, 43.8563, 18.4131, true));
+        statuses.add(new DriverStatusDTO(1L, new CoordinatesDTO(45.2671, 19.8335), true));
+        statuses.add(new DriverStatusDTO(2L, new CoordinatesDTO(44.7866, 20.4489), false));
+        statuses.add(new DriverStatusDTO(3L, new CoordinatesDTO(43.8563, 18.4131), true));
         return new ResponseEntity<>(statuses, HttpStatus.OK);
     }
 
@@ -43,7 +43,7 @@ public class DriverStatusController {
 //        if (driverLocation == null){
 //            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //        }
-        DriverStatusDTO driverLocation = new DriverStatusDTO(driverId, 45.2671, 19.8335, true);
+        DriverStatusDTO driverLocation = new DriverStatusDTO(driverId, new CoordinatesDTO(45.2671, 19.8335), true);
         return new ResponseEntity<>(driverLocation, HttpStatus.OK);
     }
 
@@ -56,7 +56,7 @@ public class DriverStatusController {
 //        }catch (RuntimeException e){
 //            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 //        }
-        DriverStatusDTO activatedStatus = new DriverStatusDTO(driverId, coordinates.getLatitude(), coordinates.getLongitude(), true);
+        DriverStatusDTO activatedStatus = new DriverStatusDTO(driverId, coordinates, true);
         return new ResponseEntity<>(activatedStatus, HttpStatus.CREATED);
     }
 
@@ -69,13 +69,15 @@ public class DriverStatusController {
 //        } catch (RuntimeException e){
 //            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 //        }
-        DriverStatusDTO updatedStatus = new DriverStatusDTO(driverId, driverStatusDTO.getLatitude(), driverStatusDTO.getLongitude(), true);
+        DriverStatusDTO updatedStatus = new DriverStatusDTO(driverId,
+                driverStatusDTO.getDriverLocation(),
+                true);
         return new ResponseEntity<>(updatedStatus, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{driverId}/status")
     public ResponseEntity<?> deactivateDriver(@PathVariable Long driverId) {
-        driverService.deactivateDriver(driverId);
+        //driverService.deactivateDriver(driverId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

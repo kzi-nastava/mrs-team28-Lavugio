@@ -29,8 +29,8 @@ public class DriverHistoryDetailedDTO {
 
     public DriverHistoryDetailedDTO(Ride ride, RideDestination startLocation, RideDestination destinationLocation){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
-        this.startDateTime = ride.getStart().format(formatter);
-        this.endDateTime = ride.getEnd() != null ? ride.getEnd().format(formatter) : "not finished";
+        this.startDateTime = ride.getStartDateTime().format(formatter);
+        this.endDateTime = ride.getEndDateTime() != null ? ride.getEndDateTime().format(formatter) : "not finished";
         this.startLocation = startLocation.getAddress().toString();
         this.destinationLocation = destinationLocation.getAddress().toString();
         this.price = ride.getPrice();
