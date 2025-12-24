@@ -80,7 +80,7 @@ public class RideDestinationServiceImpl implements RideDestinationService {
 
     @Override
     public List<RideDestination> getStartAndEndDestinationForRide(Long rideId) {
-        return rideDestinationRepository.findFirstAndLastDestinationForRide(rideId;
+        return rideDestinationRepository.findFirstAndLastDestinationForRide(rideId);
     }
 
     @Override

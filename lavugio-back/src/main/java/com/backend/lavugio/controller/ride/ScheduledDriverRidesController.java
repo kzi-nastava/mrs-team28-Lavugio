@@ -1,7 +1,6 @@
-package com.backend.lavugio.controller;
+package com.backend.lavugio.controller.ride;
 
 import com.backend.lavugio.dto.ScheduledRideDTO;
-import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.http.HttpResponse;
 import java.util.Collection;
 
 @RestController

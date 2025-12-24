@@ -128,12 +128,12 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public List<Driver> getActiveDrivers() {
-        return driverRepository.findByActiveTrue();
+        return driverRepository.findByIsDrivingTrue();
     }
 
     @Override
     public List<Driver> getAvailableDrivers() {
-        return driverRepository.findByBlockedFalseAndActiveTrue();
+        return driverRepository.findByBlockedFalseAndIsDrivingTrue();
     }
 
     @Override
@@ -166,7 +166,7 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public long countActiveDrivers() {
-        return driverRepository.countByActiveTrue();
+        return driverRepository.countByIsDrivingTrue();
     }
 
     @Override

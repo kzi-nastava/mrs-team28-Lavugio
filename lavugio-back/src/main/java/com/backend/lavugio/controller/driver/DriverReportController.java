@@ -1,4 +1,4 @@
-package com.backend.lavugio.controller;
+package com.backend.lavugio.controller.driver;
 
 import com.backend.lavugio.dto.RideReportedDTO;
 import com.backend.lavugio.model.ride.RideReport;

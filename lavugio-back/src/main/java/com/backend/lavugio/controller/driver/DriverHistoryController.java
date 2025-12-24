@@ -1,4 +1,4 @@
-package com.backend.lavugio.controller;
+package com.backend.lavugio.controller.driver;
 
 import com.backend.lavugio.dto.DriverHistoryDTO;
 import com.backend.lavugio.dto.DriverHistoryDetailedDTO;
@@ -7,11 +7,9 @@ import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

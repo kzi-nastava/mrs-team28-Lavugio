@@ -34,7 +34,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (review.getReviewedRide().getCreator() == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
-        if (reviewRepository.existsByReviewedRidIdAndReviewedByUserId(
+        if (reviewRepository.existsByReviewedRideIdAndReviewerId(
                 review.getReviewedRide().getId(),
                 review.getReviewedRide().getCreator().getId())) {
             throw new IllegalStateException("User has already reviewed this ride");
@@ -56,12 +56,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<Review> getReviewsByRideId(Long rideId) {
-        return reviewRepository.findByReviewedRidId(rideId);
+        return reviewRepository.findByReviewedRideId(rideId);
     }
 
     @Override
     public List<Review> getReviewsByUserId(Long userId) {
-        return reviewRepository.findByReviewedByUserId(userId);
+        return reviewRepository.findByReviewerId(userId);
     }
 
     @Override

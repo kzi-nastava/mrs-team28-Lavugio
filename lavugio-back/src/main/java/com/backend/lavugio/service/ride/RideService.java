@@ -4,6 +4,7 @@ import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.ride.RideStatus;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface RideService {
@@ -16,10 +17,10 @@ public interface RideService {
     List<Ride> getAllRides();
     List<Ride> getRidesByDriverId(Long driverId);
     List<Ride> getRidesByPassengerId(Long passengerId);
-    List<Ride> getRidesByDate(LocalDate date);
+    List<Ride> getRidesByDate(LocalDateTime date);
     List<Ride> getRidesByStatus(RideStatus status);
     List<Ride> getUpcomingRidesForDriver(Long driverId);
-    List<Ride> getRidesInDateRange(LocalDate startDate, LocalDate endDate);
+    List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
     List<Ride> getActiveRides();
     List<Ride> getScheduledRidesForDriver(Long driverId);
     List<Ride> getFinishedRidesForDriver(Long driverId);

@@ -1,4 +1,4 @@
-package com.backend.lavugio.controller;
+package com.backend.lavugio.controller.ride;
 
 import com.backend.lavugio.dto.RideReportDTO;
 import com.backend.lavugio.dto.RideReportedDTO;

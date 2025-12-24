@@ -2,6 +2,7 @@ package com.backend.lavugio.model.ride;
 
 import com.backend.lavugio.dto.ReviewDTO;
 import com.backend.lavugio.model.user.RegularUser;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,11 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "ride_id")
     private Ride reviewedRide;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @Nullable
+    private RegularUser reviewer;
 
     public Review(Ride ride, ReviewDTO reviewDTO) {
         this.carRating = reviewDTO.getVehicleRating();

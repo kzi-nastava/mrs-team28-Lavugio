@@ -11,11 +11,11 @@ import java.util.Optional;
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
     Optional<Driver> findByEmail(String email);
-    List<Driver> findByActiveTrue();
-    List<Driver> findByActiveFalse();
-    List<Driver> findByBlockedFalseAndActiveTrue();
+    List<Driver> findByIsDrivingTrue();
+    List<Driver> findByIsDrivingFalse();
+    List<Driver> findByBlockedFalseAndIsDrivingTrue();
     Optional<Driver> findByVehicle(Vehicle vehicle);
     List<Driver> findByVehicleIsNull();
-    long countByActiveTrue();
+    long countByIsDrivingTrue();
     boolean existsByVehicle(Vehicle vehicle);
 }

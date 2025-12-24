@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -64,8 +65,8 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public List<Ride> getRidesByDate(LocalDate date) {
-        return rideRepository.findByDate(date);
+    public List<Ride> getRidesByDate(LocalDateTime date) {
+        return rideRepository.findByStart(date);
     }
 
     @Override
@@ -75,12 +76,12 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Ride> getUpcomingRidesForDriver(Long driverId) {
-        return rideRepository.findUpcomingRidesByDriver(driverId, LocalDate.now());
+        return rideRepository.findUpcomingRidesByDriver(driverId, LocalDateTime.now());
     }
 
     @Override
-    public List<Ride> getRidesInDateRange(LocalDate startDate, LocalDate endDate) {
-        return rideRepository.findByDateBetween(startDate, endDate);
+    public List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return rideRepository.findByStartBetween(startDate, endDate);
     }
 
     @Override
