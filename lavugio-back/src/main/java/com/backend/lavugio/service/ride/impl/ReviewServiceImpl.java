@@ -1,9 +1,13 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.ReviewDTO;
 import com.backend.lavugio.model.ride.Review;
+import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.repository.ride.ReviewRepository;
 import com.backend.lavugio.service.ride.ReviewService;
+import com.backend.lavugio.service.ride.RideService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,20 +18,25 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ReviewServiceImpl implements ReviewService {
 
+    @Autowired
     private final ReviewRepository reviewRepository;
+    @Autowired
+    private final RideService rideService;
 
     @Override
     @Transactional
-    public Review createReview(Review review) {
-        if (review.getReviewedRid() == null) {
+    public Review createReview(Long rideId, ReviewDTO reviewDTO) {
+        Ride ride = rideService.getRideById(rideId);
+        Review review = new Review(ride,  reviewDTO);
+        if (review.getReviewedRide() == null) {
             throw new IllegalArgumentException("Ride cannot be null");
         }
-        if (review.getReviewedByUser() == null) {
+        if (review.getReviewedRide().getCreator() == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
         if (reviewRepository.existsByReviewedRidIdAndReviewedByUserId(
-                review.getReviewedRid().getId(),
-                review.getReviewedByUser().getId())) {
+                review.getReviewedRide().getId(),
+                review.getReviewedRide().getCreator().getId())) {
             throw new IllegalStateException("User has already reviewed this ride");
         }
 

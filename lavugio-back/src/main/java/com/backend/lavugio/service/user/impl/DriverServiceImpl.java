@@ -1,10 +1,10 @@
 package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverStatus;
+import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.repository.user.DriverRepository;
-import com.backend.lavugio.service.user.ActiveDriverStatusService;
+import com.backend.lavugio.service.user.ActiveDriverLocationService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class DriverServiceImpl implements DriverService {
     private DriverRepository driverRepository;
 
     @Autowired
-    private ActiveDriverStatusService activeDriverStatusService;
+    private ActiveDriverLocationService activeDriverLocationService;
 
     @Override
     @Transactional
@@ -33,7 +33,7 @@ public class DriverServiceImpl implements DriverService {
         // Postavi početne vrednosti
         driver.setBlocked(false);
         driver.setBlockReason(null);
-        driver.setActive(true); // Novi vozač je aktiviran po defaultu
+        driver.setDriving(false);
 
         return driverRepository.save(driver);
     }
@@ -83,26 +83,28 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public DriverStatus activateDriver(Long driverId, double longitude, double latitude) throws RuntimeException{
+    public DriverLocation activateDriver(Long driverId, double longitude, double latitude) throws RuntimeException{
         if (getDriverById(driverId) == null) {
             throw new RuntimeException("Driver not found with id: " + driverId);
         };
-        return activeDriverStatusService.addActiveDriverStatus(driverId, longitude, latitude);
+        return activeDriverLocationService.addActiveDriverLocation(driverId, longitude, latitude);
     }
 
     @Override
-    public DriverStatus updateDriverLocation(Long driverId, double longitude, double latitude) throws RuntimeException{
-        return activeDriverStatusService.updateDriverLocation(driverId, longitude, latitude);
+    public DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude) throws RuntimeException{
+        return activeDriverLocationService.updateDriverLocation(driverId, longitude, latitude);
     }
 
     @Override
-    public DriverStatus updateDriverAvailability(Long driverId, boolean isAvailable) throws RuntimeException{
-        return activeDriverStatusService.updateDriverAvailability(driverId, isAvailable);
+    public void updateDriverDriving(Long driverId, boolean isDriving) throws RuntimeException{
+        Driver driver = this.getDriverById(driverId);
+        driver.setDriving(isDriving);
+        driverRepository.save(driver);
     }
 
     @Override
     public void deactivateDriver(Long driverId) {
-        activeDriverStatusService.deleteDriverStatus(driverId);
+        activeDriverLocationService.deleteDriverLocation(driverId);
     }
 
     @Override
@@ -111,7 +113,7 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = getDriverById(driverId);
         driver.setBlocked(true);
         driver.setBlockReason(reason);
-        driver.setActive(false); // Blokiran vozač ne može biti aktivan
+        driver.setDriving(false);
         return driverRepository.save(driver);
     }
 
@@ -159,7 +161,7 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public boolean isDriverAvailable(Long driverId) {
         Driver driver = getDriverById(driverId);
-        return driver.isActive() && !driver.isBlocked();
+        return !driver.isDriving() && !driver.isBlocked();
     }
 
     @Override
@@ -173,12 +175,12 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public Map<Long, DriverStatus> getAllActiveDriverStatuses() {
-        return activeDriverStatusService.getAllActiveDriverStatuses();
+    public Map<Long, DriverLocation> getAllActiveDriverStatuses() {
+        return activeDriverLocationService.getAllActiveDriverLocations();
     }
 
     @Override
-    public DriverStatus getDriverStatus(Long driverId) {
-        return activeDriverStatusService.getDriverStatus(driverId);
+    public DriverLocation getDriverStatus(Long driverId) {
+        return activeDriverLocationService.getDriverLocation(driverId);
     }
 }

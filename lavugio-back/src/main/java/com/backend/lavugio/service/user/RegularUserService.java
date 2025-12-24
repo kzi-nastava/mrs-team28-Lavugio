@@ -20,4 +20,6 @@ public interface RegularUserService {
     Set<Ride> getUserRides(Long userId);
     void addRideToUser(Long userId, Ride ride);
     void removeRideFromUser(Long userId, Ride ride);
+    void enableUserOrdering(Long userId);
+    void disableUserOrdering(Long userId);
 }

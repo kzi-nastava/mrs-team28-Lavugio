@@ -1,16 +1,13 @@
 package com.backend.lavugio.model.ride;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
 import jakarta.persistence.*;
@@ -32,24 +29,25 @@ public class Ride {
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(
-			name = "ride_passangers",
+			name = "ride_passengers",
 			joinColumns = @JoinColumn(name = "ride_id"),
 			inverseJoinColumns = @JoinColumn(name = "user_id")
 	)
-	private Set<RegularUser> passangers = new HashSet<>();
+	private Set<RegularUser> passengers = new HashSet<>();
 
 	// PROVERITI KASNIJE DA LI JE POTREBNO I KAKO RADI
 	//@Column(columnDefinition = "TEXT")
 	//private String routeGeometry;
 
-	@Column(nullable = false)
-	private LocalDate date;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private RegularUser creator;
 
-	@Column(nullable = false)
-	private LocalTime timeStart;
+    @Column(nullable = false)
+    private LocalDateTime start;
 
-	@Column(nullable = false)
-	private LocalTime timeEnd;
+    @Column
+    private LocalDateTime end;
 
 	@Column(nullable = false)
 	private float price;
@@ -58,10 +56,9 @@ public class Ride {
 	private float distance;
 
 	@Column(nullable = false)
-	private boolean cancelled;
-
-	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private RideStatus rideStatus;
 
+    @Column(nullable = false)
+    private boolean hasPanic;
 }

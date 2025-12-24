@@ -11,13 +11,11 @@ import com.backend.lavugio.service.user.RegularUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/rides/{rideId}/reports")
@@ -48,7 +46,7 @@ public class RideReportController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RideReportedDTO> getRideReport(@PathVariable Long rideId, @RequestBody RideReportDTO reportDTO){
+    public ResponseEntity<RideReportedDTO> postRideReport(@PathVariable Long rideId, @RequestBody RideReportDTO reportDTO){
         RideReport report = new RideReport();
         Ride ride = rideService.getRideById(rideId);
         RegularUser user =  regularUserService.getRegularUserById(reportDTO.getReporterId());

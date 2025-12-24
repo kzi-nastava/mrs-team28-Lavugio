@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Driver extends BlockableAccount {
 	@Column
-	private boolean active;
+	private boolean isDriving;
 
 	@OneToOne()
 	@JoinColumn(name = "vehicle_id")

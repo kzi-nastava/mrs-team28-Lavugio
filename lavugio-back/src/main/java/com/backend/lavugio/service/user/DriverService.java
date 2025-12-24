@@ -1,9 +1,8 @@
 package com.backend.lavugio.service.user;
 
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverStatus;
+import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.vehicle.Vehicle;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -15,9 +14,9 @@ public interface DriverService {
     Driver getDriverById(Long id);
     Driver getDriverByEmail(String email);
     List<Driver> getAllDrivers();
-    DriverStatus activateDriver(Long driverId, double longitude, double latitude);
-    DriverStatus updateDriverLocation(Long driverId, double longitude, double latitude);
-    DriverStatus updateDriverAvailability(Long driverId, boolean isAvailable);
+    DriverLocation activateDriver(Long driverId, double longitude, double latitude);
+    DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude);
+    void updateDriverDriving(Long driverId, boolean isDriving);
     void deactivateDriver(Long driverId);
     Driver blockDriver(Long driverId, String reason);
     Driver unblockDriver(Long driverId);
@@ -29,7 +28,7 @@ public interface DriverService {
     long countActiveDrivers();
     List<Driver> getDriversWithoutVehicle();
 
-    Map<Long, DriverStatus> getAllActiveDriverStatuses();
+    Map<Long, DriverLocation> getAllActiveDriverStatuses();
 
-    DriverStatus getDriverStatus(Long driverId);
+    DriverLocation getDriverStatus(Long driverId);
 }

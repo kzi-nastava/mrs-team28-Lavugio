@@ -1,23 +1,18 @@
 package com.backend.lavugio.controller;
 
-import com.backend.lavugio.dto.RideReportDTO;
 import com.backend.lavugio.dto.RideReportedDTO;
-import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.ride.RideReport;
-import com.backend.lavugio.model.user.RegularUser;
+
 import com.backend.lavugio.service.ride.RideReportService;
-import com.backend.lavugio.service.ride.RideService;
-import com.backend.lavugio.service.user.RegularUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+
 @RestController
 @RequestMapping("/api/drivers/{driverId}/reports")
 public class DriverReportController {

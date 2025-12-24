@@ -44,7 +44,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     // Find by passengers (ManyToMany relationship)
     List<Ride> findByPassangersContaining(RegularUser passenger);
 
-    @Query("SELECT r FROM Ride r JOIN r.passangers p WHERE p.id = :passengerId")
+    @Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId")
     List<Ride> findByPassengerId(@Param("passengerId") Long passengerId);
 
     // Existence checks
@@ -66,7 +66,18 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             "AND r.cancelled = false")
     List<Ride> findAllActiveRides();
 
-    @Query("SELECT r FROM Ride r JOIN r.passangers p " +
+    @Query("""
+        SELECT r
+        FROM Ride r
+        WHERE r.rideStatus = :status
+          AND r.driver.id = :driverId
+    """)
+    List<Ride> findAllRidesForDriverByStatus(
+            @Param("driverId") Long driverId,
+            @Param("status") RideStatus status
+    );
+
+    @Query("SELECT r FROM Ride r JOIN r.passengers p " +
             "WHERE p.id = :passengerId " +
             "AND r.date BETWEEN :startDate AND :endDate " +
             "ORDER BY r.date DESC")
@@ -92,7 +103,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     Optional<Float> calculateAverageFareForDriver(@Param("driverId") Long driverId);
 
     // Find rides with multiple passengers
-    @Query("SELECT r FROM Ride r WHERE SIZE(r.passangers) > 1")
+    @Query("SELECT r FROM Ride r WHERE SIZE(r.passengers) > 1")
     List<Ride> findRidesWithMultiplePassengers();
 
     // Find available rides for a date
