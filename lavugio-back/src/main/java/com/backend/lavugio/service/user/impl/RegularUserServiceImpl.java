@@ -1,5 +1,8 @@
 package com.backend.lavugio.service.user.impl;
 
+import com.backend.lavugio.dto.user.UpdateUserDTO;
+import com.backend.lavugio.dto.user.UserDTO;
+import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.repository.user.RegularUserRepository;
@@ -10,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RegularUserServiceImpl implements RegularUserService {
@@ -134,6 +138,121 @@ public class RegularUserServiceImpl implements RegularUserService {
     }
 
     @Override
+    public UserDTO createRegularUser(UserRegistrationDTO request) {
+        // Check if email already exists
+        if (regularUserRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists: " + request.getEmail());
+        }
+
+        // Create RegularUser
+        RegularUser user = new RegularUser();
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword()); // TODO: Add password encoding
+        user.setName(request.getName());
+        user.setLastName(request.getLastName());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setProfilePhotoPath(request.getProfilePhotoPath());
+        user.setBlocked(false);
+        user.setBlockReason(null);
+
+        RegularUser savedUser = regularUserRepository.save(user);
+        return mapToDTO(savedUser);
+    }
+
+    @Override
+    public UserDTO getRegularUserDTOById(Long id) {
+        RegularUser user = regularUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        return mapToDTO(user);
+    }
+
+    @Override
+    public UserDTO getUserDTOByEmail(String email) {
+        RegularUser user = regularUserRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        return mapToDTO(user);
+    }
+
+    @Override
+    public List<UserDTO> getAllUsersDTO() {
+        List<RegularUser> users = regularUserRepository.findAll();
+        return users.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDTO updateRegularUser(Long id, UpdateUserDTO request) {
+        RegularUser user = regularUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        // Update fields
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
+        }
+        if (request.getPhoneNumber() != null) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+        if (request.getProfilePhotoPath() != null) {
+            user.setProfilePhotoPath(request.getProfilePhotoPath());
+        }
+
+        RegularUser updatedUser = regularUserRepository.save(user);
+        return mapToDTO(updatedUser);
+    }
+
+
+    @Override
+    public UserDTO getRegularUserProfile(Long id) {
+        RegularUser user = regularUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        return mapToProfileDTO(user);
+    }
+
+    @Override
+    public UserDTO getUserProfileById(Long id) {
+        // Same as getRegularUserProfile
+        return getRegularUserProfile(id);
+    }
+
+    @Override
+    public boolean emailExists(String email) {
+        return regularUserRepository.existsByEmail(email);
+    }
+
+    // Helper method to map entity to DTO
+    private UserDTO mapToDTO(RegularUser user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setLastName(user.getLastName());
+        dto.setEmail(user.getEmail());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setProfilePhotoPath(user.getProfilePhotoPath());
+        dto.setBlocked(user.isBlocked());
+        dto.setBlockReason(user.getBlockReason());
+        return dto;
+    }
+
+    private UserDTO mapToProfileDTO(RegularUser user) {
+        UserDTO profile = new UserDTO();
+        profile.setId(user.getId());
+        profile.setName(user.getName());
+        profile.setLastName(user.getLastName());
+        profile.setEmail(user.getEmail());
+        profile.setPhoneNumber(user.getPhoneNumber());
+        profile.setProfilePhotoPath(user.getProfilePhotoPath());
+        profile.setBlocked(user.isBlocked());
+        profile.setBlockReason(user.getBlockReason());
+
+        // TODO: Add ride history and other profile info
+        //profile.setTotalRides(0);
+        //profile.setTotalSpent(0.0);
+
+        return profile;
     public void enableUserOrdering(Long userId) {
         throw new RuntimeException("Not implemented");
     }

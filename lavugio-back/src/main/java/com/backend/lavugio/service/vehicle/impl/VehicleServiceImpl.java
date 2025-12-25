@@ -1,7 +1,10 @@
 package com.backend.lavugio.service.vehicle.impl;
 
+import com.backend.lavugio.dto.vehicle.VehicleDTO;
+import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.repository.vehicle.VehicleRepository;
 import com.backend.lavugio.service.vehicle.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,9 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Autowired
     private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     @Override
     @Transactional
@@ -177,4 +183,42 @@ public class VehicleServiceImpl implements VehicleService {
             throw new RuntimeException("Vehicle type is required");
         }
     }
+
+    @Override
+    public VehicleDTO getVehicleByDriverIdDTO(Long driverId) {
+        // Get driver first to ensure they exist
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new RuntimeException("Driver not found with id: " + driverId));
+
+        // Check if driver has a vehicle
+        Vehicle vehicle = driver.getVehicle();
+        if (vehicle == null) {
+            throw new RuntimeException("Driver has no vehicle assigned");
+        }
+
+        return mapVehicleToDTO(vehicle);
+    }
+
+    @Override
+    public VehicleDTO getVehicleByIdDTO(Long vehicleId) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found with id: " + vehicleId));
+
+        return mapVehicleToDTO(vehicle);
+    }
+
+    // Reuse the existing helper method
+    private VehicleDTO mapVehicleToDTO(Vehicle vehicle) {
+        VehicleDTO dto = new VehicleDTO();
+        dto.setId(vehicle.getId());
+        dto.setLicensePlate(vehicle.getLicensePlate());
+        dto.setMake(vehicle.getMake());
+        dto.setModel(vehicle.getModel());
+        dto.setColor(vehicle.getColor());
+        dto.setType(vehicle.getType());
+        dto.setBabyFriendly(vehicle.isBabyFriendly());
+        dto.setPetFriendly(vehicle.isPetFriendly());
+        return dto;
+    }
+
 }

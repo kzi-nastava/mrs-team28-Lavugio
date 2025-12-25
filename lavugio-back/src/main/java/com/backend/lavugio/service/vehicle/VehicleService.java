@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.vehicle;
 
+import com.backend.lavugio.dto.vehicle.VehicleDTO;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.model.vehicle.VehicleType;
 
@@ -26,4 +27,7 @@ public interface VehicleService {
     long countPetFriendlyVehicles();
     long countBabyFriendlyVehicles();
     long countAvailableVehicles();
+
+    VehicleDTO getVehicleByDriverIdDTO(Long id);
+    VehicleDTO getVehicleByIdDTO(Long id);
 }
