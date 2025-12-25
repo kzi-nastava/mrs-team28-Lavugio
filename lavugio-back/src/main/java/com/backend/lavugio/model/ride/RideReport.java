@@ -1,5 +1,6 @@
 package com.backend.lavugio.model.ride;
 
+import com.backend.lavugio.model.user.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,4 +24,8 @@ public class RideReport {
 
     @Column(nullable = false)
     private String reportMessage;
+
+    @ManyToOne()
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account reporter;
 }

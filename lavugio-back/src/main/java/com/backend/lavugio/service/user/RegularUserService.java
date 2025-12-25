@@ -39,4 +39,8 @@ public interface RegularUserService {
 
     // Utility
     boolean emailExists(String email);
+
+    void enableUserOrdering(Long userId);
+    void disableUserOrdering(Long userId);
+
 }
