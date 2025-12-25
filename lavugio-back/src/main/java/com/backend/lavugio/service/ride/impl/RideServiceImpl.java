@@ -1,26 +1,40 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.ride.RideStatus;
+import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.model.vehicle.VehicleType;
 import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.user.DriverService;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RideServiceImpl implements RideService {
 
+    @Autowired
     private final RideRepository rideRepository;
+    @Autowired
     private final RegularUserRepository regularUserRepository;
+    @Autowired
+    private final DriverService driverService;
 
     @Override
     @Transactional
@@ -141,6 +155,24 @@ public class RideServiceImpl implements RideService {
         }
 
         ride.getPassengers().add(passenger);
+        return rideRepository.save(ride);
+    }
+
+    @Override
+    @Transactional
+    public Ride addPassengerToRide(Ride ride, List<String> passengerEmails) {
+        for (String passengerEmail : passengerEmails) {
+            RegularUser passenger = regularUserRepository.findByEmail(passengerEmail)
+                    .orElseThrow(() -> new RuntimeException("Passenger not found with email: " + passengerEmail));
+            if (ride.getRideStatus() != RideStatus.SCHEDULED) {
+                throw new IllegalStateException("Cannot add passenger to ride in status: " + ride.getRideStatus());
+            }
+
+            if (ride.getPassangers().contains(passenger)) {
+                throw new IllegalStateException("Passenger already in this ride");
+            }
+            ride.getPassangers().add(passenger);
+        }
         return rideRepository.save(ride);
     }
 

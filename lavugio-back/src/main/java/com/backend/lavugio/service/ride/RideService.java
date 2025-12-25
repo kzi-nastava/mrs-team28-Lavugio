@@ -1,5 +1,7 @@
 package com.backend.lavugio.service.ride;
 
+import com.backend.lavugio.dto.ride.RideRequestDTO;
+import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.ride.RideStatus;
@@ -29,6 +31,7 @@ public interface RideService {
     Ride updateRide(Long id, Ride ride);
     Ride updateRideStatus(Long id, RideStatus newStatus);
     Ride addPassengerToRide(Long rideId, Long passengerId);
+    Ride addPassengerToRide(Ride ride, List<String> passengerEmails);
     Ride removePassengerFromRide(Long rideId, Long passengerId);
 
     // Delete operations
