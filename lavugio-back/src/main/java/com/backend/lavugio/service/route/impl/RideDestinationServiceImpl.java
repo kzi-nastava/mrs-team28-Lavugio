@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.route.impl;
 
+import com.backend.lavugio.dto.ScheduledRideDTO;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.route.Address;
@@ -8,6 +9,7 @@ import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.route.AddressRepository;
 import com.backend.lavugio.service.route.RideDestinationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,8 +69,18 @@ public class RideDestinationServiceImpl implements RideDestinationService {
     }
 
     @Override
-    public List<RideDestination> getDestinationsByRideId(Long rideId) {
+    public List<RideDestination> getOrderedDestinationsByRideId(Long rideId) {
         return rideDestinationRepository.findByRideIdOrderByDestinationOrder(rideId);
+    }
+
+    @Override
+    public List<RideDestination> getStartAndEndDestinationForRides(List<Long> rideIds) {
+        return rideDestinationRepository.findFirstAndLastDestinationPerRide(rideIds);
+    }
+
+    @Override
+    public List<RideDestination> getStartAndEndDestinationForRide(Long rideId) {
+        return rideDestinationRepository.findFirstAndLastDestinationForRide(rideId);
     }
 
     @Override

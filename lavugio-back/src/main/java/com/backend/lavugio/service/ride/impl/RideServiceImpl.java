@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.ride.RideStatus;
 import com.backend.lavugio.model.user.RegularUser;
@@ -10,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,11 +28,13 @@ public class RideServiceImpl implements RideService {
         if (ride.getDriver() == null) {
             throw new IllegalArgumentException("Driver cannot be null");
         }
-        if (ride.getDate() == null) {
-            throw new IllegalArgumentException("Date cannot be null");
+        if (ride.getStartDateTime() == null) {
+            throw new IllegalArgumentException("Start date cannot be null");
+        }
+        if (ride.getEndDateTime() == null) {
+            throw new IllegalArgumentException("End date cannot be null");
         }
 
-        ride.setCancelled(false);
         if (ride.getRideStatus() == null) {
             ride.setRideStatus(RideStatus.SCHEDULED);
         }
@@ -61,8 +64,8 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public List<Ride> getRidesByDate(LocalDate date) {
-        return rideRepository.findByDate(date);
+    public List<Ride> getRidesByDate(LocalDateTime date) {
+        return rideRepository.findByStartDateTime(date);
     }
 
     @Override
@@ -72,17 +75,26 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Ride> getUpcomingRidesForDriver(Long driverId) {
-        return rideRepository.findUpcomingRidesByDriver(driverId, LocalDate.now());
+        return rideRepository.findUpcomingRidesByDriver(driverId, LocalDateTime.now());
     }
 
     @Override
-    public List<Ride> getRidesInDateRange(LocalDate startDate, LocalDate endDate) {
-        return rideRepository.findByDateBetween(startDate, endDate);
+    public List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return rideRepository.findByStartDateTimeBetween(startDate, endDate);
     }
 
     @Override
     public List<Ride> getActiveRides() {
         return rideRepository.findAllActiveRides();
+    }
+
+    public List<Ride> getScheduledRidesForDriver(Long driverId){
+        return rideRepository.findByDriverIdAndRideStatus(driverId, RideStatus.SCHEDULED);
+    }
+
+    @Override
+    public List<Ride> getFinishedRidesForDriver(Long driverId) {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -94,9 +106,8 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot update ride in status: " + existingRide.getRideStatus());
         }
 
-        existingRide.setDate(updatedRide.getDate());
-        existingRide.setTimeStart(updatedRide.getTimeStart());
-        existingRide.setTimeEnd(updatedRide.getTimeEnd());
+        existingRide.setStartDateTime(updatedRide.getStartDateTime());
+        existingRide.setEndDateTime(updatedRide.getEndDateTime());
         existingRide.setPrice(updatedRide.getPrice());
         existingRide.setDistance(updatedRide.getDistance());
 
@@ -110,9 +121,6 @@ public class RideServiceImpl implements RideService {
         validateStatusTransition(ride.getRideStatus(), newStatus);
 
         ride.setRideStatus(newStatus);
-        if (newStatus == RideStatus.CANCELLED) {
-            ride.setCancelled(true);
-        }
 
         return rideRepository.save(ride);
     }
@@ -128,11 +136,11 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot add passenger to ride in status: " + ride.getRideStatus());
         }
 
-        if (ride.getPassangers().contains(passenger)) {
+        if (ride.getPassengers().contains(passenger)) {
             throw new IllegalStateException("Passenger already in this ride");
         }
 
-        ride.getPassangers().add(passenger);
+        ride.getPassengers().add(passenger);
         return rideRepository.save(ride);
     }
 
@@ -147,7 +155,7 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot remove passenger from finished ride");
         }
 
-        ride.getPassangers().remove(passenger);
+        ride.getPassengers().remove(passenger);
         return rideRepository.save(ride);
     }
 
@@ -160,7 +168,6 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot cancel finished ride");
         }
 
-        ride.setCancelled(true);
         ride.setRideStatus(RideStatus.CANCELLED);
         rideRepository.save(ride);
     }
@@ -183,7 +190,7 @@ public class RideServiceImpl implements RideService {
     @Override
     public boolean isRideAvailable(Long rideId) {
         Ride ride = getRideById(rideId);
-        return ride.getRideStatus() == RideStatus.SCHEDULED && !ride.isCancelled();
+        return ride.getRideStatus() == RideStatus.SCHEDULED;
     }
 
     @Override
@@ -199,6 +206,11 @@ public class RideServiceImpl implements RideService {
     @Override
     public Float calculateAverageFareForDriver(Long driverId) {
         return rideRepository.calculateAverageFareForDriver(driverId).orElse(0.0f);
+    }
+
+    @Override
+    public List<Ride> applyParametersToRides(List<Ride> rides, boolean ascending, DriverHistorySortFieldEnum sortBy, String dateRangeStart, String dateRangeEnd) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private void validateStatusTransition(RideStatus currentStatus, RideStatus newStatus) {

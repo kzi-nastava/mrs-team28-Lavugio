@@ -2,6 +2,7 @@ package com.backend.lavugio.service.notification;
 
 import com.backend.lavugio.model.notification.Notification;
 import com.backend.lavugio.model.notification.NotificationType;
+import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
 
 import java.time.LocalDate;
@@ -28,6 +29,7 @@ public interface NotificationService {
     void sendPanicNotification(Long userId, String location, String message);
     void sendRegularNotification(Long userId, String title, String message);
     void sendLinkedNotification(Long userId, String title, String message, String rideLink);
+    void notifyPassengersAboutFinishedRide(Ride ride);
     long countNotificationsByUser(Long userId);
     long countNotificationsByType(NotificationType type);
     void deleteOldNotifications(LocalDate cutoffDate);

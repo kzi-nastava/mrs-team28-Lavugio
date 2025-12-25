@@ -33,4 +33,8 @@ public class Address {
 	@Column(nullable = false)
 	private Double latitude;
 
+    @Override
+    public String toString(){
+        return streetName + " "+ streetNumber + " " + city + " " + country + " " + zipCode;
+    }
 }
