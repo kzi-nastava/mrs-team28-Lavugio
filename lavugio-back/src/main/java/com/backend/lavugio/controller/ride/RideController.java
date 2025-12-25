@@ -117,7 +117,7 @@ public class RideController {
         return ResponseEntity.ok("Ride activated successfully");
     }
 
-    @PostMapping("/{id}/activate")
+    @PostMapping("/{id}/panic")
     public ResponseEntity<?> panicRide(@PathVariable Long id) {
         // IMPLEMENTIRATI KADA SE URADI AUTENTIFIKACIJA LOGOVANOG KORISNIKA
         // @AuthenticationPrincipal UserDetails userDetails
