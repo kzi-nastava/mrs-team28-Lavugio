@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class UpdateFavoriteRouteDTO {
     private String name;
-    private List<FavoriteRouteDestinationDTO> destinations;
+    private List<DestinationDTO> destinations;
 }
