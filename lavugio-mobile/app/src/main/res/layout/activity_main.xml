@@ -11,7 +11,7 @@
     <include
         layout="@layout/navbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="80dp" />
 
     <!-- Main Content Area -->
     <!-- The dropdown menu will be inserted here dynamically -->

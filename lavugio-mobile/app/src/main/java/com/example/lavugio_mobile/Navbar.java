@@ -24,13 +24,15 @@ public class Navbar {
     private LinearLayout menuDropdown;
     private AppCompatActivity activity;
     private boolean isMenuOpen = false;
+    private boolean isAnimating = false;
+    private ValueAnimator currentAnimator = null;
 
     public Navbar(AppCompatActivity activity, View parentView) {
         this.activity = activity;
         this.navbarContainer = parentView.findViewById(R.id.navbar);
         this.menuButton = parentView.findViewById(R.id.navbar_menu_button);
         this.contentContainer = parentView.findViewById(R.id.content_container);
-        
+
         initializeMenuButton();
     }
 
@@ -39,6 +41,11 @@ public class Navbar {
     }
 
     private void toggleMenu() {
+        // Prevent toggling while animation is in progress
+        if (isAnimating) {
+            return;
+        }
+
         if (isMenuOpen) {
             closeMenu();
         } else {
@@ -47,83 +54,132 @@ public class Navbar {
     }
 
     private void openMenu() {
-        if (isMenuOpen) return;
-        
+        if (isMenuOpen || isAnimating) return;
+
+        // Cancel any ongoing animation
+        if (currentAnimator != null) {
+            currentAnimator.cancel();
+            currentAnimator = null;
+        }
+
+        isAnimating = true;
         isMenuOpen = true;
-        
+
         // Create and inflate the menu dropdown
         LayoutInflater inflater = LayoutInflater.from(activity);
         menuDropdown = (LinearLayout) inflater.inflate(R.layout.navbar_menu, null);
-        
+
         // Add menu to the parent container above the content
         ViewGroup parentLayout = (ViewGroup) contentContainer.getParent();
-        parentLayout.addView(menuDropdown, 1);
-        
+        if (parentLayout != null) {
+            parentLayout.addView(menuDropdown, 1);
+        } else {
+            isAnimating = false;
+            isMenuOpen = false;
+            return;
+        }
+
         // Set initial height to 0
         menuDropdown.measure(
                 View.MeasureSpec.makeMeasureSpec(parentLayout.getWidth(), View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         );
-        
+
         int finalHeight = menuDropdown.getMeasuredHeight();
         menuDropdown.getLayoutParams().height = 0;
         menuDropdown.requestLayout();
-        
-        // Animate the dropdown expansion
-        ValueAnimator animator = ValueAnimator.ofInt(0, finalHeight);
-        animator.setDuration(300);
-        animator.setInterpolator(new DecelerateInterpolator());
-        animator.addUpdateListener(animation -> {
-            int height = (int) animation.getAnimatedValue();
-            menuDropdown.getLayoutParams().height = height;
-            menuDropdown.requestLayout();
-        });
-        animator.start();
-        
-        // Update menu button icon
-        updateMenuButtonIcon();
-        
-        // Setup menu item click listeners
-        setupMenuItemListeners();
-    }
 
-    private void closeMenu() {
-        if (!isMenuOpen || menuDropdown == null) return;
-        
-        isMenuOpen = false;
-        
-        // Animate the dropdown collapse
-        ValueAnimator animator = ValueAnimator.ofInt(menuDropdown.getHeight(), 0);
-        animator.setDuration(300);
-        animator.setInterpolator(new DecelerateInterpolator());
-        animator.addUpdateListener(animation -> {
-            int height = (int) animation.getAnimatedValue();
-            menuDropdown.getLayoutParams().height = height;
-            menuDropdown.requestLayout();
+        // Animate the dropdown expansion
+        currentAnimator = ValueAnimator.ofInt(0, finalHeight);
+        currentAnimator.setDuration(300);
+        currentAnimator.setInterpolator(new DecelerateInterpolator());
+        currentAnimator.addUpdateListener(animation -> {
+            if (menuDropdown != null) {
+                int height = (int) animation.getAnimatedValue();
+                menuDropdown.getLayoutParams().height = height;
+                menuDropdown.requestLayout();
+            }
         });
-        animator.addListener(new android.animation.Animator.AnimatorListener() {
+        currentAnimator.addListener(new android.animation.Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(android.animation.Animator animation) {}
-            
+
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
-                ViewGroup parentLayout = (ViewGroup) menuDropdown.getParent();
-                if (parentLayout != null) {
-                    parentLayout.removeView(menuDropdown);
-                }
-                menuDropdown = null;
+                isAnimating = false;
+                setupMenuItemListeners();
+                updateMenuButtonIcon();
             }
-            
+
             @Override
-            public void onAnimationCancel(android.animation.Animator animation) {}
-            
+            public void onAnimationCancel(android.animation.Animator animation) {
+                isAnimating = false;
+            }
+
             @Override
             public void onAnimationRepeat(android.animation.Animator animation) {}
         });
-        animator.start();
-        
-        // Update menu button icon
-        updateMenuButtonIcon();
+        currentAnimator.start();
+    }
+
+    private void closeMenu() {
+        if (!isMenuOpen || isAnimating || menuDropdown == null) return;
+
+        // Cancel any ongoing animation
+        if (currentAnimator != null) {
+            currentAnimator.cancel();
+            currentAnimator = null;
+        }
+
+        isAnimating = true;
+        isMenuOpen = false;
+
+        int currentHeight = menuDropdown.getHeight();
+
+        // Animate the dropdown collapse
+        currentAnimator = ValueAnimator.ofInt(currentHeight, 0);
+        currentAnimator.setDuration(300);
+        currentAnimator.setInterpolator(new DecelerateInterpolator());
+        currentAnimator.addUpdateListener(animation -> {
+            if (menuDropdown != null) {
+                int height = (int) animation.getAnimatedValue();
+                menuDropdown.getLayoutParams().height = height;
+                menuDropdown.requestLayout();
+            }
+        });
+        currentAnimator.addListener(new android.animation.Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(android.animation.Animator animation) {}
+
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                if (menuDropdown != null) {
+                    ViewGroup parentLayout = (ViewGroup) menuDropdown.getParent();
+                    if (parentLayout != null) {
+                        parentLayout.removeView(menuDropdown);
+                    }
+                    menuDropdown = null;
+                }
+                isAnimating = false;
+                updateMenuButtonIcon();
+            }
+
+            @Override
+            public void onAnimationCancel(android.animation.Animator animation) {
+                if (menuDropdown != null) {
+                    ViewGroup parentLayout = (ViewGroup) menuDropdown.getParent();
+                    if (parentLayout != null) {
+                        parentLayout.removeView(menuDropdown);
+                    }
+                    menuDropdown = null;
+                }
+                isAnimating = false;
+            }
+
+            @Override
+            public void onAnimationRepeat(android.animation.Animator animation) {}
+        });
+        currentAnimator.start();
     }
 
     private void updateMenuButtonIcon() {
@@ -136,7 +192,7 @@ public class Navbar {
 
     private void setupMenuItemListeners() {
         if (menuDropdown == null) return;
-        
+
         TextView tripsItem = menuDropdown.findViewById(R.id.nav_item_trips);
         TextView historyItem = menuDropdown.findViewById(R.id.nav_item_history);
         TextView reportsItem = menuDropdown.findViewById(R.id.nav_item_reports);
@@ -144,35 +200,47 @@ public class Navbar {
         TextView loginItem = menuDropdown.findViewById(R.id.nav_item_login);
         TextView registerItem = menuDropdown.findViewById(R.id.nav_item_register);
 
-        tripsItem.setOnClickListener(v -> {
-            onMenuItemSelected("Trips");
-            closeMenu();
-        });
+        if (tripsItem != null) {
+            tripsItem.setOnClickListener(v -> {
+                onMenuItemSelected("Trips");
+                closeMenu();
+            });
+        }
 
-        historyItem.setOnClickListener(v -> {
-            onMenuItemSelected("History");
-            closeMenu();
-        });
+        if (historyItem != null) {
+            historyItem.setOnClickListener(v -> {
+                onMenuItemSelected("History");
+                closeMenu();
+            });
+        }
 
-        reportsItem.setOnClickListener(v -> {
-            onMenuItemSelected("Reports");
-            closeMenu();
-        });
+        if (reportsItem != null) {
+            reportsItem.setOnClickListener(v -> {
+                onMenuItemSelected("Reports");
+                closeMenu();
+            });
+        }
 
-        profileItem.setOnClickListener(v -> {
-            onMenuItemSelected("Profile");
-            closeMenu();
-        });
+        if (profileItem != null) {
+            profileItem.setOnClickListener(v -> {
+                onMenuItemSelected("Profile");
+                closeMenu();
+            });
+        }
 
-        loginItem.setOnClickListener(v -> {
-            onMenuItemSelected("Login");
-            closeMenu();
-        });
+        if (loginItem != null) {
+            loginItem.setOnClickListener(v -> {
+                onMenuItemSelected("Login");
+                closeMenu();
+            });
+        }
 
-        registerItem.setOnClickListener(v -> {
-            onMenuItemSelected("Register");
-            closeMenu();
-        });
+        if (registerItem != null) {
+            registerItem.setOnClickListener(v -> {
+                onMenuItemSelected("Register");
+                closeMenu();
+            });
+        }
     }
 
     private void onMenuItemSelected(String itemName) {
