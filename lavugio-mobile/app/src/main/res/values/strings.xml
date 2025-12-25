@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">lavugio-mobile</string>
+    <string name="menu_button_description">Open navigation menu</string>
 </resources>
