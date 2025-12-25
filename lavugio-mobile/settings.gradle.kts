@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "lavugio-mobile"
+rootProject.name = "lavugio_mobile"
 include(":app")
  
