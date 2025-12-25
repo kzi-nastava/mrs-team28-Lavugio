@@ -1,5 +1,6 @@
 package com.backend.lavugio.dto.user;
 
+import com.backend.lavugio.dto.vehicle.VehicleDTO;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import lombok.*;
 
@@ -8,8 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DriverDTO {
-    private UserDTO user;
-
-    private Vehicle vehicle;
+public class DriverDTO extends UserDTO {
+    private boolean active;
+    private VehicleDTO vehicle;
 }

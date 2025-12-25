@@ -1,5 +1,11 @@
 package com.backend.lavugio.dto.user;
 
-public class AdministratorDTO {
+import lombok.*;
+
+@Data
+@Getter
+@Setter
+@AllArgsConstructor
+public class AdministratorDTO extends UserDTO {
 
 }

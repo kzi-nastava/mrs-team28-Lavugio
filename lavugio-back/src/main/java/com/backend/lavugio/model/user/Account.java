@@ -28,4 +28,6 @@ public class Account {
 	private String password;
 	@Column
 	private String profilePhotoPath;
+	@Column
+	private String phoneNumber;
 }

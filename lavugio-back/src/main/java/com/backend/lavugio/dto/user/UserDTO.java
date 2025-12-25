@@ -10,8 +10,11 @@ import lombok.*;
 @NoArgsConstructor
 public class UserDTO {
     private Long id;
-
     private String name;
     private String lastName;
     private String email;
+    private String phoneNumber;
+    private String profilePhotoPath;
+    private boolean blocked;
+    private String blockReason;
 }

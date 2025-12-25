@@ -23,35 +23,20 @@ public class VehicleController {
 	@GetMapping("/driver/{id}")
     public ResponseEntity<?> getDriverVehicle(@PathVariable Long id) {
         try {
-            VehicleDTO vehicle = vehicleService.getDriverVehicle(id);
+            VehicleDTO vehicle = vehicleService.getVehicleByDriverIdDTO(id);
             return ResponseEntity.ok(vehicle);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 	
-	@GetMapping("/driver/{id}")
+	@GetMapping("/{id}")
     public ResponseEntity<?> getVehicle(@PathVariable Long id) {
         try {
-            VehicleDTO vehicle = vehicleService.getDriverVehicle(id);
+            VehicleDTO vehicle = vehicleService.getVehicleByIdDTO(id);
             return ResponseEntity.ok(vehicle);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
-    
-    @PutMapping("/{id}/vehicle")
-    public ResponseEntity<?> updateDriverVehicle(
-            @PathVariable Long id,
-            @RequestBody UpdateVehicleDTO request) {
-    	// @AuthenticationPrincipal UserDetails userDetails
-        try {
-            VehicleDTO vehicle = vehicleService.updateDriverVehicle(id, request, driverEmail);
-            return ResponseEntity.ok(vehicle);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-}
-	
 }

@@ -2,6 +2,7 @@ package com.backend.lavugio.controller.user;
 
 import java.util.List;
 
+import com.backend.lavugio.dto.user.DriverStatusDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.lavugio.dto.user.DriverDTO;
-import com.backend.lavugio.dto.user.DriverProfileDTO;
 import com.backend.lavugio.dto.user.DriverRegistrationDTO;
 import com.backend.lavugio.dto.user.UpdateDriverDTO;
 import com.backend.lavugio.service.user.DriverService;
@@ -43,7 +43,7 @@ public class DriverController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getDriver(@PathVariable Long id) {
         try {
-            DriverDTO driver = driverService.getDriverById(id);
+            DriverDTO driver = driverService.getDriverDTOById(id);
             return ResponseEntity.ok(driver);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -53,7 +53,7 @@ public class DriverController {
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getDriverByEmail(@PathVariable String email) {
         try {
-            DriverDTO driver = driverService.getDriverByEmail(email);
+            DriverDTO driver = driverService.getDriverDTOByEmail(email);
             return ResponseEntity.ok(driver);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -63,7 +63,7 @@ public class DriverController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllDrivers() {
         try {
-            List<DriverDTO> drivers = driverService.getAllDrivers();
+            List<DriverDTO> drivers = driverService.getAllDriversDTO();
             return ResponseEntity.ok(drivers);
         } catch (Exception e) {
             return ResponseEntity.ok(List.of());
@@ -73,7 +73,7 @@ public class DriverController {
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableDrivers() {
         try {
-            List<DriverDTO> drivers = driverService.getAvailableDrivers();
+            List<DriverDTO> drivers = driverService.getAvailableDriversDTO();
             return ResponseEntity.ok(drivers);
         } catch (Exception e) {
             return ResponseEntity.ok(List.of());
@@ -87,7 +87,8 @@ public class DriverController {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             //String currentEmail = userDetails.getUsername();
-            DriverDTO driver = driverService.updateDriver(id, request, currentEmail);
+            String currentEmail = "currentEmail"; // Placeholder for current user's email
+            DriverDTO driver = driverService.updateDriverDTO(id, request, currentEmail);
             return ResponseEntity.ok(driver);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -100,7 +101,7 @@ public class DriverController {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             // String currentEmail = userDetails.getUsername();
-            driverService.deleteDriver(id, currentEmail);
+            driverService.deleteDriver(id);
             return ResponseEntity.ok("Driver deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -114,7 +115,8 @@ public class DriverController {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             // String email = userDetails.getId();
-            DriverProfileDTO profile = driverService.getDriverProfile(email);
+            String email = "currentEmail"; // Placeholder for current user's email
+            DriverDTO profile = driverService.getDriverProfile(email);
             return ResponseEntity.ok(profile);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -124,7 +126,7 @@ public class DriverController {
     @GetMapping("/{id}/profile")
     public ResponseEntity<?> getDriverProfileById(@PathVariable Long id) {
         try {
-            DriverProfileDTO profile = driverService.getDriverProfileById(id);
+            DriverDTO profile = driverService.getDriverProfileById(id);
             return ResponseEntity.ok(profile);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -135,12 +137,12 @@ public class DriverController {
     
     @PostMapping("/{id}/rate")
     public ResponseEntity<?> rateDriver(
-            @PathVariable Long id,
-            @RequestBody RatingRequest request) {
+            @PathVariable Long id) {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
-            String userEmail = userDetails.getUsername();
-            RatingDTO rating = ratingService.rateDriver(id, request, userEmail);
+            // String userEmail = userDetails.getUsername();
+            // RatingDTO rating = ratingService.rateDriver(id, request, userEmail);
+            String rating = "5 stars"; // Placeholder for rating result
             return ResponseEntity.ok(rating);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -150,7 +152,8 @@ public class DriverController {
     @GetMapping("/{id}/ratings")
     public ResponseEntity<?> getDriverRatings(@PathVariable Long id) {
         try {
-            List<RatingDTO> ratings = ratingService.getDriverRatings(id);
+            // List<RatingDTO> ratings = ratingService.getDriverRatings(id);
+            List<String> ratings = List.of("5 stars", "4 stars"); // Placeholder for ratings list
             return ResponseEntity.ok(ratings);
         } catch (Exception e) {
             return ResponseEntity.ok(List.of());
@@ -164,7 +167,7 @@ public class DriverController {
             @PathVariable Long id) {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
-            DriverStatusDTO status = driverService.activateDriver(id);
+            DriverStatusDTO status = driverService.activateDriverDTO(id);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -176,7 +179,7 @@ public class DriverController {
             @PathVariable Long id) {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
-            DriverStatusDTO status = driverService.deactivateDriver(id);
+            DriverStatusDTO status = driverService.deactivateDriverDTO(id);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -186,7 +189,7 @@ public class DriverController {
     @GetMapping("/{id}/status")
     public ResponseEntity<?> getDriverStatus(@PathVariable Long id) {
         try {
-            DriverStatusDTO status = driverService.getDriverStatus(id);
+            DriverStatusDTO status = driverService.getDriverStatusDTO(id);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -196,7 +199,7 @@ public class DriverController {
     @GetMapping("/{id}/activity")
     public ResponseEntity<?> getDriverActivity(@PathVariable Long id) {
         try {
-            DriverStatusDTO activity = driverService.getDriverActivity(id);
+            DriverStatusDTO activity = driverService.getDriverActivityDTO(id);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
