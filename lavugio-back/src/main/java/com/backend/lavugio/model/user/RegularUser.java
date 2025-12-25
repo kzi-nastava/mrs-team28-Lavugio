@@ -1,6 +1,7 @@
 package com.backend.lavugio.model.user;
 
 import com.backend.lavugio.model.ride.Ride;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
@@ -20,6 +21,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class RegularUser extends BlockableAccount {
 
-    @ManyToMany(mappedBy = "passangers")
+    @ManyToMany(mappedBy = "passengers")
     private Set<Ride> rides = new HashSet<>();
+
+    @Column
+    private boolean canOrder;
 }

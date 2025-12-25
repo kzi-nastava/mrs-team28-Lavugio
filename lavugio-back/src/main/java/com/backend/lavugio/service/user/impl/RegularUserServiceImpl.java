@@ -132,4 +132,14 @@ public class RegularUserServiceImpl implements RegularUserService {
         user.getRides().remove(ride);
         regularUserRepository.save(user);
     }
+
+    @Override
+    public void enableUserOrdering(Long userId) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void disableUserOrdering(Long userId) {
+        throw new RuntimeException("Not implemented");
+    }
 }

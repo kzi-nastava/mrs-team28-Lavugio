@@ -13,12 +13,12 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // Find reviews by ride (reviewedRid field)
-    List<Review> findByReviewedRid(com.backend.lavugio.model.ride.Ride ride);
-    List<Review> findByReviewedRidId(Long rideId);
+    List<Review> findByReviewedRide(com.backend.lavugio.model.ride.Ride ride);
+    List<Review> findByReviewedRideId(Long rideId);
 
     // Find reviews by user who wrote them
-    List<Review> findByReviewedByUser(com.backend.lavugio.model.user.RegularUser user);
-    List<Review> findByReviewedByUserId(Long userId);
+    List<Review> findByReviewer(com.backend.lavugio.model.user.RegularUser user);
+    List<Review> findByReviewerId(Long userId);
 
     // Find by ratings
     List<Review> findByDriverRating(int rating);
@@ -27,24 +27,24 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByCarRatingGreaterThanEqual(int minRating);
 
     // Check if review exists for a ride by a user
-    boolean existsByReviewedRidIdAndReviewedByUserId(Long rideId, Long userId);
+    boolean existsByReviewedRideIdAndReviewerId(Long rideId, Long userId);
 
     // Get average ratings for a driver (through rides)
     @Query("SELECT AVG(r.driverRating) FROM Review r " +
-            "WHERE r.reviewedRid.driver.id = :driverId")
+            "WHERE r.reviewedRide.driver.id = :driverId")
     Optional<Double> getAverageDriverRating(@Param("driverId") Long driverId);
 
     @Query("SELECT AVG(r.carRating) FROM Review r " +
-            "WHERE r.reviewedRid.driver.id = :driverId")
+            "WHERE r.reviewedRide.driver.id = :driverId")
     Optional<Double> getAverageCarRating(@Param("driverId") Long driverId);
 
     // Get all reviews for a driver (through all their rides)
-    @Query("SELECT r FROM Review r WHERE r.reviewedRid.driver.id = :driverId " +
+    @Query("SELECT r FROM Review r WHERE r.reviewedRide.driver.id = :driverId " +
             "ORDER BY r.id DESC")
     List<Review> findAllReviewsForDriver(@Param("driverId") Long driverId);
 
     // Count reviews for a driver
-    @Query("SELECT COUNT(r) FROM Review r WHERE r.reviewedRid.driver.id = :driverId")
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.reviewedRide.driver.id = :driverId")
     long countReviewsForDriver(@Param("driverId") Long driverId);
 
     // Find low-rated reviews (for moderation)

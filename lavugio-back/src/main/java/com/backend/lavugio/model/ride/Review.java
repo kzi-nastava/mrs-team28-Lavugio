@@ -1,6 +1,8 @@
 package com.backend.lavugio.model.ride;
 
+import com.backend.lavugio.dto.RideReviewDTO;
 import com.backend.lavugio.model.user.RegularUser;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,10 +30,17 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "ride_id")
-    private Ride reviewedRid;
+    private Ride reviewedRide;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private RegularUser reviewedByUser;
+    @Nullable
+    private RegularUser reviewer;
 
+    public Review(Ride ride, RideReviewDTO rideReviewDTO) {
+        this.carRating = rideReviewDTO.getVehicleRating();
+        this.driverRating = rideReviewDTO.getDriverRating();
+        this.comment = rideReviewDTO.getComment();
+        this.reviewedRide = ride;
+    }
 }
