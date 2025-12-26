@@ -1,7 +1,7 @@
 package com.example.lavugio_mobile;
 
 import android.animation.ValueAnimator;
-import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class Navbar {
     private LinearLayout navbarContainer;
     private ImageButton menuButton;
-    private FrameLayout contentContainer;
+    private ViewGroup rootLayout;
     private LinearLayout menuDropdown;
     private AppCompatActivity activity;
     private boolean isMenuOpen = false;
@@ -29,9 +29,12 @@ public class Navbar {
 
     public Navbar(AppCompatActivity activity, View parentView) {
         this.activity = activity;
+
         this.navbarContainer = parentView.findViewById(R.id.navbar);
         this.menuButton = parentView.findViewById(R.id.navbar_menu_button);
-        this.contentContainer = parentView.findViewById(R.id.content_container);
+
+        // Get the root DecorView to overlay the menu
+        this.rootLayout = (ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content);
 
         initializeMenuButton();
     }
@@ -69,24 +72,36 @@ public class Navbar {
         LayoutInflater inflater = LayoutInflater.from(activity);
         menuDropdown = (LinearLayout) inflater.inflate(R.layout.navbar_menu, null);
 
-        // Add menu to the parent container above the content
-        ViewGroup parentLayout = (ViewGroup) contentContainer.getParent();
-        if (parentLayout != null) {
-            parentLayout.addView(menuDropdown, 1);
-        } else {
-            isAnimating = false;
-            isMenuOpen = false;
-            return;
-        }
+        // Calculate navbar height to position dropdown below it
+        int[] navbarLocation = new int[2];
+        navbarContainer.getLocationOnScreen(navbarLocation);
+        int navbarBottom = navbarLocation[1] + navbarContainer.getHeight();
 
-        // Set initial height to 0
+        // Create FrameLayout params to position the dropdown
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.topMargin = navbarBottom;
+        menuDropdown.setLayoutParams(params);
+
+        // Set elevation to appear above content
+        menuDropdown.setElevation(16f);
+
+        // Add menu dropdown as overlay
+        rootLayout.addView(menuDropdown);
+
+        // Measure the dropdown to get its height
         menuDropdown.measure(
-                View.MeasureSpec.makeMeasureSpec(parentLayout.getWidth(), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(rootLayout.getWidth(), View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         );
 
         int finalHeight = menuDropdown.getMeasuredHeight();
+
+        // Set initial height to 0 and alpha to 0 for fade-in effect
         menuDropdown.getLayoutParams().height = 0;
+        menuDropdown.setAlpha(0f);
         menuDropdown.requestLayout();
 
         // Animate the dropdown expansion
@@ -96,7 +111,10 @@ public class Navbar {
         currentAnimator.addUpdateListener(animation -> {
             if (menuDropdown != null) {
                 int height = (int) animation.getAnimatedValue();
+                float progress = animation.getAnimatedFraction();
+
                 menuDropdown.getLayoutParams().height = height;
+                menuDropdown.setAlpha(progress); // Fade in
                 menuDropdown.requestLayout();
             }
         });
@@ -143,7 +161,10 @@ public class Navbar {
         currentAnimator.addUpdateListener(animation -> {
             if (menuDropdown != null) {
                 int height = (int) animation.getAnimatedValue();
+                float progress = 1f - animation.getAnimatedFraction();
+
                 menuDropdown.getLayoutParams().height = height;
+                menuDropdown.setAlpha(progress); // Fade out
                 menuDropdown.requestLayout();
             }
         });
@@ -153,11 +174,8 @@ public class Navbar {
 
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
-                if (menuDropdown != null) {
-                    ViewGroup parentLayout = (ViewGroup) menuDropdown.getParent();
-                    if (parentLayout != null) {
-                        parentLayout.removeView(menuDropdown);
-                    }
+                if (menuDropdown != null && rootLayout != null) {
+                    rootLayout.removeView(menuDropdown);
                     menuDropdown = null;
                 }
                 isAnimating = false;
@@ -166,11 +184,8 @@ public class Navbar {
 
             @Override
             public void onAnimationCancel(android.animation.Animator animation) {
-                if (menuDropdown != null) {
-                    ViewGroup parentLayout = (ViewGroup) menuDropdown.getParent();
-                    if (parentLayout != null) {
-                        parentLayout.removeView(menuDropdown);
-                    }
+                if (menuDropdown != null && rootLayout != null) {
+                    rootLayout.removeView(menuDropdown);
                     menuDropdown = null;
                 }
                 isAnimating = false;
@@ -245,13 +260,13 @@ public class Navbar {
 
     private void onMenuItemSelected(String itemName) {
         // Handle navigation based on selected menu item
-        // This can be extended to navigate to different screens/fragments
         switch (itemName) {
             case "Trips":
                 // Navigate to Trips screen
                 break;
             case "History":
-                // Navigate to History screen
+                Intent intent = new Intent(activity, TripHistoryDriver.class);
+                activity.startActivity(intent);
                 break;
             case "Reports":
                 // Navigate to Reports screen
