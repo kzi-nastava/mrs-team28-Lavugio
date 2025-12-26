@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background">
+
+    <!-- Navbar -->
+    <include
+        layout="@layout/navbar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+    <!-- Content Container -->
+    <FrameLayout
+        android:id="@+id/content_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Horizontalni layout za date pickere -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="24dp"
+            android:gravity="center_vertical">
+
+            <!-- Početni datum (levo) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="12dp">
+
+                <EditText
+                    android:id="@+id/startDateInputField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Start date"
+                    android:textColorHint="#BC6C25"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:cursorVisible="false"
+                    android:inputType="none"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/inter_italic_variable_font"
+                    android:background="@drawable/edittext_background_bottom_rounded" />
+
+            </LinearLayout>
+
+            <!-- Krajnji datum (desno) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <EditText
+                    android:id="@+id/endDateInputField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="End date"
+                    android:textColorHint="#BC6C25"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:cursorVisible="false"
+                    android:inputType="none"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/inter_italic_variable_font"
+                    android:background="@drawable/edittext_background_bottom_rounded" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</LinearLayout>
