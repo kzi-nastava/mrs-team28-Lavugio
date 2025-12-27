@@ -16,11 +16,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Lavugio"
+        android:text="@string/company_name"
         android:textSize="28sp"
         android:textStyle="bold"
         android:textColor="#FEFAE0"
-        android:letterSpacing="0.05" />
+        android:letterSpacing="0.05"/>
 
     <!-- Menu Button -->
     <ImageButton
