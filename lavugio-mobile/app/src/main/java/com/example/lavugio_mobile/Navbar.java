@@ -2,6 +2,7 @@ package com.example.lavugio_mobile;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.lavugio_mobile.ui.auth.LoginFragment;
+import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 
 /**
@@ -23,6 +26,7 @@ import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 public class Navbar {
     private LinearLayout navbarContainer;
     private ImageButton menuButton;
+    private TextView logoView;
     private FrameLayout contentContainer;
     private LinearLayout menuDropdown;
     private AppCompatActivity activity;
@@ -34,13 +38,24 @@ public class Navbar {
         this.activity = activity;
         this.navbarContainer = parentView.findViewById(R.id.navbar);
         this.menuButton = parentView.findViewById(R.id.navbar_menu_button);
+        this.logoView = parentView.findViewById(R.id.navbar_logo);
         this.contentContainer = parentView.findViewById(R.id.content_container);
 
         initializeMenuButton();
+        initializeLogoButton();
     }
 
     private void initializeMenuButton() {
         menuButton.setOnClickListener(v -> toggleMenu());
+    }
+
+    private void initializeLogoButton() {
+        if (logoView != null) {
+            logoView.setOnClickListener(v -> {
+                // Clear back stack and return to welcome screen
+                activity.getSupportFragmentManager().popBackStackImmediate(null, android.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            });
+        }
     }
 
     private void toggleMenu() {
@@ -248,7 +263,6 @@ public class Navbar {
 
     private void onMenuItemSelected(String itemName) {
         // Handle navigation based on selected menu item
-        // This can be extended to navigate to different screens/fragments
         switch (itemName) {
             case "Trips":
                 // Navigate to Trips screen
@@ -265,9 +279,11 @@ public class Navbar {
                 break;
             case "Login":
                 // Navigate to Login screen
+                navigateToFragment(new LoginFragment());
                 break;
             case "Register":
                 // Navigate to Register screen
+                navigateToFragment(new RegisterFragment());
                 break;
         }
     }

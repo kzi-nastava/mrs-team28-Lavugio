@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile;
 
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set fullscreen
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         
@@ -28,3 +32,4 @@ public class MainActivity extends AppCompatActivity {
         navbar = new Navbar(this, findViewById(R.id.main));
     }
 }
+
