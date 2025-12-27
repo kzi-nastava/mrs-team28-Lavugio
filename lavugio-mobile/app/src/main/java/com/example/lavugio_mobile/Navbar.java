@@ -12,6 +12,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
+import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 
 /**
  * Navbar component for Lavugio Mobile App
@@ -271,6 +274,7 @@ public class Navbar {
                 break;
             case "Profile":
                 // Navigate to Profile screen
+                navigateToFragment(new ProfileFragment());
                 break;
             case "Login":
                 // Navigate to Login screen
@@ -285,5 +289,13 @@ public class Navbar {
                 activity.startActivity(registerIntent);
                 break;
         }
+    }
+
+    private void navigateToFragment(Fragment fragment) {
+        activity.getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
