@@ -14,6 +14,8 @@
         <activity
             android:name=".TripHistoryDriver"
             android:exported="false" />
+        <activity android:name=".TripDetailsActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

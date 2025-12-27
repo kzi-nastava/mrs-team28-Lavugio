@@ -1,10 +1,13 @@
 package com.example.lavugio_mobile;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +16,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class TripHistoryDriver extends AppCompatActivity {
@@ -23,6 +28,9 @@ public class TripHistoryDriver extends AppCompatActivity {
     private Calendar startCalendar;
     private Calendar endCalendar;
     private boolean isSelectingStartDate = true;
+    private LinearLayout tripsContainer;
+
+    private List<Trip> tripsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,46 +44,105 @@ public class TripHistoryDriver extends AppCompatActivity {
         });
         Navbar navbar = new Navbar(this, findViewById(R.id.main));
 
-        // Inicijalizacija date pickera
+        tripsContainer = findViewById(R.id.tripsContainer);
         initDatePicker();
+
+        loadTestData();
+        displayTrips();
+    }
+
+    private void loadTestData() {
+        tripsList = new ArrayList<>();
+
+        // Testni podaci
+        for (int i = 0; i < 10; i++) {
+            tripsList.add(new Trip(
+                    String.valueOf(i + 1),
+                    "15.02.2005.",
+                    "16.02.2005.",
+                    "23:40",
+                    "00:05",
+                    "Petra Drapsina 25, Novi Sad",
+                    "Žarka Zrenjanina 4, Novi Sad"
+            ));
+        }
+    }
+
+    private void displayTrips() {
+        tripsContainer.removeAllViews();
+
+        if (tripsList.isEmpty()) {
+            TextView emptyView = new TextView(this);
+            emptyView.setText("Nema vožnji za prikaz");
+            emptyView.setTextSize(16);
+            emptyView.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            emptyView.setPadding(0, 40, 0, 0);
+            emptyView.setGravity(android.view.Gravity.CENTER);
+            tripsContainer.addView(emptyView);
+            return;
+        }
+
+        for (Trip trip : tripsList) {
+            View tripRow = createTripRow(trip);
+            tripsContainer.addView(tripRow);
+        }
+    }
+
+    private View createTripRow(Trip trip) {
+        View row = getLayoutInflater().inflate(R.layout.trip_row_item, tripsContainer, false);
+
+        TextView startDateText = row.findViewById(R.id.tripStartDate);
+        TextView startTimeText = row.findViewById(R.id.tripStartTime);
+        TextView endDateText = row.findViewById(R.id.tripEndDate);
+        TextView endTimeText = row.findViewById(R.id.tripEndTime);
+        TextView departureText = row.findViewById(R.id.tripDeparture);
+        TextView destinationText = row.findViewById(R.id.tripDestination);
+
+        startDateText.setText(trip.startDate);
+        startTimeText.setText(trip.startTime);
+        endDateText.setText(trip.endDate);
+        endTimeText.setText(trip.endTime);
+        departureText.setText(trip.departure);
+        destinationText.setText(trip.destination);
+
+        row.setOnClickListener(v -> openTripDetails(trip));
+
+        return row;
+    }
+
+    private void openTripDetails(Trip trip) {
+        Intent intent = new Intent(this, TripDetailsActivity.class);
+        intent.putExtra("tripId", trip.id);
+        intent.putExtra("startDate", trip.startDate);
+        intent.putExtra("startTime", trip.startTime);
+        intent.putExtra("endDate", trip.endDate);
+        intent.putExtra("endTime", trip.endTime);
+        intent.putExtra("departure", trip.departure);
+        intent.putExtra("destination", trip.destination);
+        startActivity(intent);
     }
 
     private void initDatePicker() {
-        // Pronađi EditText polja
         startDateEditText = findViewById(R.id.startDateInputField);
         endDateEditText = findViewById(R.id.endDateInputField);
 
-        // Inicijalizuj kalendare
         startCalendar = Calendar.getInstance();
         endCalendar = Calendar.getInstance();
 
-        // NE postavljaj današnji datum na početku
-        // Ostavi hint "Start date" i "End date" vidljivim
-        // Tek kad korisnik izabere datum, onda postavi tekst
-
-        // Klik na start datum
-        startDateEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isSelectingStartDate = true;
-                showDatePickerDialog();
-            }
+        startDateEditText.setOnClickListener(v -> {
+            isSelectingStartDate = true;
+            showDatePickerDialog();
         });
 
-        // Klik na end datum
-        endDateEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isSelectingStartDate = false;
-                showDatePickerDialog();
-            }
+        endDateEditText.setOnClickListener(v -> {
+            isSelectingStartDate = false;
+            showDatePickerDialog();
         });
     }
 
     private void showDatePickerDialog() {
         Calendar currentCalendar = Calendar.getInstance();
 
-        // Ako već postoji izabrani datum, koristi ga, inače koristi današnji
         if (isSelectingStartDate && startCalendar != null) {
             currentCalendar = startCalendar;
         } else if (!isSelectingStartDate && endCalendar != null) {
@@ -88,42 +155,35 @@ public class TripHistoryDriver extends AppCompatActivity {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        if (isSelectingStartDate) {
-                            startCalendar.set(year, month, dayOfMonth);
-                            // Proveri da li je start datum posle end datuma
-                            if (startCalendar.after(endCalendar)) {
-                                endCalendar.set(year, month, dayOfMonth);
-                                updateDateField(endDateEditText, endCalendar);
-                            }
-                            updateDateField(startDateEditText, startCalendar);
-                        } else {
-                            endCalendar.set(year, month, dayOfMonth);
-                            // Proveri da li je end datum pre start datuma
-                            if (endCalendar.before(startCalendar)) {
-                                startCalendar.set(year, month, dayOfMonth);
-                                updateDateField(startDateEditText, startCalendar);
-                            }
+                (view, year1, month1, dayOfMonth) -> {
+                    if (isSelectingStartDate) {
+                        startCalendar.set(year1, month1, dayOfMonth);
+                        if (startCalendar.after(endCalendar)) {
+                            endCalendar.set(year1, month1, dayOfMonth);
                             updateDateField(endDateEditText, endCalendar);
                         }
+                        updateDateField(startDateEditText, startCalendar);
+                    } else {
+                        endCalendar.set(year1, month1, dayOfMonth);
+                        if (endCalendar.before(startCalendar)) {
+                            startCalendar.set(year1, month1, dayOfMonth);
+                            updateDateField(startDateEditText, startCalendar);
+                        }
+                        updateDateField(endDateEditText, endCalendar);
                     }
+                    filterTripsByDate();
                 },
                 year, month, day
         );
 
-        // Postavi minimalni i maksimalni datum
         Calendar minDate = Calendar.getInstance();
         minDate.set(2020, 0, 1);
         datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
         datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
 
-        // Postavi naslov
-        String title = isSelectingStartDate ? "Izaberite početni datum" : "Izaberite krajnji datum";
+        String title = isSelectingStartDate ? "Select start date" : "Select end date";
         datePickerDialog.setTitle(title);
 
-        // Prikaži dijalog
         datePickerDialog.show();
     }
 
@@ -133,57 +193,43 @@ public class TripHistoryDriver extends AppCompatActivity {
         editText.setText(dateText);
     }
 
-    // Metode za dobijanje datuma
+    private void filterTripsByDate() {
+        displayTrips();
+    }
+
+    // Trip model
+    private static class Trip {
+        String id;
+        String startDate;
+        String endDate;
+        String startTime;
+        String endTime;
+        String departure;
+        String destination;
+
+        Trip(String id, String startDate, String endDate, String startTime,
+             String endTime, String departure, String destination) {
+            this.id = id;
+            this.startDate = startDate;
+            this.endDate = endDate;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.departure = departure;
+            this.destination = destination;
+        }
+    }
+
     public String getStartDate() {
         if (startDateEditText != null && !startDateEditText.getText().toString().isEmpty()) {
             return startDateEditText.getText().toString();
         }
-        return null; // ili prazan string ""
+        return null;
     }
 
     public String getEndDate() {
         if (endDateEditText != null && !endDateEditText.getText().toString().isEmpty()) {
             return endDateEditText.getText().toString();
         }
-        return null; // ili prazan string ""
-    }
-
-    public String getStartDateFormatted(String pattern) {
-        if (startCalendar != null) {
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
-                return sdf.format(startCalendar.getTime());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
-    }
-
-    public String getEndDateFormatted(String pattern) {
-        if (endCalendar != null) {
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
-                return sdf.format(endCalendar.getTime());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
-    }
-
-    // Metode za postavljanje datuma
-    public void setStartDate(int year, int month, int day) {
-        if (startCalendar != null) {
-            startCalendar.set(year, month - 1, day);
-            updateDateField(startDateEditText, startCalendar);
-        }
-    }
-
-    public void setEndDate(int year, int month, int day) {
-        if (endCalendar != null) {
-            endCalendar.set(year, month - 1, day);
-            updateDateField(endDateEditText, endCalendar);
-        }
+        return null;
     }
 }

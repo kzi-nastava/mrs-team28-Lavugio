@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background">
+
+    <!-- Custom Navbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#BC6C25"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#FFFFFF"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Detalji vožnje"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/inter_italic_variable_font"
+            android:gravity="center" />
+
+        <View
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
+
+    </LinearLayout>
+
+    <!-- Content Container -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Grid Layout za Trip Info i Passengers -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <!-- Trip Info Card (levo) -->
+                <LinearLayout
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:background="@drawable/trip_info_background">
+
+                    <!-- Trip Details Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Begin -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Begin:"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#606C38"
+                                android:fontFamily="@font/inter_italic_variable_font" />
+
+                            <TextView
+                                android:id="@+id/tripBeginText"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="20.12.2024 14:30"
+                                android:textSize="14sp"
+                                android:textStyle="italic"
+                                android:textColor="#BC6C25"
+                                android:fontFamily="@font/inter_italic_variable_font"
+                                android:gravity="end" />
+
+                        </LinearLayout>
+
+                        <!-- End -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="End:"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#606C38"
+                                android:fontFamily="@font/inter_italic_variable_font" />
+
+                            <TextView
+                                android:id="@+id/tripEndText"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="20.12.2024 16:45"
+                                android:textSize="14sp"
+                                android:textStyle="italic"
+                                android:textColor="#BC6C25"
+                                android:fontFamily="@font/inter_italic_variable_font"
+                                android:gravity="end" />
+
+                        </LinearLayout>
+
+                        <!-- Departure -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Departure:"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#606C38"
+                                android:fontFamily="@font/inter_italic_variable_font" />
+
+                            <TextView
+                                android:id="@+id/tripDepartureText"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Novi Sad, Bulevar oslobođenja 46"
+                                android:textSize="14sp"
+                                android:textStyle="italic"
+                                android:textColor="#BC6C25"
+                                android:fontFamily="@font/inter_italic_variable_font"
+                                android:gravity="end" />
+
+                        </LinearLayout>
+
+                        <!-- Destination -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Destination:"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#606C38"
+                                android:fontFamily="@font/inter_italic_variable_font" />
+
+                            <TextView
+                                android:id="@+id/tripDestinationText"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Beograd, Trg Republike 5"
+                                android:textSize="14sp"
+                                android:textStyle="italic"
+                                android:textColor="#BC6C25"
+                                android:fontFamily="@font/inter_italic_variable_font"
+                                android:gravity="end" />
+
+                        </LinearLayout>
+
+                        <!-- Price -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Price:"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#606C38"
+                                android:fontFamily="@font/inter_italic_variable_font" />
+
+                            <TextView
+                                android:id="@+id/tripPriceText"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="850.00 RSD"
+                                android:textSize="14sp"
+                                android:textStyle="italic"
+                                android:textColor="#BC6C25"
+                                android:fontFamily="@font/inter_italic_variable_font"
+                                android:gravity="end" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Status Section - Orange Background -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/status_background"
+                        android:padding="16dp">
+
+                        <!-- Cancelled -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Cancelled:"
+                                android:textSize="14sp"
+                                android:textColor="#FFFFFF"
+                                android:fontFamily="@font/inter_italic_variable_font" />
+
+                            <ImageView
+                                android:id="@+id/cancelledIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_cross"
+                                android:contentDescription="Cancelled" />
+
+                        </LinearLayout>
+
+                        <!-- PANIC -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="PANIC:"
+                                android:textSize="14sp"
+                                android:textColor="#FFFFFF"
+                                android:fontFamily="@font/inter_italic_variable_font" />
+
+                            <ImageView
+                                android:id="@+id/panicIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_cross"
+                                android:contentDescription="Panic" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Passengers Card (desno) -->
+                <LinearLayout
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:background="@drawable/trip_info_background"
+                    android:layout_marginTop="8dp">
+
+                    <!-- Header -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Passengers"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#606C38"
+                        android:fontFamily="@font/inter_italic_variable_font"
+                        android:padding="16dp"/>
+
+                    <!-- Passengers List -->
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:nestedScrollingEnabled="true">
+
+                        <LinearLayout
+                            android:id="@+id/passengersContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- Passenger items will be added dynamically -->
+
+                        </LinearLayout>
+
+                    </ScrollView>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Map Placeholder -->
+            <ImageView
+                android:id="@+id/mapImage"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:background="#E0E0E0"
+                android:contentDescription="Map" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

@@ -13,73 +13,97 @@
         android:layout_width="match_parent"
         android:layout_height="80dp" />
 
-    <!-- Content Container -->
-    <FrameLayout
-        android:id="@+id/content_container"
+    <!-- Content Container sa ScrollView -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-        <!-- Horizontalni layout za date pickere -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="24dp"
-            android:gravity="center_vertical">
+            android:orientation="vertical">
 
-            <!-- Početni datum (levo) -->
+            <!-- Horizontalni layout za date pickere -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginEnd="12dp">
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:gravity="center_vertical">
 
-                <EditText
-                    android:id="@+id/startDateInputField"
-                    android:layout_width="match_parent"
+                <!-- Početni datum (levo) -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="Start date"
-                    android:textColorHint="#BC6C25"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:cursorVisible="false"
-                    android:inputType="none"
-                    android:padding="16dp"
-                    android:textSize="16sp"
-                    android:fontFamily="@font/inter_italic_variable_font"
-                    android:background="@drawable/edittext_background_bottom_rounded" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="12dp">
+
+                    <EditText
+                        android:id="@+id/startDateInputField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Start date"
+                        android:textColorHint="#BC6C25"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:cursorVisible="false"
+                        android:inputType="none"
+                        android:padding="16dp"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/inter_italic_variable_font"
+                        android:background="@drawable/edittext_background" />
+
+                </LinearLayout>
+
+                <!-- Krajnji datum (desno) -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <EditText
+                        android:id="@+id/endDateInputField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="End date"
+                        android:textColorHint="#BC6C25"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:cursorVisible="false"
+                        android:inputType="none"
+                        android:padding="16dp"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/inter_italic_variable_font"
+                        android:background="@drawable/edittext_background" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <!-- Krajnji datum (desno) -->
+            <!-- Trips Container - ovde se dinamički dodaju redovi vožnji -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:id="@+id/tripsContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp">
 
-                <EditText
-                    android:id="@+id/endDateInputField"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="End date"
-                    android:textColorHint="#BC6C25"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:cursorVisible="false"
-                    android:inputType="none"
-                    android:padding="16dp"
-                    android:textSize="16sp"
-                    android:fontFamily="@font/inter_italic_variable_font"
-                    android:background="@drawable/edittext_background_bottom_rounded" />
+                <!-- Redovi vožnji će biti dinamički dodati ovde iz Java koda -->
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </FrameLayout>
+    </ScrollView>
 
 </LinearLayout>
