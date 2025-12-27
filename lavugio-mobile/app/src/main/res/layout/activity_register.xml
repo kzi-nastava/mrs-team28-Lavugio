@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FEFAE0">
+
+    <!-- Include Navbar -->
+    <include
+        layout="@layout/navbar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+    <!-- Content Area -->
+    <FrameLayout
+        android:id="@+id/content_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Scrollable Content -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:padding="24dp">
+
+                <!-- Title -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_title"
+                    android:textColor="@color/text_white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="@drawable/rounded_accent_bg"
+                    android:padding="16dp"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Email Field -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/edit_text_bg"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp">
+
+                    <EditText
+                        android:id="@+id/register_email"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="@string/register_email_placeholder"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/text_light_gray"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Password Field -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/edit_text_bg"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp">
+
+                    <EditText
+                        android:id="@+id/register_password"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="@string/register_password_placeholder"
+                        android:inputType="textPassword"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/text_light_gray"
+                        android:textSize="14sp" />
+
+                    <ImageButton
+                        android:id="@+id/register_password_toggle"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@null"
+                        android:contentDescription="Toggle password visibility"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_visibility" />
+                </LinearLayout>
+
+                <!-- Name Field -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/edit_text_bg"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp">
+
+                    <EditText
+                        android:id="@+id/register_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="@string/register_name_placeholder"
+                        android:inputType="text"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/text_light_gray"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Surname Field -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/edit_text_bg"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp">
+
+                    <EditText
+                        android:id="@+id/register_surname"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="@string/register_surname_placeholder"
+                        android:inputType="text"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/text_light_gray"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Address Field -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/edit_text_bg"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp">
+
+                    <EditText
+                        android:id="@+id/register_address"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="@string/register_address_placeholder"
+                        android:inputType="text"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/text_light_gray"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Phone Field -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/edit_text_bg"
+                    android:padding="12dp"
+                    android:layout_marginBottom="24dp">
+
+                    <EditText
+                        android:id="@+id/register_phone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:hint="@string/register_phone_placeholder"
+                        android:inputType="phone"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/text_light_gray"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Register Button -->
+                <Button
+                    android:id="@+id/register_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="@string/register_button"
+                    android:textColor="@color/text_white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@color/primary_accent"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Footer Link -->
+                <TextView
+                    android:id="@+id/login_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_login_link"
+                    android:textColor="@color/primary_accent"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+</LinearLayout>

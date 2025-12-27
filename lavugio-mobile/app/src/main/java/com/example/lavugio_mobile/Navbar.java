@@ -2,6 +2,7 @@ package com.example.lavugio_mobile;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class Navbar {
     private LinearLayout navbarContainer;
     private ImageButton menuButton;
+    private TextView logoView;
     private FrameLayout contentContainer;
     private LinearLayout menuDropdown;
     private AppCompatActivity activity;
@@ -31,13 +33,25 @@ public class Navbar {
         this.activity = activity;
         this.navbarContainer = parentView.findViewById(R.id.navbar);
         this.menuButton = parentView.findViewById(R.id.navbar_menu_button);
+        this.logoView = parentView.findViewById(R.id.navbar_logo);
         this.contentContainer = parentView.findViewById(R.id.content_container);
 
         initializeMenuButton();
+        initializeLogoButton();
     }
 
     private void initializeMenuButton() {
         menuButton.setOnClickListener(v -> toggleMenu());
+    }
+
+    private void initializeLogoButton() {
+        if (logoView != null) {
+            logoView.setOnClickListener(v -> {
+                Intent homeIntent = new Intent(activity, MainActivity.class);
+                homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(homeIntent);
+            });
+        }
     }
 
     private void toggleMenu() {
@@ -245,7 +259,6 @@ public class Navbar {
 
     private void onMenuItemSelected(String itemName) {
         // Handle navigation based on selected menu item
-        // This can be extended to navigate to different screens/fragments
         switch (itemName) {
             case "Trips":
                 // Navigate to Trips screen
@@ -261,9 +274,15 @@ public class Navbar {
                 break;
             case "Login":
                 // Navigate to Login screen
+                Intent loginIntent = new Intent(activity, LoginActivity.class);
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(loginIntent);
                 break;
             case "Register":
                 // Navigate to Register screen
+                Intent registerIntent = new Intent(activity, RegisterActivity.class);
+                registerIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(registerIntent);
                 break;
         }
     }

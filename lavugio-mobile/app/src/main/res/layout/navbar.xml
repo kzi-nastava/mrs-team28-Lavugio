@@ -20,7 +20,9 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:textColor="#FEFAE0"
-        android:letterSpacing="0.05" />
+        android:letterSpacing="0.05"
+        android:clickable="true"
+        android:focusable="true" />
 
     <!-- Menu Button -->
     <ImageButton
