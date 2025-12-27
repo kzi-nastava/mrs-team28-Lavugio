@@ -7,6 +7,8 @@ public class Vehicle {
     private String color;
     private String licensePlate;
     private VehicleType type;
+    private boolean petFriendly;
+    private boolean babyFriendly;
 
     // Constructors
     public Vehicle() {}
@@ -29,6 +31,22 @@ public class Vehicle {
 
     public VehicleType getType() { return type; }
     public void setType(VehicleType type) { this.type = type; }
+
+    public boolean isPetFriendly() {
+        return petFriendly;
+    }
+
+    public void setPetFriendly(boolean petFriendly) {
+        this.petFriendly = petFriendly;
+    }
+
+    public boolean isBabyFriendly() {
+        return babyFriendly;
+    }
+
+    public void setBabyFriendly(boolean babyFriendly) {
+        this.babyFriendly = babyFriendly;
+    }
 
     public String getFullName() {
         return make + " " + model;
