@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.lavugio_mobile.ui.auth.LoginFragment;
+import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 
 /**
@@ -50,9 +52,8 @@ public class Navbar {
     private void initializeLogoButton() {
         if (logoView != null) {
             logoView.setOnClickListener(v -> {
-                Intent homeIntent = new Intent(activity, MainActivity.class);
-                homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(homeIntent);
+                // Clear back stack and return to welcome screen
+                activity.getSupportFragmentManager().popBackStackImmediate(null, android.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
             });
         }
     }
@@ -278,15 +279,11 @@ public class Navbar {
                 break;
             case "Login":
                 // Navigate to Login screen
-                Intent loginIntent = new Intent(activity, LoginActivity.class);
-                loginIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(loginIntent);
+                navigateToFragment(new LoginFragment());
                 break;
             case "Register":
                 // Navigate to Register screen
-                Intent registerIntent = new Intent(activity, RegisterActivity.class);
-                registerIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(registerIntent);
+                navigateToFragment(new RegisterFragment());
                 break;
         }
     }
