@@ -3,26 +3,30 @@ package com.example.lavugio_mobile.ui.profile.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.lavugio_mobile.R;
 
-public class InfoRowView extends LinearLayout {
+public class ProfileInfoRowView extends LinearLayout {
     private TextView labelTextView;
     private TextView valueTextView;
+    private EditText valueEditText;
+    private boolean isEditMode = false;
+    private boolean isEditable = true;
 
-    public InfoRowView(Context context) {
+    public ProfileInfoRowView(Context context) {
         super(context);
         init(context);
     }
 
-    public InfoRowView(Context context, AttributeSet attrs) {
+    public ProfileInfoRowView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public InfoRowView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ProfileInfoRowView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -34,6 +38,7 @@ public class InfoRowView extends LinearLayout {
         // Find views
         labelTextView = findViewById(R.id.label);
         valueTextView = findViewById(R.id.value);
+        valueEditText = findViewById(R.id.value_edit);
     }
 
     public void setLabel(String label) {
@@ -42,6 +47,7 @@ public class InfoRowView extends LinearLayout {
 
     public void setValue(String value) {
         valueTextView.setText(value);
+        valueEditText.setText(value);
         adjustTextSize(value);
     }
 
@@ -65,6 +71,46 @@ public class InfoRowView extends LinearLayout {
     }
 
     public String getValue() {
+        if (isEditMode) {
+            return valueEditText.getText().toString();
+        }
         return valueTextView.getText().toString();
+    }
+
+    // Toggle between display and edit mode
+    public void setEditMode(boolean editMode) {
+        if (!isEditable) {
+            editMode = false; // Force display mode if not editable
+        }
+
+        this.isEditMode = editMode;
+
+        if (editMode) {
+            valueTextView.setVisibility(GONE);
+            valueEditText.setVisibility(VISIBLE);
+            valueEditText.setText(valueTextView.getText());
+        } else {
+            valueTextView.setVisibility(VISIBLE);
+            valueEditText.setVisibility(GONE);
+            // Update display value from edit field
+            valueTextView.setText(valueEditText.getText());
+        }
+    }
+
+    public boolean isEditMode() {
+        return isEditMode;
+    }
+
+    // Set whether this field can be edited
+    public void setEditable(boolean editable) {
+        this.isEditable = editable;
+        if (!editable) {
+            setEditMode(false);
+        }
+    }
+
+    // Set input type for EditText (email, phone, text, etc.)
+    public void setInputType(int inputType) {
+        valueEditText.setInputType(inputType);
     }
 }
