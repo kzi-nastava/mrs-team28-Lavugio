@@ -30,11 +30,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Detalji vožnje"
+            android:text="Trip details"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
-            android:fontFamily="@font/inter_italic_variable_font"
+            android:fontFamily="@font/inter_variable_font"
             android:gravity="center" />
 
         <View

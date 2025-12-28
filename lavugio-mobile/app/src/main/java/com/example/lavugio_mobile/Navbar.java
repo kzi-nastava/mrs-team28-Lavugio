@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.lavugio_mobile.ui.driver.TripHistoryDriver;
+
 public class Navbar {
     private LinearLayout navbarContainer;
     private ImageButton menuButton;

@@ -12,9 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Lavugiomobile">
         <activity
-            android:name=".TripHistoryDriver"
+            android:name=".ui.driver.TripHistoryDriver"
+            android:launchMode="singleTop"
             android:exported="false" />
-        <activity android:name=".TripDetailsActivity"
+        <activity
+            android:name=".ui.driver.TripDetailsActivity"
+            android:launchMode="singleTop"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

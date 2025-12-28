@@ -1,4 +1,4 @@
-package com.example.lavugio_mobile;
+package com.example.lavugio_mobile.ui.driver;
 
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.lavugio_mobile.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,7 @@ public class TripDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_trip_details);
+        setContentView(R.layout.activity_driver_trip_details);
 
         try {
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -77,7 +79,6 @@ public class TripDetailsActivity extends AppCompatActivity {
             String departure = getIntent().getStringExtra("departure");
             String destination = getIntent().getStringExtra("destination");
 
-            // Kombinuj datum i vreme za Begin i End
             String begin = (startDate != null ? startDate : "N/A") + " " + (startTime != null ? startTime : "");
             String end = (endDate != null ? endDate : "N/A") + " " + (endTime != null ? endTime : "");
 
@@ -93,7 +94,6 @@ public class TripDetailsActivity extends AppCompatActivity {
     }
 
     private void loadPassengers() {
-        // Testni podaci za putnice
         passengersList = new ArrayList<>();
         passengersList.add("Pera Zdera");
         passengersList.add("Mika Mikić");

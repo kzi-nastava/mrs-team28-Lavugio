@@ -1,10 +1,9 @@
-package com.example.lavugio_mobile;
+package com.example.lavugio_mobile.ui.driver;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +14,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lavugio_mobile.Navbar;
+import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.data.model.Trip;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
@@ -40,7 +42,7 @@ public class TripHistoryDriver extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_trip_history_driver);
+        setContentView(R.layout.activity_driver_trip_history);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -124,6 +126,7 @@ public class TripHistoryDriver extends AppCompatActivity {
         intent.putExtra("endTime", trip.endTime);
         intent.putExtra("departure", trip.departure);
         intent.putExtra("destination", trip.destination);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
@@ -202,27 +205,6 @@ public class TripHistoryDriver extends AppCompatActivity {
         displayTrips();
     }
 
-    // Trip model
-    private static class Trip {
-        String id;
-        String startDate;
-        String endDate;
-        String startTime;
-        String endTime;
-        String departure;
-        String destination;
-
-        Trip(String id, String startDate, String endDate, String startTime,
-             String endTime, String departure, String destination) {
-            this.id = id;
-            this.startDate = startDate;
-            this.endDate = endDate;
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.departure = departure;
-            this.destination = destination;
-        }
-    }
 
     public String getStartDate() {
         if (startDateEditText != null && !startDateEditText.getText().toString().isEmpty()) {
