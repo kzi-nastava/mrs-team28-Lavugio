@@ -96,15 +96,16 @@
                 android:layout_marginBottom="12dp">
 
                 <!-- Sort By Field Spinner -->
+
                 <Spinner
                     android:id="@+id/sortBySpinner"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:layout_marginEnd="12dp"
-                    android:padding="12dp"
+                    android:layout_weight="1"
                     android:background="@drawable/edittext_background"
-                    android:entries="@array/trip_history_sort_options" />
+                    android:entries="@array/trip_history_sort_options"
+                    android:padding="12dp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
