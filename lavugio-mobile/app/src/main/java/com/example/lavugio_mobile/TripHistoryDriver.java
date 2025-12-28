@@ -4,7 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.DatePicker;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ public class TripHistoryDriver extends AppCompatActivity {
     private boolean isSelectingStartDate = true;
     private LinearLayout tripsContainer;
 
+    private MaterialButton sortOrderButton;
+    private boolean isAscending = true;
     private List<Trip> tripsList;
 
     @Override
@@ -45,8 +49,9 @@ public class TripHistoryDriver extends AppCompatActivity {
         Navbar navbar = new Navbar(this, findViewById(R.id.main));
 
         tripsContainer = findViewById(R.id.tripsContainer);
+        sortOrderButton = findViewById(R.id.sortOrderButton);
         initDatePicker();
-
+        initOrderButton(false);
         loadTestData();
         displayTrips();
     }
@@ -232,4 +237,21 @@ public class TripHistoryDriver extends AppCompatActivity {
         }
         return null;
     }
+
+    public void initOrderButton(boolean ascending) {
+        isAscending = ascending;
+
+        sortOrderButton.setOnClickListener(v -> {
+            isAscending = !isAscending;
+
+            if (isAscending) {
+                sortOrderButton.setIconResource(R.drawable.ic_arrow_long_upward);
+            } else {
+                sortOrderButton.setIconResource(R.drawable.ic_arrow_long_downward);
+            }
+
+            // logika posle
+        });
+    }
+
 }
