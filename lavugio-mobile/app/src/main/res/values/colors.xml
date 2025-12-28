@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary Colors - Lavugio Theme -->
+    <color name="primary_dark">#606C38</color>
+    <color name="primary_darker">#283618</color>
+    <color name="primary_accent">#BC6C25</color>
+    <color name="primary_button">#3E4C42</color>
+    <color name="primary_button_hover">#2F3A32</color>
+
+    <!-- Background Colors -->
+    <color name="background_light">#FEFAE0</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="background_input">#F5F5F5</color>
+
+    <!-- Text Colors -->
+    <color name="text_dark">#283618</color>
+    <color name="text_gray">#606C38</color>
+    <color name="text_light_gray">#999999</color>
+    <color name="text_white">#FFFFFF</color>
+
+    <!-- Border Colors -->
+    <color name="border_gray">#CCCCCC</color>
+
+    <!-- System Colors -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="light_brown">#DDA15E</color>

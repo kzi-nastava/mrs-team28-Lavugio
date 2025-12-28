@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="top">
+
+    <!-- Profile Picture -->
+    <ImageView
+        android:id="@+id/profile_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_launcher_foreground"
+        android:scaleType="centerCrop"
+        android:background="@drawable/profile_image_border" />
+
+    <!-- Text Information Container -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginLeft="16dp"
+        android:minHeight="100dp">
+
+        <!-- Name -->
+        <TextView
+            android:id="@+id/profile_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pera Peric"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#5D7052" />
+
+        <!-- User Type -->
+        <TextView
+            android:id="@+id/profile_user_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Regular User"
+            android:textSize="16sp"
+            android:textColor="#7A8A6E"
+            android:layout_marginTop="4dp" />
+
+        <!-- Spacer -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Email Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginTop="8dp">
+
+            <!-- Email Icon -->
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/email_icon"
+                android:tint="#C98952" />
+
+            <!-- Email Text -->
+            <TextView
+                android:id="@+id/profile_email"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:text="pera@peric.com"
+                android:textColor="#C98952"
+                android:textSize="14sp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

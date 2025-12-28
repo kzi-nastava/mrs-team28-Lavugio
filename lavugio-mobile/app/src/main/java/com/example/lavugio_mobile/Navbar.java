@@ -10,6 +10,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
+import com.example.lavugio_mobile.ui.auth.LoginFragment;
+import com.example.lavugio_mobile.ui.auth.RegisterFragment;
+import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 
 import com.example.lavugio_mobile.ui.driver.TripHistoryDriver;
 
@@ -17,6 +22,8 @@ public class Navbar {
     private LinearLayout navbarContainer;
     private ImageButton menuButton;
     private ViewGroup rootLayout;
+    private TextView logoView;
+    private FrameLayout contentContainer;
     private LinearLayout menuDropdown;
     private AppCompatActivity activity;
     private boolean isMenuOpen = false;
@@ -27,11 +34,24 @@ public class Navbar {
         this.navbarContainer = parentView.findViewById(R.id.navbar);
         this.menuButton = parentView.findViewById(R.id.navbar_menu_button);
         this.rootLayout = (ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content);
+        this.logoView = parentView.findViewById(R.id.navbar_logo);
+        this.contentContainer = parentView.findViewById(R.id.content_container);
+
         initializeMenuButton();
+        initializeLogoButton();
     }
 
     private void initializeMenuButton() {
         menuButton.setOnClickListener(v -> toggleMenu());
+    }
+
+    private void initializeLogoButton() {
+        if (logoView != null) {
+            logoView.setOnClickListener(v -> {
+                // Clear back stack and return to welcome screen
+                activity.getSupportFragmentManager().popBackStackImmediate(null, android.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            });
+        }
     }
 
     private void toggleMenu() {
@@ -180,11 +200,25 @@ public class Navbar {
             case "Reports":
                 break;
             case "Profile":
+                // Navigate to Profile screen
+                navigateToFragment(new ProfileFragment());
                 break;
             case "Login":
+                // Navigate to Login screen
+                navigateToFragment(new LoginFragment());
                 break;
             case "Register":
+                // Navigate to Register screen
+                navigateToFragment(new RegisterFragment());
                 break;
         }
+    }
+
+    private void navigateToFragment(Fragment fragment) {
+        activity.getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
