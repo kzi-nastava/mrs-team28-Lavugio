@@ -22,8 +22,14 @@
     <color name="border_gray">#CCCCCC</color>
     
     <!-- System Colors -->
-    <color name="black">#FF000000</color>
+    <color name="black">#000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_brown">#DDA15E</color>
+    <color name="dark_brown">#BC6C25</color>
+    <color name="off_white">#FFFEF8</color>
+    <color name="medium_brown">#FF9C6B53</color>
+    <color name="light_green">#606C38</color>
+    <color name="dark_green">#283618</color>
     <color name="lavugio_light_green">#606C38</color>
     <color name="lavugio_dark_green">#283618</color>
     <color name="lavugio_dark_orange">#BC6C25</color>

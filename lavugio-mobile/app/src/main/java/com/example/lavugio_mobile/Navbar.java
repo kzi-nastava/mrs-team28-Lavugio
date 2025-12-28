@@ -1,8 +1,5 @@
 package com.example.lavugio_mobile;
 
-import android.animation.ValueAnimator;
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,28 +13,25 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
+import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 
-/**
- * Navbar component for Lavugio Mobile App
- * Provides navigation menu functionality similar to the Angular frontend
- * Menu drops down below the navbar with smooth animations
- */
 public class Navbar {
     private LinearLayout navbarContainer;
     private ImageButton menuButton;
+    private ViewGroup rootLayout;
     private TextView logoView;
     private FrameLayout contentContainer;
     private LinearLayout menuDropdown;
     private AppCompatActivity activity;
     private boolean isMenuOpen = false;
     private boolean isAnimating = false;
-    private ValueAnimator currentAnimator = null;
 
     public Navbar(AppCompatActivity activity, View parentView) {
         this.activity = activity;
         this.navbarContainer = parentView.findViewById(R.id.navbar);
         this.menuButton = parentView.findViewById(R.id.navbar_menu_button);
+        this.rootLayout = (ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content);
         this.logoView = parentView.findViewById(R.id.navbar_logo);
         this.contentContainer = parentView.findViewById(R.id.content_container);
 
@@ -59,10 +53,7 @@ public class Navbar {
     }
 
     private void toggleMenu() {
-        // Prevent toggling while animation is in progress
-        if (isAnimating) {
-            return;
-        }
+        if (isAnimating) return;
 
         if (isMenuOpen) {
             closeMenu();
@@ -74,130 +65,65 @@ public class Navbar {
     private void openMenu() {
         if (isMenuOpen || isAnimating) return;
 
-        // Cancel any ongoing animation
-        if (currentAnimator != null) {
-            currentAnimator.cancel();
-            currentAnimator = null;
-        }
-
         isAnimating = true;
         isMenuOpen = true;
 
-        // Create and inflate the menu dropdown
         LayoutInflater inflater = LayoutInflater.from(activity);
         menuDropdown = (LinearLayout) inflater.inflate(R.layout.navbar_menu, null);
 
-        // Add menu to the parent container above the content
-        ViewGroup parentLayout = (ViewGroup) contentContainer.getParent();
-        if (parentLayout != null) {
-            parentLayout.addView(menuDropdown, 1);
-        } else {
-            isAnimating = false;
-            isMenuOpen = false;
-            return;
-        }
+        int[] navbarLocation = new int[2];
+        navbarContainer.getLocationOnScreen(navbarLocation);
+        int navbarBottom = navbarLocation[1] + navbarContainer.getHeight();
 
-        // Set initial height to 0
-        menuDropdown.measure(
-                View.MeasureSpec.makeMeasureSpec(parentLayout.getWidth(), View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
         );
+        params.topMargin = navbarBottom;
+        menuDropdown.setLayoutParams(params);
+        menuDropdown.setElevation(16f);
 
-        int finalHeight = menuDropdown.getMeasuredHeight();
-        menuDropdown.getLayoutParams().height = 0;
-        menuDropdown.requestLayout();
+        // Postavi početne vrednosti za animaciju
+        menuDropdown.setPivotY(0);
+        menuDropdown.setScaleY(0f);
+        menuDropdown.setAlpha(0f);
 
-        // Animate the dropdown expansion
-        currentAnimator = ValueAnimator.ofInt(0, finalHeight);
-        currentAnimator.setDuration(300);
-        currentAnimator.setInterpolator(new DecelerateInterpolator());
-        currentAnimator.addUpdateListener(animation -> {
-            if (menuDropdown != null) {
-                int height = (int) animation.getAnimatedValue();
-                menuDropdown.getLayoutParams().height = height;
-                menuDropdown.requestLayout();
-            }
-        });
-        currentAnimator.addListener(new android.animation.Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(android.animation.Animator animation) {}
+        rootLayout.addView(menuDropdown);
 
-            @Override
-            public void onAnimationEnd(android.animation.Animator animation) {
-                isAnimating = false;
-                setupMenuItemListeners();
-                updateMenuButtonIcon();
-            }
-
-            @Override
-            public void onAnimationCancel(android.animation.Animator animation) {
-                isAnimating = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(android.animation.Animator animation) {}
-        });
-        currentAnimator.start();
+        // Animiraj sa ViewPropertyAnimator (mnogo brže!)
+        menuDropdown.animate()
+                .alpha(1f)
+                .scaleY(1f)
+                .setDuration(300)
+                .setInterpolator(new DecelerateInterpolator())
+                .withEndAction(() -> {
+                    isAnimating = false;
+                    setupMenuItemListeners();
+                    updateMenuButtonIcon();
+                })
+                .start();
     }
 
     private void closeMenu() {
         if (!isMenuOpen || isAnimating || menuDropdown == null) return;
 
-        // Cancel any ongoing animation
-        if (currentAnimator != null) {
-            currentAnimator.cancel();
-            currentAnimator = null;
-        }
-
         isAnimating = true;
         isMenuOpen = false;
 
-        int currentHeight = menuDropdown.getHeight();
-
-        // Animate the dropdown collapse
-        currentAnimator = ValueAnimator.ofInt(currentHeight, 0);
-        currentAnimator.setDuration(300);
-        currentAnimator.setInterpolator(new DecelerateInterpolator());
-        currentAnimator.addUpdateListener(animation -> {
-            if (menuDropdown != null) {
-                int height = (int) animation.getAnimatedValue();
-                menuDropdown.getLayoutParams().height = height;
-                menuDropdown.requestLayout();
-            }
-        });
-        currentAnimator.addListener(new android.animation.Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(android.animation.Animator animation) {}
-
-            @Override
-            public void onAnimationEnd(android.animation.Animator animation) {
-                if (menuDropdown != null) {
-                    ViewGroup parentLayout = (ViewGroup) menuDropdown.getParent();
-                    if (parentLayout != null) {
-                        parentLayout.removeView(menuDropdown);
+        menuDropdown.animate()
+                .alpha(0f)
+                .scaleY(0f)
+                .setDuration(300)
+                .setInterpolator(new DecelerateInterpolator())
+                .withEndAction(() -> {
+                    if (menuDropdown != null && rootLayout != null) {
+                        rootLayout.removeView(menuDropdown);
+                        menuDropdown = null;
                     }
-                    menuDropdown = null;
-                }
-                isAnimating = false;
-                updateMenuButtonIcon();
-            }
-
-            @Override
-            public void onAnimationCancel(android.animation.Animator animation) {
-                if (menuDropdown != null) {
-                    ViewGroup parentLayout = (ViewGroup) menuDropdown.getParent();
-                    if (parentLayout != null) {
-                        parentLayout.removeView(menuDropdown);
-                    }
-                    menuDropdown = null;
-                }
-                isAnimating = false;
-            }
-
-            @Override
-            public void onAnimationRepeat(android.animation.Animator animation) {}
-        });
-        currentAnimator.start();
+                    isAnimating = false;
+                    updateMenuButtonIcon();
+                })
+                .start();
     }
 
     private void updateMenuButtonIcon() {
@@ -262,16 +188,13 @@ public class Navbar {
     }
 
     private void onMenuItemSelected(String itemName) {
-        // Handle navigation based on selected menu item
         switch (itemName) {
             case "Trips":
-                // Navigate to Trips screen
                 break;
             case "History":
-                // Navigate to History screen
+                navigateToFragment(new TripHistoryFragment());
                 break;
             case "Reports":
-                // Navigate to Reports screen
                 break;
             case "Profile":
                 // Navigate to Profile screen
