@@ -10,9 +10,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Label"
+        android:text="@string/label"
         android:textSize="14sp"
-        android:textColor="#606C38" />
+        android:textColor="@color/lavugio_light_green" />
 
     <TextView
         android:id="@+id/value"
@@ -20,16 +20,27 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:layout_marginTop="4dp"
-        android:text="Value"
+        android:text="@string/value"
         android:textStyle="bold"
         android:textSize="20sp"
-        android:textColor="#BC6C25"
+        android:textColor="@color/lavugio_dark_orange"
         android:paddingBottom="8dp" />
 
-    <!-- Bottom border line -->
+    <EditText
+        android:id="@+id/value_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:hint="@string/enter_value"
+        android:textSize="20sp"
+        android:textColor="@color/lavugio_dark_orange"
+        android:paddingBottom="8dp"
+        android:background="@android:color/transparent"
+        android:visibility="gone" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:background="#606C38" />
+        android:background="@color/lavugio_light_green" />
 
 </LinearLayout>
