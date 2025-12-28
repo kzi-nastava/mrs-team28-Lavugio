@@ -132,7 +132,7 @@ public class AdministratorController {
     // RIDE HISTORY ENDPOINTS - View history of any driver or passenger
     
     @GetMapping(value = "/rides/history/driver/{driverId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<DriverHistoryDTO>> getDriverRideHistory(
+    public ResponseEntity<?> getDriverRideHistory(
             @PathVariable Long driverId,
             @RequestParam(defaultValue = "false") boolean ascending,
             @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
@@ -150,7 +150,7 @@ public class AdministratorController {
     }
     
     @GetMapping(value = "/rides/history/passenger/{passengerId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<DriverHistoryDTO>> getPassengerRideHistory(
+    public ResponseEntity<?> getPassengerRideHistory(
             @PathVariable Long passengerId,
             @RequestParam(defaultValue = "false") boolean ascending,
             @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
@@ -168,7 +168,7 @@ public class AdministratorController {
     }
     
     @GetMapping(value = "/rides/details/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DriverHistoryDetailedDTO> getRideDetailedView(@PathVariable Long rideId) {
+    public ResponseEntity<?> getRideDetailedView(@PathVariable Long rideId) {
         try {
             List<PassengerTableRowDTO> passengers = new ArrayList<>();
             passengers.add(new PassengerTableRowDTO(
