@@ -3,7 +3,9 @@ package com.backend.lavugio.controller.user;
 import com.backend.lavugio.dto.user.UpdateUserDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
+import com.backend.lavugio.dto.user.LoginRequestDTO;
 import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.RegularUserService;
 
@@ -157,22 +159,22 @@ public class RegularUserController {
     
     // AUTHENTICATION ENDPOINT
 
-    /*
-    @GetMapping("/login-check")
-    public ResponseEntity<?> loginCheck() {
-    	// @AuthenticationPrincipal UserDetails userDetails
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
         try {
-            String email = userDetails.getUsername();
-            LoginInfoDTO loginInfo = accountService.getLoginInfo(email);
-            return ResponseEntity.ok(loginInfo);
+            Account account = accountService.authenticate(request.getEmail(), request.getPassword());
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(account.getId());
+            userDTO.setName(account.getName());
+            userDTO.setLastName(account.getLastName());
+            userDTO.setEmail(account.getEmail());
+            userDTO.setPhoneNumber(account.getPhoneNumber());
+            userDTO.setProfilePhotoPath(account.getProfilePhotoPath());
+            return ResponseEntity.ok(userDTO);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
-    }*/
+    }
 
     // UTILITY ENDPOINT 
     
