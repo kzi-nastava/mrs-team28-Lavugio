@@ -104,8 +104,13 @@ public class RideController {
         // IMPLEMENTIRATI KADA SE URADI AUTENTIFIKACIJA LOGOVANOG KORISNIKA
         // @AuthenticationPrincipal UserDetails userDetails
         // String userEmail = userDetails.getUsername();
-        rideService.cancelRide(id);
-        return ResponseEntity.ok("Ride cancelled successfully");
+        try {
+            rideService.cancelRide(id);
+            return ResponseEntity.ok("Ride cancelled successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @PostMapping("/{id}/activate")
