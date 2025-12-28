@@ -1,7 +1,17 @@
 <resources>
     <string name="company_name">Lavugio</string>
     <string name="app_name">lavugio-mobile</string>
+    <string name="welcome_message">Welcome to Lavugio!</string>
     <string name="menu_button_description">Open navigation menu</string>
+    <string name="label">Label</string>
+    <string name="value">Value</string>
+    <string name="enter_value">Enter value</string>
+    <string name="navbar_trips">Trips</string>
+    <string name="navbar_history">History</string>
+    <string name="navbar_reports">Reports</string>
+    <string name="navbar_profile">Profile</string>
+    <string name="navbar_login">Login</string>
+    <string name="navbar_register">Register</string>
     
     <!-- Login Strings -->
     <string name="login_title">LOGIN</string>

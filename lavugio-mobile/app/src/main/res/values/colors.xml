@@ -24,4 +24,9 @@
     <!-- System Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="lavugio_light_green">#606C38</color>
+    <color name="lavugio_dark_green">#283618</color>
+    <color name="lavugio_dark_orange">#BC6C25</color>
+    <color name="lavugio_light_orange">#DDA15E</color>
+    <color name="lavugio_white">#FEFAE0</color>
 </resources>
