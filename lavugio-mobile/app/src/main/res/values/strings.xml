@@ -1,6 +1,7 @@
 <resources>
     <string name="company_name">Lavugio</string>
     <string name="app_name">lavugio-mobile</string>
+    <string name="welcome_message">Welcome to Lavugio!</string>
     <string name="menu_button_description">Open navigation menu</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -56,6 +57,16 @@
         <item>Descending</item>
     </string-array>
 
+    <string name="label">Label</string>
+    <string name="value">Value</string>
+    <string name="enter_value">Enter value</string>
+    <string name="navbar_trips">Trips</string>
+    <string name="navbar_history">History</string>
+    <string name="navbar_reports">Reports</string>
+    <string name="navbar_profile">Profile</string>
+    <string name="navbar_login">Login</string>
+    <string name="navbar_register">Register</string>
+
     <!-- Login Strings -->
     <string name="login_title">LOGIN</string>
     <string name="login_email_placeholder">Email</string>
@@ -63,7 +74,7 @@
     <string name="login_button">Login</string>
     <string name="login_register_link">Register</string>
     <string name="login_forgot_password_link">Forgot password?</string>
-
+    
     <!-- Register Strings -->
     <string name="register_title">REGISTER</string>
     <string name="register_email_placeholder">Email address</string>
@@ -74,21 +85,21 @@
     <string name="register_phone_placeholder">Phone number</string>
     <string name="register_button">Register</string>
     <string name="register_login_link">Login</string>
-
+    
     <!-- Verify Email Strings -->
     <string name="verify_email_title">VERIFY EMAIL</string>
     <string name="verify_email_description">A code has been sent to your email address. Enter the code below to confirm.</string>
     <string name="verify_email_code_placeholder">Code</string>
     <string name="verify_email_button">Confirm</string>
     <string name="verify_email_login_link">Login</string>
-
+    
     <!-- Reset Password Strings -->
     <string name="reset_password_title">RESET PASSWORD</string>
     <string name="reset_password_new_password_placeholder">Password</string>
     <string name="reset_password_confirm_placeholder">Confirm Password</string>
     <string name="reset_password_button">Reset password</string>
     <string name="reset_password_register_link">Register</string>
-
+    
     <!-- Forgot Password Strings -->
     <string name="forgot_password_title">RESET PASSWORD</string>
     <string name="forgot_password_email_placeholder">Email</string>
