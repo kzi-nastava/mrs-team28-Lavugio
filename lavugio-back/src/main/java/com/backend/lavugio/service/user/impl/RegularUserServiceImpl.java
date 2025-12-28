@@ -253,6 +253,9 @@ public class RegularUserServiceImpl implements RegularUserService {
         //profile.setTotalSpent(0.0);
 
         return profile;
+    }
+
+    @Override
     public void enableUserOrdering(Long userId) {
         throw new RuntimeException("Not implemented");
     }

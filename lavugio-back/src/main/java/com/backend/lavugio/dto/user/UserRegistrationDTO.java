@@ -23,6 +23,11 @@ public class UserRegistrationDTO {
     @NotEmpty
     private String lastName;
 
+    @NotEmpty
     private String phoneNumber;
+
     private String profilePhotoPath;
+
+    @NotEmpty
+    private String address;
 }

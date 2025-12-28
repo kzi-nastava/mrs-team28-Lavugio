@@ -25,7 +25,7 @@ public class RegularUserController {
     
     // REGISTRATION
 
-    @PostMapping("/register/")
+    @PostMapping("/register")
     public ResponseEntity<?> registerRegularUser(@RequestBody UserRegistrationDTO request) {
         try {
             UserDTO user = regularUserService.createRegularUser(request);
@@ -45,7 +45,7 @@ public class RegularUserController {
         }
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<?> getRegularUserByEmail(@PathVariable String email) {
         try {
             UserDTO user = regularUserService.getUserDTOByEmail(email);
