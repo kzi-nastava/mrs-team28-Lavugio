@@ -28,6 +28,8 @@ public class DriverServiceImpl implements DriverService {
 
     @Autowired
     private VehicleRepository vehicleRepository;
+    
+    @Autowired
     private ActiveDriverLocationService activeDriverLocationService;
 
     @Override
@@ -91,10 +93,26 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    public Driver activateDriver(Long driverId) {
+        Driver driver = getDriverById(driverId);
+        
+        // if (driver.isActive()) {
+        //     throw new RuntimeException("Driver is already active");
+        // }
+        
+        if (driver.isBlocked()) {
+            throw new RuntimeException("Driver is blocked. Cannot activate.");
+        }
+        
+        // driver.setActive(true);
+        return driverRepository.save(driver);
+    }
+
+    @Override
     public DriverLocation activateDriver(Long driverId, double longitude, double latitude) throws RuntimeException{
         if (getDriverById(driverId) == null) {
             throw new RuntimeException("Driver not found with id: " + driverId);
-        };
+        }
         return activeDriverLocationService.addActiveDriverLocation(driverId, longitude, latitude);
     }
 
@@ -222,7 +240,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setProfilePhotoPath(request.getProfilePhotoPath());
         driver.setBlocked(false);
         driver.setBlockReason(null);
-        driver.setActive(false);
+        //driver.setActive(false);
         driver.setVehicle(savedVehicle);
 
         Driver savedDriver = driverRepository.save(driver);
@@ -253,7 +271,7 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public List<DriverDTO> getAvailableDriversDTO() {
-        List<Driver> drivers = driverRepository.findByBlockedFalseAndActiveTrue();
+        List<Driver> drivers = driverRepository.findByBlockedFalseAndIsDrivingTrue();
         return drivers.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -344,16 +362,16 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Driver not found with id: " + id));
 
-        if (driver.isActive()) {
-            throw new RuntimeException("Driver is already active");
-        }
+        // if (driver.isActive()) {
+        //     throw new RuntimeException("Driver is already active");
+        // }
 
         if (driver.isBlocked()) {
             throw new RuntimeException("Driver is blocked. Cannot activate.");
         }
 
         // TODO: Check 8-hour work limit
-        driver.setActive(true);
+        // driver.setActive(true);
         Driver savedDriver = driverRepository.save(driver);
 
         return createDriverStatusDTO(savedDriver);
@@ -365,11 +383,11 @@ public class DriverServiceImpl implements DriverService {
                 .orElseThrow(() -> new RuntimeException("Driver not found with id: " + id));
 
         // Check if already inactive
-        if (!driver.isActive()) {
-            throw new RuntimeException("Driver is already inactive");
-        }
+        // if (!driver.isActive()) {
+        //     throw new RuntimeException("Driver is already inactive");
+        // }
 
-        driver.setActive(false);
+        // driver.setActive(false);
         Driver savedDriver = driverRepository.save(driver);
 
         return createDriverStatusDTO(savedDriver);
@@ -401,7 +419,7 @@ public class DriverServiceImpl implements DriverService {
         dto.setProfilePhotoPath(driver.getProfilePhotoPath());
         dto.setBlocked(driver.isBlocked());
         dto.setBlockReason(driver.getBlockReason());
-        dto.setActive(driver.isActive());
+        // dto.setActive(driver.isActive());
 
         // Map vehicle if exists
         if (driver.getVehicle() != null) {
@@ -421,7 +439,7 @@ public class DriverServiceImpl implements DriverService {
         profile.setProfilePhotoPath(driver.getProfilePhotoPath());
         profile.setBlocked(driver.isBlocked());
         profile.setBlockReason(driver.getBlockReason());
-        profile.setActive(driver.isActive());
+        // profile.setActive(driver.isActive());
 
         if (driver.getVehicle() != null) {
             profile.setVehicle(mapVehicleToDTO(driver.getVehicle()));
@@ -451,7 +469,7 @@ public class DriverServiceImpl implements DriverService {
     private DriverStatusDTO createDriverStatusDTO(Driver driver) {
         DriverStatusDTO status = new DriverStatusDTO();
         status.setDriverId(driver.getId());
-        status.setActive(driver.isActive());
+        // status.setActive(driver.isActive());
         status.setLastStatusChange(java.time.LocalDateTime.now()); // TODO: Track actual
 
         // TODO: Calculate from activity sessions
@@ -462,9 +480,12 @@ public class DriverServiceImpl implements DriverService {
         status.setRemainingMinutesToday(Math.max(0, remaining));
 
         // Can activate if not active and hasn't exceeded 8 hours
-        status.setCanActivate(!driver.isActive() && status.getRemainingMinutesToday() > 0);
+        // status.setCanActivate(!driver.isActive() && status.getRemainingMinutesToday() > 0);
 
         return status;
+    }
+
+    @Override
     public Map<Long, DriverLocation> getAllActiveDriverStatuses() {
         return activeDriverLocationService.getAllActiveDriverLocations();
     }

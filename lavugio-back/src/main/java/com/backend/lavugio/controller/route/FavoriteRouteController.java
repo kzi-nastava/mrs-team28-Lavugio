@@ -17,7 +17,7 @@ public class FavoriteRouteController {
     @Autowired
     private FavoriteRouteService favoriteRouteService;
 
-    @PostMapping("/")
+    @PostMapping("/add")
     public ResponseEntity<?> createFavoriteRoute(@RequestBody FavoriteRouteDTO request) {
         try {
             FavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(request);

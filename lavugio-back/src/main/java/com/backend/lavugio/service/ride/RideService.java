@@ -44,4 +44,7 @@ public interface RideService {
     Float calculateTotalDistanceForDriver(Long driverId);
     Float calculateAverageFareForDriver(Long driverId);
     List<Ride> applyParametersToRides(List<Ride> rides, boolean ascending, DriverHistorySortFieldEnum sortBy, String dateRangeStart, String dateRangeEnd);
+    
+    // Instant Ride Creation
+    RideResponseDTO createInstantRide(String userEmail, RideRequestDTO request);
 }

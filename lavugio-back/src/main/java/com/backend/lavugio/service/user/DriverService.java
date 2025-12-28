@@ -39,7 +39,6 @@ public interface DriverService {
 
 
     Driver activateDriver(Long driverId);
-    Driver deactivateDriver(Long driverId);
 
     DriverLocation activateDriver(Long driverId, double longitude, double latitude);
     DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude);

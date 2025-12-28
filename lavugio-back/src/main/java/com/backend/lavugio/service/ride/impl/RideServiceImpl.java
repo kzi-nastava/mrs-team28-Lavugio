@@ -168,10 +168,10 @@ public class RideServiceImpl implements RideService {
                 throw new IllegalStateException("Cannot add passenger to ride in status: " + ride.getRideStatus());
             }
 
-            if (ride.getPassangers().contains(passenger)) {
+            if (ride.getPassengers().contains(passenger)) {
                 throw new IllegalStateException("Passenger already in this ride");
             }
-            ride.getPassangers().add(passenger);
+            ride.getPassengers().add(passenger);
         }
         return rideRepository.save(ride);
     }
@@ -243,6 +243,57 @@ public class RideServiceImpl implements RideService {
     @Override
     public List<Ride> applyParametersToRides(List<Ride> rides, boolean ascending, DriverHistorySortFieldEnum sortBy, String dateRangeStart, String dateRangeEnd) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    @Transactional
+    public RideResponseDTO createInstantRide(String userEmail, RideRequestDTO request) {
+        // Get the user who created the ride
+        RegularUser creator = regularUserRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+
+        // Find an available driver
+        /*List<Driver> availableDrivers = driverService.getAvailableDrivers();
+        if (availableDrivers.isEmpty()) {
+            throw new RuntimeException("No available drivers at the moment");
+        }
+
+        // Select the first available driver
+        Driver selectedDriver = availableDrivers.get(0);*/
+
+        Driver selectedDriver = driverService.getDriverById(1L); // Placeholder - should implement driver selection logic
+
+        // Create the ride
+        Ride ride = new Ride();
+        ride.setCreator(creator);
+        ride.setDriver(selectedDriver);
+        ride.setStartDateTime(LocalDateTime.now());
+        ride.setEndDateTime(null); // Will be set when ride finishes
+        ride.setPrice(300); // Placeholder - should be calculated based on distance and vehicle type
+        ride.setDistance(3000); // Placeholder - should be calculated
+        ride.setRideStatus(RideStatus.SCHEDULED);
+
+        // Add passengers to ride
+        if (request.getPassengerEmails() != null && !request.getPassengerEmails().isEmpty()) {
+            ride = addPassengerToRide(ride, request.getPassengerEmails());
+        }
+
+        // Save the ride
+        ride = rideRepository.save(ride);
+
+        // Convert to response DTO
+        return mapToRideResponseDTO(ride);
+    }
+
+    private RideResponseDTO mapToRideResponseDTO(Ride ride) {
+        RideResponseDTO response = new RideResponseDTO();
+        response.setId(ride.getId());
+        response.setStatus(ride.getRideStatus());
+        response.setPrice(ride.getPrice());
+        response.setDistance(ride.getDistance());
+        response.setEstimatedDuration(30); // Placeholder
+        // TODO: Map driver, creator, passengers DTOs properly
+        return response;
     }
 
     private void validateStatusTransition(RideStatus currentStatus, RideStatus newStatus) {

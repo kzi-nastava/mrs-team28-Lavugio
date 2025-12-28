@@ -43,9 +43,9 @@ public class RideController {
         // @AuthenticationPrincipal UserDetails userDetails,
         try {
             //String userEmail = userDetails.getUsername();
-            String userEmail = "email@emailovic.com"; // Placeholder vrednost
-            //RideDTO ride = rideService.createInstantRide(userEmail, request);
-            RideResponseDTO ride = new RideResponseDTO(); // Placeholder vrednost
+            String userEmail = "michael.brown@example.com"; // Placeholder vrednost
+            // WORK FROM HERE
+            RideResponseDTO ride = rideService.createInstantRide(userEmail, request);
             return ResponseEntity.status(HttpStatus.CREATED).body(ride);
         } catch (Exception e) {
             // notificationService.sendNoDriversAvailable(userDetails.getUsername());
@@ -104,8 +104,13 @@ public class RideController {
         // IMPLEMENTIRATI KADA SE URADI AUTENTIFIKACIJA LOGOVANOG KORISNIKA
         // @AuthenticationPrincipal UserDetails userDetails
         // String userEmail = userDetails.getUsername();
-        rideService.cancelRide(id);
-        return ResponseEntity.ok("Ride cancelled successfully");
+        try {
+            rideService.cancelRide(id);
+            return ResponseEntity.ok("Ride cancelled successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @PostMapping("/{id}/activate")
