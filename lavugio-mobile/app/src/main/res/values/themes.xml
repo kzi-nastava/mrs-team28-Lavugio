@@ -4,6 +4,8 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="android:fontFamily">@font/inter_variable_font</item>
+        <item name="colorPrimary">@color/primary_dark</item>
+        <item name="colorAccent">@color/primary_dark</item>
     </style>
 
     <style name="Theme.Lavugiomobile" parent="Base.Theme.Lavugiomobile" />
