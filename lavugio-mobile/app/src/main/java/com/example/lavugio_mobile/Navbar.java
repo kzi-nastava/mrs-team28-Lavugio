@@ -1,6 +1,5 @@
 package com.example.lavugio_mobile;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +13,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
+import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
-
-import com.example.lavugio_mobile.ui.driver.TripHistoryDriver;
 
 public class Navbar {
     private LinearLayout navbarContainer;
@@ -194,8 +192,7 @@ public class Navbar {
             case "Trips":
                 break;
             case "History":
-                Intent intent = new Intent(activity, TripHistoryDriver.class);
-                activity.startActivity(intent);
+                navigateToFragment(new TripHistoryFragment());
                 break;
             case "Reports":
                 break;

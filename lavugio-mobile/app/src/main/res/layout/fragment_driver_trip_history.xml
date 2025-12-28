@@ -7,12 +7,6 @@
     android:orientation="vertical"
     android:background="@drawable/background">
 
-    <!-- Navbar -->
-    <include
-        layout="@layout/navbar"
-        android:layout_width="match_parent"
-        android:layout_height="80dp" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

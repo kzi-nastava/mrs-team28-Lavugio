@@ -1,20 +1,18 @@
 package com.example.lavugio_mobile.ui.driver;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
-import com.example.lavugio_mobile.Navbar;
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.Trip;
 import com.google.android.material.button.MaterialButton;
@@ -25,7 +23,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class TripHistoryDriver extends AppCompatActivity {
+public class TripHistoryFragment extends Fragment {
 
     private EditText startDateEditText;
     private EditText endDateEditText;
@@ -38,21 +36,33 @@ public class TripHistoryDriver extends AppCompatActivity {
     private boolean isAscending = true;
     private List<Trip> tripsList;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_driver_trip_history);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        Navbar navbar = new Navbar(this, findViewById(R.id.main));
+    private View rootView;
 
-        tripsContainer = findViewById(R.id.tripsContainer);
-        sortOrderButton = findViewById(R.id.sortOrderButton);
-        initDatePicker();
+    public TripHistoryFragment() {
+        // Required empty public constructor
+    }
+
+    public static TripHistoryFragment newInstance() {
+        return new TripHistoryFragment();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        // Inflate layout za fragment
+        rootView = inflater.inflate(R.layout.fragment_driver_trip_history, container, false);
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        tripsContainer = view.findViewById(R.id.tripsContainer);
+        sortOrderButton = view.findViewById(R.id.sortOrderButton);
+
+        initDatePicker(view);
         initOrderButton(false);
         loadTestData();
         displayTrips();
@@ -79,7 +89,7 @@ public class TripHistoryDriver extends AppCompatActivity {
         tripsContainer.removeAllViews();
 
         if (tripsList.isEmpty()) {
-            TextView emptyView = new TextView(this);
+            TextView emptyView = new TextView(requireContext());
             emptyView.setText("Nema vožnji za prikaz");
             emptyView.setTextSize(16);
             emptyView.setTextColor(getResources().getColor(android.R.color.darker_gray));
@@ -118,21 +128,26 @@ public class TripHistoryDriver extends AppCompatActivity {
     }
 
     private void openTripDetails(Trip trip) {
-        Intent intent = new Intent(this, TripDetailsActivity.class);
-        intent.putExtra("tripId", trip.id);
-        intent.putExtra("startDate", trip.startDate);
-        intent.putExtra("startTime", trip.startTime);
-        intent.putExtra("endDate", trip.endDate);
-        intent.putExtra("endTime", trip.endTime);
-        intent.putExtra("departure", trip.departure);
-        intent.putExtra("destination", trip.destination);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        TripDetailsFragment fragment = TripDetailsFragment.newInstance(
+                trip.id,
+                trip.startDate,
+                trip.startTime,
+                trip.endDate,
+                trip.endTime,
+                trip.departure,
+                trip.destination
+        );
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_container, fragment) // R.id.fragmentContainer = ID layout-a u Activity gde se hostuju fragmenti
+                .addToBackStack(null) // omogućava back dugme
+                .commit();
     }
 
-    private void initDatePicker() {
-        startDateEditText = findViewById(R.id.startDateInputField);
-        endDateEditText = findViewById(R.id.endDateInputField);
+    private void initDatePicker(View view) {
+        startDateEditText = view.findViewById(R.id.startDateInputField);
+        endDateEditText = view.findViewById(R.id.endDateInputField);
 
         startCalendar = Calendar.getInstance();
         endCalendar = Calendar.getInstance();
@@ -162,7 +177,7 @@ public class TripHistoryDriver extends AppCompatActivity {
         int day = currentCalendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
+                requireContext(),
                 (view, year1, month1, dayOfMonth) -> {
                     if (isSelectingStartDate) {
                         startCalendar.set(year1, month1, dayOfMonth);
@@ -205,7 +220,6 @@ public class TripHistoryDriver extends AppCompatActivity {
         displayTrips();
     }
 
-
     public String getStartDate() {
         if (startDateEditText != null && !startDateEditText.getText().toString().isEmpty()) {
             return startDateEditText.getText().toString();
@@ -223,6 +237,13 @@ public class TripHistoryDriver extends AppCompatActivity {
     public void initOrderButton(boolean ascending) {
         isAscending = ascending;
 
+        // Postavi inicijalnu ikonu
+        if (isAscending) {
+            sortOrderButton.setIconResource(R.drawable.ic_arrow_long_upward);
+        } else {
+            sortOrderButton.setIconResource(R.drawable.ic_arrow_long_downward);
+        }
+
         sortOrderButton.setOnClickListener(v -> {
             isAscending = !isAscending;
 
@@ -235,5 +256,4 @@ public class TripHistoryDriver extends AppCompatActivity {
             // logika posle
         });
     }
-
 }
