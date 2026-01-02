@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DriverStatusDTO {
+public class DriverLocationDTO {
     private Long driverId;
     private CoordinatesDTO driverLocation;
-    private boolean isAvailable;
 }
