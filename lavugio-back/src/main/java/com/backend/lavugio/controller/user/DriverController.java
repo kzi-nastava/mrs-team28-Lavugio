@@ -1,19 +1,19 @@
 package com.backend.lavugio.controller.user;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.user.DriverStatusDTO;
+import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
+import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.route.RideDestinationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.backend.lavugio.dto.user.DriverDTO;
 import com.backend.lavugio.dto.user.DriverRegistrationDTO;
@@ -25,7 +25,15 @@ import com.backend.lavugio.service.user.DriverService;
 public class DriverController {
 	@Autowired
 	private DriverService driverService;
-	
+
+    private RideService rideService;
+    private RideDestinationService rideDestinationService;
+
+    @Autowired
+    public DriverController(RideService rideService, RideDestinationService rideDestinationService) {
+        this.rideService = rideService;
+        this.rideDestinationService = rideDestinationService;
+    }
  // ========== REGISTRATION ==========
     
     @PostMapping("/register")
@@ -205,5 +213,137 @@ public class DriverController {
             return ResponseEntity.notFound().build();
         }
     }
-	
+
+    @GetMapping(value = "/{driverId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<DriverHistoryDTO>> getAllDriverHistory(@PathVariable Long driverId,
+                                                                            @RequestParam(defaultValue = "false") boolean ascending,
+                                                                            @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
+                                                                            @RequestParam(required = false) String dateRangeStart,
+                                                                            @RequestParam(required = false) String dateRangeEnd) {
+//        List<Ride> rides = rideService.getFinishedRidesForDriver(driverId);
+//        rideService.applyParametersToRides(rides, ascending, sortBy, dateRangeStart, dateRangeEnd);
+//        List<DriverHistoryDTO> ridesDTO = new ArrayList<>();
+//        for (Ride ride : rides){
+//            ridesDTO.add(new DriverHistoryDTO(ride));
+//        }
+        List<DriverHistoryDTO> rides = new ArrayList<>();
+        rides.add(new DriverHistoryDTO(1L, "Location A", "Location B", "11:23 15.03.2024", "12:01 15.03.2024"));
+        rides.add(new DriverHistoryDTO(2L, "Location C", "Location D", "09:10 14.03.2024", "09:45 14.03.2024"));
+        rides.add(new DriverHistoryDTO(3L, "Location E", "Location F", "14:05 13.03.2024", "14:50 13.03.2024"));
+        return new ResponseEntity<>(rides, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{driverId}/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DriverHistoryDetailedDTO> getDriverHistoryByRideId(@PathVariable Long rideId){
+//        Ride ride = rideService.getRideById(rideId);
+//        List<RideDestination> destinations = rideDestinationService.getStartAndEndDestinationForRide(rideId);
+//        RideDestination startDestination = destinations.get(0);
+//        RideDestination endDestination = destinations.get(1);
+//        DriverHistoryDetailedDTO rideDTO = new DriverHistoryDetailedDTO(ride, startDestination, endDestination);
+        List<PassengerTableRowDTO> passengers = new ArrayList<>();
+        passengers.add(new PassengerTableRowDTO(
+                1L,
+                "Marko Marković",
+                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "image/png")
+        ));
+        passengers.add(new PassengerTableRowDTO(
+                2L,
+                "Ana Anić",
+                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==", "image/png")
+        ));
+        passengers.add(new PassengerTableRowDTO(
+                3L,
+                "Petar Petrović",
+                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA+G6D9wAAAABJRU5ErkJggg==", "image/png")
+        ));
+
+        DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(
+                "11:23 15.03.2024",
+                "12:45 15.03.2024",
+                "Kneza Miloša 15, Beograd",
+                "Bulevar kralja Aleksandra 73, Beograd",
+                1250.50,
+                false,
+                false,
+                passengers,
+                new CoordinatesDTO(44.8125, 20.4612),
+                new CoordinatesDTO(44.8023, 20.4856)
+        );
+
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{driverId}/reports", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<RideReportedDTO>> getDriverReports(@PathVariable Long driverId){
+//        Collection<RideReport> reports = rideReportService.getReportsForDriver(driverId);
+//        Collection<RideReportedDTO> reportDTOs = new ArrayList<>();
+//        for (RideReport report : reports) {
+//            RideReportedDTO rideReportedDTO = new RideReportedDTO();
+//            rideReportedDTO.setReporterId(report.getReporter().getId());
+//            rideReportedDTO.setReportId(report.getReportId());
+//            rideReportedDTO.setReportText(report.getReportMessage());
+//            reportDTOs.add(rideReportedDTO);
+//        }
+        List<RideReportedDTO> reportDTOs = new ArrayList<>();
+        reportDTOs.add(new RideReportedDTO(1L, 1L, 2L, "Driver was rude"));
+        reportDTOs.add(new RideReportedDTO(2L, 1L, 3L, "Driver took a longer route"));
+        return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{driverId}/scheduled-rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<ScheduledRideDTO>> getAllScheduledRides(@PathVariable Long driverId){
+        //return new ResponseEntity<>(scheduledRideService.getScheduledRidesForDriver(driverId),HttpStatus.OK);
+        List<ScheduledRideDTO> scheduledRides = new ArrayList<>();
+        scheduledRides.add(new ScheduledRideDTO(1L, "Location A", "Location B", "10:50 21.02.2025."));
+        scheduledRides.add(new ScheduledRideDTO(2L, "Location C", "Location D", "14:30 22.02.2025."));
+        scheduledRides.add(new ScheduledRideDTO(3L, "Location E", "Location F", "09:15 23.02.2025."));
+        return new ResponseEntity<>(scheduledRides,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/locations", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations(){
+        //Map<Long, DriverLocation> statuses = driverService.getAllActiveDriverStatuses();
+        List<DriverLocationDTO> statuses = new ArrayList<>();
+        statuses.add(new DriverLocationDTO(1L, new CoordinatesDTO(45.2671, 19.8335)));
+        statuses.add(new DriverLocationDTO(2L, new CoordinatesDTO(44.7866, 20.4489)));
+        statuses.add(new DriverLocationDTO(3L, new CoordinatesDTO(43.8563, 18.4131)));
+        return new ResponseEntity<>(statuses, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{driverId}/location", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DriverLocationDTO> getDriverLocation(@PathVariable Long driverId){
+//        DriverLocation driverLocation = driverService.getDriverStatus(driverId);
+//        if (driverLocation == null){
+//            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+        DriverLocationDTO driverLocation = new DriverLocationDTO(driverId, new CoordinatesDTO(45.2671, 19.8335));
+        return new ResponseEntity<>(driverLocation, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/{driverId}/activate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DriverLocationDTO> activateDriver(@PathVariable Long driverId,
+                                                            @RequestBody CoordinatesDTO coordinates) {
+//        DriverLocation status;
+//        try{
+//            status = driverService.activateDriver(driverId, longitude, latitude);
+//        }catch (RuntimeException e){
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+        DriverLocationDTO activatedStatus = new DriverLocationDTO(driverId, coordinates);
+        return new ResponseEntity<>(activatedStatus, HttpStatus.CREATED);
+    }
+
+    @PutMapping(value = "/{driverId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DriverLocationDTO> updateDriver(@PathVariable Long driverId,
+                                                          @RequestBody UpdateDriverStatusDTO driverStatusDTO) {
+//        DriverLocation status;
+//        try{
+//            status = driverService.updateDriverLocation(driverId, longitude, latitude);
+//        } catch (RuntimeException e){
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+        DriverLocationDTO updatedStatus = new DriverLocationDTO(driverId,
+                driverStatusDTO.getDriverLocation());
+        return new ResponseEntity<>(updatedStatus, HttpStatus.OK);
+    }
 }

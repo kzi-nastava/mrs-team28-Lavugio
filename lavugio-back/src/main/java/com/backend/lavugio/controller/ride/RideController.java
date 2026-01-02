@@ -1,5 +1,6 @@
 package com.backend.lavugio.controller.ride;
 
+import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.RideEstimateDTO;
 import com.backend.lavugio.dto.ride.RideEstimateRequestDTO;
 import com.backend.lavugio.dto.ride.RideRequestDTO;
@@ -10,9 +11,12 @@ import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -99,6 +103,80 @@ public class RideController {
         return ResponseEntity.ok(rides);
     }
 
+    @GetMapping(value="/{rideId}/reports", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<RideReportedDTO>> getRideReports(@PathVariable Long rideId){
+//        Collection<RideReport> reports = rideReportService.getReportsByRideId(rideId);
+//        Collection<RideReportedDTO> reportDTOs = new ArrayList<>();
+//        for (RideReport report : reports) {
+//            RideReportedDTO rideReportedDTO = new RideReportedDTO();
+//            rideReportedDTO.setReporterId(report.getReporter().getId());
+//            rideReportedDTO.setReportId(report.getReportId());
+//            rideReportedDTO.setReportText(report.getReportMessage());
+//            reportDTOs.add(rideReportedDTO);
+//        }
+        List<RideReportedDTO> reportDTOs = new ArrayList<>();
+        reportDTOs.add(new RideReportedDTO(1L, rideId, 2L, "Driver was late"));
+        reportDTOs.add(new RideReportedDTO(2L, rideId, 3L, "Car was unclean"));
+        return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{rideId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideStatusDTO> getRideStatus(@PathVariable Long rideId) {
+//        Ride ride = rideService.getRideById(rideId);
+//        DriverLocation driverLocation = driverService.getDriverStatus(ride.getDriver().getId());
+//        if (driverLocation == null){
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//        List<RideDestination> rideDestinations = rideDestinationService.getOrderedDestinationsByRideId(rideId);
+//        Address start = rideDestinations.getFirst().getAddress();
+//        Address end = rideDestinations.getLast().getAddress();
+//        RouteTimeEstimation eta;
+//        try {
+//            eta = etaService.calculateEta(driverLocation.getLongitude(), driverLocation.getLatitude(), end.getLongitude(), end.getLatitude());
+//        }catch(Exception e){
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//        RideStatusDTO status =  new RideStatusDTO();
+//        status.setStartLatitude(start.getLatitude());
+//        status.setStartLongitude(start.getLongitude());
+//        status.setDestinationLatitude(end.getLatitude());
+//        status.setDestinationLongitude(end.getLongitude());
+//        status.setCurrentLatitude(driverLocation.getLatitude());
+//        status.setCurrentLongitude(driverLocation.getLongitude());
+//        status.setRemainingTimeSeconds(eta.getDurationSeconds());
+        RideStatusDTO status =  new RideStatusDTO(rideId, new CoordinatesDTO(30.2671, 19.8335),
+                new CoordinatesDTO(30.2861, 19.8017),
+                new CoordinatesDTO(30.2750, 19.8200),
+                600);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/statuses", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<RideStatusDTO>> getRideStatuses() {
+        //rideService.getAllActiveRideStatuses();
+        List<RideStatusDTO> statuses =  new ArrayList<>();
+        statuses.add(new RideStatusDTO(1L, new CoordinatesDTO(30.2671, 19.8335),
+                new CoordinatesDTO(30.2861, 19.8017),
+                new CoordinatesDTO(30.2750, 19.8200),
+                600));
+        statuses.add(new RideStatusDTO(2L, new CoordinatesDTO(31.2671, 20.8335),
+                new CoordinatesDTO(31.2861, 20.8017),
+                new CoordinatesDTO(31.2750, 20.8200),
+                800));
+        statuses.add(new RideStatusDTO(3L, new CoordinatesDTO(32.2671, 21.8335),
+                new CoordinatesDTO(32.2861, 21.8017),
+                new CoordinatesDTO(32.2750, 21.8200),
+                400));
+        return new ResponseEntity<>(statuses, HttpStatus.OK);
+    }
+
+
+    @GetMapping(value = "/{rideId}/review", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GetRideReviewDTO> getRideReview(@PathVariable Long rideId){
+        GetRideReviewDTO getRideReviewDTO = new GetRideReviewDTO(1L, 4, 5, "Great ride!");
+        return new ResponseEntity<>(getRideReviewDTO, HttpStatus.OK);
+    }
+
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancelRide(@PathVariable Long id) {
         // IMPLEMENTIRATI KADA SE URADI AUTENTIFIKACIJA LOGOVANOG KORISNIKA
@@ -130,5 +208,44 @@ public class RideController {
         rideService.updateRideStatus(id, RideStatus.STOPPED);
         // send notifications to authorities and emergency contacts
         return ResponseEntity.ok("Ride panic activated successfully");
+    }
+
+    @PostMapping(value = "/{rideId}/report", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideReportedDTO> postRideReport(@PathVariable Long rideId, @RequestBody RideReportDTO reportDTO){
+//        RideReport report = new RideReport();
+//        Ride ride = rideService.getRideById(rideId);
+//        RegularUser user =  regularUserService.getRegularUserById(reportDTO.getReporterId());
+//        report.setRide(ride);
+//        report.setReportMessage(reportDTO.getReportText());
+//        report.setReporter(user);
+//        rideReportService.createReport(report);
+//
+//        RideReportedDTO rideReportedDTO = new RideReportedDTO();
+//        rideReportedDTO.setReporterId(report.getReporter().getId());
+//        rideReportedDTO.setReportId(report.getReportId());
+//        rideReportedDTO.setReportText(report.getReportMessage());
+        RideReportedDTO rideReportedDTO = new RideReportedDTO(1L, rideId, reportDTO.getReporterId(), reportDTO.getReportText());
+        return new ResponseEntity<>(rideReportedDTO, HttpStatus.OK);
+    }
+
+    @PostMapping("/{rideId}/review")
+    public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
+        //reviewService.createReview(rideId, rideReviewDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/{rideId}/complete")
+    public ResponseEntity<?> completeRide(@PathVariable Long rideId,
+                                          @RequestBody FinishRideDTO finishRideDTO) {
+//        Ride ride = rideService.getRideById(rideId);
+//        Driver driver = ride.getDriver();
+//        rideService.updateRideStatus(rideId, RideStatus.FINISHED);
+//        driverService.updateDriverDriving(driver.getId(), false);
+//        notificationService.notifyPassengersAboutFinishedRide(ride);
+//        for (RegularUser user : ride.getPassengers()){
+//            userService.enableUserOrdering(user.getId());
+//        }
+        // notificationService.notifyPassengersAboutCompletedRide();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
