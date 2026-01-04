@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {DateRangePicker} from '@app/material-components/date-range-picker/date-range-picker'
+import {DateRangePicker} from '@app/components/date-range-picker/date-range-picker'
 @Component({
   selector: 'app-date-filter',
   imports: [DateRangePicker],
