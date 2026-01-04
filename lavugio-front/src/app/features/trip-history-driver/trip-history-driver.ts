@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {BaseInfoPage} from '../base-info-page/base-info-page';
-import {DateFilter} from '@app/layout/trip-history-driver/date-filter/date-filter';
+import {DateFilter} from './date-filter/date-filter';
 import {Table} from './table/table';
 @Component({
   selector: 'app-trip-history-driver',

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Navbar } from '@app/layout/navbar/navbar';
+import { Navbar } from '@app/components/navbar/navbar';
 
 @Component({
   selector: 'app-verification-success',

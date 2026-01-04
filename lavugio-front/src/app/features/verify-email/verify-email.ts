@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Navbar } from '@app/layout/navbar/navbar';
+import { Navbar } from '@app/components/navbar/navbar';
 
 @Component({
   selector: 'app-verify-email',
