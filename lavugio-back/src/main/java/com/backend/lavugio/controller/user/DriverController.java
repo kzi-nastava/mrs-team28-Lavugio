@@ -306,8 +306,9 @@ public class DriverController {
         //Map<Long, DriverLocation> statuses = driverService.getAllActiveDriverStatuses();
         List<DriverLocationDTO> statuses = new ArrayList<>();
         statuses.add(new DriverLocationDTO(1L, new CoordinatesDTO(45.2671, 19.8335), DriverStatusEnum.AVAILABLE));
-        statuses.add(new DriverLocationDTO(2L, new CoordinatesDTO(44.7866, 20.4489), DriverStatusEnum.DRIVING));
-        statuses.add(new DriverLocationDTO(3L, new CoordinatesDTO(43.8563, 18.4131), DriverStatusEnum.SCHEDULED));
+        statuses.add(new DriverLocationDTO(2L, new CoordinatesDTO(45.2672, 19.8336), DriverStatusEnum.BUSY));
+        statuses.add(new DriverLocationDTO(3L, new CoordinatesDTO(45.2673, 19.8337), DriverStatusEnum.RESERVED
+        ));
         return new ResponseEntity<>(statuses, HttpStatus.OK);
     }
 
