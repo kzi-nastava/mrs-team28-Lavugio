@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {Links} from './links/links';
-import {Logo} from './logo/logo';
+import {Logo} from './links/logo/logo';
 import {Link} from './links/link/link'
 
 @Component({

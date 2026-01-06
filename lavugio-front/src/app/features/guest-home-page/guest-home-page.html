@@ -1,0 +1,46 @@
+<div class="relative h-screen">
+  <!-- background image (ispod) -->
+  <div class="absolute inset-0 bg-[url('/home-page-background.jpg')] bg-cover bg-center"></div>
+
+  <!-- overlay koji tamni sliku, ne utiče na tekst -->
+  <div class="absolute inset-0 bg-[#283618]/60"></div>
+
+  <!-- sadržaj sa višim z-index-om -->
+  <div class="relative z-10 flex flex-col items-baseline justify-center h-full font-[Inter] text-[#FEFAE0] pl-5 lg:pl-10">
+    <h1 class="text-3xl md:text-4xl lg:text-6xl font-bold">Tired of long exhausting rides?</h1>
+    <h2 class="text-md lg:text-xl pt-5 lg:pt-10">Travel easy with Lavugio</h2>
+    <div class="gap-5 flex flex-row pt-5 lg:pt-15">
+        <app-button
+            [variant]="'light-green'"
+            [size]="'medium'"
+            [fullWidth]="false"
+            [fill]="true"
+            [type]="'button'"
+            (click)="scrollDown()">
+            See routes
+        </app-button>
+    <app-button
+            [variant]="'dark-brown'"
+            [size]="'medium'"
+            [fullWidth]="false"
+            [fill]="true"
+            [type]="'button'"
+            (click)="sendToRegistrationPage()">
+            Register
+        </app-button>
+  </div>
+  </div>
+</div>
+
+<div class="relative h-screen w-full">
+  <div id="map" class="absolute inset-0 z-0">
+    <app-map></app-map>
+  </div>
+
+  <!-- <div
+    id="form"
+    class="relative z-10 w-1/4 h-2/3 bg-[#283618] flex flex-col items-center pt-10"
+  >
+    <app-form></app-form>
+  </div> -->
+</div>

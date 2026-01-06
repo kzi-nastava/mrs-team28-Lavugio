@@ -2,7 +2,7 @@ import { Component, AfterViewInit, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
-import { Coordinates } from './models/coordinates';
+import { Coordinates } from '../../models/coordinates';
 import { MarkerIcons } from './marker-icons';
 
 @Component({

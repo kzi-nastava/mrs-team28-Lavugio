@@ -1,6 +1,6 @@
 import { Coordinates } from "./coordinates";
 
-export interface Driver{
+export interface DriverMarkerLocation{
     location: Coordinates;
     status: string;
 }

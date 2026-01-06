@@ -1,7 +1,7 @@
-import { Driver } from '../models/driver';
-import { Coordinates } from '../models/coordinates';
+import { DriverMarkerLocation } from '../shared/models/driverMarkerLocation';
+import { Coordinates } from '../shared/models/coordinates';
 
-export const DRIVERS_MOCK: Driver[] = [
+export const DRIVERS_MOCK: DriverMarkerLocation[] = [
   {
     location: { latitude: 45.2517, longitude: 19.8369 } as Coordinates,
     status: 'available'
