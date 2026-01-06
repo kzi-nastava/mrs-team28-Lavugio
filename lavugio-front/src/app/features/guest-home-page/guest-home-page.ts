@@ -39,10 +39,8 @@ export class GuestHomePage implements AfterViewInit{
   private loadDriverMarkers() {
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
-        // prvo ukloni stare markere
         console.log('Got locations from backend:', locations);
         this.mapComponent.resetMarkers();
-        // dodaj markere za sve lokacije
         locations.forEach(loc => {
           this.mapComponent.addMarker(
             { latitude: loc.location.latitude, longitude: loc.location.longitude },
@@ -63,7 +61,7 @@ export class GuestHomePage implements AfterViewInit{
       case 'RESERVED':
         return MarkerIcons.driverReserved;
       default:
-        return MarkerIcons.default; // fallback
+        return MarkerIcons.default;
     }
   }
 }
