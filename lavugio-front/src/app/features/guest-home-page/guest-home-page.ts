@@ -14,6 +14,7 @@ import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 })
 export class GuestHomePage implements AfterViewInit{
   @ViewChild('map') mapComponent!: MapComponent;
+  private intervalId: any;
 
   constructor(
     private router: Router,
@@ -23,8 +24,7 @@ export class GuestHomePage implements AfterViewInit{
   ngAfterViewInit() {
       this.loadDriverMarkers();
 
-      // osvežavanje svaka 2 minuta
-      setInterval(() => this.loadDriverMarkers(), 120_000);
+      this.intervalId = setInterval(() => this.loadDriverMarkers(), 120_000);
   }
 
   sendToRegistrationPage() {
@@ -39,10 +39,8 @@ export class GuestHomePage implements AfterViewInit{
   private loadDriverMarkers() {
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
-        // prvo ukloni stare markere
         console.log('Got locations from backend:', locations);
         this.mapComponent.resetMarkers();
-        // dodaj markere za sve lokacije
         locations.forEach(loc => {
           this.mapComponent.addMarker(
             { latitude: loc.location.latitude, longitude: loc.location.longitude },
@@ -63,7 +61,12 @@ export class GuestHomePage implements AfterViewInit{
       case 'RESERVED':
         return MarkerIcons.driverReserved;
       default:
-        return MarkerIcons.default; // fallback
+        return MarkerIcons.default;
     }
   }
+
+  ngOnDestroy() {
+    clearInterval(this.intervalId);
+  }
+
 }
