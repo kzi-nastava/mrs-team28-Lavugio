@@ -1,6 +1,7 @@
 import { Coordinates } from "./coordinates";
 
 export interface DriverMarkerLocation{
+    id: number;
     location: Coordinates;
-    status: string;
+    status: "available" | "busy" | "reserved";
 }
