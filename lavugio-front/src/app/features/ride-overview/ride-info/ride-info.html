@@ -1,0 +1,87 @@
+<div class="w-full h-full flex flex-col font-[Inter] bg-[#FEFAE0]/95">
+
+  <!-- Header: naslov + report dugme -->
+  <div
+    class="flex items-center justify-between bg-[#606C38] p-2 sm:p-3"
+  >
+    <h2 class="text-base sm:text-lg lg:text-xl text-[#FEFAE0] font-bold">
+      Ride information
+    </h2>
+
+    <button
+      class="text-xs sm:text-sm font-semibold text-white bg-red-700
+             px-3 py-1.5 rounded-md hover:bg-red-800 transition shadow-md">
+      Report
+    </button>
+  </div>
+
+  <!-- Time Remaining (NE scrolluje) -->
+  <div class="p-2 sm:p-3">
+    <div
+      class="flex flex-col items-center justify-center gap-1
+             py-4 sm:py-6 bg-[#606C38]/10
+             rounded-lg border-2 border-[#606C38]"
+    >
+      <p class="text-[#606C38] text-xs sm:text-sm font-semibold uppercase tracking-wide">
+        Time Remaining
+      </p>
+      <p class="text-[#BC6C25] font-bold text-3xl sm:text-4xl lg:text-5xl">
+        15 min
+      </p>
+    </div>
+  </div>
+
+  <!-- SCROLLABLE PODACI -->
+  <div
+    class="flex flex-col grow overflow-y-auto overflow-x-hidden
+           px-2 sm:px-3 gap-2 sm:gap-3 text-sm sm:text-base lg:text-lg text-[#283618]"
+  >
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
+      <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Driver:</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">John Doe</p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
+      <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Pickup:</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">
+        Main St. 123, Cityville
+      </p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
+      <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Drop-off:</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">
+        Central Park, Cityville
+      </p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
+      <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Departure:</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">
+        10:00 AM, 15th June
+      </p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#606C38]/30">
+      <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Elapsed:</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">
+        5 minutes
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Panic dugme (NE scrolluje, uvek vidljivo) -->
+  <div class="p-3 sm:p-4">
+    <button
+      class="w-full py-2 sm:py-3 rounded-lg
+             bg-red-600 text-white font-bold
+             text-sm sm:text-base
+             hover:bg-red-700 transition shadow-lg"
+    >
+      PANIC
+    </button>
+  </div>
+
+</div>
