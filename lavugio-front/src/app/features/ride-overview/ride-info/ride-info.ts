@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrl: './ride-info.css',
 })
 export class RideInfo {
-  
+  rideStatus: string = 'cancelled';
 }
