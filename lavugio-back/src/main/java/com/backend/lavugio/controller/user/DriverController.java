@@ -7,6 +7,7 @@ import java.util.List;
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.user.DriverStatusDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
+import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,9 +305,10 @@ public class DriverController {
     public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations(){
         //Map<Long, DriverLocation> statuses = driverService.getAllActiveDriverStatuses();
         List<DriverLocationDTO> statuses = new ArrayList<>();
-        statuses.add(new DriverLocationDTO(1L, new CoordinatesDTO(45.2671, 19.8335)));
-        statuses.add(new DriverLocationDTO(2L, new CoordinatesDTO(44.7866, 20.4489)));
-        statuses.add(new DriverLocationDTO(3L, new CoordinatesDTO(43.8563, 18.4131)));
+        statuses.add(new DriverLocationDTO(1L, new CoordinatesDTO(45.2671, 19.8335), DriverStatusEnum.AVAILABLE));
+        statuses.add(new DriverLocationDTO(2L, new CoordinatesDTO(45.2672, 19.8336), DriverStatusEnum.BUSY));
+        statuses.add(new DriverLocationDTO(3L, new CoordinatesDTO(45.2673, 19.8337), DriverStatusEnum.RESERVED
+        ));
         return new ResponseEntity<>(statuses, HttpStatus.OK);
     }
 
@@ -316,7 +318,7 @@ public class DriverController {
 //        if (driverLocation == null){
 //            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //        }
-        DriverLocationDTO driverLocation = new DriverLocationDTO(driverId, new CoordinatesDTO(45.2671, 19.8335));
+        DriverLocationDTO driverLocation = new DriverLocationDTO(driverId, new CoordinatesDTO(45.2671, 19.8335), DriverStatusEnum.AVAILABLE);
         return new ResponseEntity<>(driverLocation, HttpStatus.OK);
     }
 
@@ -329,7 +331,7 @@ public class DriverController {
 //        }catch (RuntimeException e){
 //            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 //        }
-        DriverLocationDTO activatedStatus = new DriverLocationDTO(driverId, coordinates);
+        DriverLocationDTO activatedStatus = new DriverLocationDTO(driverId, coordinates, DriverStatusEnum.AVAILABLE);
         return new ResponseEntity<>(activatedStatus, HttpStatus.CREATED);
     }
 
@@ -343,7 +345,7 @@ public class DriverController {
 //            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 //        }
         DriverLocationDTO updatedStatus = new DriverLocationDTO(driverId,
-                driverStatusDTO.getDriverLocation());
+                driverStatusDTO.getDriverLocation(), DriverStatusEnum.AVAILABLE);
         return new ResponseEntity<>(updatedStatus, HttpStatus.OK);
     }
 }

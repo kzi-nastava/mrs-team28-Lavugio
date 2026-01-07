@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ProfileInfoRow } from '../profile-info-row/profile-info-row';
-import { Button } from "../../../../components/button/button";
+import { Button } from "../../../../shared/components/button/button";
 
 @Component({
   selector: 'app-profile-info-section',
