@@ -75,7 +75,7 @@
   <div class="px-3 sm:px-4 pt-2 pb-3 sm:pb-4 space-y-2">
     
     <!-- Status - SCHEDULED -->
-    @if (rideStatus === 'scheduled') {
+    @if (rideStatus() === 'scheduled') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-blue-100 rounded-lg border border-blue-300">
         <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
         <p class="text-blue-700 text-xs sm:text-sm font-semibold">Ride Scheduled</p>
@@ -83,7 +83,7 @@
     }
     
     <!-- Status - ACTIVE -->
-    @else if (rideStatus === 'active') {
+    @else if (rideStatus() === 'in_progress') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-green-100 rounded-lg border border-green-300">
         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
         <p class="text-green-700 text-xs sm:text-sm font-semibold">Ride in Progress</p>
@@ -91,7 +91,7 @@
     }
     
     <!-- Status - CANCELLED -->
-    @else if (rideStatus === 'cancelled') {
+    @else if (rideStatus() === 'cancelled') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 rounded-lg border border-red-300">
         <div class="w-2 h-2 bg-red-500 rounded-full"></div>
         <p class="text-red-700 text-xs sm:text-sm font-semibold">Ride Cancelled</p>
@@ -99,7 +99,7 @@
     }
     
     <!-- Status - FINISHED -->
-    @else if (rideStatus === 'finished') {
+    @else if (rideStatus() === 'finished') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-gray-100 rounded-lg border border-gray-300">
         <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -109,17 +109,17 @@
     }
 
     <!-- Dugmad - prikaz zavisi od statusa -->
-    @if (rideStatus === 'scheduled' || rideStatus === 'active') {
+    @if (rideStatus() === 'scheduled' || rideStatus() === 'in_progress') {
       <div class="flex gap-2">
         <button
           class="flex-1 py-2 sm:py-3 rounded-lg
-                 bg-gray-500 text-white font-bold
+                 bg-[#BC6C25] text-white font-bold
                  text-sm sm:text-base
-                 hover:bg-gray-600 transition shadow-md">
+                 hover:bg-[#9a5520] transition shadow-md">
           Cancel
         </button>
         
-        @if (rideStatus === 'active') {
+        @if (rideStatus() === 'in_progress') {
           <button
             class="flex-1 py-2 sm:py-3 rounded-lg
                    bg-red-600 text-white font-bold
@@ -131,7 +131,7 @@
       </div>
     }
     
-    @else if (rideStatus === 'finished') {
+    @else if (rideStatus() === 'finished') {
       <button
         class="w-full py-2 sm:py-3 rounded-lg
                bg-[#606C38] text-white font-bold
