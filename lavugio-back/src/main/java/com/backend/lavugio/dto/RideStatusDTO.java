@@ -1,5 +1,6 @@
 package com.backend.lavugio.dto;
 
+import com.backend.lavugio.model.enums.RideStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,9 +15,17 @@ public class RideStatusDTO {
 
     private CoordinatesDTO driverCoordinates;
 
-    private CoordinatesDTO rideStartCoordinates;
+    private CoordinatesDTO startCoordinates;
 
-    private CoordinatesDTO rideEndCoordinates;
+    private CoordinatesDTO endCoordinates;
 
-    private double remainingTimeSeconds;
+    private RideStatus status;
+
+    private String driverName;
+
+    private String startAddress;
+
+    private String endAddress;
+
+    private String departureTime;
 }
