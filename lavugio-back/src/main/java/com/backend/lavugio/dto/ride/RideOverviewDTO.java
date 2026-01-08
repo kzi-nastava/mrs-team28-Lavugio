@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RideStatusDTO {
+public class RideOverviewDTO {
     private Long rideId;
 
     private CoordinatesDTO driverCoordinates;

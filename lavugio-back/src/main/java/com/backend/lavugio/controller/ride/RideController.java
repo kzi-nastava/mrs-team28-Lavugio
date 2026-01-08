@@ -118,8 +118,8 @@ public class RideController {
         return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{rideId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RideStatusDTO> getRideStatus(@PathVariable Long rideId) {
+    @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideOverviewDTO> getRideStatus(@PathVariable Long rideId) {
 //        Ride ride = rideService.getRideById(rideId);
 //        DriverLocation driverLocation = driverService.getDriverStatus(ride.getDriver().getId());
 //        if (driverLocation == null){
@@ -142,7 +142,7 @@ public class RideController {
 //        status.setCurrentLatitude(driverLocation.getLatitude());
 //        status.setCurrentLongitude(driverLocation.getLongitude());
 //        status.setRemainingTimeSeconds(eta.getDurationSeconds());
-        RideStatusDTO status =  new RideStatusDTO(
+        RideOverviewDTO status =  new RideOverviewDTO(
                 1L,
                 new CoordinatesDTO(30.2671, 19.8335),
                 new CoordinatesDTO(30.2861, 19.8017),
@@ -156,12 +156,12 @@ public class RideController {
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/statuses", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RideStatusDTO>> getRideStatuses() {
+    @GetMapping(value = "/overviews", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<RideOverviewDTO>> getRideStatuses() {
 
-        List<RideStatusDTO> statuses = new ArrayList<>();
+        List<RideOverviewDTO> statuses = new ArrayList<>();
 
-        statuses.add(new RideStatusDTO(
+        statuses.add(new RideOverviewDTO(
                 1L,
                 new CoordinatesDTO(30.2671, 19.8335),
                 new CoordinatesDTO(30.2861, 19.8017),
@@ -174,7 +174,7 @@ public class RideController {
                 null // arrivalTime još ne postoji
         ));
 
-        statuses.add(new RideStatusDTO(
+        statuses.add(new RideOverviewDTO(
                 2L,
                 new CoordinatesDTO(31.2671, 20.8335),
                 new CoordinatesDTO(31.2861, 20.8017),
@@ -187,7 +187,7 @@ public class RideController {
                 LocalDateTime.of(2026, 1, 8, 17, 45)
         ));
 
-        statuses.add(new RideStatusDTO(
+        statuses.add(new RideOverviewDTO(
                 3L,
                 null, // driver još nije dodeljen
                 new CoordinatesDTO(32.2861, 21.8017),
