@@ -1,10 +1,7 @@
 package com.backend.lavugio.controller.ride;
 
 import com.backend.lavugio.dto.*;
-import com.backend.lavugio.dto.ride.RideEstimateDTO;
-import com.backend.lavugio.dto.ride.RideEstimateRequestDTO;
-import com.backend.lavugio.dto.ride.RideRequestDTO;
-import com.backend.lavugio.dto.ride.RideResponseDTO;
+import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.service.ride.RideService;

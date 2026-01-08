@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.ride.impl;
 
-import com.backend.lavugio.dto.ScheduledRideDTO;
+import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.service.ride.RideService;

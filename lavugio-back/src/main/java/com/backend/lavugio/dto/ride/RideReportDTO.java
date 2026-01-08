@@ -1,4 +1,4 @@
-package com.backend.lavugio.dto;
+package com.backend.lavugio.dto.ride;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

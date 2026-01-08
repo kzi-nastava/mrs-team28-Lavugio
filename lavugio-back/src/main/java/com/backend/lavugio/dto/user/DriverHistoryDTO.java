@@ -1,4 +1,4 @@
-package com.backend.lavugio.dto;
+package com.backend.lavugio.dto.user;
 
 import com.backend.lavugio.model.ride.Ride;
 import lombok.AllArgsConstructor;

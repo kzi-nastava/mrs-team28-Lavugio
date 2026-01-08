@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.backend.lavugio.dto.*;
-import com.backend.lavugio.dto.user.DriverStatusDTO;
+import com.backend.lavugio.dto.ride.RideReportedDTO;
+import com.backend.lavugio.dto.ride.ScheduledRideDTO;
+import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.service.ride.RideService;
@@ -16,9 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.backend.lavugio.dto.user.DriverDTO;
-import com.backend.lavugio.dto.user.DriverRegistrationDTO;
-import com.backend.lavugio.dto.user.UpdateDriverDTO;
 import com.backend.lavugio.service.user.DriverService;
 
 @RestController

@@ -1,17 +1,16 @@
-package com.backend.lavugio.dto;
+package com.backend.lavugio.dto.ride;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetRideReviewDTO {
-    private Long reviewId;
-    private int vehicleRating;
+public class RideReviewDTO {
     private int driverRating;
+    private int vehicleRating;
     private String comment;
 }
