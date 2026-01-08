@@ -109,28 +109,25 @@
     }
 
     <!-- Dugmad - prikaz zavisi od statusa -->
-    @if (rideStatus() === 'scheduled' || rideStatus() === 'in_progress') {
-      <div class="flex gap-2">
+    @if (rideStatus() === 'scheduled') {
         <button
-          class="flex-1 py-2 sm:py-3 rounded-lg
+          class="w-full py-2 sm:py-3 rounded-lg
                  bg-[#BC6C25] text-white font-bold
                  text-sm sm:text-base
                  hover:bg-[#9a5520] transition shadow-md">
           Cancel
         </button>
-        
-        @if (rideStatus() === 'in_progress') {
-          <button
-            class="flex-1 py-2 sm:py-3 rounded-lg
-                   bg-red-600 text-white font-bold
-                   text-sm sm:text-base
-                   hover:bg-red-700 transition shadow-lg">
-            PANIC
-          </button>
-        }
-      </div>
     }
     
+    @else if (rideStatus() === 'in_progress') {
+      <button
+        class="w-full py-2 sm:py-3 rounded-lg
+                bg-red-600 text-white font-bold
+                text-sm sm:text-base
+                hover:bg-red-700 transition shadow-lg">
+        PANIC
+      </button>
+    }
     @else if (rideStatus() === 'finished') {
       <button
         class="w-full py-2 sm:py-3 rounded-lg
