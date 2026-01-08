@@ -4,7 +4,7 @@ import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.vehicle.Vehicle;
-import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.repository.user.DriverRepository;
 
 import com.backend.lavugio.repository.vehicle.VehicleRepository;

@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.vehicle;
 
-import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.model.enums.VehicleType;
 
 import java.util.List;
 

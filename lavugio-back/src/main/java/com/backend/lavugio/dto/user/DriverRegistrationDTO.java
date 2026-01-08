@@ -1,6 +1,6 @@
 package com.backend.lavugio.dto.user;
 
-import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.model.enums.VehicleType;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 

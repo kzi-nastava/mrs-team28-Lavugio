@@ -1,7 +1,7 @@
 package com.backend.lavugio.dto;
 
 import com.backend.lavugio.model.ride.Ride;
-import com.backend.lavugio.model.ride.RideStatus;
+import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

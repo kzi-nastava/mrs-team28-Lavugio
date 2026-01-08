@@ -1,16 +1,13 @@
 package com.backend.lavugio.service.chat.impl;
 
 import com.backend.lavugio.model.chat.Message;
-import com.backend.lavugio.model.user.AccountType;
 import com.backend.lavugio.repository.chat.MessageRepository;
 import com.backend.lavugio.service.chat.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service

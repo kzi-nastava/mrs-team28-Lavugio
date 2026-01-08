@@ -1,8 +1,10 @@
 package com.backend.lavugio.model.enums;
 
 public enum RideStatus {
+    ACTIVE,
     SCHEDULED,
-    IN_PROGRESS,
-    FINISHED,
-    CANCELLED
+    DENIED,
+    CANCELLED,
+    STOPPED,
+    FINISHED;
 }

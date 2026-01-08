@@ -6,7 +6,7 @@ import com.backend.lavugio.dto.ride.RideEstimateRequestDTO;
 import com.backend.lavugio.dto.ride.RideRequestDTO;
 import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.model.ride.Ride;
-import com.backend.lavugio.model.ride.RideStatus;
+import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -144,31 +145,68 @@ public class RideController {
 //        status.setCurrentLatitude(driverLocation.getLatitude());
 //        status.setCurrentLongitude(driverLocation.getLongitude());
 //        status.setRemainingTimeSeconds(eta.getDurationSeconds());
-        RideStatusDTO status =  new RideStatusDTO(rideId, new CoordinatesDTO(30.2671, 19.8335),
+        RideStatusDTO status =  new RideStatusDTO(
+                1L,
+                new CoordinatesDTO(30.2671, 19.8335),
                 new CoordinatesDTO(30.2861, 19.8017),
                 new CoordinatesDTO(30.2750, 19.8200),
-                600);
+                RideStatus.ACTIVE,
+                "Petar Petrović",
+                "Nemanjina 4",
+                "Knez Mihailova 12",
+                LocalDateTime.of(2026, 1, 8, 18, 30),
+                null);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @GetMapping(value = "/statuses", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideStatusDTO>> getRideStatuses() {
-        //rideService.getAllActiveRideStatuses();
-        List<RideStatusDTO> statuses =  new ArrayList<>();
-        statuses.add(new RideStatusDTO(1L, new CoordinatesDTO(30.2671, 19.8335),
+
+        List<RideStatusDTO> statuses = new ArrayList<>();
+
+        statuses.add(new RideStatusDTO(
+                1L,
+                new CoordinatesDTO(30.2671, 19.8335),
                 new CoordinatesDTO(30.2861, 19.8017),
                 new CoordinatesDTO(30.2750, 19.8200),
-                600));
-        statuses.add(new RideStatusDTO(2L, new CoordinatesDTO(31.2671, 20.8335),
+                RideStatus.ACTIVE,
+                "Petar Petrović",
+                "Nemanjina 4",
+                "Knez Mihailova 12",
+                LocalDateTime.of(2026, 1, 8, 18, 30),
+                null // arrivalTime još ne postoji
+        ));
+
+        statuses.add(new RideStatusDTO(
+                2L,
+                new CoordinatesDTO(31.2671, 20.8335),
                 new CoordinatesDTO(31.2861, 20.8017),
                 new CoordinatesDTO(31.2750, 20.8200),
-                800));
-        statuses.add(new RideStatusDTO(3L, new CoordinatesDTO(32.2671, 21.8335),
+                RideStatus.FINISHED,
+                "Marko Marković",
+                "Bulevar Oslobođenja 88",
+                "Aerodrom Nikola Tesla",
+                LocalDateTime.of(2026, 1, 8, 17, 10),
+                LocalDateTime.of(2026, 1, 8, 17, 45)
+        ));
+
+        statuses.add(new RideStatusDTO(
+                3L,
+                null, // driver još nije dodeljen
                 new CoordinatesDTO(32.2861, 21.8017),
                 new CoordinatesDTO(32.2750, 21.8200),
-                400));
-        return new ResponseEntity<>(statuses, HttpStatus.OK);
+                com.backend.lavugio.model.enums.RideStatus.SCHEDULED,
+                null,
+                "Zmaj Jovina 15",
+                "Studentski trg",
+                LocalDateTime.of(2026, 1, 8, 19, 5),
+                null
+        ));
+
+        return ResponseEntity.ok(statuses);
     }
+
+
 
 
     @GetMapping(value = "/{rideId}/review", produces = MediaType.APPLICATION_JSON_VALUE)

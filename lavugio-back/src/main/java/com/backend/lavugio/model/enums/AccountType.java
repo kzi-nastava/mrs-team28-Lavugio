@@ -1,4 +1,4 @@
-package com.backend.lavugio.model.user;
+package com.backend.lavugio.model.enums;
 
 public enum AccountType {
 	REGULAR_USER, DRIVER, ADMINISTRATOR;

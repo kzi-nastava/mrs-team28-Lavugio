@@ -1,12 +1,11 @@
 package com.backend.lavugio.service.notification;
 
 import com.backend.lavugio.model.notification.Notification;
-import com.backend.lavugio.model.notification.NotificationType;
+import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public interface NotificationService {

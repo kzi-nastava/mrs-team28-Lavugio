@@ -1,7 +1,7 @@
 package com.backend.lavugio.repository.ride;
 
 import com.backend.lavugio.model.ride.Ride;
-import com.backend.lavugio.model.ride.RideStatus;
+import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.user.Driver;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

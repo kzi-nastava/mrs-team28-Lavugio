@@ -1,5 +1,6 @@
 package com.backend.lavugio.model.notification;
 
+import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.model.user.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
