@@ -14,4 +14,8 @@ export class DriverService {
   getDriverLocations(): Observable<DriverMarkerLocation[]> {
     return this.http.get<DriverMarkerLocation[]>(this.mainPortUrl + '/locations');
   }
+
+  getDriverLocation(driverId: number): Observable<DriverMarkerLocation> {
+    return this.http.get<DriverMarkerLocation>(`${this.mainPortUrl}/${driverId}/location`);
+  }
 }

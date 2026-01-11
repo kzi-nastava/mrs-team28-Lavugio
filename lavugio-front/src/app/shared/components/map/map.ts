@@ -17,6 +17,7 @@ export class MapComponent implements AfterViewInit {
   map: any;
   clickable = true;
   clickedLocation = signal<Coordinates | null>(null);
+  routeDuration = signal(0);
 
 
   ngAfterViewInit(): void {
@@ -104,6 +105,11 @@ export class MapComponent implements AfterViewInit {
     if (container) {
       container.style.display = 'none';
     }
+
+    this.routeControl.on('routesfound', (e: any) => {
+      const route = e.routes[0];
+      this.routeDuration.set(route.summary.totalTime);
+    })
   }
 
   addMarker(location: Coordinates, icon: L.DivIcon): L.Marker {
@@ -143,4 +149,5 @@ export class MapComponent implements AfterViewInit {
       this.routeControl = undefined;
     }
   }
+
 }

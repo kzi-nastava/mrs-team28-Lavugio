@@ -9,7 +9,7 @@
         </div>
         
         <!-- Desktop verzija - levo gore sa rounded -->
-        <app-ride-info
+        <app-ride-info #rideInfo
             class="hidden lg:flex fixed top-20 left-16 w-1/4 h-2/3 mt-10 flex-col shadow-lg z-10 rounded-lg overflow-hidden">
         </app-ride-info>
         <!-- Mobile verzija - dole kao drawer -->
@@ -26,14 +26,13 @@
             </div>
             
             <!-- Content -->
-            @if (isInfoOpen()) {
-            <div class="h-[60vh] overflow-y-clip pb-8">   <!-- pb-8 umesto pb-4 -->
+            <div class="h-[60vh] overflow-y-clip pb-8"
+                [class.hidden]="!isInfoOpen()">   <!-- pb-8 umesto pb-4 -->
                 <app-ride-info class="w-full h-full"></app-ride-info>
 
                 <!-- spacer (ako želiš dodatnu vizuelnu separaciju) -->
                 <div class="h-6"></div>
             </div>
-            }
         </div>
     </div>
 </div>

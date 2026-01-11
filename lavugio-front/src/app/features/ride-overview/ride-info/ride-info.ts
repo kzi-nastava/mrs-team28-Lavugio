@@ -1,18 +1,163 @@
-import { Component, Signal } from '@angular/core';
-import { signal } from '@angular/core';
+import { Component, computed, signal, inject, OnInit, OnDestroy, effect } from '@angular/core';
+import { DriverService } from '@app/core/services/driver-service';
+import { MapService } from '@app/core/services/map-service';
+import { RideService } from '@app/core/services/ride-service';
+import { Coordinates } from '@app/shared/models/coordinates';
+import { RideOverviewModel } from '@app/shared/models/rideOverview';
+import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ride-info',
-  imports: [],
   templateUrl: './ride-info.html',
-  styleUrl: './ride-info.css',
+  styleUrls: ['./ride-info.css'], // ispravljeno sa styleUrls
 })
-export class RideInfo {
-  rideStatus = signal<string>('in_progress');
-  ngOnInit(){
-    setInterval( () => this.rideStatus.set('in_progress'), 1000);
-    setInterval( () => this.rideStatus.set('cancelled'), 2000);
-    setInterval( () => this.rideStatus.set('finished'), 3000);
-    setInterval( () => this.rideStatus.set('scheduled'), 4000);
+export class RideInfo implements OnInit, OnDestroy {
+  private rideService = inject(RideService);
+  private nowIntervalId: any;
+  private now = signal(new Date());
+  private driverService = inject(DriverService);
+  private mapService = inject(MapService);
+
+  driverLocation = signal<Coordinates | null>(null);
+
+  // reactive signals
+  rideOverview = signal<RideOverviewModel | null>(null);
+  departureTime = computed(() => this.rideOverview()?.departureTime ? this.formatDateTime(new Date(this.rideOverview()!.departureTime!)) : null);
+  rideStatus = signal<string>('Loading...');
+  checkpoints = signal<Coordinates[]>([]);
+  duration = signal<number>(0);
+  Math = Math
+
+  timeElapsed = computed(() => {
+    if (this.rideOverview()?.arrivalTime != null) {
+      return Math.ceil((new Date(this.rideOverview()!.arrivalTime!).getTime() - new Date(this.rideOverview()!.departureTime!).getTime()) / 60000);
+    }
+
+    const departureTime = this.rideOverview()?.departureTime;
+    if (departureTime) {
+      const diffMs = this.now().getTime() - new Date(departureTime).getTime();
+      return Math.ceil(diffMs / 60000); // konvertuj u minute
+    }
+    return 0;
+  });
+
+  private subscription: Subscription | null = null;
+
+  constructor() {
+    effect(() => {
+      const driver = this.driverLocation();
+      const cps = this.checkpoints();
+      if (driver && cps && cps.length > 0) {
+        this.calculateDuration();
+      }
+    });
+  } 
+
+  ngOnInit() {
+    // fetch ride overview
+    this.fetchRideOverview(1);
+    this.fetchDriverLocation(1);
+    this.createOneMinuteInterval();
+    this.driverLocation.set(null);
   }
+
+  fetchRideOverview(rideId: number) {
+    this.subscription = this.rideService.getRideOverview(1).pipe(
+      timeout(5000),
+      catchError(err => {
+        console.error('Error fetching ride overview:', err);
+        this.rideStatus.set('denied');
+        this.rideOverview.set(null);
+        return EMPTY;
+      })
+    ).subscribe(overview => {
+      console.log('Ride Overview fetched:', overview);
+      this.rideOverview.set(overview);
+      this.rideStatus.set(overview.status);
+      this.checkpoints.set(overview.checkpoints);
+
+    });
+  }
+
+  createOneMinuteInterval() {
+    this.nowIntervalId = setInterval(() => {
+      this.now.set(new Date());
+      this.calculateDuration();
+    }, 60000);
+  }
+
+  calculateDuration(): void {
+  const checkpoints = this.checkpoints();
+  const driver = this.driverLocation();
+
+  if (!driver || !checkpoints || checkpoints.length === 0) {
+    console.warn('Nema tačaka za izračunavanje trajanja');
+    return;
+  }
+
+  // Kreiraj niz [start = driver, end = poslednja checkpoint]
+  const finish = [driver, checkpoints[checkpoints.length - 1]];
+
+  // Pozovi MapService
+  this.mapService
+    .getRoute(
+      finish.map(cp => ({ lat: cp.latitude, lon: cp.longitude }))
+    )
+    .subscribe(routeData => {
+      const durationInSeconds = routeData.routes[0].duration;
+      console.log('Route duration (seconds):', durationInSeconds);
+
+      // postavi trajanje u minutama
+      this.duration.set(Math.ceil(durationInSeconds / 60));
+
+      // opcionalno: inicijalno vreme preostalo isto kao duration
+      this.duration.set(Math.ceil(durationInSeconds / 60));
+    });
+}
+
+
+fetchDriverLocation(driverId: number) {
+    this.driverService.getDriverLocation(driverId).pipe(
+      timeout(5000),
+      catchError(err => {
+        console.error('Error fetching driver location:', err);
+        this.driverLocation.set(null);
+        return EMPTY;
+      })
+    ).subscribe(location => {
+      console.log('Driver location fetched:', location);
+      this.driverLocation.set(location.location);
+    });
+  }
+
+
+  formatDateTime(date: Date | null | undefined): string {
+    if (!date) return "Loading...";
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1); 
+    const year = date.getFullYear();
+
+    return `${hours}:${minutes} ${day}.${month}.${year}`;
+  }
+
+  updateRideOverview(update: any) {
+    const currentOverview = this.rideOverview();
+    if (currentOverview) {
+      const updatedOverview = { ...currentOverview, ...update };
+      this.rideOverview.set(updatedOverview);
+      this.rideStatus.set(updatedOverview.status);
+      console.log('Ride overview updated with:', update);
+    }
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
+    clearInterval(this.nowIntervalId);
+  }
+
 }

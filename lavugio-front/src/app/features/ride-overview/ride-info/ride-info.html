@@ -26,13 +26,13 @@
         Time Remaining
       </p>
       <p class="text-[#BC6C25] font-bold text-3xl sm:text-4xl lg:text-5xl">
-        15 min
+        {{ duration() }} min
       </p>
       
       <!-- Time Elapsed - direktno ispod -->
       <div class="flex items-center gap-2 mt-1">
         <p class="text-[#606C38] text-[10px] sm:text-xs font-semibold">Elapsed:</p>
-        <p class="text-[#BC6C25] text-xs sm:text-sm font-bold">5 min</p>
+        <p class="text-[#BC6C25] text-xs sm:text-sm font-bold">{{timeElapsed()}} min</p>
       </div>
     </div>
   </div>
@@ -42,30 +42,44 @@
     class="flex flex-col grow overflow-y-auto overflow-x-hidden
            px-2 sm:px-3 gap-2 sm:gap-3 text-sm sm:text-base lg:text-lg text-[#283618]"
   >
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
+      <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Price:</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">
+        {{ rideOverview()?.price + " RSD" || "Loading..." }}
+      </p>
+    </div>  
+
 
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
       <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Driver:</p>
-      <p class="text-[#BC6C25] font-semibold sm:text-right">John Doe</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">{{ rideOverview()?.driverName || "Loading..." }}</p>
     </div>
 
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
       <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Pickup:</p>
       <p class="text-[#BC6C25] font-semibold sm:text-right">
-        Main St. 123, Cityville
+        {{ rideOverview()?.startAddress || "Loading..." }}
       </p>
     </div>
 
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
       <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Drop-off:</p>
       <p class="text-[#BC6C25] font-semibold sm:text-right">
-        Central Park, Cityville
+        {{ rideOverview()?.endAddress || "Loading..." }}
       </p>
     </div>
 
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
       <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Departure:</p>
       <p class="text-[#BC6C25] font-semibold sm:text-right">
-        10:00 AM, 15th June
+        {{ departureTime() || "Loading..." }}
+      </p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-[#606C38]/30">
+      <p class="text-[#606C38] text-xs sm:text-sm lg:text-base font-bold">Arrival:</p>
+      <p class="text-[#BC6C25] font-semibold sm:text-right">
+        {{ rideOverview()?.arrivalTime || "Not finished" }}
       </p>
     </div>
 
@@ -75,7 +89,7 @@
   <div class="px-3 sm:px-4 pt-2 pb-3 sm:pb-4 space-y-2">
     
     <!-- Status - SCHEDULED -->
-    @if (rideStatus() === 'scheduled') {
+    @if (rideStatus() === 'SCHEDULED') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-blue-100 rounded-lg border border-blue-300">
         <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
         <p class="text-blue-700 text-xs sm:text-sm font-semibold">Ride Scheduled</p>
@@ -83,7 +97,7 @@
     }
     
     <!-- Status - ACTIVE -->
-    @else if (rideStatus() === 'in_progress') {
+    @else if (rideStatus() === 'ACTIVE') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-green-100 rounded-lg border border-green-300">
         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
         <p class="text-green-700 text-xs sm:text-sm font-semibold">Ride in Progress</p>
@@ -91,7 +105,7 @@
     }
     
     <!-- Status - CANCELLED -->
-    @else if (rideStatus() === 'cancelled') {
+    @else if (rideStatus() === 'CANCELLED') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 rounded-lg border border-red-300">
         <div class="w-2 h-2 bg-red-500 rounded-full"></div>
         <p class="text-red-700 text-xs sm:text-sm font-semibold">Ride Cancelled</p>
@@ -99,7 +113,7 @@
     }
     
     <!-- Status - FINISHED -->
-    @else if (rideStatus() === 'finished') {
+    @else if (rideStatus() === 'FINISHED') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-gray-100 rounded-lg border border-gray-300">
         <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -109,7 +123,7 @@
     }
 
     <!-- Dugmad - prikaz zavisi od statusa -->
-    @if (rideStatus() === 'scheduled') {
+    @if (rideStatus() === 'SCHEDULED') {
         <button
           class="w-full py-2 sm:py-3 rounded-lg
                  bg-[#BC6C25] text-white font-bold
@@ -119,7 +133,7 @@
         </button>
     }
     
-    @else if (rideStatus() === 'in_progress') {
+    @else if (rideStatus() === 'ACTIVE') {
       <button
         class="w-full py-2 sm:py-3 rounded-lg
                 bg-red-600 text-white font-bold
@@ -128,7 +142,7 @@
         PANIC
       </button>
     }
-    @else if (rideStatus() === 'finished') {
+    @else if (rideStatus() === 'FINISHED') {
       <button
         class="w-full py-2 sm:py-3 rounded-lg
                bg-[#606C38] text-white font-bold
@@ -136,6 +150,19 @@
                hover:bg-[#4a5429] transition shadow-md">
         Rate Ride
       </button>
+    }
+
+    @else if (rideStatus() === 'DENIED') {
+      <div class="flex items-center justify-center gap-2 py-2 px-3 bg-orange-100 rounded-lg border border-orange-300">
+        <svg class="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.536-10.95a.75.75 0 010 1.06L11.06 10l2.475 2.475a.75.75 0 11-1.06 1.06L10 11.06l-2.475 2.475a.75.75 0 11-1.06-1.06L8.94 10 6.465 7.525a.75.75 0 111.06-1.06L10 8.94l2.475-2.475a.75.75 0 011.06 0z"
+                clip-rule="evenodd" />
+        </svg>
+        <p class="text-orange-700 text-xs sm:text-sm font-semibold">
+          Ride Rejected
+        </p>
+      </div>
     }
 
   </div>
