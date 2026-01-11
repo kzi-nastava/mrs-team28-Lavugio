@@ -144,15 +144,17 @@ public class RideController {
 //        status.setRemainingTimeSeconds(eta.getDurationSeconds());
         RideOverviewDTO status =  new RideOverviewDTO(
                 1L,
-                new CoordinatesDTO(30.2671, 19.8335),
-                new CoordinatesDTO(30.2861, 19.8017),
-                new CoordinatesDTO(30.2750, 19.8200),
+                1L,
+                500,
+                new CoordinatesDTO(45.23654995890653, 19.830107688903812),
+                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
+                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
                 RideStatus.ACTIVE,
                 "Petar Petrović",
                 "Nemanjina 4",
                 "Knez Mihailova 12",
                 LocalDateTime.of(2026, 1, 8, 18, 30),
-                null);
+                LocalDateTime.of(2026, 1, 8, 18, 40));
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
@@ -163,9 +165,11 @@ public class RideController {
 
         statuses.add(new RideOverviewDTO(
                 1L,
+                1L,
+                500,
                 new CoordinatesDTO(30.2671, 19.8335),
-                new CoordinatesDTO(30.2861, 19.8017),
-                new CoordinatesDTO(30.2750, 19.8200),
+                new CoordinatesDTO[]{new CoordinatesDTO(30.2861, 19.8017),
+                new CoordinatesDTO(30.2750, 19.8200)},
                 RideStatus.ACTIVE,
                 "Petar Petrović",
                 "Nemanjina 4",
@@ -176,9 +180,11 @@ public class RideController {
 
         statuses.add(new RideOverviewDTO(
                 2L,
+                1L,
+                500,
                 new CoordinatesDTO(31.2671, 20.8335),
-                new CoordinatesDTO(31.2861, 20.8017),
-                new CoordinatesDTO(31.2750, 20.8200),
+                new CoordinatesDTO[]{new CoordinatesDTO(31.2861, 20.8017),
+                new CoordinatesDTO(31.2750, 20.8200)},
                 RideStatus.FINISHED,
                 "Marko Marković",
                 "Bulevar Oslobođenja 88",
@@ -189,9 +195,11 @@ public class RideController {
 
         statuses.add(new RideOverviewDTO(
                 3L,
+                null,
+                500,
                 null, // driver još nije dodeljen
-                new CoordinatesDTO(32.2861, 21.8017),
-                new CoordinatesDTO(32.2750, 21.8200),
+                new CoordinatesDTO[]{new CoordinatesDTO(32.2861, 21.8017),
+                new CoordinatesDTO(32.2750, 21.8200)},
                 com.backend.lavugio.model.enums.RideStatus.SCHEDULED,
                 null,
                 "Zmaj Jovina 15",

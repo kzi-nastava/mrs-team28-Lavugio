@@ -317,7 +317,7 @@ public class DriverController {
 //        if (driverLocation == null){
 //            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //        }
-        DriverLocationDTO driverLocation = new DriverLocationDTO(driverId, new CoordinatesDTO(45.2671, 19.8335), DriverStatusEnum.AVAILABLE);
+        DriverLocationDTO driverLocation = new DriverLocationDTO(driverId, new CoordinatesDTO(45.24928634050292, 19.83841180801392), DriverStatusEnum.AVAILABLE);
         return new ResponseEntity<>(driverLocation, HttpStatus.OK);
     }
 

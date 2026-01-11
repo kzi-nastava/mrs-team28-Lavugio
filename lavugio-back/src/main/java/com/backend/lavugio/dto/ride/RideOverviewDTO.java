@@ -16,11 +16,13 @@ import java.time.LocalDateTime;
 public class RideOverviewDTO {
     private Long rideId;
 
+    private Long driverId;
+
+    private double price;
+
     private CoordinatesDTO driverCoordinates;
 
-    private CoordinatesDTO startCoordinates;
-
-    private CoordinatesDTO endCoordinates;
+    private CoordinatesDTO[] checkpoints;
 
     private RideStatus status;
 
