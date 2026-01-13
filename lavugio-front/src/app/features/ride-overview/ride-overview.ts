@@ -1,8 +1,7 @@
-import { AfterViewInit, Component, ViewChild, effect, Injector, inject, EffectRef } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, effect, Injector, inject, EffectRef, signal } from '@angular/core';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
 import { RideInfo } from './ride-info/ride-info';
-import { signal } from '@angular/core';
 import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 import { MapService } from '@app/core/services/map-service';
 import { Coordinates } from '@app/shared/models/coordinates';
@@ -20,19 +19,28 @@ import { RideService } from '@app/core/services/ride-service';
 export class RideOverview implements AfterViewInit {
   private injector = inject(Injector);
   isInfoOpen = signal(false);
+  isDesktop = signal(window.innerWidth >= 1024); // ✅ Dodato
   private intervalId: any;
   private rideService = inject(RideService);
+  rideId: number = 1; 
 
   @ViewChild('rideInfo') rideInfo!: RideInfo;
   @ViewChild('map') mapComponent!: MapComponent;
 
+  constructor() {
+    window.addEventListener('resize', () => {
+      this.isDesktop.set(window.innerWidth >= 1024);
+    });
+  }
+
   ngAfterViewInit(): void {
+    this.createTopicSubscription(this.rideId);
 
     effect(() => {
       const points = this.rideInfo?.checkpoints();
       if (points && points.length > 0) {
         console.log("Points:", points);
-        this.mapComponent?.setRoute(points);
+        this.mapComponent?.setRoute(this.rideInfo.checkpoints());
         this.executeInterval();
         this.mapComponent?.addMarker(points[0], MarkerIcons.start);
         this.mapComponent?.addMarker(points[points.length - 1], MarkerIcons.end);
@@ -75,7 +83,7 @@ export class RideOverview implements AfterViewInit {
   }
 
   createTopicSubscription(rideId: number): void {
-    this.rideService.listenUpdatedRide(rideId).subscribe(update  => {
+    this.rideService.listenToRideUpdates(rideId).subscribe(update  => {
       console.log('Received ride update via WebSocket:', update);
       this.rideInfo.updateRideOverview(update);
     });
@@ -84,5 +92,9 @@ export class RideOverview implements AfterViewInit {
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
     this.rideService.closeConnection();
+    // ✅ Cleanup resize listener
+    window.removeEventListener('resize', () => {
+      this.isDesktop.set(window.innerWidth >= 1024);
+    });
   }
 }

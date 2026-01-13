@@ -1,7 +1,7 @@
 import { Coordinates } from "./coordinates";
 
 export interface RideOverviewUpdate{
-    destination?: string;
+    endAddress?: string;
     destinationCoordinates?: Coordinates;
     departureTime?: Date;
     arrivalTime?: Date;

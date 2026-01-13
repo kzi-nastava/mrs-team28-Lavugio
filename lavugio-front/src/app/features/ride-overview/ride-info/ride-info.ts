@@ -4,7 +4,8 @@ import { MapService } from '@app/core/services/map-service';
 import { RideService } from '@app/core/services/ride-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { RideOverviewModel } from '@app/shared/models/rideOverview';
-import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
+import { RideOverviewUpdate } from '@app/shared/models/rideOverviewUpdate';
+import { catchError, EMPTY, timeout, Subscription, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-ride-info',
@@ -12,15 +13,15 @@ import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
   styleUrls: ['./ride-info.css'], // ispravljeno sa styleUrls
 })
 export class RideInfo implements OnInit, OnDestroy {
+  rideId = 1;
   private rideService = inject(RideService);
   private nowIntervalId: any;
   private now = signal(new Date());
   private driverService = inject(DriverService);
   private mapService = inject(MapService);
-
+  private rideUpdatesSubscription: Observable<RideOverviewUpdate> = this.rideService.listenToRideUpdates(this.rideId);
   driverLocation = signal<Coordinates | null>(null);
 
-  // reactive signals
   rideOverview = signal<RideOverviewModel | null>(null);
   departureTime = computed(() => this.rideOverview()?.departureTime ? this.formatDateTime(new Date(this.rideOverview()!.departureTime!)) : null);
   rideStatus = signal<string>('Loading...');
@@ -87,47 +88,41 @@ export class RideInfo implements OnInit, OnDestroy {
   }
 
   calculateDuration(): void {
-  const checkpoints = this.checkpoints();
-  const driver = this.driverLocation();
+    const checkpoints = this.checkpoints();
+    const driver = this.driverLocation();
 
-  if (!driver || !checkpoints || checkpoints.length === 0) {
-    console.warn('Nema tačaka za izračunavanje trajanja');
-    return;
-  }
+    if (!driver || !checkpoints || checkpoints.length === 0) {
+      console.warn('No checkpoints or driver location available for duration calculation.');
+      return;
+    }
 
-  // Kreiraj niz [start = driver, end = poslednja checkpoint]
-  const finish = [driver, checkpoints[checkpoints.length - 1]];
+    const finish = [driver, checkpoints[checkpoints.length - 1]];
 
-  // Pozovi MapService
-  this.mapService
-    .getRoute(
-      finish.map(cp => ({ lat: cp.latitude, lon: cp.longitude }))
-    )
-    .subscribe(routeData => {
-      const durationInSeconds = routeData.routes[0].duration;
-      console.log('Route duration (seconds):', durationInSeconds);
+    this.mapService
+      .getRoute(
+        finish.map(cp => ({ lat: cp.latitude, lon: cp.longitude }))
+      )
+      .subscribe(routeData => {
+        const durationInSeconds = routeData.routes[0].duration;
+        console.log('Route duration (seconds):', durationInSeconds);
 
-      // postavi trajanje u minutama
-      this.duration.set(Math.ceil(durationInSeconds / 60));
-
-      // opcionalno: inicijalno vreme preostalo isto kao duration
-      this.duration.set(Math.ceil(durationInSeconds / 60));
-    });
-}
+        this.duration.set(Math.ceil(durationInSeconds / 60));
+      });
+  } 
 
 
-fetchDriverLocation(driverId: number) {
-    this.driverService.getDriverLocation(driverId).pipe(
-      timeout(5000),
-      catchError(err => {
-        console.error('Error fetching driver location:', err);
-        this.driverLocation.set(null);
-        return EMPTY;
-      })
-    ).subscribe(location => {
-      console.log('Driver location fetched:', location);
-      this.driverLocation.set(location.location);
-    });
+  fetchDriverLocation(driverId: number) {
+      this.driverService.getDriverLocation(driverId).pipe(
+        timeout(5000),
+        catchError(err => {
+          console.error('Error fetching driver location:', err);
+          this.driverLocation.set(null);
+          return EMPTY;
+        })
+      ).subscribe(location => {
+        console.log('Driver location fetched:', location);
+        this.driverLocation.set(location.location);
+      });
   }
 
 
@@ -145,13 +140,64 @@ fetchDriverLocation(driverId: number) {
     return `${hours}:${minutes} ${day}.${month}.${year}`;
   }
 
-  updateRideOverview(update: any) {
+  applyRideOverviewUpdate(
+    current: RideOverviewModel,
+    update: RideOverviewUpdate
+  ): RideOverviewModel {
+    // Prvo ažuriraj checkpoints ako je potrebno
+    const updatedCheckpoints = update.destinationCoordinates !== undefined
+      ? [
+          ...current.checkpoints.slice(0, -1), // Svi osim poslednjeg
+          update.destinationCoordinates // Novi poslednji element
+        ]
+      : current.checkpoints;
+
+    return {
+      ...current,
+
+      endAddress:
+        update.endAddress !== undefined
+          ? update.endAddress
+          : current.endAddress,
+
+      checkpoints: updatedCheckpoints,
+
+      status:
+        update.status !== undefined
+          ? update.status
+          : current.status,
+
+      price:
+        update.price !== undefined
+          ? update.price
+          : current.price,
+
+      departureTime:
+        update.departureTime !== undefined
+          ? update.departureTime
+            ? new Date(update.departureTime)
+            : null
+          : current.departureTime,
+
+      arrivalTime:
+        update.arrivalTime !== undefined
+          ? update.arrivalTime
+            ? new Date(update.arrivalTime)
+            : null
+          : current.arrivalTime,
+    };
+  }
+
+  updateRideOverview(update: RideOverviewUpdate) {
     const currentOverview = this.rideOverview();
     if (currentOverview) {
-      const updatedOverview = { ...currentOverview, ...update };
+      const updatedOverview = this.applyRideOverviewUpdate(currentOverview, update);
       this.rideOverview.set(updatedOverview);
       this.rideStatus.set(updatedOverview.status);
-      console.log('Ride overview updated with:', update);
+      
+      if (update.destinationCoordinates !== undefined) {
+        this.checkpoints.set(updatedOverview.checkpoints);
+      }
     }
   }
 
