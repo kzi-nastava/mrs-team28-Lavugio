@@ -37,6 +37,7 @@
     "leaflet-routing-machine": "^3.2.12",
     "ngx-heroicons": "^1.1.3",
     "rxjs": "~7.8.0",
+    "tailwind-scrollbar": "^4.0.2",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

@@ -1,0 +1,70 @@
+<div class="space-y-3">
+  <!-- Selected Vehicle Type -->
+  <div class="bg-white rounded-lg px-4 py-3 border border-[#606C38]">
+    <p class="text-[#606C38] font-medium">
+      {{ vehicleType || 'No vehicle type selected' }}
+    </p>
+  </div>
+
+  <!-- Pet Friendly -->
+  <div class="flex items-center gap-3">
+    <!-- Checkmark icon -->
+    <div class="
+      w-5 h-5
+      flex items-center justify-center
+      rounded-md
+      border-2 transition-all
+    " 
+    [class.border-white]="!isPetFriendly"
+    [class.bg-[#606C38]]="!isPetFriendly"
+    [class.border-[#606C38]]="isPetFriendly"
+    [class.bg-white]="isPetFriendly">
+      <svg 
+        class="w-4 h-4 transition-transform duration-200"
+        [class.text-white]="!isPetFriendly"
+        [class.text-[#606C38]]="isPetFriendly"
+        [class.scale-0]="!isPetFriendly"
+        [class.scale-100]="isPetFriendly"
+        fill="none" 
+        stroke="currentColor" 
+        stroke-width="3" 
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    
+    <span class="text-white font-medium">Pet Friendly</span>
+  </div>
+
+  <!-- Baby Friendly -->
+  <div class="flex items-center gap-3">
+    <!-- Checkmark icon -->
+    <div class="
+      w-5 h-5
+      flex items-center justify-center
+      rounded-md
+      border-2 transition-all
+    "
+    [class.border-white]="!isBabyFriendly"
+    [class.bg-[#606C38]]="!isBabyFriendly"
+    [class.border-[#606C38]]="isBabyFriendly"
+    [class.bg-white]="isBabyFriendly">
+      <svg 
+        class="w-4 h-4 transition-transform duration-200"
+        [class.text-white]="!isBabyFriendly"
+        [class.text-[#606C38]]="isBabyFriendly"
+        [class.scale-0]="!isBabyFriendly"
+        [class.scale-100]="isBabyFriendly"
+        fill="none" 
+        stroke="currentColor" 
+        stroke-width="3" 
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    
+    <span class="text-white font-medium">Baby Friendly</span>
+  </div>
+</div>

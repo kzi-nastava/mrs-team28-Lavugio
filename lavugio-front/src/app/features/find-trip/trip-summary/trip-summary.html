@@ -1,0 +1,33 @@
+<div class="flex flex-col gap-1 h-full">
+  <!-- Destinations Section -->
+  <div>
+    <h3 class="text-white font-semibold mb-3 text-center">Destinations ({{ destinations.length }})</h3>
+    <app-destinations-display
+      [destinations]="destinations"
+      [removable]="false"
+      (destinationRemoved)="onDestinationRemoved($event)"
+      [maxHeight]="'7rem'">
+    </app-destinations-display>
+  </div>
+
+  <!-- Passengers Section -->
+  <div>
+    <h3 class="text-white font-semibold mb-3 text-center">Passengers ({{ passengers.length }})</h3>
+    <app-passangers-display
+      [passangers]="passengers"
+      [removable]="false"
+      (passangerRemoved)="onPassengerRemoved($event)"
+      [maxHeight]="'7rem'">
+    </app-passangers-display>
+  </div>
+
+  <!-- Preferences Section -->
+  <div>
+    <h3 class="text-white font-semibold mb-3 text-center">Preferences</h3>
+    <app-selected-preferences-display
+      [vehicleType]="selectedPreferences.vehicleType"
+      [isPetFriendly]="selectedPreferences.isPetFriendly"
+      [isBabyFriendly]="selectedPreferences.isBabyFriendly">
+    </app-selected-preferences-display>
+  </div>
+</div>

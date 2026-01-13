@@ -1,0 +1,52 @@
+<div class="w-full max-w bg-white rounded-lg shadow-sm border border-[#606C38] my-3">
+
+  <!-- Scrollable Destinations List -->
+  <div
+    class="overflow-y-auto max-h-72 scrollbar scrollbar-thin scrollbar-thumb-[#BC6C25] hover:scrollbar-thumb-[#DDA15E] scrollbar-thumb-rounded scrollbar-track-gray-100"
+    [style.maxHeight]="maxHeight">
+
+    @if (destinations.length === 0) {
+    <div class="p-5.5 text-center">
+      <p class="text-[#606C38] text-opacity-60 text-sm">
+        No destinations added yet
+      </p>
+    </div>
+    }
+
+    @for (destination of destinations; track destination.id; let i = $index) {
+    <!-- Destination Row -->
+    <div class="flex items-center gap-3 p-4 transition duration-150 overflow-x-auto">
+      <!-- Number Badge -->
+      <div class="w-4 h-4 flex items-center justify-center text-sm font-medium text-[#BC6C25]">
+        {{ i + 1 }}
+      </div>
+
+      <!-- Address - Scrolls on hover/tap if text overflows -->
+      <div class="flex-1 min-w-0 relative" style="overflow: hidden;">
+        <p class="address text-[#606C38] font-medium whitespace-nowrap"
+          (mouseenter)="addScrollIfNeeded($event.target)" 
+          (mouseleave)="removeScroll($event.target)"
+          (touchstart)="addScrollIfNeeded($event.target)" 
+          (touchend)="removeScroll($event.target)">
+          {{ destination.display_name }}
+        </p>
+      </div>
+
+      <!-- Icons Container -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        @if (removable) {
+          <!-- Delete Icon -->
+          <button (click)="removeDestination(destination.id)"
+            class="p-1.5 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 transition duration-150"
+            aria-label="Remove destination">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6M9 9l6 6" />
+            </svg>
+          </button>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>
