@@ -3,11 +3,8 @@ import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
 import { RideInfo } from './ride-info/ride-info';
 import { MarkerIcons } from '@app/shared/components/map/marker-icons';
-import { MapService } from '@app/core/services/map-service';
 import { Coordinates } from '@app/shared/models/coordinates';
-import { DriverService } from '@app/core/services/driver-service';
-import { catchError, EMPTY, timeout } from 'rxjs';
-import { Marker, marker } from 'leaflet';
+import { Marker } from 'leaflet';
 import { RideService } from '@app/core/services/ride-service';
 
 @Component({
@@ -19,7 +16,7 @@ import { RideService } from '@app/core/services/ride-service';
 export class RideOverview implements AfterViewInit {
   private injector = inject(Injector);
   isInfoOpen = signal(false);
-  isDesktop = signal(window.innerWidth >= 1024); // ✅ Dodato
+  isDesktop = signal(window.innerWidth >= 1024);
   private intervalId: any;
   private rideService = inject(RideService);
   rideId: number = 1; 
@@ -92,7 +89,6 @@ export class RideOverview implements AfterViewInit {
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
     this.rideService.closeConnection();
-    // ✅ Cleanup resize listener
     window.removeEventListener('resize', () => {
       this.isDesktop.set(window.innerWidth >= 1024);
     });

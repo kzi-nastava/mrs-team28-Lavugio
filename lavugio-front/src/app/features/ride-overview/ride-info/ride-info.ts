@@ -10,7 +10,7 @@ import { catchError, EMPTY, timeout, Subscription, Observable } from 'rxjs';
 @Component({
   selector: 'app-ride-info',
   templateUrl: './ride-info.html',
-  styleUrls: ['./ride-info.css'], // ispravljeno sa styleUrls
+  styleUrl: './ride-info.css',
 })
 export class RideInfo implements OnInit, OnDestroy {
   rideId = 1;
@@ -19,7 +19,6 @@ export class RideInfo implements OnInit, OnDestroy {
   private now = signal(new Date());
   private driverService = inject(DriverService);
   private mapService = inject(MapService);
-  private rideUpdatesSubscription: Observable<RideOverviewUpdate> = this.rideService.listenToRideUpdates(this.rideId);
   driverLocation = signal<Coordinates | null>(null);
 
   rideOverview = signal<RideOverviewModel | null>(null);
@@ -37,7 +36,7 @@ export class RideInfo implements OnInit, OnDestroy {
     const departureTime = this.rideOverview()?.departureTime;
     if (departureTime) {
       const diffMs = this.now().getTime() - new Date(departureTime).getTime();
-      return Math.ceil(diffMs / 60000); // konvertuj u minute
+      return Math.ceil(diffMs / 60000);
     }
     return 0;
   });
@@ -55,7 +54,6 @@ export class RideInfo implements OnInit, OnDestroy {
   } 
 
   ngOnInit() {
-    // fetch ride overview
     this.fetchRideOverview(1);
     this.fetchDriverLocation(1);
     this.createOneMinuteInterval();
@@ -144,11 +142,10 @@ export class RideInfo implements OnInit, OnDestroy {
     current: RideOverviewModel,
     update: RideOverviewUpdate
   ): RideOverviewModel {
-    // Prvo ažuriraj checkpoints ako je potrebno
     const updatedCheckpoints = update.destinationCoordinates !== undefined
       ? [
-          ...current.checkpoints.slice(0, -1), // Svi osim poslednjeg
-          update.destinationCoordinates // Novi poslednji element
+          ...current.checkpoints.slice(0, -1),
+          update.destinationCoordinates
         ]
       : current.checkpoints;
 
