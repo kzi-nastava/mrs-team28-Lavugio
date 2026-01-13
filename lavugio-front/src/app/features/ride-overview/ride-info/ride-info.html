@@ -1,6 +1,5 @@
 <div class="w-full h-full flex flex-col font-[Inter] bg-[#FEFAE0]/95">
 
-  <!-- Header: naslov + report dugme -->
   <div
     class="flex items-center justify-between bg-[#606C38] p-2 sm:p-3"
   >
@@ -15,7 +14,6 @@
     </button>
   </div>
 
-  <!-- Time Remaining (NE scrolluje) -->
   <div class="p-2 sm:p-3">
     <div
       class="flex flex-col items-center justify-center gap-1
@@ -33,7 +31,6 @@
         }
       </p>
       
-      <!-- Time Elapsed - direktno ispod -->
       <div class="flex items-center gap-2 mt-1">
         <p class="text-[#606C38] text-[10px] sm:text-xs font-semibold">Elapsed:</p>
         <p class="text-[#BC6C25] text-xs sm:text-sm font-bold">
@@ -47,7 +44,6 @@
     </div>
   </div>
 
-  <!-- SCROLLABLE PODACI -->
   <div
     class="flex flex-col grow overflow-y-auto overflow-x-hidden
            px-2 sm:px-3 gap-2 sm:gap-3 text-sm sm:text-base lg:text-lg text-[#283618]"
@@ -99,10 +95,8 @@
 
   </div>
 
-  <!-- Status i dugmad (NE scrolluje, uvek vidljivo) -->
   <div class="px-3 sm:px-4 pt-2 pb-3 sm:pb-4 space-y-2">
     
-    <!-- Status - SCHEDULED -->
     @if (rideStatus() === 'SCHEDULED') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-blue-100 rounded-lg border border-blue-300">
         <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -110,7 +104,6 @@
       </div>
     }
     
-    <!-- Status - ACTIVE -->
     @else if (rideStatus() === 'ACTIVE') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-green-100 rounded-lg border border-green-300">
         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -118,7 +111,6 @@
       </div>
     }
     
-    <!-- Status - CANCELLED -->
     @else if (rideStatus() === 'CANCELLED') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-red-100 rounded-lg border border-red-300">
         <div class="w-2 h-2 bg-red-500 rounded-full"></div>
@@ -126,7 +118,6 @@
       </div>
     }
     
-    <!-- Status - FINISHED -->
     @else if (rideStatus() === 'FINISHED') {
       <div class="flex items-center justify-center gap-2 py-2 px-3 bg-gray-100 rounded-lg border border-gray-300">
         <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
@@ -136,7 +127,6 @@
       </div>
     }
 
-    <!-- Dugmad - prikaz zavisi od statusa -->
     @if (rideStatus() === 'SCHEDULED') {
         <button
           class="w-full py-2 sm:py-3 rounded-lg
