@@ -5,10 +5,11 @@ import { PassangersDisplay } from "../passangers-display/passangers-display";
 import { Destination } from '@app/shared/models/destination';
 import { Passenger } from '../add-passanger-input/add-passanger-input';
 import { SelectedPreferencesDisplay } from '../selected-preferences-display/selected-preferences-display';
+import { TripStatsDisplay } from '../trip-stats-display/trip-stats-display';
 
 @Component({
   selector: 'app-trip-summary',
-  imports: [CommonModule, DestinationsDisplay, PassangersDisplay, SelectedPreferencesDisplay],
+  imports: [CommonModule, DestinationsDisplay, PassangersDisplay, SelectedPreferencesDisplay, TripStatsDisplay],
   templateUrl: './trip-summary.html',
   styleUrl: './trip-summary.css',
 })

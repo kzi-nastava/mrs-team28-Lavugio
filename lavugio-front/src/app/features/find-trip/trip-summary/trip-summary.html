@@ -30,4 +30,11 @@
       [isBabyFriendly]="selectedPreferences.isBabyFriendly">
     </app-selected-preferences-display>
   </div>
+
+  <!-- Trip stats-->
+  <app-trip-stats-display
+    [distance]="tripStats.distance"
+    [estimatedTime]="tripStats.estimatedTime"
+    [price]="tripStats.price">
+  </app-trip-stats-display>
 </div>
