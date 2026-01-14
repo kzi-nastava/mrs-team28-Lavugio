@@ -11,6 +11,7 @@ import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
 import { TripHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
 import { RideOverview } from './features/ride-overview/ride-overview';
+import { RegisterDriver } from './features/register-driver/register-driver';
 
 export const routes: Routes = [
   {
@@ -39,6 +40,11 @@ export const routes: Routes = [
     path: 'register',
     title: 'Register',
     component: Register
+  },
+  {
+    path: 'register-driver',
+    title: 'Register-driver',
+    component: RegisterDriver
   },
   {
     path: 'verify-email',

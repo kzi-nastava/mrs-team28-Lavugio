@@ -1,0 +1,72 @@
+<app-navbar></app-navbar>
+
+<div class="min-h-[calc(100vh-4rem)]
+      flex
+      justify-center
+      items-center
+      bg-white
+      md:bg-linear-to-br
+      md:from-[#606C38]
+      md:to-[#283618]">
+    <div class="w-full min-h-[calc(100vh-4rem)]
+            bg-white
+            md:max-w-2xl
+            shadow-none md:shadow-2xl
+            p-6 md:p-10
+            flex flex-col">
+
+        <!-- Header -->
+        <h1 class="md:text-3xl text-xl font-bold text-center text-white bg-[#BC6C25] rounded-lg py-4 mb-2 max-w-md mx-auto w-full">
+            REGISTER DRIVER
+        </h1>
+
+        <!-- Two form types -->
+        <div class="flex-1 flex flex-col max-w-md mx-auto w-full">
+
+            @if (currentStep === 0) {
+            <h2 class="text-xl font-bold text-center text-[#BC6C25] py-4">
+                Driver Information
+            </h2>
+
+            <div class="flex-1">
+                <app-driver-form (dataChange)="onDriverDataChange($event)"></app-driver-form>
+            </div>
+            }
+
+            @if (currentStep === 1) {
+            <h2 class="text-xl font-bold text-center text-[#BC6C25] py-4">
+                Vehicle Information
+            </h2>
+
+            <div class="flex-1">
+                <app-vehicle-form (dataChange)="onVehicleDataChange($event)"></app-vehicle-form>
+            </div>
+            }
+
+        </div>
+
+        <!-- Buttons - uvek dole -->
+        <div class="flex gap-3 pt-6 w-full max-w-md mx-auto">
+
+            <button (click)="previousStep()" [disabled]="isFirstStep()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 disabled:opacity-50">
+                Previous
+            </button>
+
+            @if (!isLastStep()) {
+            <button (click)="nextStep()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1">
+                Next
+            </button>
+            }
+            @else {
+            <button (click)="finishRegistration()"
+                class="px-6 py-3 border-[#BC6C25] border-2 bg-[#BC6C25] text-white rounded-sm font-bold flex-1">
+                Finish
+            </button>
+            }
+
+        </div>
+    </div>
+
+</div>
