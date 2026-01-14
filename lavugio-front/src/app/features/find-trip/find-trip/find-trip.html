@@ -20,7 +20,8 @@
             (destinationRemoved)="onDestinationRemoved($event)"></app-destinations-display>
           </div>
           <div class="text-[#BC6C25] font-bold text-lg mt-1 mb-2 text-center">
-            Select favorite route
+            Select favorite route <br>
+            to be implemented
           </div>
         }
         
@@ -43,6 +44,9 @@
               [destinations]="destinations"
               [passengers]="passengers"
               [selectedPreferences]="{ vehicleType: selectedVehicleType, isPetFriendly: isPetFriendly, isBabyFriendly: isBabyFriendly }"
+              [distance]="tripDistance"
+              [estimatedTime]="tripEstimatedTime"
+              [price]="tripPrice"
               (destinationRemoved)="onDestinationRemoved($event)"
               (passengerRemoved)="onPassengerRemoved($event)"
               (canFinishChange)="onCanFinishChange($event)">

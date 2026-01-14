@@ -1,40 +1,36 @@
 <div class="flex flex-col gap-1 h-full">
-  <!-- Destinations Section -->
-  <div>
-    <h3 class="text-white font-semibold mb-3 text-center">Destinations ({{ destinations.length }})</h3>
-    <app-destinations-display
-      [destinations]="destinations"
-      [removable]="false"
-      (destinationRemoved)="onDestinationRemoved($event)"
-      [maxHeight]="'7rem'">
-    </app-destinations-display>
-  </div>
+    <!-- Destinations Section -->
+    <div>
+        <h3 class="text-white font-semibold mb-3 text-center">Destinations ({{ destinations.length }})</h3>
+        <app-destinations-display [destinations]="destinations" [removable]="false"
+            (destinationRemoved)="onDestinationRemoved($event)" [maxHeight]="'6.5rem'"
+            [hasError]="destinations.length < 2">
+        </app-destinations-display>
+    </div>
 
-  <!-- Passengers Section -->
-  <div>
-    <h3 class="text-white font-semibold mb-3 text-center">Passengers ({{ passengers.length }})</h3>
-    <app-passangers-display
-      [passangers]="passengers"
-      [removable]="false"
-      (passangerRemoved)="onPassengerRemoved($event)"
-      [maxHeight]="'7rem'">
-    </app-passangers-display>
-  </div>
+    <!-- Passengers Section -->
+    <div>
+        <h3 class="text-white font-semibold mb-3 text-center">Passengers ({{ passengers.length }})</h3>
+        <app-passangers-display [passangers]="passengers" [removable]="false"
+            (passangerRemoved)="onPassengerRemoved($event)" [maxHeight]="'6.5rem'">
+        </app-passangers-display>
+    </div>
 
-  <!-- Preferences Section -->
-  <div>
-    <h3 class="text-white font-semibold mb-3 text-center">Preferences</h3>
-    <app-selected-preferences-display
-      [vehicleType]="selectedPreferences.vehicleType"
-      [isPetFriendly]="selectedPreferences.isPetFriendly"
-      [isBabyFriendly]="selectedPreferences.isBabyFriendly">
-    </app-selected-preferences-display>
-  </div>
+    <!-- Preferences Section -->
+    <div>
+        <h3 class="text-white font-semibold mb-3 text-center">Preferences</h3>
+        <app-selected-preferences-display [vehicleType]="selectedPreferences.vehicleType"
+            [isPetFriendly]="selectedPreferences.isPetFriendly" [isBabyFriendly]="selectedPreferences.isBabyFriendly"
+            [hasError]="selectedPreferences.vehicleType == ''">
+        </app-selected-preferences-display>
+    </div>
 
-  <!-- Trip stats-->
-  <app-trip-stats-display
-    [distance]="tripStats.distance"
-    [estimatedTime]="tripStats.estimatedTime"
-    [price]="tripStats.price">
-  </app-trip-stats-display>
+    <!-- Summary Section -->
+    <div class="mt-auto">
+        <app-trip-stats-display
+            [distance]="distance"
+            [estimatedTime]="estimatedTime"
+            [price]="price">
+        </app-trip-stats-display>
+    </div>
 </div>

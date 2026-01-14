@@ -17,4 +17,5 @@ export class SelectedPreferencesDisplay {
   @Input() vehicleType: string = '';
   @Input() isPetFriendly: boolean = false;
   @Input() isBabyFriendly: boolean = false;
+  @Input() hasError: boolean = false;
 }

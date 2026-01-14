@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from "@app/shared/components/map/map";
@@ -11,10 +11,13 @@ import { Destination } from '@app/shared/models/destination';
 import { PreferencesSelect } from "../preferences-select/preferences-select";
 import { Passenger } from "../add-passanger-input/add-passanger-input";
 import { TripSummary } from "../trip-summary/trip-summary";
+import { TripStatsDisplay } from "../trip-stats-display/trip-stats-display";
+import { TripDestination } from '@app/shared/models/tripDestination';
+import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 
 @Component({
   selector: 'app-find-trip',
-  imports: [Navbar, FormBackgroundSheet, MapComponent, DestinationSelector, DestinationsDisplay, PreferencesSelect, TripSummary],
+  imports: [Navbar, FormBackgroundSheet, MapComponent, DestinationSelector, DestinationsDisplay, PreferencesSelect, TripSummary, TripStatsDisplay],
   templateUrl: './find-trip.html',
   styleUrl: './find-trip.css',
 })
@@ -25,16 +28,23 @@ export class FindTrip implements OnInit, OnDestroy {
     this.isPanelOpen = !this.isPanelOpen;
   }
 
+  @ViewChild('map') map!: MapComponent;
+  destinations: TripDestination[] = [];
+
   currentStep = 0;
   totalSteps = 0;
   currentTitle = "";
 
-  destinations: Destination[] = [];
   passengers: Passenger[] = [];
   selectedVehicleType = '';
   isPetFriendly = false;
   isBabyFriendly = false;
   canFinishTrip = false;
+
+  // Trip stats
+  tripDistance = '0km';
+  tripEstimatedTime = '0min';
+  tripPrice = '0$';
 
   private destroy$ = new Subject<void>();
 
@@ -70,20 +80,46 @@ export class FindTrip implements OnInit, OnDestroy {
 
 onDestinationAdded(geocodeResult: GeocodeResult) {
     // Convert GeocodeResult to Destination and add to list
-    const newDestination: Destination = {
-      id: Date.now().toString(), // or use geocodeResult.place_id if available
-      display_name: geocodeResult.display_name,
-      lat: geocodeResult.lat,
-      lon: geocodeResult.lon,
-      type: geocodeResult.type,
-      address: geocodeResult.address
+    const newDestination: TripDestination = {
+      id: crypto.randomUUID(), // or use geocodeResult.place_id if available
+      name: geocodeResult.display_name,
+      coordinates: {
+        latitude: Number(geocodeResult.lat),
+        longitude: Number(geocodeResult.lon)
+      }
     };
 
-    this.destinations = [...this.destinations, newDestination];
+    this.destinations.push(newDestination);
+    this.map.addMarker(newDestination.coordinates, MarkerIcons.checkpoint);
+    this.updateRoute();
   }
 
   onDestinationRemoved(destinationId: string) {
     this.destinations = this.destinations.filter(d => d.id !== destinationId);
+
+    this.map.resetMarkers();
+    this.map.removeRoute();
+
+    // Re-add markers in correct order
+    this.destinations.forEach((d, index) => {
+      const icon =
+        index === 0
+          ? MarkerIcons.start
+          : index === this.destinations.length - 1
+          ? MarkerIcons.end
+          : MarkerIcons.checkpoint;
+
+      this.map.addMarker(d.coordinates, icon);
+    });
+
+    this.updateRoute();
+  }
+
+  private updateRoute() {
+    if (this.destinations.length < 2) return;
+
+    const coords = this.destinations.map(d => d.coordinates);
+    this.map.setRoute(coords);
   }
 
   onPassengerAdded(passenger: Passenger) {

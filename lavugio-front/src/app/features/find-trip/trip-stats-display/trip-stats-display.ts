@@ -15,7 +15,7 @@ export interface TripStat {
 export class TripStatsDisplay {
   @Input() distance: string = '0km';
   @Input() estimatedTime: string = '0min';
-  @Input() price: string = '0$';
+  @Input() price: string = '0RSD';
 
   ngOnChanges(changes: SimpleChanges) {
     // This runs whenever any @Input changes

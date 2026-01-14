@@ -1,13 +1,20 @@
-<div class="w-full max-w bg-white rounded-lg shadow-sm border border-[#606C38] my-3">
+<div class="w-full max-w bg-white rounded-lg shadow-sm border border-[#606C38] my-3 transition-all duration-300"
+  [class.border]="!hasError"
+  [class.border-[#606C38]]="!hasError"
+  [class.border-2]="hasError"
+  [class.border-red-500]="hasError"
+  [class.shadow-lg]="hasError"
+  [class.shadow-red-500/50]="hasError"
+  [class.animate-pulse]="hasError">
 
   <!-- Scrollable Destinations List -->
   <div
     class="overflow-y-auto max-h-72 scrollbar scrollbar-thin scrollbar-thumb-[#BC6C25] hover:scrollbar-thumb-[#DDA15E] scrollbar-thumb-rounded scrollbar-track-gray-100"
     [style.maxHeight]="maxHeight">
 
-    @if (destinations.length === 0) {
+    @if (destinations.length < 1) {
     <div class="p-5.5 text-center">
-      <p class="text-[#606C38] text-opacity-60 text-sm">
+      <p class="text-[#606C38] text-opacity-60 text-sm font-medium">
         No destinations added yet
       </p>
     </div>
@@ -28,7 +35,7 @@
           (mouseleave)="removeScroll($event.target)"
           (touchstart)="addScrollIfNeeded($event.target)" 
           (touchend)="removeScroll($event.target)">
-          {{ destination.display_name }}
+          {{ destination.name }}
         </p>
       </div>
 
@@ -49,4 +56,12 @@
     </div>
     }
   </div>
+  <!-- Error Message -->
+  <!-- @if (hasError) {
+  <div class="pb-2 text-center">
+    <p class="text-red-500 text-xs">
+      Please add at least two destinations
+    </p>
+  </div>
+} -->
 </div>

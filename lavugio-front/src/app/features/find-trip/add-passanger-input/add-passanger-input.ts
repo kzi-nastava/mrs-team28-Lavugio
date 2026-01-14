@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ErrorDialogService } from '@app/core/services/error-dialog-service';
 
 export interface Passenger {
   id: string;
@@ -21,11 +22,13 @@ export class AddPassangerInput {
   isLoading = false;
   errorMessage = '';
 
+  constructor(private errorDialog: ErrorDialogService) {}
+
   onInputChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.value = value;
     this.valueChange.emit(value);
-    this.errorMessage = ''; // Clear error on input change
+    this.errorMessage = '';
   }
 
   async onAddPassanger() {
@@ -33,6 +36,7 @@ export class AddPassangerInput {
     
     // Basic validation
     if (!this.value.trim()) {
+      this.errorDialog.open('Passanger not found', "Passanger with selected email was not found.")
       this.errorMessage = 'Please enter a passenger name or email';
       console.log('Empty value');
       return;
@@ -46,7 +50,7 @@ export class AddPassangerInput {
       const passenger: Passenger = {
         id: Date.now().toString(),
         email: this.value,
-        name: this.value // Use the input as name for now
+        name: this.value
       };
       
       console.log('Emitting passenger:', passenger);

@@ -94,7 +94,7 @@ export class MapComponent implements AfterViewInit {
         return L.marker(waypoint.latLng, { icon });
       },
       lineOptions: {
-        styles: [{ color: '#fc0505', weight: 3, opacity: 1 }],
+        styles: [{ color: '#606C38', weight: 3, opacity: 1 }],
         extendToWaypoints: true,
         missingRouteTolerance: 0
       }

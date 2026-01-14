@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Destination } from '@app/shared/models/destination';
+import { TripDestination } from '@app/shared/models/tripDestination';
 
 @Component({
   selector: 'app-destinations-display',
@@ -9,11 +10,14 @@ import { Destination } from '@app/shared/models/destination';
   styleUrl: './destinations-display.css',
 })
 export class DestinationsDisplay {
-  @Input() destinations: Destination[] = [];
+  @Input() destinations: TripDestination[] = [];
   @Output() destinationRemoved = new EventEmitter<string>();
 
   @Input() removable = true;
   @Input() maxHeight: string = '18rem';
+
+  @Input() hasError: boolean = false;
+  
   removeDestination(id: string) {
     if (!this.removable) {
       return;
