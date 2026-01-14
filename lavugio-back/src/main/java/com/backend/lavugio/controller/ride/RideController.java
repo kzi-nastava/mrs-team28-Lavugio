@@ -267,7 +267,7 @@ public class RideController {
 //        rideReportedDTO.setReporterId(report.getReporter().getId());
 //        rideReportedDTO.setReportId(report.getReportId());
 //        rideReportedDTO.setReportText(report.getReportMessage());
-        RideReportedDTO rideReportedDTO = new RideReportedDTO(1L, rideId, reportDTO.getReporterId(), reportDTO.getReportText());
+        RideReportedDTO rideReportedDTO = new RideReportedDTO(1L, rideId, reportDTO.getRideId(), reportDTO.getComment());
         return new ResponseEntity<>(rideReportedDTO, HttpStatus.OK);
     }
 
