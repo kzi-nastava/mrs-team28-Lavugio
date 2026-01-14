@@ -10,6 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RideReportDTO {
-    Long reporterId;
-    String reportText;
+    Long rideId;
+    String comment;
 }

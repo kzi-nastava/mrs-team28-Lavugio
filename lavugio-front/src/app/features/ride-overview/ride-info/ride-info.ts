@@ -1,4 +1,4 @@
-import { Component, computed, signal, inject, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, computed, signal, inject, OnInit, OnDestroy, effect, output } from '@angular/core';
 import { DriverService } from '@app/core/services/driver-service';
 import { MapService } from '@app/core/services/map-service';
 import { RideService } from '@app/core/services/ride-service';
@@ -20,7 +20,8 @@ export class RideInfo implements OnInit, OnDestroy {
   private driverService = inject(DriverService);
   private mapService = inject(MapService);
   driverLocation = signal<Coordinates | null>(null);
-
+  
+  reportClicked = output();
   rideOverview = signal<RideOverviewModel | null>(null);
   departureTime = computed(() => this.rideOverview()?.departureTime ? this.formatDateTime(new Date(this.rideOverview()!.departureTime!)) : null);
   rideStatus = signal<string>('Loading...');
