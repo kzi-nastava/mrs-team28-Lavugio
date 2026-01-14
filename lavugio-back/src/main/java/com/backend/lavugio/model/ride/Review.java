@@ -1,6 +1,6 @@
 package com.backend.lavugio.model.ride;
 
-import com.backend.lavugio.dto.RideReviewDTO;
+import com.backend.lavugio.dto.ride.RideReviewDTO;
 import com.backend.lavugio.model.user.RegularUser;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;

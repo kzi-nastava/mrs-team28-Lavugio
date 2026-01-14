@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.ride;
 
-import com.backend.lavugio.dto.ScheduledRideDTO;
+import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 
 import java.util.List;
 

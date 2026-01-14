@@ -1,5 +1,6 @@
-package com.backend.lavugio.dto;
+package com.backend.lavugio.dto.user;
 
+import com.backend.lavugio.dto.ImageDTO;
 import com.backend.lavugio.model.user.RegularUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -3,6 +3,8 @@ package com.backend.lavugio.model.ride;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.backend.lavugio.model.enums.RideStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

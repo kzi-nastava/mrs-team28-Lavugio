@@ -1,12 +1,12 @@
 //package com.backend.lavugio;
 //
 //import com.backend.lavugio.model.ride.Ride;
-//import com.backend.lavugio.model.ride.RideStatus;
+//import com.backend.lavugio.model.enums.RideStatus;
 //import com.backend.lavugio.model.ride.Review;
 //import com.backend.lavugio.model.route.Address;
 //import com.backend.lavugio.model.user.*;
 //import com.backend.lavugio.model.vehicle.Vehicle;
-//import com.backend.lavugio.model.vehicle.VehicleType;
+//import com.backend.lavugio.model.enums.VehicleType;
 //import com.backend.lavugio.service.ride.RideService;
 //import com.backend.lavugio.service.ride.ReviewService;
 //import com.backend.lavugio.service.route.AddressService;

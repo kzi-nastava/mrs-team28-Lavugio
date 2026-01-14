@@ -4,8 +4,8 @@ import com.backend.lavugio.dto.ride.RideRequestDTO;
 import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.ride.Ride;
-import com.backend.lavugio.model.ride.RideStatus;
-import java.time.LocalDate;
+import com.backend.lavugio.model.enums.RideStatus;
+
 import java.time.LocalDateTime;
 import java.util.List;
 

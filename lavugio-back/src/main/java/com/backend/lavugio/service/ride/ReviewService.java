@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.ride;
 
-import com.backend.lavugio.dto.RideReviewDTO;
+import com.backend.lavugio.dto.ride.RideReviewDTO;
 import com.backend.lavugio.model.ride.Review;
 import java.util.List;
 

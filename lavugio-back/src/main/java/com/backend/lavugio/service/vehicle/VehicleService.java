@@ -2,7 +2,7 @@ package com.backend.lavugio.service.vehicle;
 
 import com.backend.lavugio.dto.vehicle.VehicleDTO;
 import com.backend.lavugio.model.vehicle.Vehicle;
-import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.model.enums.VehicleType;
 
 import java.util.List;
 

@@ -1,10 +1,8 @@
 package com.backend.lavugio.service.chat;
 
 import com.backend.lavugio.model.chat.Message;
-import com.backend.lavugio.model.user.AccountType;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ChatService {
     List<Message> getChatHistory(Long userId);

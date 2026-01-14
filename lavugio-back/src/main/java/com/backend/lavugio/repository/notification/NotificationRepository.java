@@ -1,7 +1,7 @@
 package com.backend.lavugio.repository.notification;
 
 import com.backend.lavugio.model.notification.Notification;
-import com.backend.lavugio.model.notification.NotificationType;
+import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.model.user.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
