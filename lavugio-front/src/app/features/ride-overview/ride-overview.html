@@ -1,18 +1,15 @@
 <div class="flex flex-col w-auto min-h-screen">
 
-  <!-- Navbar -->
   <div class="sticky top-0 z-30">
     <app-navbar></app-navbar>
   </div>
 
   <div class="relative grow w-full">
 
-    <!-- Map -->
     <div class="absolute inset-0 z-0">
       <app-map #map></app-map>
     </div>
 
-    <!-- Desktop Ride Info -->
     @if (isDesktop()) {
       <div
         class="fixed top-20 left-16 w-1/4 h-2/3 mt-10
@@ -25,7 +22,6 @@
       </div>
     }
 
-    <!-- Mobile Ride Info -->
     @if (!isDesktop()) {
       <div
         class="fixed bottom-0 left-0 right-0 z-20
@@ -54,16 +50,13 @@
       </div>
     }
 
-    <!-- ===== REPORT MODAL ===== -->
     @if (showReport()) {
 
-      <!-- Overlay -->
       <div
         class="fixed inset-0 bg-black/50 z-40"
         (click)="showReport.set(false)">
       </div>
 
-      <!-- Modal -->
       <div
         class="fixed top-1/2 left-1/2
                -translate-x-1/2 -translate-y-1/2
