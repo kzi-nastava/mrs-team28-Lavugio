@@ -8,6 +8,7 @@ import { RideOverviewUpdate } from '@app/shared/models/rideOverviewUpdate';
 import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { environment } from 'environments/environment';
+import { RideReport } from '@app/shared/models/rideReport';
 @Injectable({
   providedIn: 'root',
 })
@@ -50,6 +51,11 @@ export class RideService {
       this.client!.activate();
     });
   }
+
+  postRideReport(rideId: number, report: RideReport): Observable<RideReport>{
+    return this.http.post<RideReport>(`${this.mainPortUrl}/${rideId}/report`, report);
+  }
+
 
   closeConnection(){
     if(this.client){

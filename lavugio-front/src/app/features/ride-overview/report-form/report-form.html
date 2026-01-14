@@ -1,0 +1,117 @@
+@if (!isHidden()){
+    <div
+    class="flex flex-col w-full sm:max-w-md 
+            bg-amber-50 rounded-xl shadow-lg justify-center
+            font-[Inter]">
+
+    <h2
+    class="relative text-lg sm:text-xl font-semibold
+            px-4 py-3 text-[#FEFAE0]
+            bg-[#BC6C25]
+            rounded-t-xl">
+
+        <span>
+            Report driver
+        </span>
+
+        <button
+        type="button"
+        class="absolute right-3 top-1/2 -translate-y-1/2
+            text-[#FEFAE0] text-xl
+            hover:opacity-80
+            transition
+            font-extralight
+            hover:cursor-pointer"
+        (click)="ngOnDestroy()">
+            x
+        </button>
+    </h2>
+
+
+    <div class="flex flex-col p-4 gap-3">
+        @if (isDone()) {
+            <div class="flex flex-col items-center justify-center gap-3 p-3">
+
+                <p class="text-base sm:text-lg font-medium text-[#283618] text-center">
+                    Report submitted
+                </p>
+
+                <p class="text-sm text-[#606C38] text-center max-w-xs">
+                    Thank you for helping us keep the platform safe.
+                </p>
+
+                <button
+                class="mt-2 px-6 py-2 rounded-lg
+                        w-full sm:w-auto
+                        bg-[#BC6C25] text-[#FEFAE0]
+                        font-semibold
+                        hover:bg-[#a75f20]
+                        active:scale-95
+                        transition hover:cursor-pointer"
+                (click)="ngOnDestroy()">
+                Close
+                </button>
+            </div>
+        } @else {
+            <textarea
+            [formControl]="reportControl"
+            (input)="onInput()"
+            (keydown.enter)="onEnterPress($event)"
+            [attr.maxlength]="maxLength"
+            placeholder="Enter complaint..."
+            class="w-full min-h-30 resize-none
+                    rounded-lg border border-[#DDA15E]
+                    p-3 text-sm sm:text-base
+                    focus:outline-none focus:ring-1 focus:ring-[#BC6C25]
+                    text-[#283618]">
+            </textarea>
+
+            <div class="text-xs text-right text-gray-500">
+                {{ reportControl.value.length }} / {{ maxLength }}
+            </div>
+
+            <button
+            [disabled]="reportControl.value.length === 0"
+            class="w-full sm:w-1/2 mx-auto
+                    py-2 rounded-lg
+                    bg-[#BC6C25] text-[#FEFAE0] font-semibold
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    hover:bg-[#a75f20] active:scale-95
+                    transition hover:cursor-pointer"
+            (click)="sendReport()">
+                @if (isLoading()) {
+                    <span class="flex items-center justify-center gap-2">
+                    Sending...
+                   <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle
+                            class="opacity-25"
+                            cx="12" cy="12" r="10"
+                            stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+                        <circle
+                            class="opacity-75"
+                            cx="12" cy="12" r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                            stroke-linecap="round"
+                            stroke-dasharray="18.84 43.96"
+                            stroke-dashoffset="0">
+                        </circle>
+                    </svg>
+
+                    </span>
+                } @else {
+                    Report
+                }
+            </button>
+            <!-- Error poruka -->
+            @if (isFailed()) {
+                <div class="text-sm text-[#BC6C25] text-center mt-2">
+                Failed to submit report. Please try again.
+                </div>
+            }
+        }
+    </div>
+</div>
+}

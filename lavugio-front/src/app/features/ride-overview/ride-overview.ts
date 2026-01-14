@@ -6,10 +6,11 @@ import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { Marker } from 'leaflet';
 import { RideService } from '@app/core/services/ride-service';
+import { ReportForm } from "./report-form/report-form";
 
 @Component({
   selector: 'app-ride-overview',
-  imports: [Navbar, MapComponent, RideInfo],
+  imports: [Navbar, MapComponent, RideInfo, ReportForm],
   templateUrl: './ride-overview.html',
   styleUrl: './ride-overview.css',
 })
@@ -20,6 +21,7 @@ export class RideOverview implements AfterViewInit {
   private intervalId: any;
   private rideService = inject(RideService);
   rideId: number = 1; 
+  showReport = signal(false);
 
   @ViewChild('rideInfo') rideInfo!: RideInfo;
   @ViewChild('map') mapComponent!: MapComponent;
