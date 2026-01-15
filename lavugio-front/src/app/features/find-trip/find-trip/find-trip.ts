@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
@@ -16,6 +16,7 @@ import { TripDestination } from '@app/shared/models/tripDestination';
 import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 import { FavoriteRoutesDialog } from '../favorite-routes-dialog/favorite-routes-dialog';
 import { FavoriteRoute } from '@app/shared/models/favoriteRoute';
+import { Coordinates } from '@app/shared/models/coordinates';
 
 @Component({
   selector: 'app-find-trip',
@@ -40,6 +41,9 @@ export class FindTrip implements OnInit, OnDestroy {
   }
 
   @ViewChild('map') map!: MapComponent;
+  @ViewChild('destinationSelector') destinationSelector!: DestinationSelector;
+  isMapPickMode = false;
+
   destinations: TripDestination[] = [];
 
   currentStep = 0;
@@ -210,8 +214,16 @@ export class FindTrip implements OnInit, OnDestroy {
       id: '1',
       name: 'Home → Work',
       destinations: [
-        { id: 'home', name: 'Home aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'work', name: 'Work aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi', coordinates: { latitude: 45.2, longitude: 19.9 } },
+        {
+          id: 'home',
+          name: 'Home aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
+          coordinates: { latitude: 45.1, longitude: 19.8 },
+        },
+        {
+          id: 'work',
+          name: 'Work aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
+          coordinates: { latitude: 45.2, longitude: 19.9 },
+        },
       ],
     },
     {
@@ -277,8 +289,36 @@ export class FindTrip implements OnInit, OnDestroy {
         { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
         { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
       ],
-    }
+    },
   ];
+
+  enableMapPickMode() {
+    this.isMapPickMode = true;
+  }
+
+  onMapClicked(coords: Coordinates) {
+    if (this.isMapPickMode) {
+      this.onMapPicked(coords);
+    }
+  }
+
+  /*ngAfterViewInit() {
+    effect(() => {
+      const coords = this.map.clickedLocation();
+
+      if (coords && this.isMapPickMode) {
+        this.onMapPicked(coords);
+      }
+    });
+  }*/
+
+  onMapPicked(coords: Coordinates) {
+    this.destinationSelector.setLocationFromMap(coords);
+
+    this.isMapPickMode = false;
+
+    this.map.clickedLocation.set(null);
+  }
 
   openFavorites() {
     this.showFavoritesDialog = true;

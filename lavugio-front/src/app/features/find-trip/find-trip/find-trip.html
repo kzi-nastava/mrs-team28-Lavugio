@@ -4,7 +4,8 @@
 
   <!-- Map container filling the screen -->
   <div class="map-container">
-    <app-map #map></app-map>
+    <app-map #map
+              (locationPicked)="onMapClicked($event)"></app-map>
 
     <!-- Form background sheet overlaying on the left -->
     <app-form-background-sheet [title]="currentTitle">
@@ -13,7 +14,9 @@
           @if (currentStep === 0) {
           <div>
             <app-destination-selector
+              #destinationSelector
               (destinationSelected)="onDestinationAdded($event)"
+              (mapPickRequested)="enableMapPickMode()"
             ></app-destination-selector>
             <app-destinations-display
               [destinations]="destinations"
