@@ -1,23 +1,34 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
-import { MapComponent } from "@app/shared/components/map/map";
-import { DestinationSelector } from "../destination-selector/destination-selector";
-import { DestinationsDisplay } from "../destinations-display/destinations-display";
+import { MapComponent } from '@app/shared/components/map/map';
+import { DestinationSelector } from '../destination-selector/destination-selector';
+import { DestinationsDisplay } from '../destinations-display/destinations-display';
 import { Subject, takeUntil } from 'rxjs';
 import { WizardStateService } from '../wizard-state-service';
 import { GeocodeResult } from '../geocoding-service/geocoding-service';
 import { Destination } from '@app/shared/models/destination';
-import { PreferencesSelect } from "../preferences-select/preferences-select";
-import { Passenger } from "../add-passanger-input/add-passanger-input";
-import { TripSummary } from "../trip-summary/trip-summary";
-import { TripStatsDisplay } from "../trip-stats-display/trip-stats-display";
+import { PreferencesSelect } from '../preferences-select/preferences-select';
+import { Passenger } from '../add-passanger-input/add-passanger-input';
+import { TripSummary } from '../trip-summary/trip-summary';
+import { TripStatsDisplay } from '../trip-stats-display/trip-stats-display';
 import { TripDestination } from '@app/shared/models/tripDestination';
 import { MarkerIcons } from '@app/shared/components/map/marker-icons';
+import { FavoriteRoutesDialog } from '../favorite-routes-dialog/favorite-routes-dialog';
+import { FavoriteRoute } from '@app/shared/models/favoriteRoute';
 
 @Component({
   selector: 'app-find-trip',
-  imports: [Navbar, FormBackgroundSheet, MapComponent, DestinationSelector, DestinationsDisplay, PreferencesSelect, TripSummary, TripStatsDisplay],
+  imports: [
+    Navbar,
+    FormBackgroundSheet,
+    MapComponent,
+    DestinationSelector,
+    DestinationsDisplay,
+    PreferencesSelect,
+    TripSummary,
+    FavoriteRoutesDialog,
+  ],
   templateUrl: './find-trip.html',
   styleUrl: './find-trip.css',
 })
@@ -33,7 +44,7 @@ export class FindTrip implements OnInit, OnDestroy {
 
   currentStep = 0;
   totalSteps = 0;
-  currentTitle = "";
+  currentTitle = '';
 
   passengers: Passenger[] = [];
   selectedVehicleType = '';
@@ -52,13 +63,11 @@ export class FindTrip implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.totalSteps = this.wizardState.getTotalSteps();
-    
-    this.wizardState.currentStepIndex$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(index => {
-        this.currentStep = index;
-        this.currentTitle = this.wizardState.getStepInfo(index).title;
-      })
+
+    this.wizardState.currentStepIndex$.pipe(takeUntil(this.destroy$)).subscribe((index) => {
+      this.currentStep = index;
+      this.currentTitle = this.wizardState.getStepInfo(index).title;
+    });
 
     const savedDestinations = this.wizardState.getStepData('destinations');
     if (savedDestinations) {
@@ -78,15 +87,15 @@ export class FindTrip implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-onDestinationAdded(geocodeResult: GeocodeResult) {
+  onDestinationAdded(geocodeResult: GeocodeResult) {
     // Convert GeocodeResult to Destination and add to list
     const newDestination: TripDestination = {
       id: crypto.randomUUID(), // or use geocodeResult.place_id if available
       name: geocodeResult.display_name,
       coordinates: {
         latitude: Number(geocodeResult.lat),
-        longitude: Number(geocodeResult.lon)
-      }
+        longitude: Number(geocodeResult.lon),
+      },
     };
 
     this.destinations.push(newDestination);
@@ -95,7 +104,7 @@ onDestinationAdded(geocodeResult: GeocodeResult) {
   }
 
   onDestinationRemoved(destinationId: string) {
-    this.destinations = this.destinations.filter(d => d.id !== destinationId);
+    this.destinations = this.destinations.filter((d) => d.id !== destinationId);
 
     this.map.resetMarkers();
     this.map.removeRoute();
@@ -118,7 +127,7 @@ onDestinationAdded(geocodeResult: GeocodeResult) {
   private updateRoute() {
     if (this.destinations.length < 2) return;
 
-    const coords = this.destinations.map(d => d.coordinates);
+    const coords = this.destinations.map((d) => d.coordinates);
     this.map.setRoute(coords);
   }
 
@@ -130,7 +139,7 @@ onDestinationAdded(geocodeResult: GeocodeResult) {
 
   onPassengerRemoved(passengerId: string) {
     console.log('FindTrip - onPassengerRemoved:', passengerId);
-    this.passengers = this.passengers.filter(p => p.id !== passengerId);
+    this.passengers = this.passengers.filter((p) => p.id !== passengerId);
     console.log('FindTrip - passengers array:', this.passengers);
   }
 
@@ -138,7 +147,11 @@ onDestinationAdded(geocodeResult: GeocodeResult) {
     this.canFinishTrip = canFinish;
   }
 
-  onPreferencesChanged(preferences: {vehicleType: string, isPetFriendly: boolean, isBabyFriendly: boolean}) {
+  onPreferencesChanged(preferences: {
+    vehicleType: string;
+    isPetFriendly: boolean;
+    isBabyFriendly: boolean;
+  }) {
     this.selectedVehicleType = preferences.vehicleType;
     this.isPetFriendly = preferences.isPetFriendly;
     this.isBabyFriendly = preferences.isBabyFriendly;
@@ -152,8 +165,8 @@ onDestinationAdded(geocodeResult: GeocodeResult) {
       preferences: {
         vehicleType: this.selectedVehicleType,
         isPetFriendly: this.isPetFriendly,
-        isBabyFriendly: this.isBabyFriendly
-      }
+        isBabyFriendly: this.isBabyFriendly,
+      },
     });
     // Handle trip submission here
   }
@@ -170,7 +183,7 @@ onDestinationAdded(geocodeResult: GeocodeResult) {
 
   saveCurrentStepData() {
     const stepInfo = this.wizardState.getStepInfo(this.currentStep);
-    
+
     switch (stepInfo.id) {
       case 'destinations':
         const destinationData = {
@@ -182,12 +195,112 @@ onDestinationAdded(geocodeResult: GeocodeResult) {
         this.wizardState.saveStepData('preferences', {
           vehicleType: this.selectedVehicleType,
           isPetFriendly: this.isPetFriendly,
-          isBabyFriendly: this.isBabyFriendly
+          isBabyFriendly: this.isBabyFriendly,
         });
         break;
-      case "review":
+      case 'review':
         break;
     }
+  }
+
+  showFavoritesDialog = false;
+
+  favoriteRoutes: FavoriteRoute[] = [
+    {
+      id: '1',
+      name: 'Home → Work',
+      destinations: [
+        { id: 'home', name: 'Home aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'work', name: 'Work aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi', coordinates: { latitude: 45.2, longitude: 19.9 } },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    },
+    {
+      id: '3',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    },
+    {
+      id: '4',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Gym Route',
+      destinations: [
+        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
+        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
+      ],
+    }
+  ];
+
+  openFavorites() {
+    this.showFavoritesDialog = true;
+  }
+
+  closeFavorites() {
+    this.showFavoritesDialog = false;
+  }
+
+  applyFavoriteRoute(route: FavoriteRoute) {
+    this.destinations = route.destinations.map((d) => ({
+      id: crypto.randomUUID(),
+      name: d.name,
+      coordinates: {
+        latitude: d.coordinates.latitude,
+        longitude: d.coordinates.longitude,
+      },
+    }));
+
+    this.showFavoritesDialog = false;
+
+    this.updateRoute();
   }
 
   isFirstStep(): boolean {
