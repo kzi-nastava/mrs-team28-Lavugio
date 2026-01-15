@@ -4,7 +4,7 @@
     [class.border-[#606C38]]="!hasError" [class.border-2]="hasError" [class.border-red-500]="hasError"
     [class.animate-pulse]="hasError">
     <p class="text-[#606C38] font-medium text-center" [class.text-left]="!hasError">
-      {{ vehicleType + ' vehicle' || 'No vehicle type selected' }}
+      {{ vehicleType || 'No vehicle type selected' }}
     </p>
     <!-- Error Message -->
     <!-- @if (hasError) {
