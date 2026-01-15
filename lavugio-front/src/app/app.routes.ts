@@ -12,6 +12,7 @@ import { TripHistoryDriverDetailed } from './features/trip-history-driver-detail
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
 import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
+import { RegisterDriver } from './features/register-driver/register-driver';
 
 export const routes: Routes = [
   {
@@ -43,6 +44,11 @@ export const routes: Routes = [
     path: 'register',
     title: 'Register',
     component: Register
+  },
+  {
+    path: 'register-driver',
+    title: 'Register-driver',
+    component: RegisterDriver
   },
   {
     path: 'verify-email',
