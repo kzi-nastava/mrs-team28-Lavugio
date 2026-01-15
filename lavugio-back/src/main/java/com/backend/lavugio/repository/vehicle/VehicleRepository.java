@@ -1,7 +1,7 @@
 package com.backend.lavugio.repository.vehicle;
 
 import com.backend.lavugio.model.vehicle.Vehicle;
-import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.model.enums.VehicleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

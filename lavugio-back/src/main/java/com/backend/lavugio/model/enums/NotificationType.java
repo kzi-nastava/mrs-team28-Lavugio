@@ -1,4 +1,4 @@
-package com.backend.lavugio.model.notification;
+package com.backend.lavugio.model.enums;
 
 public enum NotificationType {
     PANIC,

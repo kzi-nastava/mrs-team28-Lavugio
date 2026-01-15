@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.vehicle.impl;
 
-import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.service.vehicle.VehicleTypeService;
 import org.springframework.stereotype.Service;
 

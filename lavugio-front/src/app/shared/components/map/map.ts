@@ -17,6 +17,7 @@ export class MapComponent implements AfterViewInit {
   map: any;
   clickable = true;
   clickedLocation = signal<Coordinates | null>(null);
+  routeDuration = signal(0);
 
 
   ngAfterViewInit(): void {
@@ -64,17 +65,17 @@ export class MapComponent implements AfterViewInit {
   }
 
   setRoute(coordinates: Coordinates[]): void {
-    if (coordinates.length < 2) {
-      console.error('Potrebne su minimum 2 koordinate');
-      return;
-    }
-
-    if (this.routeControl) {
-      this.map.removeControl(this.routeControl);
-    }
+    if (coordinates.length < 2) return;
 
     const waypoints = coordinates.map(coord => L.latLng(coord.latitude, coord.longitude));
 
+    // Ako kontrola već postoji, samo joj daj nove tačke
+    if (this.routeControl) {
+      this.routeControl.setWaypoints(waypoints);
+      return; // Završavamo ovde, ne kreiramo ponovo
+    }
+
+    // Ako ne postoji (prvi put), kreiraj je
     this.routeControl = (L.Routing.control as any)({
       waypoints: waypoints,
       router: L.routing.mapbox(environment.MAPBOX_API_KEY, { profile: 'mapbox/driving' }),
@@ -83,14 +84,9 @@ export class MapComponent implements AfterViewInit {
       fitSelectedRoutes: true,
       showAlternatives: false,
       createMarker: (i: number, waypoint: any) => {
-        let icon;
-        if (i === 0) {
-          icon = MarkerIcons.start;
-        } else if (i === coordinates.length - 1) {
-          icon = MarkerIcons.end;
-        } else {
-          icon = MarkerIcons.checkpoint; // Za srednje tačke
-        }
+        let icon = i === 0 ? MarkerIcons.start : 
+                  i === coordinates.length - 1 ? MarkerIcons.end : 
+                  MarkerIcons.checkpoint;
         return L.marker(waypoint.latLng, { icon });
       },
       lineOptions: {
@@ -99,11 +95,15 @@ export class MapComponent implements AfterViewInit {
         missingRouteTolerance: 0
       }
     }).addTo(this.map);
-    
+
+  // Sakrij instrukcije
     const container = this.routeControl.getContainer();
-    if (container) {
-      container.style.display = 'none';
-    }
+    if (container) container.style.display = 'none';
+
+    this.routeControl.on('routesfound', (e: any) => {
+      const route = e.routes[0];
+      this.routeDuration.set(route.summary.totalTime);
+    });
   }
 
   addMarker(location: Coordinates, icon: L.DivIcon): L.Marker {
@@ -143,4 +143,5 @@ export class MapComponent implements AfterViewInit {
       this.routeControl = undefined;
     }
   }
+
 }

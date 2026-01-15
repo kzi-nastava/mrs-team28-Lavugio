@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.dto.*;
-import com.backend.lavugio.model.user.Administrator;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,6 @@ import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 @RestController
 @RequestMapping("/api/admins")

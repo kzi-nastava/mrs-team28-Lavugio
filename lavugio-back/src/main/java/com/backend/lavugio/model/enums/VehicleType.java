@@ -1,4 +1,4 @@
-package com.backend.lavugio.model.vehicle;
+package com.backend.lavugio.model.enums;
 
 public enum VehicleType {
     STANDARD,

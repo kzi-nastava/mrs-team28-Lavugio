@@ -1,7 +1,7 @@
 package com.backend.lavugio.service.notification.impl;
 
 import com.backend.lavugio.model.notification.Notification;
-import com.backend.lavugio.model.notification.NotificationType;
+import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.repository.notification.NotificationRepository;
@@ -10,7 +10,6 @@ import com.backend.lavugio.service.notification.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

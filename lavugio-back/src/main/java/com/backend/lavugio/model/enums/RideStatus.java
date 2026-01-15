@@ -1,4 +1,4 @@
-package com.backend.lavugio.model.ride;
+package com.backend.lavugio.model.enums;
 
 public enum RideStatus {
     ACTIVE,

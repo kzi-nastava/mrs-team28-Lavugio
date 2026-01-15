@@ -1,5 +1,6 @@
 package com.backend.lavugio.model.vehicle;
 
+import com.backend.lavugio.model.enums.VehicleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

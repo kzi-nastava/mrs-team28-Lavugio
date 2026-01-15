@@ -2,9 +2,8 @@ package com.backend.lavugio.dto.ride;
 
 import com.backend.lavugio.dto.user.DriverDTO;
 import com.backend.lavugio.dto.user.UserDTO;
-import com.backend.lavugio.model.ride.RideStatus;
-import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.vehicle.VehicleType;
+import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.enums.VehicleType;
 import lombok.*;
 
 import java.time.LocalDateTime;

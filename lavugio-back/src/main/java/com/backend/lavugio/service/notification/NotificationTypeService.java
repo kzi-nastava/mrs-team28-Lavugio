@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.notification;
 
-import com.backend.lavugio.model.notification.NotificationType;
+import com.backend.lavugio.model.enums.NotificationType;
 
 import java.util.List;
 

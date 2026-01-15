@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.notification.impl;
 
-import com.backend.lavugio.model.notification.NotificationType;
+import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.service.notification.NotificationTypeService;
 import org.springframework.stereotype.Service;
 

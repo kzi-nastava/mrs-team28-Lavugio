@@ -1,4 +1,4 @@
-package com.backend.lavugio.dto;
+package com.backend.lavugio.dto.ride;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RideReportDTO {
+public class RideReportedDTO {
+    Long reportId;
+    Long rideId;
     Long reporterId;
     String reportText;
 }

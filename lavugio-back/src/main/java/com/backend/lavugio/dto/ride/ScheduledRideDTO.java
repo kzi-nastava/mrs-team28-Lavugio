@@ -1,6 +1,5 @@
-package com.backend.lavugio.dto;
+package com.backend.lavugio.dto.ride;
 
-import com.backend.lavugio.model.ride.Ride;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
