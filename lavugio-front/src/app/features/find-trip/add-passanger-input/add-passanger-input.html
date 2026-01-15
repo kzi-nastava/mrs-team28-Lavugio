@@ -1,0 +1,20 @@
+<div class="relative w-full">
+    <!-- Main container for input and icon -->
+    <div class="flex items-center gap-2">
+
+        <!-- Input container with relative positioning for dropdown -->
+        <div class="flex-1 relative">
+            <div class="border border-[#606C38] rounded-md bg-white overflow-hidden">
+                <input type="text" [value]="value" (input)="onInputChange($event)" (focus)="onFocus()"
+                    [placeholder]="placeholder"
+                    class="w-full py-3 px-3 text-[#606C38] text-opacity-70 focus:outline-none" autocomplete="off">
+            </div>
+        </div>
+
+        <!-- Add icon placed outside the input box on the right -->
+        <button (click)="onAddPassanger()" aria-label="Add passenger"
+            class="p-2 bg-white text-[#606C38] rounded-3xl transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#283618] hover:bg-[#606C38] hover:text-white flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+            </svg>
+        </button>

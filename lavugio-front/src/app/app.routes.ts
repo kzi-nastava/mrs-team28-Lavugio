@@ -10,6 +10,7 @@ import { TripHistoryDriver } from '@app/features/trip-history-driver/trip-histor
 import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
 import { TripHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
+import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
 
 export const routes: Routes = [
@@ -29,6 +30,9 @@ export const routes: Routes = [
   {
     path: 'trip-history-driver-detailed',
     component: TripHistoryDriverDetailed,
+  },
+  {
+        path: 'find-trip', title: "Find Trip ", component: FindTrip
   },
   {
     path: 'login',

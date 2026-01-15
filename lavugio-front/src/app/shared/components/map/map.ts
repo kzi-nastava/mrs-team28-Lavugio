@@ -88,6 +88,11 @@ export class MapComponent implements AfterViewInit {
                   i === coordinates.length - 1 ? MarkerIcons.end : 
                   MarkerIcons.checkpoint;
         return L.marker(waypoint.latLng, { icon });
+      },
+      lineOptions: {
+        styles: [{ color: '#606C38', weight: 3, opacity: 1 }],
+        extendToWaypoints: true,
+        missingRouteTolerance: 0
       }
     }).addTo(this.map);
 
