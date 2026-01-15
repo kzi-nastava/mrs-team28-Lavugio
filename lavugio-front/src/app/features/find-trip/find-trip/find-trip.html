@@ -10,22 +10,29 @@
     <app-form-background-sheet [title]="currentTitle">
       <ng-template #contentTemplate>
         <div class="form-content flex flex-col h-full">
-  
-        @if (currentStep === 0) {
+          @if (currentStep === 0) {
           <div>
             <app-destination-selector
-            (destinationSelected)="onDestinationAdded($event)"></app-destination-selector>
+              (destinationSelected)="onDestinationAdded($event)"
+            ></app-destination-selector>
             <app-destinations-display
-            [destinations]="destinations"
-            (destinationRemoved)="onDestinationRemoved($event)"></app-destinations-display>
+              [destinations]="destinations"
+              (destinationRemoved)="onDestinationRemoved($event)"
+            ></app-destinations-display>
           </div>
-          <div class="text-[#BC6C25] font-bold text-lg mt-1 mb-2 text-center">
-            Select favorite route <br>
-            to be implemented
+          <div class="text-center">
+            <button (click)="openFavorites()" class="text-[#BC6C25] font-bold text-lg underline hover:text-[#DDA15E]">
+              Select favorite route
+            </button>
           </div>
-        }
-        
-        @if (currentStep === 1) {
+          @if (showFavoritesDialog) {
+          <app-favorite-routes-dialog
+            [routes]="favoriteRoutes"
+            (cancel)="closeFavorites()"
+            (routeSelected)="applyFavoriteRoute($event)"
+          >
+          </app-favorite-routes-dialog>
+          } } @if (currentStep === 1) {
           <div>
             <app-preferences-select
               [passengers]="passengers"
@@ -34,56 +41,60 @@
               [initialIsBabyFriendly]="isBabyFriendly"
               (passengerAdded)="onPassengerAdded($event)"
               (passengerRemoved)="onPassengerRemoved($event)"
-              (preferencesChanged)="onPreferencesChanged($event)"></app-preferences-select>
+              (preferencesChanged)="onPreferencesChanged($event)"
+            ></app-preferences-select>
           </div>
-        }
-        
-        @if (currentStep === 2) {
+          } @if (currentStep === 2) {
           <div>
             <app-trip-summary
               [destinations]="destinations"
               [passengers]="passengers"
-              [selectedPreferences]="{ vehicleType: selectedVehicleType, isPetFriendly: isPetFriendly, isBabyFriendly: isBabyFriendly }"
+              [selectedPreferences]="{
+                vehicleType: selectedVehicleType,
+                isPetFriendly: isPetFriendly,
+                isBabyFriendly: isBabyFriendly
+              }"
               [distance]="tripDistance"
               [estimatedTime]="tripEstimatedTime"
               [price]="tripPrice"
               (destinationRemoved)="onDestinationRemoved($event)"
               (passengerRemoved)="onPassengerRemoved($event)"
-              (canFinishChange)="onCanFinishChange($event)">
+              (canFinishChange)="onCanFinishChange($event)"
+            >
             </app-trip-summary>
           </div>
-        }
+          }
 
+          <!-- Buttons Container -->
+          <div class="mt-auto flex flex-row gap-3">
+            <!-- Left Button -->
+            <button
+              (click)="onPrevious()"
+              [disabled]="isFirstStep()"
+              class="px-6 py-3 border-[#606C38] border-2 bg-white text-[#606C38] rounded-sm font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ getPreviousButtonText() }}
+            </button>
 
-        <!-- Buttons Container -->
-        <div class="mt-auto flex flex-row gap-3">
-          <!-- Left Button -->
-          <button
-          (click)="onPrevious()"
-          [disabled]="isFirstStep()"
-          class="px-6 py-3 border-[#606C38] border-2 bg-white text-[#606C38] rounded-sm font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
-            {{ getPreviousButtonText() }}
-          </button>
-          
-          <!-- Right Button -->
-           @if (!isLastStep()) {
-             <button
-             (click)="onNext()"
-             class="px-6 py-3 border-[#606C38] border-2 bg-white text-[#606C38] rounded-sm font-bold flex-1">
-               {{ getNextButtonText() }}
-             </button>
-            }
-            @else {
-              <button
+            <!-- Right Button -->
+            @if (!isLastStep()) {
+            <button
+              (click)="onNext()"
+              class="px-6 py-3 border-[#606C38] border-2 bg-white text-[#606C38] rounded-sm font-bold flex-1"
+            >
+              {{ getNextButtonText() }}
+            </button>
+            } @else {
+            <button
               (click)="onFinish()"
               [disabled]="!canFinishTrip"
-              class="px-6 py-3 border-[#BC6C25] border-2 bg-[#BC6C25] text-white rounded-sm font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ getNextButtonText() }}
-              </button>
-           }
+              class="px-6 py-3 border-[#BC6C25] border-2 bg-[#BC6C25] text-white rounded-sm font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ getNextButtonText() }}
+            </button>
+            }
+          </div>
         </div>
-
-      </div>
       </ng-template>
     </app-form-background-sheet>
   </div>
