@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
@@ -7,15 +7,15 @@ import { DestinationsDisplay } from '../destinations-display/destinations-displa
 import { Subject, takeUntil } from 'rxjs';
 import { WizardStateService } from '../wizard-state-service';
 import { GeocodeResult } from '../geocoding-service/geocoding-service';
-import { Destination } from '@app/shared/models/destination';
 import { PreferencesSelect } from '../preferences-select/preferences-select';
 import { Passenger } from '../add-passanger-input/add-passanger-input';
 import { TripSummary } from '../trip-summary/trip-summary';
-import { TripStatsDisplay } from '../trip-stats-display/trip-stats-display';
 import { TripDestination } from '@app/shared/models/tripDestination';
 import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 import { FavoriteRoutesDialog } from '../favorite-routes-dialog/favorite-routes-dialog';
 import { FavoriteRoute } from '@app/shared/models/favoriteRoute';
+import { Coordinates } from '@app/shared/models/coordinates';
+import { DialogService } from '@app/core/services/dialog-service';
 
 @Component({
   selector: 'app-find-trip',
@@ -40,6 +40,9 @@ export class FindTrip implements OnInit, OnDestroy {
   }
 
   @ViewChild('map') map!: MapComponent;
+  @ViewChild('destinationSelector') destinationSelector!: DestinationSelector;
+  isMapPickMode = false;
+
   destinations: TripDestination[] = [];
 
   currentStep = 0;
@@ -51,15 +54,15 @@ export class FindTrip implements OnInit, OnDestroy {
   isPetFriendly = false;
   isBabyFriendly = false;
   canFinishTrip = false;
+  favoriteRouteName: string = '';
 
-  // Trip stats
   tripDistance = '0km';
   tripEstimatedTime = '0min';
   tripPrice = '0$';
 
   private destroy$ = new Subject<void>();
 
-  constructor(public wizardState: WizardStateService) {}
+  constructor(public wizardState: WizardStateService, private dialogService: DialogService) {}
 
   ngOnInit() {
     this.totalSteps = this.wizardState.getTotalSteps();
@@ -90,7 +93,7 @@ export class FindTrip implements OnInit, OnDestroy {
   onDestinationAdded(geocodeResult: GeocodeResult) {
     // Convert GeocodeResult to Destination and add to list
     const newDestination: TripDestination = {
-      id: crypto.randomUUID(), // or use geocodeResult.place_id if available
+      id: geocodeResult.place_id?.toString() || crypto.randomUUID(),
       name: geocodeResult.display_name,
       coordinates: {
         latitude: Number(geocodeResult.lat),
@@ -210,75 +213,37 @@ export class FindTrip implements OnInit, OnDestroy {
       id: '1',
       name: 'Home → Work',
       destinations: [
-        { id: 'home', name: 'Home aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'work', name: 'Work aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi', coordinates: { latitude: 45.2, longitude: 19.9 } },
+        {
+          id: 'home',
+          name: 'Home aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
+          coordinates: { latitude: 45.1, longitude: 19.8 },
+        },
+        {
+          id: 'work',
+          name: 'Work aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
+          coordinates: { latitude: 45.2, longitude: 19.9 },
+        },
       ],
     },
-    {
-      id: '2',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    },
-    {
-      id: '3',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    },
-    {
-      id: '4',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Gym Route',
-      destinations: [
-        { id: 'home', name: 'Home', coordinates: { latitude: 45.1, longitude: 19.8 } },
-        { id: 'gym', name: 'Gym', coordinates: { latitude: 45.3, longitude: 19.85 } },
-      ],
-    }
   ];
+
+  enableMapPickMode() {
+    this.isMapPickMode = true;
+  }
+
+  onMapClicked(coords: Coordinates) {
+    if (this.isMapPickMode) {
+      this.onMapPicked(coords);
+    }
+  }
+
+  onMapPicked(coords: Coordinates) {
+    this.destinationSelector.setLocationFromMap(coords);
+
+    this.isMapPickMode = false;
+
+    this.map.clickedLocation.set(null);
+  }
 
   openFavorites() {
     this.showFavoritesDialog = true;
@@ -301,6 +266,30 @@ export class FindTrip implements OnInit, OnDestroy {
     this.showFavoritesDialog = false;
 
     this.updateRoute();
+  }
+
+  saveFavoriteRoute() {
+    if (this.destinations.length < 2) {
+      // OVDE POZIVAŠ SVOJ POSTOJEĆI ERROR MODAL
+      this.dialogService.open('Cannot save route', 'Please add at least two destinations to save a favorite route.', true);
+      return;
+    }
+
+    if (!this.favoriteRouteName.trim()) {
+      this.dialogService.open('Cannot save route', 'Please enter a name for the favorite route.', true);
+      return;
+    }
+
+    const favoriteRoutePayload = {
+      name: this.favoriteRouteName,
+      destinations: this.destinations,
+    };
+    
+    // TODO:
+    // this.yourService.saveFavoriteRoute(favoriteRoutePayload).subscribe(...)
+    this.dialogService.open('Route saved', 'Your favorite route has been saved successfully.', false);
+
+    this.favoriteRouteName = '';
   }
 
   isFirstStep(): boolean {
