@@ -1,83 +1,105 @@
+<!-- profile.component.html -->
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 mt-8">
-
   <app-profile-info-row
-    label="Name"
-    value="Lazar">
+    [label]="'Name'"
+    [value]="userProfile().name"
+    (valueChanged)="onFieldChanged('name', $event)"
+  >
   </app-profile-info-row>
 
   <app-profile-info-row
-    label="Surname"
-    value="Jović">
+    [label]="'Surname'"
+    [value]="userProfile().surname"
+    (valueChanged)="onFieldChanged('surname', $event)"
+  >
   </app-profile-info-row>
 
   <app-profile-info-row
-    label="Phone number"
-    value="069123456">
+    [label]="'Phone number'"
+    [value]="userProfile().phoneNumber"
+    [type]="'tel'"
+    (valueChanged)="onFieldChanged('phoneNumber', $event)"
+  >
   </app-profile-info-row>
-
 
   <app-profile-info-row
-    label="Email"
-    value="bm230294d@student.etf.bg.ac.rs">
+    [label]="'Email'"
+    [value]="userProfile().email"
+    [type]="'email'"
+    [editable]="false"
+    (valueChanged)="onFieldChanged('email', $event)"
+  >
   </app-profile-info-row>
 
-  <div class="sm:col-span-2">
-      <app-profile-info-row
-        label="Address"
-        value="Beogradska 35, Požarevac 12000"
-        width="full">
-      </app-profile-info-row>
-  </div>
-
-  <!-- If logged in User is driver... -->
-  <div class="sm:col-span-2 text-center">
-    <h2
-       class="
-         text-xl
-         sm:text-2xl
-         md:text-3xl
-         font-bold
-         text-[#606C38]
-         leading-tight
-       ">
-       Driving information
-     </h2>
-  </div>
-  
   <div class="sm:col-span-2">
     <app-profile-info-row
-        label="Vehicle"
-        value="Smart Crossblade"
-        width="full">
-      </app-profile-info-row>
+      [label]="'Address'"
+      [value]="userProfile().address"
+      [width]="'full'"
+      (valueChanged)="onFieldChanged('address', $event)"
+    >
+    </app-profile-info-row>
+  </div>
+
+  <!-- Driver Section -->
+  @if (userProfile().isDriver) {
+  <div class="sm:col-span-2 text-center">
+    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#606C38] leading-tight">
+      Driving information
+    </h2>
   </div>
 
   <app-profile-info-row
-        label="Vehicle Type"
-        value="Standard">
+    [label]="'Make'"
+    [value]="'Smart'"
+    (valueChanged)="onFieldChanged('vehicle', $event)"
+  >
   </app-profile-info-row>
   
   <app-profile-info-row
-        label="Active in last 24h"
-        value="4h30min">
+    [label]="'Model'"
+    [value]="'Crossblade'"
+    (valueChanged)="onFieldChanged('vehicle', $event)"
+  >
   </app-profile-info-row>
 
-  <div class="grid grid-cols-2 sm:col-span-2">
-  
-    <!-- Left button -->
-    <div class="justify-self-start">
-      <app-button variant="dark-brown" (click)="0">
-        Activate
+  <app-profile-info-row
+    [label]="'Vehicle Type'"
+    [value]="userProfile().vehicleType!"
+    (valueChanged)="onFieldChanged('vehicleType', $event)"
+  >
+  </app-profile-info-row>
+
+  <app-profile-info-row
+    [label]="'Active in last 24h'"
+    [value]="userProfile().activeTime!"
+    [editable]="false"
+    [singleLineLabel]="true"
+  >
+  </app-profile-info-row>
+
+  <app-profile-info-row [label]="'Pet Friendly'" [value]="'true'" [isBoolean]="true">
+  </app-profile-info-row>
+
+  <app-profile-info-row [label]="'Baby Friendly'" [value]="'false'" [isBoolean]="true">
+  </app-profile-info-row>
+  }
+
+  <!-- Buttons -->
+  <div class="grid grid-cols-2 sm:col-span-2 gap-4">
+    <div
+      class="justify-self-start"
+      [class.col-span-2]="!userProfile().isDriver || editService.isEditMode()"
+      [class.justify-self-end]="userProfile().isDriver && !editService.isEditMode()"
+    >
+      <app-button size="medium" [variant]="'light-green'" (click)="onEditClick()">
+        {{ editButtonText() }}
       </app-button>
     </div>
-
-    <!-- Right button -->
+    @if (userProfile().isDriver && !editService.isEditMode()) {
     <div class="justify-self-end">
-      <app-button size="medium" variant="light-green" (click)="0">
-        Edit
-      </app-button>
+      <app-button variant="dark-brown" (click)="onActivateClick()"> Activate </app-button>
     </div>
-
+    }
   </div>
-
 </div>

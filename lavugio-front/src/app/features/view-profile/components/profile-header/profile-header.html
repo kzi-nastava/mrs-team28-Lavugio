@@ -1,17 +1,29 @@
 <div class="flex items-center gap-4 sm:gap-6">
 
   <!-- Profile picture -->
-  <img
-    [src]="avatarUrl"
-    alt="Profile picture"
-    class="
-      w-16 h-16
-      sm:w-20 sm:h-20
-      md:w-24 md:h-24
-      rounded-md
-      object-cover
-      border-[3px] border-[#606C38]
-    " />
+  <div class="relative">
+    <img
+      [src]="previewUrl || avatarUrl"
+      alt="Profile picture"
+      (click)="onAvatarClick(fileInput)"
+      [class.cursor-pointer]="editService.isEditMode()"
+      [attr.title]="editService.isEditMode() ? 'Click to change' : null"
+      class="
+        w-16 h-16
+        sm:w-20 sm:h-20
+        md:w-24 md:h-24
+        rounded-md
+        object-cover
+        border-[3px] border-[#606C38]
+      " />
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      class="hidden"
+      (change)="onFileSelected($event)"
+    />
+  </div>
 
   <!-- Right content -->
   <div class="flex flex-col text-[#606C38]">
