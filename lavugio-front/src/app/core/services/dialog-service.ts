@@ -1,21 +1,22 @@
 import { ApplicationRef, ComponentRef, createComponent, EnvironmentInjector, Injectable } from '@angular/core';
 import { ErrorDialog } from '@app/shared/components/error-dialog/error-dialog';
+import { SuccessDialog } from '@app/shared/components/success-dialog/success-dialog';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ErrorDialogService {
-  private dialogRef?: ComponentRef<ErrorDialog>;
+export class DialogService {
+  private dialogRef?: ComponentRef<ErrorDialog | SuccessDialog>;
 
   constructor(
     private appRef: ApplicationRef,
     private injector: EnvironmentInjector
   ) {}
 
-  open(title: string, message: string) {
+  open(title: string, message: string, isError: boolean = true) {
     if (this.dialogRef) return;
 
-    this.dialogRef = createComponent(ErrorDialog, {
+    this.dialogRef = createComponent(isError ? ErrorDialog : SuccessDialog, {
       environmentInjector: this.injector
     });
 

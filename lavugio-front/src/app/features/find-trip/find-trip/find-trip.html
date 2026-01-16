@@ -4,8 +4,7 @@
 
   <!-- Map container filling the screen -->
   <div class="map-container">
-    <app-map #map
-              (locationPicked)="onMapClicked($event)"></app-map>
+    <app-map #map (locationPicked)="onMapClicked($event)"></app-map>
 
     <!-- Form background sheet overlaying on the left -->
     <app-form-background-sheet [title]="currentTitle">
@@ -24,10 +23,44 @@
             ></app-destinations-display>
           </div>
           <div class="text-center">
-            <button (click)="openFavorites()" class="text-[#BC6C25] font-bold text-lg underline hover:text-[#DDA15E]">
+            <button
+              (click)="openFavorites()"
+              class="text-[#BC6C25] font-bold text-lg underline hover:text-[#DDA15E]"
+            >
               Select favorite route
             </button>
           </div>
+
+          <div class="mt-4">
+            <div class="relative w-full">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 relative">
+                  <div class="border border-[#606C38] rounded-md bg-white overflow-hidden">
+                  <input
+                    type="text"
+                    [value]="favoriteRouteName"
+                    (input)="favoriteRouteName = $any($event.target).value"
+                    placeholder="Enter favorite route name..."
+                    class="w-full py-3 px-3 text-[#606C38] text-opacity-70 focus:outline-none"
+                  />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  (click)="saveFavoriteRoute()"
+                  class="h-11 w-11 flex items-center justify-center border border-[#606C38] rounded-md bg-white hover:bg-[#DDA15E] hover:bg-opacity-20 text-[#606C38] font-medium"
+                >
+                  <svg class="w-5 h-5 text-[#BC6C25]" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                  />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
           @if (showFavoritesDialog) {
           <app-favorite-routes-dialog
             [routes]="favoriteRoutes"
