@@ -1,0 +1,48 @@
+<div class="relative w-full">
+  <!-- Main container for input and icon -->
+  <div class="flex items-center gap-2">
+    
+    <!-- Input container with relative positioning for dropdown -->
+    <div class="flex-1 relative">
+      <div class="border border-[#606C38] rounded-md bg-white overflow-hidden">
+        <input
+          type="text"
+          [value]="value"
+          (input)="onInputChange($event)"
+          (focus)="onFocus()"
+          (blur)="onBlur()"
+          [placeholder]="placeholder"
+          class="w-full py-3 px-3 text-[#606C38] text-opacity-70 focus:outline-none"
+          autocomplete="off"
+        >
+        
+        <!-- Loading spinner -->
+        @if (isLoading) {
+          <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <svg class="animate-spin h-5 w-5 text-[#606C38]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        }
+      </div>
+
+      <!-- Suggestions dropdown -->
+      @if (showSuggestions && suggestions.length > 0) {
+        <div class="absolute top-full left-0 right-0 mt-1 bg-white border border-[#606C38] rounded-md shadow-lg z-50 max-h-60 overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-[#BC6C25] hover:scrollbar-thumb-[#DDA15E] scrollbar-thumb-rounded scrollbar-track-gray-100">
+          @for (suggestion of suggestions; track suggestion.place_id) {
+            <div
+              (click)="selectSuggestion(suggestion)"
+              class="px-3 py-2 hover:bg-[#DDA15E] hover:bg-opacity-20 cursor-pointer border-b border-[#606C38] border-opacity-10 last:border-b-0"
+            >
+              <div class="text-[#606C38] text-sm font-medium">
+                {{ suggestion.display_name }}
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<app-navbar></app-navbar>
+<div class="min-h-screen
+            flex
+            justify-center
+            items-center
+            bg-white
+            md:bg-linear-to-br
+            md:from-[#606C38]
+            md:to-[#283618]">
+    <div class="w-full h-full md:min-h-screen
+                bg-white
+                md:max-w-2xl
+                shadow-none md:shadow-2xl
+                p-6 md:p-10
+                flex flex-col justify-center items-center">
+        <!-- LOGIN Title -->
+        <h1 class="text-3xl font-bold text-center text-white bg-[#BC6C25] rounded-lg py-4 mb-8 w-full max-w-xs">
+            LOGIN
+        </h1>
+
+        <!-- Form -->
+        <form (ngSubmit)="handleLogin()" class="space-y-6 w-full max-w-xs">
+            <!-- Email Field -->
+            <div class="relative">
+                <input
+                    type="email"
+                    [(ngModel)]="email"
+                    name="email"
+                    placeholder="Email"
+                    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25]"
+                />
+                <svg class="absolute right-3 top-3 w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+            </div>
+
+            <!-- Password Field -->
+            <div class="relative">
+                <input
+                    [type]="showPassword() ? 'text' : 'password'"
+                    [(ngModel)]="password"
+                    name="password"
+                    placeholder="Password"
+                    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25]"
+                />
+                <button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Login Button -->
+            <button
+                type="submit"
+                class="w-full bg-[#3E4C42] text-white font-semibold py-3 rounded hover:bg-[#2F3A32] transition"
+            >
+                Login
+            </button>
+        </form>
+
+        <!-- Footer Links -->
+        <div class="flex justify-between items-center mt-6 text-sm text-gray-600 w-full max-w-xs">
+            <a href="/register" class="hover:text-[#BC6C25] hover:underline">Register</a>
+            <a href="/forgot-password" class="hover:text-[#BC6C25] hover:underline">Forgot password?</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/navbar"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="#BC6C25"
+    android:orientation="horizontal"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:gravity="center_vertical"
+    android:elevation="8dp">
+
+    <!-- Logo/App Name -->
+    <TextView
+        android:id="@+id/navbar_logo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/company_name"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#FEFAE0"
+        android:letterSpacing="0.05"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Menu Button -->
+    <ImageButton
+        android:id="@+id/navbar_menu_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_menu_hamburger"
+        android:contentDescription="@string/menu_button_description"
+        android:scaleType="centerInside"
+        android:padding="12dp" />
+
+</LinearLayout>

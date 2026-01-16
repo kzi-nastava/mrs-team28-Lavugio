@@ -12,9 +12,12 @@ html {
       primary: mat.$azure-palette,
       tertiary: mat.$blue-palette,
     ),
-    typography: Roboto,
+    typography: Inter,
+    
     density: 0,
   ));
+
+  
 }
 
 body {
@@ -32,4 +35,24 @@ body {
 
   // Reset the user agent margin.
   margin: 0;
+  
 }
+
+:root {
+  @include mat.datepicker-overrides((
+    toggle-icon-color: #BC6C25,
+    calendar-text-font: Inter,
+    calendar-date-text-color: #606C38,
+    calendar-header-text-color: #606C38,
+    calendar-container-background-color: rgb(255,254,248),
+  ));
+
+  @include mat.form-field-overrides((
+    filled-container-color: rgb(255,254,248),
+    filled-focus-active-indicator-color: #BC6C25,
+  )); 
+}
+
+
+
+

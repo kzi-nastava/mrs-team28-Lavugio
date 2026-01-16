@@ -1,0 +1,123 @@
+<form class="space-y-4 w-full">
+  <input
+    [ngModel]="make()"
+    (ngModelChange)="make.set($event)"
+    name="make"
+    placeholder="Vehicle make"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <input
+    [ngModel]="model()"
+    (ngModelChange)="model.set($event)"
+    name="model"
+    placeholder="Vehicle model"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <input
+    [ngModel]="licensePlate()"
+    (ngModelChange)="licensePlate.set($event)"
+    name="licensePlate"
+    placeholder="License plate"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <input
+    type="number"
+    [ngModel]="seats()"
+    (ngModelChange)="seats.set($event)"
+    name="seats"
+    placeholder="Number of seats"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <input
+    [ngModel]="color()"
+    (ngModelChange)="color.set($event)"
+    name="color"
+    placeholder="Vehicle color"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <div class="space-y-6 w-full">
+    <div>
+      <select
+        [ngModel]="selectedType()"
+        (ngModelChange)="selectedType.set($event)"
+        name="vehicleType"
+        class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25]"
+      >
+        @for (type of vehicleTypes; track type) {
+        <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </div>
+
+    <label class="flex items-center gap-3 cursor-pointer select-none">
+      <input
+        type="checkbox"
+        class="sr-only"
+        [ngModel]="isPetFriendly()"
+        (ngModelChange)="isPetFriendly.set($event)"
+        name="petFriendly"
+      />
+
+      <div
+        class="w-5 h-5 flex items-center justify-center rounded-md border-2 transition-all"
+        [class.border-gray-400]="!isPetFriendly()"
+        [class.bg-white]="!isPetFriendly()"
+        [class.border-[#606C38]]="isPetFriendly()"
+        [class.bg-[#606C38]]="isPetFriendly()"
+      >
+        <svg
+          class="w-4 h-4 transition-transform duration-200"
+          [class.scale-0]="!isPetFriendly()"
+          [class.scale-100]="isPetFriendly()"
+          [class.text-white]="isPetFriendly()"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <span class="text-[#606C38] font-medium">Pet Friendly</span>
+    </label>
+
+    <label class="flex items-center gap-3 cursor-pointer select-none">
+      <input
+        type="checkbox"
+        class="sr-only"
+        [ngModel]="isBabyFriendly()"
+        (ngModelChange)="isBabyFriendly.set($event)"
+        name="babyFriendly"
+      />
+
+      <div
+        class="w-5 h-5 flex items-center justify-center rounded-md border-2 transition-all"
+        [class.border-gray-400]="!isBabyFriendly()"
+        [class.bg-white]="!isBabyFriendly()"
+        [class.border-[#606C38]]="isBabyFriendly()"
+        [class.bg-[#606C38]]="isBabyFriendly()"
+      >
+        <svg
+          class="w-4 h-4 transition-transform duration-200"
+          [class.scale-0]="!isBabyFriendly()"
+          [class.scale-100]="isBabyFriendly()"
+          [class.text-white]="isBabyFriendly()"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <span class="text-[#606C38] font-medium">Baby Friendly</span>
+    </label>
+  </div>
+</form>

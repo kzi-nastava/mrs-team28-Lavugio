@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/trip_row_background"
+    android:clickable="true"
+    android:focusable="true"
+    android:elevation="2dp">
+
+    <!-- Start (Datum i Vreme) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start: "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#BC6C25"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:id="@+id/tripStartDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15.02.2005."
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - "
+            android:textSize="14sp"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:id="@+id/tripStartTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="23:40"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+    </LinearLayout>
+
+    <!-- End (Datum i Vreme) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End: "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#BC6C25"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:id="@+id/tripEndDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="16.02.2005."
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - "
+            android:textSize="14sp"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:id="@+id/tripEndTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:05"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+    </LinearLayout>
+
+    <!-- Departure -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Departure: "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#BC6C25"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:id="@+id/tripDeparture"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Petra Drapsina 25, Novi Sad"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+    </LinearLayout>
+
+    <!-- Destination -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Destination: "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#BC6C25"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+        <TextView
+            android:id="@+id/tripDestination"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Žarka Zrenjanina 4, Novi Sad"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_italic_variable_font" />
+
+    </LinearLayout>
+
+</LinearLayout>

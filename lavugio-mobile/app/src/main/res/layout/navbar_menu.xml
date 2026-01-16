@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#BC6C25">
+
+    <!-- Navigation Menu Items -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Trips -->
+        <TextView
+            android:id="@+id/nav_item_trips"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/navbar_trips"
+            android:textSize="16sp"
+            android:textColor="#FEFAE0"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDA15E" />
+
+        <!-- History -->
+        <TextView
+            android:id="@+id/nav_item_history"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/navbar_history"
+            android:textSize="16sp"
+            android:textColor="#FEFAE0"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDA15E" />
+
+        <!-- Reports -->
+        <TextView
+            android:id="@+id/nav_item_reports"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/navbar_reports"
+            android:textSize="16sp"
+            android:textColor="#FEFAE0"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDA15E" />
+
+        <!-- Profile -->
+        <TextView
+            android:id="@+id/nav_item_profile"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/navbar_profile"
+            android:textSize="16sp"
+            android:textColor="#FEFAE0"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDA15E" />
+
+        <!-- Login -->
+        <TextView
+            android:id="@+id/nav_item_login"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/navbar_login"
+            android:textSize="16sp"
+            android:textColor="#FEFAE0"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDA15E" />
+
+        <!-- Register -->
+        <TextView
+            android:id="@+id/nav_item_register"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/navbar_register"
+            android:textSize="16sp"
+            android:textColor="#FEFAE0"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDA15E" />
+
+    </LinearLayout>
+
+</LinearLayout>
