@@ -1,4 +1,7 @@
+import { Router } from '@angular/router';
+// ...existing imports...
 import { Component, computed, signal, inject, OnInit, OnDestroy, effect, output } from '@angular/core';
+import { DialogService } from '@app/core/services/dialog-service';
 import { DriverService } from '@app/core/services/driver-service';
 import { MapService } from '@app/core/services/map-service';
 import { RideService } from '@app/core/services/ride-service';
@@ -13,15 +16,42 @@ import { catchError, EMPTY, timeout, Subscription, Observable } from 'rxjs';
   styleUrl: './ride-info.css',
 })
 export class RideInfo implements OnInit, OnDestroy {
+  private router = inject(Router);
+      navigateToCancelRide() {
+        this.router.navigate([`/cancel-ride/${this.rideId}`]);
+      }
+    // Dummy: Replace with real user/driver check
+    isDriver(): boolean {
+      // In real app, check auth/user service
+      return true;
+    }
+
+    onStopRideClick() {
+      this.dialogService.open(
+        'Stop Ride',
+        'Are you sure you want to stop the ride here? The destination will be updated and the price recalculated.',
+        true
+      );
+      // On confirmation, call RideService.stopRide(this.rideId, this.driverLocation())
+    }
   rideId = 1;
   private rideService = inject(RideService);
   private nowIntervalId: any;
   private now = signal(new Date());
   private driverService = inject(DriverService);
   private mapService = inject(MapService);
+  private dialogService = inject(DialogService);
   driverLocation = signal<Coordinates | null>(null);
   
   reportClicked = output();
+  onPanicClick() {
+    this.dialogService.open(
+      'Panic confirmation',
+      'Are you sure you want to send a panic alert? This will notify the administrators and mark your vehicle as in danger.',
+      true
+    );
+    // On real confirm, call backend and update map marker
+  }
   rideOverview = signal<RideOverviewModel | null>(null);
   departureTime = computed(() => this.rideOverview()?.departureTime ? this.formatDateTime(new Date(this.rideOverview()!.departureTime!)) : null);
   rideStatus = signal<string>('Loading...');

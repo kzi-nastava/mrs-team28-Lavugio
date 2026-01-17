@@ -129,25 +129,30 @@
       </div>
     }
 
-    @if (rideStatus() === 'SCHEDULED') {
-        <button
-          class="w-full py-2 sm:py-3 rounded-lg
-                 bg-[#BC6C25] text-white font-bold
-                 text-sm sm:text-base
-                 hover:bg-[#9a5520] transition shadow-md">
-          Cancel
-        </button>
-    }
     
     @else if (rideStatus() === 'ACTIVE') {
-      <button
-        class="w-full py-2 sm:py-3 rounded-lg
-                bg-red-600 text-white font-bold
-                text-sm sm:text-base
-                hover:bg-red-700 transition shadow-lg">
-        PANIC
-      </button>
+      <div class="flex flex-col gap-2">
+        <button
+          class="w-full py-2 sm:py-3 rounded-lg
+                  bg-red-600 text-white font-bold
+                  text-sm sm:text-base
+                  hover:bg-red-700 transition shadow-lg"
+          (click)="onPanicClick()">
+          PANIC
+        </button>
+        @if (isDriver()) {
+          <button
+            class="w-full py-2 sm:py-3 rounded-lg
+                    bg-yellow-500 text-white font-bold
+                    text-sm sm:text-base
+                    hover:bg-yellow-600 transition shadow-lg"
+            (click)="onStopRideClick()">
+            Stop Ride
+          </button>
+        }
+      </div>
     }
+
     @else if (rideStatus() === 'FINISHED') {
       <button
         class="w-full py-2 sm:py-3 rounded-lg
@@ -172,5 +177,15 @@
     }
 
   </div>
+
+  <button
+    class="max-w-xs w-full py-2 sm:py-3 rounded-lg
+           bg-red-600 text-white font-bold
+           text-sm sm:text-base
+           hover:bg-red-700 transition shadow-md
+           mt-4 mb-4 mx-auto"
+    (click)="navigateToCancelRide()">
+    Cancel ride
+  </button>
 
 </div>

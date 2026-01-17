@@ -13,6 +13,7 @@ import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
 import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
 import { RegisterDriver } from './features/register-driver/register-driver';
+import { CancelRide } from './features/cancel-ride/cancel-ride';
 
 export const routes: Routes = [
   {
@@ -79,5 +80,11 @@ export const routes: Routes = [
     path: 'ride-overview',
     title: 'Ride Overview',
     component: RideOverview
+  }
+  ,
+  {
+    path: 'cancel-ride/:rideId',
+    title: 'Otkazivanje vožnje',
+    component: CancelRide
   }
 ];

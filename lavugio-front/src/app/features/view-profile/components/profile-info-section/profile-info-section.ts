@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ProfileInfoRow } from '../profile-info-row/profile-info-row';
-import { Button } from '@app/components/button/button';
+import { Button } from './../../../../shared/components/button/button';
 import { ProfileEdit } from '../../services/profile-edit';
 
 interface UserProfile {
