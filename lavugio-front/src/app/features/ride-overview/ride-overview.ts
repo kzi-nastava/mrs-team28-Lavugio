@@ -7,10 +7,11 @@ import { Coordinates } from '@app/shared/models/coordinates';
 import { Marker } from 'leaflet';
 import { RideService } from '@app/core/services/ride-service';
 import { ReportForm } from "./report-form/report-form";
+import { ReviewForm } from '@app/shared/components/review-form/review-form';
 
 @Component({
   selector: 'app-ride-overview',
-  imports: [Navbar, MapComponent, RideInfo, ReportForm],
+  imports: [Navbar, MapComponent, RideInfo, ReportForm, ReviewForm],
   templateUrl: './ride-overview.html',
   styleUrl: './ride-overview.css',
 })
