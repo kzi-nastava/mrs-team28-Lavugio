@@ -144,7 +144,9 @@
           class="w-full py-2 sm:py-3 rounded-lg
                  bg-[#BC6C25] text-white font-bold
                  text-sm sm:text-base
-                 hover:bg-[#9a5520] transition shadow-md">
+                 hover:bg-[#9a5520] transition shadow-md
+                 hover:cursor-pointer"
+          (click) = "cancelRide()">
           Cancel
         </button>
     }
@@ -154,7 +156,9 @@
         class="w-full py-2 sm:py-3 rounded-lg
                 bg-red-600 text-white font-bold
                 text-sm sm:text-base
-                hover:bg-red-700 transition shadow-lg">
+                hover:bg-red-700 transition shadow-lg
+                hover:cursor-pointer"
+        (click) = "onPanicClick()">
         PANIC
       </button>
     }

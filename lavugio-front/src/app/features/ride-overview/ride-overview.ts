@@ -166,6 +166,17 @@ export class RideOverview implements AfterViewInit {
     };
   }
 
+  cancelRide(){
+    const current = this.rideOverview();
+    if (current != null){
+      this.rideOverview.set({
+        ...current,
+        status: "CANCELLED"
+      });
+    }
+  }
+
+
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
     clearInterval(this.intervalId);

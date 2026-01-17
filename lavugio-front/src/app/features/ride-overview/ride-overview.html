@@ -21,7 +21,8 @@
           [isReported]="isReported()"
           [isReviewed]="isRated()"
           (reportClicked)="showReport.set(true)"
-          (reviewClicked)="showReview.set(true)">
+          (reviewClicked)="showReview.set(true)"
+          (rideCancelled)="cancelRide()">
         </app-ride-info>
       </div>
     }
@@ -51,7 +52,8 @@
             [isReported]="isReported()"
             [isReviewed]="isRated()"
             (reportClicked)="showReport.set(true)"
-            (reviewClicked)="showReview.set(true)">
+            (reviewClicked)="showReview.set(true)"
+            (rideCancelled)="cancelRide()">
           </app-ride-info>
         </div>
       </div>

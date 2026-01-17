@@ -1,5 +1,4 @@
 import { Router } from '@angular/router';
-// ...existing imports...
 import { Component, computed, signal, inject, OnInit, OnDestroy, effect, output, input } from '@angular/core';
 import { DialogService } from '@app/core/services/dialog-service';
 import { DriverService } from '@app/core/services/driver-service';
@@ -16,23 +15,24 @@ import { RideService } from '@app/core/services/ride-service';
 })
 export class RideInfo implements OnInit, OnDestroy {
   private router = inject(Router);
-      navigateToCancelRide() {
-        this.router.navigate([`/cancel-ride/${this.rideId}`]);
-      }
-    // Dummy: Replace with real user/driver check
-    isDriver(): boolean {
-      // In real app, check auth/user service
-      return true;
-    }
+  navigateToCancelRide() {
+    this.router.navigate([`/cancel-ride/${this.rideId}`]);
+  }
+  // Dummy: Replace with real user/driver check
+  isDriver(): boolean {
+    // In real app, check auth/user service
+    return true;
+  }
 
-    onStopRideClick() {
-      this.dialogService.open(
-        'Stop Ride',
-        'Are you sure you want to stop the ride here? The destination will be updated and the price recalculated.',
-        true
-      );
-      // On confirmation, call RideService.stopRide(this.rideId, this.driverLocation())
-    }
+  onStopRideClick() {
+    this.dialogService.open(
+      'Stop Ride',
+      'Are you sure you want to stop the ride here? The destination will be updated and the price recalculated.',
+      true
+    );
+    // On confirmation, call RideService.stopRide(this.rideId, this.driverLocation())
+  }
+  
   rideId = 1;
   private rideService = inject(RideService);
   private nowIntervalId: any;
@@ -47,6 +47,8 @@ export class RideInfo implements OnInit, OnDestroy {
   rideOverview = input<RideOverviewModel | null>(null);
   isReported = input<boolean>(false);
   isReviewed = input<boolean>(false);
+
+  rideCancelled = output();
   
   // Outputs
   reportClicked = output();
@@ -198,6 +200,10 @@ export class RideInfo implements OnInit, OnDestroy {
     const year = date.getFullYear();
 
     return `${hours}:${minutes} ${day}.${month}.${year}`;
+  }
+
+  cancelRide(){
+    this.rideCancelled.emit();
   }
 
   ngOnDestroy() {
