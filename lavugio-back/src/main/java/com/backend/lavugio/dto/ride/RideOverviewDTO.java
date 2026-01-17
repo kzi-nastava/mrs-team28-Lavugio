@@ -35,4 +35,8 @@ public class RideOverviewDTO {
     private LocalDateTime departureTime;
 
     private LocalDateTime arrivalTime;
+
+    private boolean isReviewed;
+
+    private boolean isReported;
 }

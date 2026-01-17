@@ -17,7 +17,12 @@
         <app-ride-info
           #rideInfo
           class="w-full h-full flex flex-col"
-          (reportClicked)="showReport.set(true)">
+          [rideOverview]="rideOverview()"
+          [isReported]="isReported()"
+          [isReviewed]="isRated()"
+          (reportClicked)="showReport.set(true)"
+          (reviewClicked)="showReview.set(true)"
+          (rideCancelled)="cancelRide()">
         </app-ride-info>
       </div>
     }
@@ -43,15 +48,18 @@
           <app-ride-info
             #rideInfo
             class="w-full h-full"
-            (reportClicked)="showReport.set(true)">
+            [rideOverview]="rideOverview()"
+            [isReported]="isReported()"
+            [isReviewed]="isRated()"
+            (reportClicked)="showReport.set(true)"
+            (reviewClicked)="showReview.set(true)"
+            (rideCancelled)="cancelRide()">
           </app-ride-info>
-          <div class="h-6"></div>
         </div>
       </div>
     }
 
     @if (showReport()) {
-
       <div
         class="fixed inset-0 bg-black/50 z-40"
         (click)="showReport.set(false)">
@@ -61,12 +69,29 @@
         class="fixed top-1/2 left-1/2
                -translate-x-1/2 -translate-y-1/2
                z-50 w-[90%] max-w-md">
-
         <app-report-form
+          (isSuccessful)="isReported.set(true)"
           (hideReportOutput)="showReport.set(false)">
         </app-report-form>
+      </div>
+    }
 
+    @if (showReview()){
+      <div
+        class="fixed inset-0 bg-black/50 z-40"
+        (click)="showReview.set(false)">
+      </div>
+
+      <div
+        class="fixed top-1/2 left-1/2
+               -translate-x-1/2 -translate-y-1/2
+               z-50 w-[90%] max-w-md">
+        <app-review-form
+          (isSuccessfulOutput)="isRated.set(true)"
+          (hideReviewOutput)="showReview.set(false)">
+        </app-review-form>
       </div>
     }
 
   </div>
+</div>
