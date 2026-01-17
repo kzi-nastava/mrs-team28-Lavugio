@@ -1,0 +1,113 @@
+<div
+  class="fixed inset-0 z-[9999] flex items-center justify-center"
+  style="background: rgba(0, 0, 0, 0.45)"
+>
+  <div class="bg-white rounded-lg shadow-xl w-[90%] max-w-lg p-5">
+    <h2 class="text-xl font-bold text-[#606C38] mb-4 text-center">Select Favorite Route</h2>
+
+    <div
+      class="max-h-72 overflow-y-auto border rounded-md mb-4 scrollbar scrollbar-thin scrollbar-thumb-[#BC6C25] hover:scrollbar-thumb-[#DDA15E] scrollbar-thumb-rounded scrollbar-track-gray-100"
+    >
+      @for (route of routes; track route.id) {
+      <div
+        (click)="selectRoute(route)"
+        class="p-3 cursor-pointer border-b last:border-b-0 hover:bg-[#DDA15E] hover:bg-opacity-20 transition-colors"
+        [class.bg-[#DDA15E]]="selectedRoute?.id === route.id"
+        [class.bg-opacity-30]="selectedRoute?.id === route.id"
+      >
+        <!-- Route Name -->
+        <p class="font-semibold text-[#606C38] mb-2">
+          {{ route.name }}
+        </p>
+
+        <!-- Route Details -->
+        <div class="space-y-1">
+          <!-- Destination Count -->
+          <p class="text-xs text-gray-500">{{ route.destinations.length }} destinations</p>
+
+          <!-- From/To Destinations -->
+          @if (route.destinations.length >= 2) {
+          <div class="flex items-center gap-2 text-sm">
+            <!-- From -->
+            <div class="flex-1 min-w-0">
+              <span class="text-xs text-gray-500 block">From:</span>
+              <div class="overflow-hidden">
+                <p
+                  class="destination text-[#606C38] font-medium truncate block whitespace-nowrap"
+                  (mouseenter)="addScrollIfNeeded($event.target)"
+                  (mouseleave)="removeScroll($event.target)"
+                  (touchstart)="addScrollIfNeeded($event.target)"
+                  (touchend)="removeScroll($event.target)"
+                >
+                  {{ route.destinations[0].name }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Arrow -->
+            <div class="flex-shrink-0 text-[#BC6C25]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </div>
+
+            <!-- To -->
+            <div class="flex-1 min-w-0">
+              <span class="text-xs text-gray-500 block">To:</span>
+              <div class="overflow-hidden">
+                <p
+                  class="destination text-[#606C38] font-medium truncate block whitespace-nowrap"
+                  (mouseenter)="addScrollIfNeeded($event.target)"
+                  (mouseleave)="removeScroll($event.target)"
+                  (touchstart)="addScrollIfNeeded($event.target)"
+                  (touchend)="removeScroll($event.target)"
+                >
+                  {{ route.destinations[route.destinations.length - 1].name }}
+                </p>
+              </div>
+            </div>
+          </div>
+          } @if (route.destinations.length === 1) {
+          <div class="text-sm">
+            <span class="text-xs text-gray-500">Destination:</span>
+            <span
+              class="text-[#606C38] font-medium ml-1"
+              (mouseenter)="addScrollIfNeeded($event.target)"
+              (mouseleave)="removeScroll($event.target)"
+              (touchstart)="addScrollIfNeeded($event.target)"
+              (touchend)="removeScroll($event.target)"
+            >
+              {{ route.destinations[0].name }}
+            </span>
+          </div>
+          }
+        </div>
+      </div>
+      } @if (routes.length === 0) {
+      <div class="p-4 text-center text-gray-500">No favorite routes available</div>
+      }
+    </div>
+
+    <div class="flex gap-3 justify-center">
+      <button
+        (click)="close()"
+        class="px-5 py-2 border border-[#606C38] text-[#606C38] rounded-md hover:bg-[#606C38] hover:text-white transition-colors"
+      >
+        Cancel
+      </button>
+
+      <button
+        (click)="confirm()"
+        [disabled]="!selectedRoute"
+        class="px-5 py-2 bg-[#606C38] text-white rounded-md disabled:opacity-50 hover:bg-[#505a30] transition-colors disabled:hover:bg-[#606C38]"
+      >
+        Select
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<form class="space-y-4 w-full">
+  <div class="relative">
+    <input
+      type="email"
+      [ngModel]="email()"
+      (ngModelChange)="email.set($event)"
+      name="email"
+      placeholder="Email address"
+      class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    />
+  </div>
+
+  <div class="relative">
+    <input
+      [type]="showPassword() ? 'text' : 'password'"
+      [ngModel]="password()"
+      (ngModelChange)="password.set($event)"
+      name="password"
+      placeholder="Password"
+      class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    />
+  </div>
+
+  <input
+    [ngModel]="name()"
+    (ngModelChange)="name.set($event)"
+    name="name"
+    placeholder="Name"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <input
+    [ngModel]="surname()"
+    (ngModelChange)="surname.set($event)"
+    name="surname"
+    placeholder="Surname"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <input
+    [ngModel]="address()"
+    (ngModelChange)="address.set($event)"
+    name="address"
+    placeholder="Address"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+
+  <input
+    [ngModel]="phoneNumber()"
+    (ngModelChange)="phoneNumber.set($event)"
+    name="phoneNumber"
+    placeholder="Phone number"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+  />
+</form>

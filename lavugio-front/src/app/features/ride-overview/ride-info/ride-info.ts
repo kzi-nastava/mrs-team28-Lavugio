@@ -1,9 +1,13 @@
+import { Router } from '@angular/router';
+// ...existing imports...
 import { Component, computed, signal, inject, OnInit, OnDestroy, effect, output, input } from '@angular/core';
+import { DialogService } from '@app/core/services/dialog-service';
 import { DriverService } from '@app/core/services/driver-service';
 import { MapService } from '@app/core/services/map-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { RideOverviewModel } from '@app/shared/models/rideOverview';
 import { catchError, EMPTY, timeout } from 'rxjs';
+import { RideService } from '@app/core/services/ride-service';
 
 @Component({
   selector: 'app-ride-info',
@@ -11,10 +15,31 @@ import { catchError, EMPTY, timeout } from 'rxjs';
   styleUrl: './ride-info.css',
 })
 export class RideInfo implements OnInit, OnDestroy {
-  private driverService = inject(DriverService);
-  private mapService = inject(MapService);
+  private router = inject(Router);
+      navigateToCancelRide() {
+        this.router.navigate([`/cancel-ride/${this.rideId}`]);
+      }
+    // Dummy: Replace with real user/driver check
+    isDriver(): boolean {
+      // In real app, check auth/user service
+      return true;
+    }
+
+    onStopRideClick() {
+      this.dialogService.open(
+        'Stop Ride',
+        'Are you sure you want to stop the ride here? The destination will be updated and the price recalculated.',
+        true
+      );
+      // On confirmation, call RideService.stopRide(this.rideId, this.driverLocation())
+    }
+  rideId = 1;
+  private rideService = inject(RideService);
   private nowIntervalId: any;
   private now = signal(new Date());
+  private driverService = inject(DriverService);
+  private mapService = inject(MapService);
+  private dialogService = inject(DialogService);
   
   Math = Math;
   
@@ -25,6 +50,14 @@ export class RideInfo implements OnInit, OnDestroy {
   
   // Outputs
   reportClicked = output();
+  onPanicClick() {
+    this.dialogService.open(
+      'Panic confirmation',
+      'Are you sure you want to send a panic alert? This will notify the administrators and mark your vehicle as in danger.',
+      true
+    );
+    // On real confirm, call backend and update map marker
+  }
   reviewClicked = output();
   
   // Internal state

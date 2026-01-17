@@ -10,7 +10,10 @@ import { TripHistoryDriver } from '@app/features/trip-history-driver/trip-histor
 import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
 import { TripHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
+import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
+import { RegisterDriver } from './features/register-driver/register-driver';
+import { CancelRide } from './features/cancel-ride/cancel-ride';
 
 export const routes: Routes = [
   {
@@ -31,6 +34,9 @@ export const routes: Routes = [
     component: TripHistoryDriverDetailed,
   },
   {
+        path: 'find-trip', title: "Find Trip ", component: FindTrip
+  },
+  {
     path: 'login',
     title: 'Login',
     component: Login
@@ -39,6 +45,11 @@ export const routes: Routes = [
     path: 'register',
     title: 'Register',
     component: Register
+  },
+  {
+    path: 'register-driver',
+    title: 'Register-driver',
+    component: RegisterDriver
   },
   {
     path: 'verify-email',
@@ -69,5 +80,11 @@ export const routes: Routes = [
     path: 'ride-overview',
     title: 'Ride Overview',
     component: RideOverview
+  }
+  ,
+  {
+    path: 'cancel-ride/:rideId',
+    title: 'Otkazivanje vožnje',
+    component: CancelRide
   }
 ];

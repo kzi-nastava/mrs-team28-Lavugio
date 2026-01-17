@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ViewChild, effect, Injector, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, effect, Injector, inject, EffectRef, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
 import { RideInfo } from './ride-info/ride-info';
@@ -35,6 +36,10 @@ export class RideOverview implements AfterViewInit {
   
   private intervalId: any;
   private subscription: Subscription | null = null;
+  private router = inject(Router);
+  navigateToCancelRide() {
+    this.router.navigate([`/cancel-ride/${this.rideId}`]);
+  }
 
   @ViewChild('rideInfo') rideInfo!: RideInfo;
   @ViewChild('map') mapComponent!: MapComponent;

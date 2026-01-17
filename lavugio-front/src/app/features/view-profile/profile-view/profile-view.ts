@@ -10,5 +10,5 @@ import { Navbar } from "@app/shared/components/navbar/navbar";
   styleUrl: './profile-view.css',
 })
 export class ProfileView {
-
+  
 }

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, signal } from '@angular/core';
+import { Component, AfterViewInit, signal, EventEmitter, Output } from '@angular/core';
 import { environment } from 'environments/environment';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -17,6 +17,7 @@ export class MapComponent implements AfterViewInit {
   map: any;
   clickable = true;
   clickedLocation = signal<Coordinates | null>(null);
+  @Output() locationPicked = new EventEmitter<Coordinates>();
   routeDuration = signal(0);
 
 
@@ -59,7 +60,7 @@ export class MapComponent implements AfterViewInit {
       };
       
       this.clickedLocation.set(coords);
-      
+      this.locationPicked.emit(coords);
       console.log('Kliknuto na:', coords);
     });
   }
@@ -88,6 +89,11 @@ export class MapComponent implements AfterViewInit {
                   i === coordinates.length - 1 ? MarkerIcons.end : 
                   MarkerIcons.checkpoint;
         return L.marker(waypoint.latLng, { icon });
+      },
+      lineOptions: {
+        styles: [{ color: '#606C38', weight: 3, opacity: 1 }],
+        extendToWaypoints: true,
+        missingRouteTolerance: 0
       }
     }).addTo(this.map);
 
