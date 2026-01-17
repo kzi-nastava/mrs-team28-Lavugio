@@ -1,0 +1,20 @@
+<app-navbar></app-navbar>
+<div class="min-h-screen flex justify-center items-center bg-white md:bg-gradient-to-br md:from-[#606C38] md:to-[#283618]">
+  <div class="w-full h-full md:min-h-screen bg-white md:max-w-2xl shadow-none md:shadow-2xl p-6 md:p-10 flex flex-col justify-center items-center">
+    <h1 class="text-3xl font-bold text-center text-white bg-[#BC6C25] rounded-lg py-4 mb-8 w-full max-w-md">
+        CANCEL RIDE
+    </h1>
+    <form (ngSubmit)="submitCancellation()" class="space-y-6 w-full max-w-md">
+      <div>
+        <label for="reason" class="block font-medium mb-2">Reason for canceling:</label>
+        <textarea id="reason" [(ngModel)]="reason" name="reason" rows="4" required
+          class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25] resize-none"></textarea>
+      </div>
+      <button type="submit" [disabled]="isLoading()"
+        class="w-full py-3 bg-red-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-red-700 transition">
+          Cancel ride
+      </button>
+      <div *ngIf="error()" class="error-message text-red-600 text-center mt-2">{{ error() }}</div>
+    </form>
+  </div>
+</div>
