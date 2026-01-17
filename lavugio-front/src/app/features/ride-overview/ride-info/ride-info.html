@@ -7,13 +7,23 @@
       Ride information
     </h2>
 
-    <button
+    @if (!isReported()){
+      <button
       class="text-xs sm:text-sm font-semibold text-white bg-red-700
              px-3 py-1.5 rounded-md hover:bg-red-800 transition shadow-md
              hover:cursor-pointer"
       (click)="reportClicked.emit()">
       Report
-    </button>
+      </button>
+    } @else {
+      <button
+      class="text-xs sm:text-sm font-semibold text-white bg-red-700
+             px-3 py-1.5 rounded-md transition shadow-md h-full"
+      [disabled] = "true" >
+      Reported
+      </button>
+    }
+    
   </div>
 
   <div class="p-2 sm:p-3">
@@ -29,7 +39,7 @@
         @if (rideStatus() == 'ACTIVE'){
           {{ duration() }} min
         } @else{
-          INACTIVE  
+          {{rideStatus()}}  
         }
       </p>
       
@@ -90,7 +100,7 @@
         @if (rideStatus() !== 'FINISHED') {
           Not finished
         } @else {
-        {{ formatDateTime(rideOverview()?.arrivalTime) || "Loading..." }}
+        {{ arrivalTime() || "Loading..." }}
         }
       </p>
     </div>
@@ -149,13 +159,25 @@
       </button>
     }
     @else if (rideStatus() === 'FINISHED') {
-      <button
-        class="w-full py-2 sm:py-3 rounded-lg
-               bg-[#606C38] text-white font-bold
-               text-sm sm:text-base
-               hover:bg-[#4a5429] transition shadow-md">
-        Rate Ride
-      </button>
+      @if (!isReviewed()){
+        <button
+          class="w-full py-2 sm:py-3 rounded-lg
+                bg-[#606C38] text-white font-bold
+                text-sm sm:text-base
+                hover:bg-[#4a5429] transition shadow-md
+                hover:cursor-pointer"
+                (click)="reviewClicked.emit()">
+          Rate Ride
+        </button>
+      } @else {
+        <button
+          class="w-full py-2 sm:py-3 rounded-lg
+                bg-[#606C38] text-white font-bold
+                text-sm sm:text-base
+                transition shadow-md">
+          Rated
+        </button>
+      }
     }
 
     @else if (rideStatus() === 'DENIED') {

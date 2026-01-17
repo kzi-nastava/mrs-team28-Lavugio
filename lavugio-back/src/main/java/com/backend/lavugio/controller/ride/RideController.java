@@ -149,12 +149,14 @@ public class RideController {
                 new CoordinatesDTO(45.23654995890653, 19.830107688903812),
                 new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
                 new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
-                RideStatus.ACTIVE,
+                RideStatus.FINISHED,
                 "Petar Petrović",
                 "Nemanjina 4",
                 "Knez Mihailova 12",
                 LocalDateTime.of(2026, 1, 8, 18, 30),
-                LocalDateTime.of(2026, 1, 8, 18, 40));
+                LocalDateTime.of(2026, 1, 8, 18, 40),
+                false,
+                false);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
@@ -175,7 +177,9 @@ public class RideController {
                 "Nemanjina 4",
                 "Knez Mihailova 12",
                 LocalDateTime.of(2026, 1, 8, 18, 30),
-                null // arrivalTime još ne postoji
+                null, // arrivalTime još ne postoji
+                false,
+                false
         ));
 
         statuses.add(new RideOverviewDTO(
@@ -190,7 +194,9 @@ public class RideController {
                 "Bulevar Oslobođenja 88",
                 "Aerodrom Nikola Tesla",
                 LocalDateTime.of(2026, 1, 8, 17, 10),
-                LocalDateTime.of(2026, 1, 8, 17, 45)
+                LocalDateTime.of(2026, 1, 8, 17, 45),
+                false,
+                false
         ));
 
         statuses.add(new RideOverviewDTO(
@@ -205,7 +211,9 @@ public class RideController {
                 "Zmaj Jovina 15",
                 "Studentski trg",
                 LocalDateTime.of(2026, 1, 8, 19, 5),
-                null
+                null,
+                false,
+                false
         ));
 
         return ResponseEntity.ok(statuses);

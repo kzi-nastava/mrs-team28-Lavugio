@@ -1,11 +1,9 @@
-import { Component, computed, signal, inject, OnInit, OnDestroy, effect, output } from '@angular/core';
+import { Component, computed, signal, inject, OnInit, OnDestroy, effect, output, input } from '@angular/core';
 import { DriverService } from '@app/core/services/driver-service';
 import { MapService } from '@app/core/services/map-service';
-import { RideService } from '@app/core/services/ride-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { RideOverviewModel } from '@app/shared/models/rideOverview';
-import { RideOverviewUpdate } from '@app/shared/models/rideOverviewUpdate';
-import { catchError, EMPTY, timeout, Subscription, Observable } from 'rxjs';
+import { catchError, EMPTY, timeout } from 'rxjs';
 
 @Component({
   selector: 'app-ride-info',
@@ -13,36 +11,78 @@ import { catchError, EMPTY, timeout, Subscription, Observable } from 'rxjs';
   styleUrl: './ride-info.css',
 })
 export class RideInfo implements OnInit, OnDestroy {
-  rideId = 1;
-  private rideService = inject(RideService);
-  private nowIntervalId: any;
-  private now = signal(new Date());
   private driverService = inject(DriverService);
   private mapService = inject(MapService);
-  driverLocation = signal<Coordinates | null>(null);
+  private nowIntervalId: any;
+  private now = signal(new Date());
   
+  Math = Math;
+  
+  // Inputs from parent
+  rideOverview = input<RideOverviewModel | null>(null);
+  isReported = input<boolean>(false);
+  isReviewed = input<boolean>(false);
+  
+  // Outputs
   reportClicked = output();
-  rideOverview = signal<RideOverviewModel | null>(null);
-  departureTime = computed(() => this.rideOverview()?.departureTime ? this.formatDateTime(new Date(this.rideOverview()!.departureTime!)) : null);
-  rideStatus = signal<string>('Loading...');
-  checkpoints = signal<Coordinates[]>([]);
+  reviewClicked = output();
+  
+  // Internal state
+  driverLocation = signal<Coordinates | null>(null);
   duration = signal<number>(0);
-  Math = Math
+  
+  // Computed values
+  departureTime = computed(() => {
+    const depTime = this.rideOverview()?.departureTime;
+    if (!depTime) return null;
+    
+    const date = typeof depTime === 'string' ? new Date(depTime) : depTime;
+    return this.formatDateTime(date);
+  });
+  
+  arrivalTime = computed(() => {
+    const arrTime = this.rideOverview()?.arrivalTime;
+    if (!arrTime) return null;
+    
+    const date = typeof arrTime === 'string' ? new Date(arrTime) : arrTime;
+    return this.formatDateTime(date);
+  });
+  
+  rideStatus = computed(() => this.rideOverview()?.status || 'Loading...');
+  
+  checkpoints = computed(() => this.rideOverview()?.checkpoints || []);
 
   timeElapsed = computed(() => {
-    if (this.rideOverview()?.arrivalTime != null) {
-      return Math.ceil((new Date(this.rideOverview()!.arrivalTime!).getTime() - new Date(this.rideOverview()!.departureTime!).getTime()) / 60000);
-    }
+    const overview = this.rideOverview();
+    if (!overview || !overview.departureTime) return 0;
 
-    const departureTime = this.rideOverview()?.departureTime;
-    if (departureTime) {
-      const diffMs = this.now().getTime() - new Date(departureTime).getTime();
+    // Debug - privremeno dodaj ovo
+    console.log('Computing timeElapsed:');
+    console.log('Departure raw:', overview.departureTime, typeof overview.departureTime);
+    console.log('Arrival raw:', overview.arrivalTime, typeof overview.arrivalTime);
+
+    const departureDate = typeof overview.departureTime === 'string' 
+      ? new Date(overview.departureTime) 
+      : overview.departureTime;
+
+    console.log('Departure Date:', departureDate, departureDate.getTime());
+
+    if (overview.arrivalTime) {
+      const arrivalDate = typeof overview.arrivalTime === 'string'
+        ? new Date(overview.arrivalTime)
+        : overview.arrivalTime;
+      
+      console.log('Arrival Date:', arrivalDate, arrivalDate.getTime());
+      
+      const diffMs = arrivalDate.getTime() - departureDate.getTime();
+      console.log('Diff ms:', diffMs, 'Minutes:', Math.ceil(diffMs / 60000));
       return Math.ceil(diffMs / 60000);
     }
-    return 0;
-  });
 
-  private subscription: Subscription | null = null;
+    const diffMs = this.now().getTime() - departureDate.getTime();
+    console.log('Now diff ms:', diffMs, 'Minutes:', Math.ceil(diffMs / 60000));
+    return Math.ceil(diffMs / 60000);
+  });
 
   constructor() {
     effect(() => {
@@ -52,30 +92,35 @@ export class RideInfo implements OnInit, OnDestroy {
         this.calculateDuration();
       }
     });
+
+    effect(() => {
+      const overview = this.rideOverview();
+      if (overview?.driverId) {
+        this.fetchDriverLocation(overview.driverId);
+      }
+    });
   } 
 
   ngOnInit() {
-    this.fetchRideOverview(1);
-    this.fetchDriverLocation(1);
     this.createOneMinuteInterval();
-    this.driverLocation.set(null);
   }
 
-  fetchRideOverview(rideId: number) {
-    this.subscription = this.rideService.getRideOverview(1).pipe(
+  fetchDriverLocation(driverId: number | null | undefined) {
+    if (!driverId || driverId === 0) {
+      this.driverLocation.set(null);
+      return;
+    }
+    
+    this.driverService.getDriverLocation(driverId).pipe(
       timeout(5000),
       catchError(err => {
-        console.error('Error fetching ride overview:', err);
-        this.rideStatus.set('denied');
-        this.rideOverview.set(null);
+        console.error('Error fetching driver location:', err);
+        this.driverLocation.set(null);
         return EMPTY;
       })
-    ).subscribe(overview => {
-      console.log('Ride Overview fetched:', overview);
-      this.rideOverview.set(overview);
-      this.rideStatus.set(overview.status);
-      this.checkpoints.set(overview.checkpoints);
-
+    ).subscribe(location => {
+      console.log('Driver location fetched:', location);
+      this.driverLocation.set(location.location);
     });
   }
 
@@ -104,30 +149,13 @@ export class RideInfo implements OnInit, OnDestroy {
       .subscribe(routeData => {
         const durationInSeconds = routeData.routes[0].duration;
         console.log('Route duration (seconds):', durationInSeconds);
-
         this.duration.set(Math.ceil(durationInSeconds / 60));
-      });
-  } 
-
-
-  fetchDriverLocation(driverId: number) {
-      this.driverService.getDriverLocation(driverId).pipe(
-        timeout(5000),
-        catchError(err => {
-          console.error('Error fetching driver location:', err);
-          this.driverLocation.set(null);
-          return EMPTY;
-        })
-      ).subscribe(location => {
-        console.log('Driver location fetched:', location);
-        this.driverLocation.set(location.location);
       });
   }
 
-
   formatDateTime(date: Date | null | undefined): string {
     if (!date) return "Loading...";
-
+    console.log(date);
     const pad = (n: number) => n.toString().padStart(2, '0');
 
     const hours = pad(date.getHours());
@@ -139,69 +167,7 @@ export class RideInfo implements OnInit, OnDestroy {
     return `${hours}:${minutes} ${day}.${month}.${year}`;
   }
 
-  applyRideOverviewUpdate(
-    current: RideOverviewModel,
-    update: RideOverviewUpdate
-  ): RideOverviewModel {
-    const updatedCheckpoints = update.destinationCoordinates !== undefined
-      ? [
-          ...current.checkpoints.slice(0, -1),
-          update.destinationCoordinates
-        ]
-      : current.checkpoints;
-
-    return {
-      ...current,
-
-      endAddress:
-        update.endAddress !== undefined
-          ? update.endAddress
-          : current.endAddress,
-
-      checkpoints: updatedCheckpoints,
-
-      status:
-        update.status !== undefined
-          ? update.status
-          : current.status,
-
-      price:
-        update.price !== undefined
-          ? update.price
-          : current.price,
-
-      departureTime:
-        update.departureTime !== undefined
-          ? update.departureTime
-            ? new Date(update.departureTime)
-            : null
-          : current.departureTime,
-
-      arrivalTime:
-        update.arrivalTime !== undefined
-          ? update.arrivalTime
-            ? new Date(update.arrivalTime)
-            : null
-          : current.arrivalTime,
-    };
-  }
-
-  updateRideOverview(update: RideOverviewUpdate) {
-    const currentOverview = this.rideOverview();
-    if (currentOverview) {
-      const updatedOverview = this.applyRideOverviewUpdate(currentOverview, update);
-      this.rideOverview.set(updatedOverview);
-      this.rideStatus.set(updatedOverview.status);
-      
-      if (update.destinationCoordinates !== undefined) {
-        this.checkpoints.set(updatedOverview.checkpoints);
-      }
-    }
-  }
-
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
     clearInterval(this.nowIntervalId);
   }
-
 }

@@ -25,6 +25,7 @@ export class ReviewForm implements OnDestroy {
   rideId: number = 0;
 
   hideReviewOutput = output();
+  isSuccessfulOutput = output();
 
   commentControl = new FormControl('', {
     nonNullable: true
@@ -32,16 +33,10 @@ export class ReviewForm implements OnDestroy {
 
   readonly maxLength = 256;
 
-  /**
-   * Postavlja ocenu vozača
-   */
   setDriverRating(rating: number): void {
     this.driverRating.set(rating);
   }
 
-  /**
-   * Postavlja ocenu vozila
-   */
   setVehicleRating(rating: number): void {
     this.vehicleRating.set(rating);
   }
@@ -56,7 +51,6 @@ export class ReviewForm implements OnDestroy {
   }
 
   sendReview() {
-    // Validacija
     if (this.driverRating() === 0 || this.vehicleRating() === 0) {
       return;
     }
@@ -74,6 +68,7 @@ export class ReviewForm implements OnDestroy {
     this.rideService.postRideReview(this.rideId, review).subscribe({
       next: () => {
         console.log("Review successful");
+        this.isSuccessfulOutput.emit();
         this.isDone.set(true);
         this.isLoading.set(false);
       },
@@ -87,6 +82,7 @@ export class ReviewForm implements OnDestroy {
 
   ngOnDestroy() {
     this.hideReviewOutput.emit();
+    this.isHidden.set(true);
   }
 
   onEnterPress(event: Event) {
@@ -96,7 +92,6 @@ export class ReviewForm implements OnDestroy {
 
     const value = this.commentControl.value?.trim();
 
-    // Šalje ocenu samo ako su obe ocene postavljene i ako je pritisnut Ctrl/Cmd + Enter
     if ((event.ctrlKey || event.metaKey) && this.driverRating() > 0 && this.vehicleRating() > 0) {
       event.preventDefault();
       this.sendReview();

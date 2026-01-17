@@ -4,7 +4,7 @@ export interface RideOverviewModel{
     rideId: number;
     driverId: number | null;
     price: number | null;
-    status: "scheduled" | "active" | "finished" | "cancelled" | "denied";
+    status: "SCHEDULED" | "ACTIVE" | "FINISHED" | "CANCELLED" | "DENIED";
     driverCoordinates: Coordinates | null;
     checkpoints: Coordinates[];
     driverName: string;
@@ -12,4 +12,6 @@ export interface RideOverviewModel{
     endAddress: string | null;
     departureTime: Date | null;
     arrivalTime: Date | null;
+    reported: Boolean;
+    reviewed: Boolean;
 }
