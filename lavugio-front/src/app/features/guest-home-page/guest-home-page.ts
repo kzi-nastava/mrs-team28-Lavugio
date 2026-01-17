@@ -5,21 +5,35 @@ import { Router } from '@angular/router';
 import { DriverService } from '@app/core/services/driver-service';
 import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
 import { MarkerIcons } from '@app/shared/components/map/marker-icons';
+import { FormBackgroundSheet } from "../form-background-sheet/form-background-sheet";
+import { DestinationSelector } from '../find-trip/destination-selector/destination-selector';
+import { DestinationsDisplay } from '../find-trip/destinations-display/destinations-display';
+import { TripDestination } from '@app/shared/models/tripDestination';
+import { GeocodeResult } from '../find-trip/geocoding-service/geocoding-service';
+import { Coordinates } from '@app/shared/models/coordinates';
+import { TripStatsDisplay } from "../find-trip/trip-stats-display/trip-stats-display";
 
 @Component({
   selector: 'app-guest-home-page',
-  imports: [MapComponent, Button],
+  imports: [MapComponent, Button, FormBackgroundSheet, DestinationSelector, DestinationsDisplay, TripStatsDisplay],
   templateUrl: './guest-home-page.html',
   styleUrl: './guest-home-page.css',
 })
 export class GuestHomePage implements AfterViewInit{
   @ViewChild('map') mapComponent!: MapComponent;
+  @ViewChild('destinationSelector') destinationSelector!: DestinationSelector;
   private intervalId: any;
+  destinations: TripDestination[] = [];
+  isMapPickMode = false;
 
   constructor(
     private router: Router,
     private driverService: DriverService
   ) {}
+
+  navigateToRegister() {
+    this.router.navigate(['/register']);
+  }
 
   ngAfterViewInit() {
       this.loadDriverMarkers();
@@ -67,6 +81,65 @@ export class GuestHomePage implements AfterViewInit{
 
   ngOnDestroy() {
     clearInterval(this.intervalId);
+  }
+
+  onDestinationAdded(geocodeResult: GeocodeResult) {
+    const newDestination: TripDestination = {
+      id: geocodeResult.place_id?.toString() || crypto.randomUUID(),
+      name: geocodeResult.display_name,
+      coordinates: {
+        latitude: Number(geocodeResult.lat),
+        longitude: Number(geocodeResult.lon),
+      },
+    };
+
+    this.destinations.push(newDestination);
+    this.mapComponent.addMarker(newDestination.coordinates, MarkerIcons.checkpoint);
+    this.updateRoute();
+  }
+
+  onDestinationRemoved(destinationId: string) {
+    this.destinations = this.destinations.filter((d) => d.id !== destinationId);
+
+    this.mapComponent.resetMarkers();
+    this.mapComponent.removeRoute();
+
+    // Re-add markers in correct order
+    this.destinations.forEach((d, index) => {
+      const icon =
+        index === 0
+          ? MarkerIcons.start
+          : index === this.destinations.length - 1
+          ? MarkerIcons.end
+          : MarkerIcons.checkpoint;
+
+      this.mapComponent.addMarker(d.coordinates, icon);
+    });
+
+    this.updateRoute();
+  }
+
+  private updateRoute() {
+    if (this.destinations.length < 2) return;
+
+    const coords = this.destinations.map((d) => d.coordinates);
+    this.mapComponent.setRoute(coords);
+  }
+
+  enableMapPickMode() {
+    this.isMapPickMode = true;
+  }
+
+  onMapClicked(coords: Coordinates) {
+    if (this.isMapPickMode) {
+      this.onMapPicked(coords);
+    }
+  }
+
+  onMapPicked(coords: Coordinates) {
+    this.destinationSelector.setLocationFromMap(coords);
+    this.isMapPickMode = false;
+    this.mapComponent.clickedLocation.set(null);
   }
 
 }

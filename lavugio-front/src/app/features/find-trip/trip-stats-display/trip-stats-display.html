@@ -15,11 +15,13 @@
     </span>
   </div>  
 
-  <!-- Price -->
-  <div class="flex justify-between items-center">
-    <span class="text-white font-medium">Price</span>
-    <span class="font-bold text-lg text-[#BC6C25]">
-      {{ price }}
-    </span>
-  </div>
+ <!-- Price -->
+  @if (showPrice) {
+    <div class="flex justify-between items-center">
+      <span class="text-white font-medium">Price</span>
+      <span class="font-bold text-lg text-[#BC6C25]">
+        {{ price }}
+      </span>
+    </div>
+  }
 </div>
