@@ -1,10 +1,15 @@
-<form class="space-y-4 w-full">
+<form class="space-y-4 w-full" (ngSubmit)="onSubmit()">
   <input
     [ngModel]="make()"
     (ngModelChange)="make.set($event)"
     name="make"
     placeholder="Vehicle make"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="make() || !submitted()"
+    [class.border-red-500]="!make() && submitted()"
+    [class.border-2]="!make() && submitted()"
+    [class.shadow-lg]="!make() && submitted()"
+    [class.shadow-red-500/50]="!make() && submitted()"
   />
 
   <input
@@ -12,15 +17,25 @@
     (ngModelChange)="model.set($event)"
     name="model"
     placeholder="Vehicle model"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="model() || !submitted()"
+    [class.border-red-500]="!model() && submitted()"
+    [class.border-2]="!model() && submitted()"
+    [class.shadow-lg]="!model() && submitted()"
+    [class.shadow-red-500/50]="!model() && submitted()"
   />
 
   <input
     [ngModel]="licensePlate()"
     (ngModelChange)="licensePlate.set($event)"
     name="licensePlate"
-    placeholder="License plate"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    placeholder="License plate (format: AB-12345-CD)"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="(licensePlate() && isLicensePlateValid()) || !submitted()"
+    [class.border-red-500]="(!licensePlate() || !isLicensePlateValid()) && submitted()"
+    [class.border-2]="(!licensePlate() || !isLicensePlateValid()) && submitted()"
+    [class.shadow-lg]="(!licensePlate() || !isLicensePlateValid()) && submitted()"
+    [class.shadow-red-500/50]="(!licensePlate() || !isLicensePlateValid()) && submitted()"
   />
 
   <input
@@ -29,7 +44,12 @@
     (ngModelChange)="seats.set($event)"
     name="seats"
     placeholder="Number of seats"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="seats() > 0 || !submitted()"
+    [class.border-red-500]="seats() <= 0 && submitted()"
+    [class.border-2]="seats() <= 0 && submitted()"
+    [class.shadow-lg]="seats() <= 0 && submitted()"
+    [class.shadow-red-500/50]="seats() <= 0 && submitted()"
   />
 
   <input
@@ -37,7 +57,12 @@
     (ngModelChange)="color.set($event)"
     name="color"
     placeholder="Vehicle color"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="color() || !submitted()"
+    [class.border-red-500]="!color() && submitted()"
+    [class.border-2]="!color() && submitted()"
+    [class.shadow-lg]="!color() && submitted()"
+    [class.shadow-red-500/50]="!color() && submitted()"
   />
 
   <div class="space-y-6 w-full">
@@ -46,7 +71,13 @@
         [ngModel]="selectedType()"
         (ngModelChange)="selectedType.set($event)"
         name="vehicleType"
-        class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25]"
+        class="w-full px-4 py-3 bg-[#F5F5F5] border rounded focus:outline-none transition-all duration-300"
+        [class.border-gray-300]="selectedType() || !submitted()"
+        [class.focus:border-[#BC6C25]]="selectedType()"
+        [class.border-red-500]="!selectedType() && submitted()"
+        [class.border-2]="!selectedType() && submitted()"
+        [class.shadow-lg]="!selectedType() && submitted()"
+        [class.shadow-red-500/50]="!selectedType() && submitted()"
       >
         @for (type of vehicleTypes; track type) {
         <option [value]="type">{{ type }}</option>

@@ -10,11 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DriverRegistrationDTO extends UserRegistrationDTO {
-    @NotEmpty
-    private String licenseNumber;
-
-    @NotEmpty
-    private String licensePlate;
 
     @NotEmpty
     private String vehicleMake;
@@ -22,8 +17,17 @@ public class DriverRegistrationDTO extends UserRegistrationDTO {
     @NotEmpty
     private String vehicleModel;
 
+    @NotEmpty
+    private String licenseNumber;
+
+    @NotEmpty
+    private String licensePlate;
+
     private String vehicleColor;
+
     private VehicleType vehicleType;
-    private boolean babyFriendly;
-    private boolean petFriendly;
+
+    private boolean babyFriendly = false;
+
+    private boolean petFriendly = false;
 }

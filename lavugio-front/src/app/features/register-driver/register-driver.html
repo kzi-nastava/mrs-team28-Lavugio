@@ -29,7 +29,7 @@
             </h2>
 
             <div class="flex-1">
-                <app-driver-form (dataChange)="onDriverDataChange($event)"></app-driver-form>
+                <app-driver-form [initialData]="driverData" (dataChange)="onDriverDataChange($event)"></app-driver-form>
             </div>
             }
 
@@ -39,7 +39,7 @@
             </h2>
 
             <div class="flex-1">
-                <app-vehicle-form (dataChange)="onVehicleDataChange($event)"></app-vehicle-form>
+                <app-vehicle-form [initialData]="vehicleData" (dataChange)="onVehicleDataChange($event)"></app-vehicle-form>
             </div>
             }
 

@@ -20,4 +20,7 @@ public class Driver extends BlockableAccount {
 	@OneToOne()
 	@JoinColumn(name = "vehicle_id")
 	private Vehicle vehicle;
+
+	@Column
+	private boolean isActive;
 }
