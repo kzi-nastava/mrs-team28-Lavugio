@@ -1,0 +1,17 @@
+<div class="flex flex-col h-full w-full gap-2 overflow-y-auto">
+    @if (rides()?.length != 0) {
+        @for (ride of rides(); track ride.rideId; let i = $index){
+            <app-ride 
+                [hasActiveRide]="hasActiveRide()" 
+                [ride]="ride" 
+                [canStart]="canStartRide(i)"
+                (clickedOutput)="clicked($event)"
+                (rideActionOutput)="handleRideAction($event)">
+            </app-ride>
+        }
+    } @else {
+        <span class="font-[Inter] text-[#FEFAE0]">
+            No scheduled rides...
+        </span>
+    }
+</div>

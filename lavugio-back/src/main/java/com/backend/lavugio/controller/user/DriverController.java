@@ -1,5 +1,6 @@
 package com.backend.lavugio.controller.user;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +11,7 @@ import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
+import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -290,15 +292,74 @@ public class DriverController {
         return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{driverId}/scheduled-rides", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ScheduledRideDTO>> getAllScheduledRides(@PathVariable Long driverId){
-        //return new ResponseEntity<>(scheduledRideService.getScheduledRidesForDriver(driverId),HttpStatus.OK);
+    @GetMapping(
+            value = "/{driverId}/scheduled-rides",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Collection<ScheduledRideDTO>> getAllScheduledRides(
+            @PathVariable Long driverId
+    ) {
+
         List<ScheduledRideDTO> scheduledRides = new ArrayList<>();
-        scheduledRides.add(new ScheduledRideDTO(1L, "Location A", "Location B", "10:50 21.02.2025."));
-        scheduledRides.add(new ScheduledRideDTO(2L, "Location C", "Location D", "14:30 22.02.2025."));
-        scheduledRides.add(new ScheduledRideDTO(3L, "Location E", "Location F", "09:15 23.02.2025."));
-        return new ResponseEntity<>(scheduledRides,HttpStatus.OK);
+
+        CoordinatesDTO[] checkpoints1 = {
+                new CoordinatesDTO(44.7866, 20.4489),
+                new CoordinatesDTO(44.8000, 20.4600)
+        };
+
+        CoordinatesDTO[] checkpoints2 = {
+                new CoordinatesDTO(45.2671, 19.8335),
+                new CoordinatesDTO(45.2500, 19.8200)
+        };
+
+        CoordinatesDTO[] checkpoints3 = {
+                new CoordinatesDTO(43.3209, 21.8958),
+                new CoordinatesDTO(43.3100, 21.9000)
+        };
+
+        scheduledRides.add(
+                new ScheduledRideDTO(
+                        1L,
+                        "Location A",
+                        "Location B",
+                        LocalDateTime.of(2025, 2, 21, 10, 50),
+                        checkpoints1,
+                        500F,
+                        RideStatus.ACTIVE,
+                        true
+                )
+        );
+
+        scheduledRides.add(
+                new ScheduledRideDTO(
+                        2L,
+                        "Location C",
+                        "Location D",
+                        LocalDateTime.of(2025, 2, 22, 14, 30),
+                        checkpoints2,
+                        400F,
+                        RideStatus.SCHEDULED,
+                        false
+                )
+        );
+
+        scheduledRides.add(
+                new ScheduledRideDTO(
+                        3L,
+                        "Location E",
+                        "Location F",
+                        LocalDateTime.of(2025, 2, 23, 9, 15),
+                        checkpoints3,
+                        600F,
+                        RideStatus.SCHEDULED,
+                        false
+                )
+        );
+
+        return ResponseEntity.ok(scheduledRides);
     }
+
+
 
     @GetMapping(value = "/locations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations(){

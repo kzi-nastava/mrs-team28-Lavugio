@@ -28,18 +28,19 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
 
     @Override
     public List<ScheduledRideDTO> getScheduledRidesForDriver(Long driverId){
-        List<Ride> rides = rideService.getScheduledRidesForDriver(driverId);
-        List<RideDestination> rideDestinations = rideDestinationService.getStartAndEndDestinationForRides(rides.stream().map(Ride::getId).collect(Collectors.toList()));
-        List<ScheduledRideDTO> scheduledRides = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
-        for (int i  = 0; i < rides.size(); i++) {
-            scheduledRides.add(new ScheduledRideDTO(
-                    rides.get(i).getId(),
-                    rideDestinations.get(i*2).getAddress().toString(),
-                    rideDestinations.get(i*2+1).getAddress().toString(),
-                    rides.get(i).getStartDateTime().format(formatter)
-            ));
-        }
-        return scheduledRides;
+//        List<Ride> rides = rideService.getScheduledRidesForDriver(driverId);
+//        List<RideDestination> rideDestinations = rideDestinationService.getStartAndEndDestinationForRides(rides.stream().map(Ride::getId).collect(Collectors.toList()));
+//        List<ScheduledRideDTO> scheduledRides = new ArrayList<>();
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+//        for (int i  = 0; i < rides.size(); i++) {
+//            scheduledRides.add(new ScheduledRideDTO(
+//                    rides.get(i).getId(),
+//                    rideDestinations.get(i*2).getAddress().toString(),
+//                    rideDestinations.get(i*2+1).getAddress().toString(),
+//                    rides.get(i).getStartDateTime().format(formatter)
+//            ));
+//        }
+//        return scheduledRides;
+        return null;
     }
 }
