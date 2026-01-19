@@ -55,7 +55,7 @@ export class RideService {
   }
 
   postRideReport(rideId: number, report: RideReport): Observable<RideReport>{
-    return this.http.post<RideReport>(`${this.mainPortUrl}/${rideId}/report`, report);
+    return this.http.post<RideReport>(`${this.mainPortUrl}/report`, report);
   }
 
   postRideReview(rideId: number, review: RideReview): Observable<RideReview> {
