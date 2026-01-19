@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,11 +37,17 @@ public class RideReportServiceImpl implements RideReportService {
     @Transactional
     public RideReport createReport(RideReportDTO reportDTO) {
         if (reportDTO.getComment() == null || reportDTO.getComment().trim().isEmpty()) {
-            throw new IllegalArgumentException("Report message cannot be empty");
+            throw new NoSuchElementException("Report message cannot be empty");
         }
         Ride ride = rideService.getRideById(reportDTO.getRideId());
         if  (ride == null) {
             throw new IllegalArgumentException("Ride not found");
+        }
+        List<RideReport> reports = getReportsByRideId(reportDTO.getRideId());
+        for (RideReport report : reports) {
+            if (report.getReporter().getId().equals(reportDTO.getReporterId())){
+                throw new IllegalStateException("Reporter already exists");
+            }
         }
         RideReport report = new RideReport(null, ride, reportDTO.getComment(), ride.getCreator());
         return rideReportRepository.save(report);

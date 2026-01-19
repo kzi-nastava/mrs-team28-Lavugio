@@ -12,5 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RideReportDTO {
     Long rideId;
+    Long reporterId;
     String comment;
 }
