@@ -1,9 +1,7 @@
 package com.backend.lavugio.controller.user;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.RideReportedDTO;
@@ -14,6 +12,7 @@ import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
+import com.backend.lavugio.service.user.DriverAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,13 +27,15 @@ public class DriverController {
 	@Autowired
 	private DriverService driverService;
 
-    private RideService rideService;
-    private RideDestinationService rideDestinationService;
+    private final RideService rideService;
+    private final RideDestinationService rideDestinationService;
+    private final DriverAvailabilityService driverAvailabilityService;
 
     @Autowired
-    public DriverController(RideService rideService, RideDestinationService rideDestinationService) {
+    public DriverController(RideService rideService, RideDestinationService rideDestinationService, DriverAvailabilityService driverAvailabilityService) {
         this.rideService = rideService;
         this.rideDestinationService = rideDestinationService;
+        this.driverAvailabilityService = driverAvailabilityService;
     }
  // ========== REGISTRATION ==========
     
@@ -362,25 +363,27 @@ public class DriverController {
 
 
     @GetMapping(value = "/locations", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations(){
-        //Map<Long, DriverLocation> statuses = driverService.getAllActiveDriverStatuses();
-        List<DriverLocationDTO> statuses = new ArrayList<>();
-        statuses.add(new DriverLocationDTO(1L, new CoordinatesDTO(45.2671, 19.8335), DriverStatusEnum.AVAILABLE));
-        statuses.add(new DriverLocationDTO(2L, new CoordinatesDTO(45.2672, 19.8336), DriverStatusEnum.BUSY));
-        statuses.add(new DriverLocationDTO(3L, new CoordinatesDTO(45.2673, 19.8337), DriverStatusEnum.RESERVED
-        ));
-        return new ResponseEntity<>(statuses, HttpStatus.OK);
+    public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations() {
+        try {
+            List<DriverLocationDTO> locationsDTO = driverAvailabilityService.getDriverLocationsDTO();
+            return new ResponseEntity<>(locationsDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping(value = "/{driverId}/location", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DriverLocationDTO> getDriverLocation(@PathVariable Long driverId){
-//        DriverLocation driverLocation = driverService.getDriverStatus(driverId);
-//        if (driverLocation == null){
-//            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-        DriverLocationDTO driverLocation = new DriverLocationDTO(driverId, new CoordinatesDTO(45.24928634050292, 19.83841180801392), DriverStatusEnum.AVAILABLE);
-        return new ResponseEntity<>(driverLocation, HttpStatus.OK);
+    public ResponseEntity<DriverLocationDTO> getDriverLocation(@PathVariable Long driverId) {
+        try {
+            DriverLocationDTO driverLocation = driverAvailabilityService.getDriverLocationDTO(driverId);
+            return new ResponseEntity<>(driverLocation, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(new DriverLocationDTO(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new DriverLocationDTO(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     @PostMapping(value = "/{driverId}/activate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverLocationDTO> activateDriver(@PathVariable Long driverId,
