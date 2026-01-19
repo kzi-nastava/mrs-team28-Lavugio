@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RideReport {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long reportId;
 
     @ManyToOne()
