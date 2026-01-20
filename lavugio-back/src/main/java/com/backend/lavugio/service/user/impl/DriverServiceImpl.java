@@ -183,9 +183,9 @@ public class DriverServiceImpl implements DriverService {
         }
 
         // Check if license plate exists
-        /*if (vehicleRepository.existsByLicensePlate(request.getLicensePlate())) {
+        if (vehicleRepository.existsByLicensePlate(request.getLicensePlate())) {
             throw new RuntimeException("License plate already registered: " + request.getLicensePlate());
-        }*/
+        }
 
         // Create Vehicle
         Vehicle vehicle = new Vehicle();
@@ -215,7 +215,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setProfilePhotoPath(request.getProfilePhotoPath());
         driver.setBlocked(false);
         driver.setBlockReason(null);
-        //driver.setActive(false);
+        driver.setActive(false);
         driver.setVehicle(savedVehicle);
 
         Driver savedDriver = driverRepository.save(driver);
@@ -393,7 +393,7 @@ public class DriverServiceImpl implements DriverService {
         dto.setProfilePhotoPath(driver.getProfilePhotoPath());
         dto.setBlocked(driver.isBlocked());
         dto.setBlockReason(driver.getBlockReason());
-        // dto.setActive(driver.isActive());
+        dto.setActive(driver.isActive());
 
         // Map vehicle if exists
         if (driver.getVehicle() != null) {

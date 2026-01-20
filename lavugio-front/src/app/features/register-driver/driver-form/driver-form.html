@@ -1,4 +1,4 @@
-<form class="space-y-4 w-full">
+<form class="space-y-4 w-full" (ngSubmit)="onSubmit()">
   <div class="relative">
     <input
       type="email"
@@ -6,8 +6,21 @@
       (ngModelChange)="email.set($event)"
       name="email"
       placeholder="Email address"
-      class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+      class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+      [class.border-gray-300]="(email() && isEmailValid()) || !submitted()"
+      [class.border-red-500]="(!email() || !isEmailValid()) && submitted()"
+      [class.border-2]="(!email() || !isEmailValid()) && submitted()"
+      [class.shadow-lg]="(!email() || !isEmailValid()) && submitted()"
+      [class.shadow-red-500/50]="(!email() || !isEmailValid()) && submitted()"
     />
+    <svg
+      class="absolute right-3 top-3 w-5 h-5 text-gray-500"
+      fill="currentColor"
+      viewBox="0 0 20 20"
+    >
+      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+    </svg>
   </div>
 
   <div class="relative">
@@ -17,8 +30,27 @@
       (ngModelChange)="password.set($event)"
       name="password"
       placeholder="Password"
-      class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+      class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+      [class.border-gray-300]="password() || !submitted()"
+      [class.border-red-500]="!password() && submitted()"
+      [class.border-2]="!password() && submitted()"
+      [class.shadow-lg]="!password() && submitted()"
+      [class.shadow-red-500/50]="!password() && submitted()"
     />
+    <button
+      type="button"
+      (click)="togglePasswordVisibility()"
+      class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+    >
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+        <path
+          fill-rule="evenodd"
+          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </button>
   </div>
 
   <input
@@ -26,7 +58,12 @@
     (ngModelChange)="name.set($event)"
     name="name"
     placeholder="Name"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="name() || !submitted()"
+    [class.border-red-500]="!name() && submitted()"
+    [class.border-2]="!name() && submitted()"
+    [class.shadow-lg]="!name() && submitted()"
+    [class.shadow-red-500/50]="!name() && submitted()"
   />
 
   <input
@@ -34,7 +71,12 @@
     (ngModelChange)="surname.set($event)"
     name="surname"
     placeholder="Surname"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="surname() || !submitted()"
+    [class.border-red-500]="!surname() && submitted()"
+    [class.border-2]="!surname() && submitted()"
+    [class.shadow-lg]="!surname() && submitted()"
+    [class.shadow-red-500/50]="!surname() && submitted()"
   />
 
   <input
@@ -42,7 +84,12 @@
     (ngModelChange)="address.set($event)"
     name="address"
     placeholder="Address"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="address() || !submitted()"
+    [class.border-red-500]="!address() && submitted()"
+    [class.border-2]="!address() && submitted()"
+    [class.shadow-lg]="!address() && submitted()"
+    [class.shadow-red-500/50]="!address() && submitted()"
   />
 
   <input
@@ -50,6 +97,11 @@
     (ngModelChange)="phoneNumber.set($event)"
     name="phoneNumber"
     placeholder="Phone number"
-    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded"
+    class="w-full px-4 py-3 bg-[#F5F5F5] border rounded transition-all duration-300"
+    [class.border-gray-300]="phoneNumber() || !submitted()"
+    [class.border-red-500]="!phoneNumber() && submitted()"
+    [class.border-2]="!phoneNumber() && submitted()"
+    [class.shadow-lg]="!phoneNumber() && submitted()"
+    [class.shadow-red-500/50]="!phoneNumber() && submitted()"
   />
 </form>

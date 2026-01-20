@@ -1,7 +1,12 @@
 package com.backend.lavugio.controller.user;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.time.LocalDateTime;
 import java.util.*;
+
 
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.RideReportedDTO;
@@ -43,9 +48,10 @@ public class DriverController {
     public ResponseEntity<?> registerDriver(@RequestBody DriverRegistrationDTO request) {
         try {
             DriverDTO driver = driverService.register(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Driver registered successfully");
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "Driver registered successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
