@@ -53,6 +53,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         }
         ride.setRideStatus(RideStatus.FINISHED);
         ride.setEndDateTime(LocalDateTime.now());
+        ride.getDriver().setDriving(false);
         sendEmailsToPassengers(ride.getPassengers(), ride.getId());
         sendNotificationsToPassengers(ride.getPassengers(), ride.getId());
     }
