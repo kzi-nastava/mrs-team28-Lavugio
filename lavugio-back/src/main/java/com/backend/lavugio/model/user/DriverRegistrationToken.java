@@ -34,6 +34,7 @@ public class DriverRegistrationToken {
 
     @PrePersist
     public void onCreate() {
+        this.createdAt = LocalDateTime.now();
         this.expiresAt = LocalDateTime.now().plusHours(24);
     }
 

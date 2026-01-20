@@ -90,7 +90,7 @@ export class RegisterDriver {
       next: (res) => {
         this.dialogService.open('Registration Successful', 'Your driver account has been created successfully!', false);
         setTimeout(() => {
-          this.router.navigate(['/home-page']);
+          this.router.navigate(['/']); // Change '/home' to your desired route
         }, 2000);
       },
       error: (err) => {

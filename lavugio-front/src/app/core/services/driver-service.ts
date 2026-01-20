@@ -4,13 +4,12 @@ import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
 import { Observable } from 'rxjs';
 import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
 
-
 @Injectable({
   providedIn: 'root',
 })
 export class DriverService {
-  private mainPortUrl = 'http://localhost:8080/api/drivers'
-  
+  private mainPortUrl = 'http://localhost:8080/api/drivers';
+
   http = inject(HttpClient);
   getDriverLocations(): Observable<DriverMarkerLocation[]> {
     return this.http.get<DriverMarkerLocation[]>(this.mainPortUrl + '/locations');
@@ -20,7 +19,10 @@ export class DriverService {
     return this.http.get<DriverMarkerLocation>(`${this.mainPortUrl}/${driverId}/location`);
   }
 
-    getScheduledRides(driverId: number){
-    return this.http.get<ScheduledRideDTO[]>(`${this.mainPortUrl}/${driverId}/scheduled-rides`)
+  registerDriver(data: any): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/register`, data);
+  }
+  getScheduledRides(driverId: number) {
+    return this.http.get<ScheduledRideDTO[]>(`${this.mainPortUrl}/${driverId}/scheduled-rides`);
   }
 }
