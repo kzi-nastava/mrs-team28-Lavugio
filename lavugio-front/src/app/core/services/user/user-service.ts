@@ -35,4 +35,16 @@ export class UserService {
       newPassword
     }, { responseType: 'text' });
   }
+
+  activateAccount(token: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/drivers/activate`, {
+      token: token,
+      password: password
+    });
+  }
+  
+  validateActivationToken(token: string) {
+    return this.http.get<any>(`${this.apiUrl}/users/activate/validate?token=${token}`);
+  }
+
 }

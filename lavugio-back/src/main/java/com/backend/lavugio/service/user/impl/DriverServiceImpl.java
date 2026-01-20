@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -208,7 +209,7 @@ public class DriverServiceImpl implements DriverService {
         // Create Driver
         Driver driver = new Driver();
         driver.setEmail(request.getEmail());
-        driver.setPassword(request.getPassword()); // TODO: Add password encoding
+        driver.setPassword(UUID.randomUUID().toString());
         driver.setName(request.getName());
         driver.setLastName(request.getLastName());
         driver.setPhoneNumber(request.getPhoneNumber());
