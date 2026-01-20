@@ -33,12 +33,12 @@ import com.backend.lavugio.service.user.DriverService;
 public class DriverController {
 	@Autowired
 	private DriverService driverService;
-
+    @Autowired
     private RideService rideService;
+    @Autowired
     private RideDestinationService rideDestinationService;
     @Autowired
     private DriverRegistrationTokenService driverRegistrationTokenService;
-
     @Autowired
     private DriverAvailabilityService driverAvailabilityService;
 
