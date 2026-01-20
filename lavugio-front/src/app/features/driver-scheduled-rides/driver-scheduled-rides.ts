@@ -9,6 +9,7 @@ import { MapComponent } from '@app/shared/components/map/map';
 import { RideService } from '@app/core/services/ride-service';
 import { catchError, EMPTY, Subscription, timeout } from 'rxjs';
 import { DriverService } from '@app/core/services/driver-service';
+import { FinishRide } from '@app/shared/models/finishRide';
 
 @Component({
   selector: 'app-driver-scheduled-rides',
@@ -18,6 +19,7 @@ import { DriverService } from '@app/core/services/driver-service';
 })
 export class DriverScheduledRides implements AfterViewInit, OnDestroy{
   private driverService = inject(DriverService);
+  private rideService = inject(RideService);
   private subscription : Subscription | null = null;
   private injector = inject(Injector);
   driverId = 1;
@@ -95,6 +97,9 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
         this.setPanicStatus(rideId);
         break;
       case 'FINISH':
+        this.finishRide(rideId);
+        this.removeRideFromList(rideId);
+        break;
       case 'FINISH_EARLY':
       case 'DENY':
         this.removeRideFromList(rideId);
@@ -134,5 +139,18 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
     
     this.checkIfAnyActiveRides(updatedRides);
     this.rides.set(updatedRides);
+  }
+
+  finishRide(rideId: number){
+    let finish: FinishRide = {
+      rideId: rideId,
+      finalDestination: { latitude: 0.0, longitude: 0.0},
+      finishedEarly: false,
+      distance: 1,
+    }
+    this.rideService.postRideFinish(finish).subscribe({
+      next: () => console.log("Ride finished successfully:", rideId),
+      error: () => console.log("Error finishing")
+    })
   }
 }
