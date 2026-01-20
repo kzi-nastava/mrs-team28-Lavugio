@@ -32,8 +32,10 @@ export class DriverForm {
   phoneNumber = signal('');
 
   showPassword = signal(false);
+  submitted = signal(false);
 
   constructor() {
+    // Emit data whenever any signal changes
     effect(() => {
       this.email();
       this.name();

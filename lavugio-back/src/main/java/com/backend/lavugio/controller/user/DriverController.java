@@ -3,6 +3,7 @@ package com.backend.lavugio.controller.user;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.RideReportedDTO;
@@ -48,7 +49,7 @@ public class DriverController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("message", "Driver registered successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
