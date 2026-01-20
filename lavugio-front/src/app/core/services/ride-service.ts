@@ -10,6 +10,7 @@ import SockJS from 'sockjs-client';
 import { environment } from 'environments/environment';
 import { RideReport } from '@app/shared/models/rideReport';
 import { RideReview } from '@app/shared/models/rideReview';
+import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
 @Injectable({
   providedIn: 'root',
 })
@@ -54,14 +55,12 @@ export class RideService {
   }
 
   postRideReport(rideId: number, report: RideReport): Observable<RideReport>{
-    return this.http.post<RideReport>(`${this.mainPortUrl}/${rideId}/report`, report);
+    return this.http.post<RideReport>(`${this.mainPortUrl}/report`, report);
   }
 
   postRideReview(rideId: number, review: RideReview): Observable<RideReview> {
     return this.http.post<RideReview>(`${this.mainPortUrl}/${rideId}/review`, review)
 }
-
-
   closeConnection(){
     if(this.client){
       this.client.deactivate();

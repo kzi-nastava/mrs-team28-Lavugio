@@ -11,8 +11,10 @@
                 md:max-w-2xl
                 shadow-none md:shadow-2xl
                 p-6 md:p-10">
-        <app-profile-header></app-profile-header>
-        <app-profile-info-section></app-profile-info-section>
+        @if (userProfile != null) {
+            <app-profile-header [profile]="userProfile"></app-profile-header>
+            <app-profile-info-section [profile]="userProfile" ></app-profile-info-section>
+        }
     </div>
 
 </div>

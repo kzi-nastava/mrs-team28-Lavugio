@@ -2,6 +2,7 @@ package com.backend.lavugio.service.user;
 
 import com.backend.lavugio.dto.user.UpdateUserDTO;
 import com.backend.lavugio.dto.user.UserDTO;
+import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.ride.Ride;
@@ -31,7 +32,7 @@ public interface RegularUserService {
     UserDTO getRegularUserDTOById(Long id);
     UserDTO getUserDTOByEmail(String email);
     List<UserDTO> getAllUsersDTO();
-    UserDTO updateRegularUser(Long id, UpdateUserDTO request);
+    UserDTO updateRegularUser(Long id, UserProfileDTO request);
 
     // Profile
     UserDTO getRegularUserProfile(Long id);

@@ -1,23 +1,18 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, Input, signal } from '@angular/core';
 import { ProfileInfoRow } from '../profile-info-row/profile-info-row';
 import { Button } from './../../../../shared/components/button/button';
 import { ProfileEdit } from '../../services/profile-edit';
+import { UserProfile } from '@app/shared/models/user/userProfile';
+import { UserService } from '@app/core/services/user/user-service';
+import { DialogService } from '@app/core/services/dialog-service';
+import { getRoleString } from '@app/shared/models/user/userProfile';
+import { ChangePasswordDialog } from '../change-password-dialog/change-password-dialog';
 
-interface UserProfile {
-  name: string;
-  surname: string;
-  phoneNumber: string;
-  email: string;
-  address: string;
-  isDriver: boolean;
-  vehicle?: string;
-  vehicleType?: string;
-  activeTime?: string;
-}
 
 @Component({
   selector: 'app-profile-info-section',
-  imports: [ProfileInfoRow, Button],
+  standalone: true,
+  imports: [ProfileInfoRow, Button, ChangePasswordDialog],
   templateUrl: './profile-info-section.html',
   styleUrl: './profile-info-section.css',
 })
@@ -25,35 +20,36 @@ interface UserProfile {
 export class ProfileInfoSection {
   editService = inject(ProfileEdit);
   
-  userProfile = signal<UserProfile>({
-    name: 'Lazar',
-    surname: 'Jović',
-    phoneNumber: '069123456',
-    email: 'bm230294d@student.etf.bg.ac.rs',
-    address: 'Beogradska 35, Požarevac 12000',
-    isDriver: true,
-    vehicle: 'Smart Crossblade',
-    vehicleType: 'Standard',
-    activeTime: '4h30min',
-  });
+  @Input() profile!: UserProfile;
+  updatedProfile!: UserProfile;
+  showPasswordDialog = false;
+
+  constructor(private userService: UserService,
+              private dialogService: DialogService
+  ) {}
+
+  ngOnInit() {
+    this.updatedProfile = structuredClone(this.profile);
+
+  }
 
   editButtonText = computed(() => {
     if (!this.editService.isEditMode()) {
       return 'Edit';
     }
-    return this.userProfile().isDriver ? 'Send Request' : 'Save';
+    if (this.profile.role === 'DRIVER') {
+      return 'Send Request';
+    }
+    return 'Save';
   });
 
   onFieldChanged(field: keyof UserProfile, value: string) {
-    this.userProfile.update((profile) => ({
-      ...profile,
-      [field]: value,
-    }));
+    (this.updatedProfile[field] as string) = value;
   }
 
   onEditClick() {
     if (this.editService.isEditMode()) {
-      if (this.userProfile().isDriver) {
+      if (this.profile.role === 'DRIVER') {
         this.sendEditRequest();
       } else {
         this.saveProfile();
@@ -68,19 +64,61 @@ export class ProfileInfoSection {
     // Implementiraj aktivaciju
   }
 
-  private saveProfile() {
-    console.log('Saving profile:', this.userProfile());
-    // API call za čuvanje
-    // this.profileService.updateProfile(this.userProfile()).subscribe(...)
+  onChangePasswordClick() {
+    this.showPasswordDialog = true;
+  }
 
-    // Nakon uspešnog čuvanja, isključi edit mode
-    this.editService.disableEditMode();
+  onPasswordDialogClosed() {
+    this.showPasswordDialog = false;
+  }
+
+  onPasswordChanged(data: { oldPassword: string; newPassword: string }) {
+    console.log('Password change requested:', data);
+    
+    this.userService.changePassword(data.oldPassword, data.newPassword).subscribe({
+      next: () => {
+        this.dialogService.open('Success!', 'Password changed successfully!', false);
+        this.showPasswordDialog = false;
+      },
+      error: (error) => {
+        console.error('Password change error:', error);
+        const errorMessage = error.error?.message || 'Failed to change password!';
+        this.dialogService.open('Error!', errorMessage, true);
+      }
+    });
+  }
+
+  private saveProfile() {
+    console.log('Start profile:', this.profile);
+    console.log('Updated profile:', this.updatedProfile);
+    this.userService.updateProfile(this.updatedProfile).subscribe({
+      next: () => {
+        const title: string = "Update Successful!";
+        var message: string = "";
+        if (getRoleString(this.profile.role) === "Driver") {
+          message = "Update request sent successfully!";  
+        } else {
+          message = "Profile updated successfully!";  
+        }
+        this.dialogService.open(title, message, false);
+        this.editService.disableEditMode();
+      },
+      error: (error) => {
+        console.log("Error during profile update:", error);
+        const title: string = "Update Failed!";
+        const message: string = "There was an error with profile update!";
+        this.dialogService.open(title, message, true);
+      },
+      complete: () => {
+
+      }
+    });
   }
 
   private sendEditRequest() {
-    console.log('Sending edit request:', this.userProfile());
+    console.log('Sending edit request:', this.profile);
     // API call za slanje requesta adminu
-    // this.profileService.sendEditRequest(this.userProfile()).subscribe(...)
+    // this.profileService.sendEditRequest(this.profile).subscribe(...)
 
     // Nakon uspešnog slanja, isključi edit mode
     this.editService.disableEditMode();

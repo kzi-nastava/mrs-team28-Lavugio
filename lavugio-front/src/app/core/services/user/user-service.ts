@@ -46,4 +46,5 @@ export class UserService {
   validateActivationToken(token: string) {
     return this.http.get<any>(`${this.apiUrl}/users/activate/validate?token=${token}`);
   }
+
 }

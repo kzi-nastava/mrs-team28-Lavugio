@@ -3,7 +3,7 @@
   <!-- Profile picture -->
   <div class="relative">
     <img
-      [src]="previewUrl || avatarUrl"
+      [src]="getProfileImageUrl()"
       alt="Profile picture"
       (click)="onAvatarClick(fileInput)"
       [class.cursor-pointer]="editService.isEditMode()"
@@ -38,7 +38,7 @@
         text-[#606C38]
         leading-tight
       ">
-      {{ name }} {{ surname }}
+      {{ profile.name }} {{ profile.surname }}
     </h2>
 
     <!-- User type(s) -->
@@ -49,7 +49,7 @@
         font-medium
         text-[#606C38]
       ">
-      Regular User
+      {{getRoleString(profile.role)}}
     </div>
 
     <!-- Spacer for future roles -->
@@ -72,7 +72,7 @@
       </svg>
 
       <span class="pb-1">
-        {{ email }}
+        {{ profile.email }}
       </span>
     </div>
 

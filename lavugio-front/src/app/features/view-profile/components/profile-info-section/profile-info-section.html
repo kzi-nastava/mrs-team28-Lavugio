@@ -2,21 +2,21 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 mt-8">
   <app-profile-info-row
     [label]="'Name'"
-    [value]="userProfile().name"
+    [value]="profile.name"
     (valueChanged)="onFieldChanged('name', $event)"
   >
   </app-profile-info-row>
 
   <app-profile-info-row
     [label]="'Surname'"
-    [value]="userProfile().surname"
+    [value]="profile.surname"
     (valueChanged)="onFieldChanged('surname', $event)"
   >
   </app-profile-info-row>
 
   <app-profile-info-row
     [label]="'Phone number'"
-    [value]="userProfile().phoneNumber"
+    [value]="profile.phoneNumber"
     [type]="'tel'"
     (valueChanged)="onFieldChanged('phoneNumber', $event)"
   >
@@ -24,7 +24,7 @@
 
   <app-profile-info-row
     [label]="'Email'"
-    [value]="userProfile().email"
+    [value]="profile.email"
     [type]="'email'"
     [editable]="false"
     (valueChanged)="onFieldChanged('email', $event)"
@@ -34,7 +34,7 @@
   <div class="sm:col-span-2">
     <app-profile-info-row
       [label]="'Address'"
-      [value]="userProfile().address"
+      [value]="profile.address"
       [width]="'full'"
       (valueChanged)="onFieldChanged('address', $event)"
     >
@@ -42,7 +42,7 @@
   </div>
 
   <!-- Driver Section -->
-  @if (userProfile().isDriver) {
+  @if (profile.role === 'DRIVER') {
   <div class="sm:col-span-2 text-center">
     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#606C38] leading-tight">
       Driving information
@@ -51,28 +51,28 @@
 
   <app-profile-info-row
     [label]="'Make'"
-    [value]="'Smart'"
-    (valueChanged)="onFieldChanged('vehicle', $event)"
+    [value]="profile.vehicleMake!"
+    (valueChanged)="onFieldChanged('vehicleMake', $event)"
   >
   </app-profile-info-row>
   
   <app-profile-info-row
     [label]="'Model'"
-    [value]="'Crossblade'"
-    (valueChanged)="onFieldChanged('vehicle', $event)"
+    [value]="profile.vehicleModel!"
+    (valueChanged)="onFieldChanged('vehicleModel', $event)"
   >
   </app-profile-info-row>
 
   <app-profile-info-row
     [label]="'Vehicle Type'"
-    [value]="userProfile().vehicleType!"
+    [value]="profile.vehicleType!"
     (valueChanged)="onFieldChanged('vehicleType', $event)"
   >
   </app-profile-info-row>
 
   <app-profile-info-row
     [label]="'Active in last 24h'"
-    [value]="userProfile().activeTime!"
+    [value]="profile.activeTime!"
     [editable]="false"
     [singleLineLabel]="true"
   >
@@ -89,17 +89,29 @@
   <div class="grid grid-cols-2 sm:col-span-2 gap-4">
     <div
       class="justify-self-start"
-      [class.col-span-2]="!userProfile().isDriver || editService.isEditMode()"
-      [class.justify-self-end]="userProfile().isDriver && !editService.isEditMode()"
+      [class.col-span-2]="!editService.isEditMode() && profile.role !== 'DRIVER'"
     >
       <app-button size="medium" [variant]="'light-green'" (click)="onEditClick()">
         {{ editButtonText() }}
       </app-button>
     </div>
-    @if (userProfile().isDriver && !editService.isEditMode()) {
+    @if (profile.role === 'DRIVER' && !editService.isEditMode()) {
     <div class="justify-self-end">
       <app-button variant="dark-brown" (click)="onActivateClick()"> Activate </app-button>
     </div>
     }
+    @if (editService.isEditMode()) {
+    <div class="justify-self-end">
+      <app-button variant="dark-brown" (click)="onChangePasswordClick()"> Change Password </app-button>
+    </div>
+    }
   </div>
 </div>
+
+<!-- Change Password Dialog -->
+@if (showPasswordDialog) {
+  <app-change-password-dialog
+    (closed)="onPasswordDialogClosed()"
+    (passwordChanged)="onPasswordChanged($event)"
+  ></app-change-password-dialog>
+}
