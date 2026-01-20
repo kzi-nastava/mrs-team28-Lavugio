@@ -2,14 +2,11 @@ package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.repository.user.DriverRepository;
 
 import com.backend.lavugio.repository.vehicle.VehicleRepository;
-
-import com.backend.lavugio.service.user.ActiveDriverLocationService;
 
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Map;
 
 @Service
 public class DriverServiceImpl implements DriverService {
@@ -28,9 +24,6 @@ public class DriverServiceImpl implements DriverService {
 
     @Autowired
     private VehicleRepository vehicleRepository;
-    
-    @Autowired
-    private ActiveDriverLocationService activeDriverLocationService;
 
     @Override
     @Transactional
@@ -109,28 +102,10 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public DriverLocation activateDriver(Long driverId, double longitude, double latitude) throws RuntimeException{
-        if (getDriverById(driverId) == null) {
-            throw new RuntimeException("Driver not found with id: " + driverId);
-        }
-        return activeDriverLocationService.addActiveDriverLocation(driverId, longitude, latitude);
-    }
-
-    @Override
-    public DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude) throws RuntimeException{
-        return activeDriverLocationService.updateDriverLocation(driverId, longitude, latitude);
-    }
-
-    @Override
     public void updateDriverDriving(Long driverId, boolean isDriving) throws RuntimeException{
         Driver driver = this.getDriverById(driverId);
         driver.setDriving(isDriving);
         driverRepository.save(driver);
-    }
-
-    @Override
-    public void deactivateDriver(Long driverId) {
-        activeDriverLocationService.deleteDriverLocation(driverId);
     }
 
     @Override
@@ -373,7 +348,6 @@ public class DriverServiceImpl implements DriverService {
         // TODO: Check 8-hour work limit
         // driver.setActive(true);
         Driver savedDriver = driverRepository.save(driver);
-
         return createDriverStatusDTO(savedDriver);
     }
 
@@ -485,13 +459,5 @@ public class DriverServiceImpl implements DriverService {
         return status;
     }
 
-    @Override
-    public Map<Long, DriverLocation> getAllActiveDriverStatuses() {
-        return activeDriverLocationService.getAllActiveDriverLocations();
-    }
 
-    @Override
-    public DriverLocation getDriverStatus(Long driverId) {
-        return activeDriverLocationService.getDriverLocation(driverId);
-    }
 }
