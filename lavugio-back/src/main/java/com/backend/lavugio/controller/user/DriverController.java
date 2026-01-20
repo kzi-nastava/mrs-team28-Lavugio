@@ -40,6 +40,9 @@ public class DriverController {
     private DriverRegistrationTokenService driverRegistrationTokenService;
 
     @Autowired
+    private DriverAvailabilityService driverAvailabilityService;
+
+    @Autowired
     public DriverController(RideService rideService, RideDestinationService rideDestinationService, DriverAvailabilityService driverAvailabilityService) {
         this.rideService = rideService;
         this.rideDestinationService = rideDestinationService;
