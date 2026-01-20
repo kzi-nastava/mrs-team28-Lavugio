@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ProfileHeader } from '../components/profile-header/profile-header';
 import { ProfileInfoSection } from '../components/profile-info-section/profile-info-section';
-import { Navbar } from '@app/layout/navbar/navbar';
+import { Navbar } from '@app/shared/components/navbar/navbar';
 import { UserService } from '@app/core/services/user/user-service';
 import { UserProfile } from '@app/shared/models/user/userProfile';
 
