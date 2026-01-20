@@ -1,38 +1,67 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.ride.RideReportDTO;
+import com.backend.lavugio.dto.ride.RideReportedDTO;
+import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.ride.RideReport;
 import com.backend.lavugio.repository.ride.RideReportRepository;
 import com.backend.lavugio.service.ride.RideReportService;
-import lombok.RequiredArgsConstructor;
+import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.user.RegularUserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RideReportServiceImpl implements RideReportService {
 
     private final RideReportRepository rideReportRepository;
 
+    private final RideService rideService;
+
+    private final RegularUserService regularUserService;
+
+    @Autowired
+    public RideReportServiceImpl(RideReportRepository rideReportRepository, RideService rideService,  RegularUserService regularUserService) {
+        this.rideReportRepository = rideReportRepository;
+        this.rideService = rideService;
+        this.regularUserService = regularUserService;
+    }
+
     @Override
     @Transactional
-    public RideReport createReport(RideReport report) {
-        if (report.getRide() == null) {
-            throw new IllegalArgumentException("Ride cannot be null");
+    public RideReport createReport(RideReportDTO reportDTO) {
+        if (reportDTO.getComment() == null || reportDTO.getComment().trim().isEmpty()) {
+            throw new NoSuchElementException("Report message cannot be empty");
         }
-        if (report.getReportMessage() == null || report.getReportMessage().trim().isEmpty()) {
-            throw new IllegalArgumentException("Report message cannot be empty");
+        Ride ride = rideService.getRideById(reportDTO.getRideId());
+        if  (ride == null) {
+            throw new IllegalArgumentException("Ride not found");
         }
-
+        List<RideReport> reports = getReportsByRideId(reportDTO.getRideId());
+        for (RideReport report : reports) {
+            if (report.getReporter().getId().equals(reportDTO.getReporterId())){
+                throw new IllegalStateException("Reporter already exists");
+            }
+        }
+        RideReport report = new RideReport(null, ride, reportDTO.getComment(), ride.getCreator());
         return rideReportRepository.save(report);
     }
 
     @Override
     public RideReport getReportById(Long id) {
         return rideReportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Report not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + id));
+    }
+
+    @Override
+    public RideReportedDTO getReportDTOById(Long id) {
+        return new RideReportedDTO(getReportById(id));
     }
 
     @Override
@@ -42,7 +71,20 @@ public class RideReportServiceImpl implements RideReportService {
 
     @Override
     public List<RideReport> getReportsByRideId(Long rideId) {
+        Ride ride = rideService.getRideById(rideId);
+        if (ride == null) {
+            throw new IllegalArgumentException("Ride not found with id: " + rideId);
+        }
         return rideReportRepository.findByRideId(rideId);
+    }
+
+    @Override
+    public List<RideReportedDTO> getReportDTOsByRideId(Long rideId) {
+        List<RideReportedDTO> reportDTOs =  new ArrayList<>();
+        for (RideReport report : getReportsByRideId(rideId)) {
+            reportDTOs.add(new RideReportedDTO(report));
+        }
+        return reportDTOs;
     }
 
     @Override

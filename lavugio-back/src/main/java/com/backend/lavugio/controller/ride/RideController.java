@@ -4,6 +4,8 @@ import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.ride.RideReport;
+import com.backend.lavugio.service.ride.RideReportService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,20 +15,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/rides")
 @CrossOrigin(origins = "http://localhost:4200")
 public class RideController {
 
-    @Autowired
-    private RideService rideService;
+    private final RideService rideService;
+
+    private final DriverService driverService;
+
+    private final RideReportService rideReportService;
 
     @Autowired
-    private DriverService driverService;
+    public RideController(RideService rideService, DriverService driverService, RideReportService rideReportService) {
+        this.rideService = rideService;
+        this.driverService = driverService;
+        this.rideReportService = rideReportService;
+    }
 
     @PostMapping("/estimate")
     public ResponseEntity<?> estimateRideInfo(@RequestBody RideEstimateRequestDTO request) {
@@ -103,19 +110,14 @@ public class RideController {
 
     @GetMapping(value="/{rideId}/reports", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideReportedDTO>> getRideReports(@PathVariable Long rideId){
-//        Collection<RideReport> reports = rideReportService.getReportsByRideId(rideId);
-//        Collection<RideReportedDTO> reportDTOs = new ArrayList<>();
-//        for (RideReport report : reports) {
-//            RideReportedDTO rideReportedDTO = new RideReportedDTO();
-//            rideReportedDTO.setReporterId(report.getReporter().getId());
-//            rideReportedDTO.setReportId(report.getReportId());
-//            rideReportedDTO.setReportText(report.getReportMessage());
-//            reportDTOs.add(rideReportedDTO);
-//        }
-        List<RideReportedDTO> reportDTOs = new ArrayList<>();
-        reportDTOs.add(new RideReportedDTO(1L, rideId, 2L, "Driver was late"));
-        reportDTOs.add(new RideReportedDTO(2L, rideId, 3L, "Car was unclean"));
-        return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
+        try{
+            List<RideReportedDTO> reportDTOs = rideReportService.getReportDTOsByRideId(rideId);
+            return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new  ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -219,9 +221,6 @@ public class RideController {
         return ResponseEntity.ok(statuses);
     }
 
-
-
-
     @GetMapping(value = "/{rideId}/review", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GetRideReviewDTO> getRideReview(@PathVariable Long rideId){
         GetRideReviewDTO getRideReviewDTO = new GetRideReviewDTO(1L, 4, 5, "Great ride!");
@@ -261,22 +260,20 @@ public class RideController {
         return ResponseEntity.ok("Ride panic activated successfully");
     }
 
-    @PostMapping(value = "/{rideId}/report", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RideReportedDTO> postRideReport(@PathVariable Long rideId, @RequestBody RideReportDTO reportDTO){
-//        RideReport report = new RideReport();
-//        Ride ride = rideService.getRideById(rideId);
-//        RegularUser user =  regularUserService.getRegularUserById(reportDTO.getReporterId());
-//        report.setRide(ride);
-//        report.setReportMessage(reportDTO.getReportText());
-//        report.setReporter(user);
-//        rideReportService.createReport(report);
-//
-//        RideReportedDTO rideReportedDTO = new RideReportedDTO();
-//        rideReportedDTO.setReporterId(report.getReporter().getId());
-//        rideReportedDTO.setReportId(report.getReportId());
-//        rideReportedDTO.setReportText(report.getReportMessage());
-        RideReportedDTO rideReportedDTO = new RideReportedDTO(1L, rideId, reportDTO.getRideId(), reportDTO.getComment());
-        return new ResponseEntity<>(rideReportedDTO, HttpStatus.OK);
+    @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> postRideReport(@RequestBody RideReportDTO reportDTO){
+        try {
+            RideReport report = rideReportService.createReport(reportDTO);
+            return new ResponseEntity<>(new RideReportedDTO(report), HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", "Unexpected error occurred"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/{rideId}/review")
