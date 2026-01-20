@@ -25,7 +25,7 @@ public class FavoriteRouteController {
     public ResponseEntity<?> createFavoriteRoute(@RequestBody NewFavoriteRouteDTO request) {
         // Authentication auth
         try {
-            NewFavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(request);
+            NewFavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(accountID, request);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));

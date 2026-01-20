@@ -17,6 +17,7 @@ import { FavoriteRoute } from '@app/shared/models/favoriteRoute';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { DialogService } from '@app/core/services/dialog-service';
 import { FavoriteRouteService } from '@app/core/services/route/favorite-route-service';
+import { NewFavoriteRouteRequest } from '@app/shared/models/route/newFavoriteRouteRequest';
 
 @Component({
   selector: 'app-find-trip',
@@ -286,13 +287,19 @@ export class FindTrip implements OnInit, OnDestroy {
       return;
     }
 
-    const favoriteRoutePayload = {
+    const newFavoriteRoute: NewFavoriteRouteRequest = {
       name: this.favoriteRouteName,
       destinations: this.destinations,
     };
     
-    this.favoriteRouteService.
-    this.dialogService.open('Route saved', 'Your favorite route has been saved successfully.', false);
+    this.favoriteRouteService.saveFavoriteRoute(newFavoriteRoute).subscribe({
+      next: (respond) => {
+        this.dialogService.open('Route saved', 'Your favorite route has been saved successfully.', false);
+      },
+      error: (err) => {
+        this.dialogService.open("Adding FavoriteRoute Failed", err.error.message, true);
+      }
+    });
 
     this.favoriteRouteName = '';
   }

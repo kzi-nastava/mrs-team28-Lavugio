@@ -1,7 +1,7 @@
 package com.backend.lavugio.service.route.impl;
 
 import com.backend.lavugio.dto.route.DestinationDTO;
-import com.backend.lavugio.dto.route.FavoriteRouteDTO;
+import com.backend.lavugio.dto.route.NewFavoriteRouteDTO;
 import com.backend.lavugio.dto.route.FavoriteRouteDestinationDTO;
 import com.backend.lavugio.dto.route.UpdateFavoriteRouteDTO;
 import com.backend.lavugio.model.route.Address;
@@ -136,10 +136,18 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
-    public FavoriteRouteDTO createFavoriteRoute(FavoriteRouteDTO request) {
+    public NewFavoriteRouteDTO createFavoriteRoute(Long accountId, NewFavoriteRouteDTO request) {
         // Check if user exists
-        RegularUser user = regularUserRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getUserId()));
+        RegularUser user = regularUserRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + accountId));
+
+        if (favoriteRouteRepository.existsByNameAndUserId(request.getName(), accountId)) {
+            throw new RuntimeException("You already have favorite route with this name.");
+        }
+
+        if (request.getDestinations() == null ||  request.getDestinations().size() < 2) {
+            throw new RuntimeException("There is not enough destinations in provided route.");
+        }
 
         // Create FavoriteRoute
         FavoriteRoute favoriteRoute = new FavoriteRoute();
@@ -149,44 +157,42 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
         FavoriteRoute savedRoute = favoriteRouteRepository.save(favoriteRoute);
 
         // Create destinations
-        if (request.getDestinations() != null) {
-            for (int i = 0; i < request.getDestinations().size(); i++) {
-                FavoriteRouteDestinationDTO destDto = request.getDestinations().get(i);
+        for (int i = 0; i < request.getDestinations().size(); i++) {
+            FavoriteRouteDestinationDTO destDto = request.getDestinations().get(i);
 
-                // Create or find address
-                Address address = new Address();
-                address.setStreetName(destDto.getStreetName());
-                address.setCity(destDto.getCity());
-                address.setCountry(destDto.getCountry());
-                address.setStreetNumber(destDto.getStreetNumber());
-                address.setZipCode(destDto.getZipCode());
-                address.setLongitude(destDto.getLongitude());
-                address.setLatitude(destDto.getLatitude());
+            // Create or find address
+            Address address = new Address();
+            address.setStreetName(destDto.getStreetName());
+            address.setCity(destDto.getCity());
+            address.setCountry(destDto.getCountry());
+            address.setStreetNumber(destDto.getStreetNumber());
+            address.setZipCode(destDto.getZipCode());
+            address.setLongitude(destDto.getLongitude());
+            address.setLatitude(destDto.getLatitude());
 
-                Address savedAddress = addressRepository.save(address);
+            Address savedAddress = addressRepository.save(address);
 
-                // Create destination
-                FavoriteRouteDestination destination = new FavoriteRouteDestination();
-                destination.setFavoriteRoute(savedRoute);
-                destination.setAddress(savedAddress);
-                destination.setDestinationOrder(i + 1);
+            // Create destination
+            FavoriteRouteDestination destination = new FavoriteRouteDestination();
+            destination.setFavoriteRoute(savedRoute);
+            destination.setAddress(savedAddress);
+            destination.setDestinationOrder(i + 1);
 
-                favoriteRouteDestinationRepository.save(destination);
-            }
+            favoriteRouteDestinationRepository.save(destination);
         }
 
         return mapToDTO(savedRoute);
     }
 
     @Override
-    public FavoriteRouteDTO getFavoriteRouteDTOById(Long id) {
+    public NewFavoriteRouteDTO getFavoriteRouteDTOById(Long id) {
         FavoriteRoute favoriteRoute = favoriteRouteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Favorite route not found with id: " + id));
         return mapToDTO(favoriteRoute);
     }
 
     @Override
-    public List<FavoriteRouteDTO> getFavoriteRoutesDTOByUser(Long userId) {
+    public List<NewFavoriteRouteDTO> getFavoriteRoutesDTOByUser(Long userId) {
         // Check if user exists
         if (!regularUserRepository.existsById(userId)) {
             throw new RuntimeException("User not found with id: " + userId);
@@ -199,7 +205,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
-    public List<FavoriteRouteDTO> getAllFavoriteRoutesDTO() {
+    public List<NewFavoriteRouteDTO> getAllFavoriteRoutesDTO() {
         List<FavoriteRoute> favoriteRoutes = favoriteRouteRepository.findAll();
         return favoriteRoutes.stream()
                 .map(this::mapToDTO)
@@ -207,7 +213,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
-    public FavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request) {
+    public NewFavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request) {
         FavoriteRoute favoriteRoute = favoriteRouteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Favorite route not found with id: " + id));
 
@@ -290,8 +296,8 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     // Helper method to map entity to DTO
-    private FavoriteRouteDTO mapToDTO(FavoriteRoute favoriteRoute) {
-        FavoriteRouteDTO dto = new FavoriteRouteDTO();
+    private NewFavoriteRouteDTO mapToDTO(FavoriteRoute favoriteRoute) {
+        NewFavoriteRouteDTO dto = new NewFavoriteRouteDTO();
         dto.setId(favoriteRoute.getId());
         dto.setName(favoriteRoute.getName());
         dto.setUserId(favoriteRoute.getUser().getId());

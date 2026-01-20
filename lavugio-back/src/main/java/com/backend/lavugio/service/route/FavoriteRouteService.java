@@ -1,6 +1,6 @@
 package com.backend.lavugio.service.route;
 
-import com.backend.lavugio.dto.route.FavoriteRouteDTO;
+import com.backend.lavugio.dto.route.NewFavoriteRouteDTO;
 import com.backend.lavugio.dto.route.UpdateFavoriteRouteDTO;
 import com.backend.lavugio.model.route.FavoriteRoute;
 import com.backend.lavugio.model.user.RegularUser;
@@ -21,15 +21,15 @@ public interface FavoriteRouteService {
     int getRouteDestinationCount(Long routeId);
 
     // CREATE
-    FavoriteRouteDTO createFavoriteRoute(FavoriteRouteDTO request);
+    NewFavoriteRouteDTO createFavoriteRoute(Long accountId, NewFavoriteRouteDTO request);
 
     // READ
-    FavoriteRouteDTO getFavoriteRouteDTOById(Long id);
-    List<FavoriteRouteDTO> getFavoriteRoutesDTOByUser(Long userId);
-    List<FavoriteRouteDTO> getAllFavoriteRoutesDTO();
+    NewFavoriteRouteDTO getFavoriteRouteDTOById(Long id);
+    List<NewFavoriteRouteDTO> getFavoriteRoutesDTOByUser(Long userId);
+    List<NewFavoriteRouteDTO> getAllFavoriteRoutesDTO();
 
     // UPDATE
-    FavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request);
+    NewFavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request);
 
     // DELETE
     void deleteFavoriteRoute(Long id);
