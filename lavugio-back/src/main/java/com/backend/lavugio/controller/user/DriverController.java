@@ -98,8 +98,8 @@ public class DriverController {
         try {
             //String currentEmail = userDetails.getUsername();
             String currentEmail = "currentEmail"; // Placeholder for current user's email
-            DriverDTO driver = driverService.updateDriverDTO(id, request, currentEmail);
-            return ResponseEntity.ok(driver);
+            // DriverDTO driver = driverService.updateDriverDTO(id, request, currentEmail);
+            return ResponseEntity.ok("Deprecated");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

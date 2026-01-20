@@ -278,20 +278,20 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public DriverDTO updateDriverDTO(Long id, UpdateDriverDTO request, String currentEmail) {
+    public DriverDTO updateDriverDTO(Long id, UserProfileDTO request) {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Driver not found with id: " + id));
 
         // Verify current user has permission (simple check - email match)
-        if (!driver.getEmail().equals(currentEmail)) {
+        /*if (!driver.getEmail().equals(currentEmail)) {
             throw new RuntimeException("Unauthorized to update this driver");
-        }
+        }*/
 
         if (request.getName() != null) {
             driver.setName(request.getName());
         }
-        if (request.getLastName() != null) {
-            driver.setLastName(request.getLastName());
+        if (request.getSurname() != null) {
+            driver.setLastName(request.getSurname());
         }
         if (request.getPhoneNumber() != null) {
             driver.setPhoneNumber(request.getPhoneNumber());
@@ -304,13 +304,13 @@ public class DriverServiceImpl implements DriverService {
         if (driver.getVehicle() != null) {
             Vehicle vehicle = driver.getVehicle();
 
-            if (request.getLicensePlate() != null) {
+            if (request.getVehicleLicensePlate() != null) {
                 // Check if new license plate is unique
-                if (!vehicle.getLicensePlate().equals(request.getLicensePlate()) &&
-                        vehicleRepository.existsByLicensePlate(request.getLicensePlate())) {
-                    throw new RuntimeException("License plate already exists: " + request.getLicensePlate());
+                if (!vehicle.getLicensePlate().equals(request.getVehicleLicensePlate()) &&
+                        vehicleRepository.existsByLicensePlate(request.getVehicleLicensePlate())) {
+                    throw new RuntimeException("License plate already exists: " + request.getVehicleLicensePlate());
                 }
-                vehicle.setLicensePlate(request.getLicensePlate());
+                vehicle.setLicensePlate(request.getVehicleLicensePlate());
             }
 
             if (request.getVehicleMake() != null) {
@@ -324,16 +324,16 @@ public class DriverServiceImpl implements DriverService {
             }
             if (request.getVehicleType() != null) {
                 try {
-                    vehicle.setType(VehicleType.valueOf(request.getVehicleType().name()));
+                    vehicle.setType(VehicleType.valueOf(request.getVehicleType()));
                 } catch (IllegalArgumentException e) {
                     throw new RuntimeException("Invalid vehicle type: " + request.getVehicleType());
                 }
             }
-            if (request.getBabyFriendly() != null) {
-                vehicle.setBabyFriendly(request.getBabyFriendly());
+            if (request.getVehicleBabyFriendly() != null) {
+                vehicle.setBabyFriendly(request.getVehicleBabyFriendly());
             }
-            if (request.getPetFriendly() != null) {
-                vehicle.setPetFriendly(request.getPetFriendly());
+            if (request.getVehiclePetFriendly() != null) {
+                vehicle.setPetFriendly(request.getVehiclePetFriendly());
             }
 
             vehicleRepository.save(vehicle);
@@ -423,7 +423,13 @@ public class DriverServiceImpl implements DriverService {
 
         // Map vehicle if exists
         if (driver.getVehicle() != null) {
-            dto.setVehicle(mapVehicleToDTO(driver.getVehicle()));
+            dto.setVehicleMake(driver.getVehicle().getMake());
+            dto.setVehicleModel(driver.getVehicle().getModel());
+            dto.setVehicleType(driver.getVehicle().getType());
+            dto.setVehicleLicensePlate(driver.getVehicle().getLicensePlate());
+            dto.setVehicleColor(driver.getVehicle().getColor());
+            dto.setVehicleBabyFriendly(driver.getVehicle().isBabyFriendly());
+            dto.setVehiclePetFriendly(driver.getVehicle().isPetFriendly());
         }
 
         return dto;
@@ -442,7 +448,13 @@ public class DriverServiceImpl implements DriverService {
         // profile.setActive(driver.isActive());
 
         if (driver.getVehicle() != null) {
-            profile.setVehicle(mapVehicleToDTO(driver.getVehicle()));
+            profile.setVehicleLicensePlate(driver.getVehicle().getLicensePlate());
+            profile.setVehicleMake(driver.getVehicle().getMake());
+            profile.setVehicleModel(driver.getVehicle().getModel());
+            profile.setVehicleColor(driver.getVehicle().getColor());
+            profile.setVehicleType(driver.getVehicle().getType());
+            profile.setVehicleBabyFriendly(driver.getVehicle().isBabyFriendly());
+            profile.setVehiclePetFriendly(driver.getVehicle().isPetFriendly());
         }
 
         // TODO: Calculate actual values

@@ -1,19 +1,21 @@
 package com.backend.lavugio.service.user;
 
 import com.backend.lavugio.model.user.Account;
+import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AccountService {
     Account createAccount(Account account);
     Account updateAccount(Long id, Account account);
     void deleteAccount(Long id);
-    Optional<Account> getAccountById(Long id);
-    Optional<Account> getAccountByEmail(String email);
+    Account getAccountById(Long id);
+    Account getAccountByEmail(String email);
     List<Account> getAllAccounts();
     boolean accountExistsByEmail(String email);
-    Account changePassword(Long accountId, String newPassword);
-    Account updateProfilePhoto(Long accountId, String photoPath);
+    Account changePassword(Long accountId, String oldPassword, String newPassword);
+    Account updateProfilePhoto(Long accountId, MultipartFile file);
+    Resource getProfilePhoto(Long accountId);
     Account authenticate(String email, String password);
 }
