@@ -11,7 +11,6 @@ export class DriverForm {
   @Input() set initialData(data: any) {
     if (data) {
       this.email.set(data.email || '');
-      this.password.set(data.password || '');
       this.name.set(data.name || '');
       this.surname.set(data.surname || '');
       this.address.set(data.address || '');
@@ -27,7 +26,6 @@ export class DriverForm {
     return this.emailRegex.test(this.email());
   });
 
-  password = signal('');
   name = signal('');
   surname = signal('');
   address = signal('');
@@ -40,7 +38,6 @@ export class DriverForm {
     // Emit data whenever any signal changes
     effect(() => {
       this.email();
-      this.password();
       this.name();
       this.surname();
       this.address();
@@ -52,7 +49,6 @@ export class DriverForm {
   emitData() {
     this.dataChange.emit({
       email: this.email(),
-      password: this.password(),
       name: this.name(),
       surname: this.surname(),
       address: this.address(),
@@ -69,6 +65,6 @@ export class DriverForm {
   }
 
   isFormValid(): boolean {
-    return this.isEmailValid() && !!this.password() && !!this.name() && !!this.surname() && !!this.address() && !!this.phoneNumber();
+    return this.isEmailValid() && !!this.name() && !!this.surname() && !!this.address() && !!this.phoneNumber();
   }
 }

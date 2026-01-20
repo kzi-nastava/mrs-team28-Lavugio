@@ -13,6 +13,8 @@ import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
+import com.backend.lavugio.service.user.DriverRegistrationTokenService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +31,8 @@ public class DriverController {
 
     private RideService rideService;
     private RideDestinationService rideDestinationService;
+    @Autowired
+    private DriverRegistrationTokenService driverRegistrationTokenService;
 
     @Autowired
     public DriverController(RideService rideService, RideDestinationService rideDestinationService) {
@@ -41,12 +45,29 @@ public class DriverController {
     public ResponseEntity<?> registerDriver(@RequestBody DriverRegistrationDTO request) {
         try {
             DriverDTO driver = driverService.register(request);
+            driverRegistrationTokenService.sendActivationEmail(driver.getId(), driver.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("message", "Driver registered successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
+
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateDriver(@RequestBody DriverActivationRequestDTO request) {
+        try {
+            System.out.println("Activating driver activated");
+            driverRegistrationTokenService.activateDriver(request.getToken(), request.getPassword());
+            return ResponseEntity.ok().body(Map.of("Message", "Driver activated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /*@PostMapping("/validate-token")
+    public ResponseEntity<?> validateToken() {
+        //
+    }*/
 
     // ========== CRUD OPERATIONS ==========
     
