@@ -24,13 +24,10 @@ public class RideReportServiceImpl implements RideReportService {
 
     private final RideService rideService;
 
-    private final RegularUserService regularUserService;
-
     @Autowired
-    public RideReportServiceImpl(RideReportRepository rideReportRepository, RideService rideService,  RegularUserService regularUserService) {
+    public RideReportServiceImpl(RideReportRepository rideReportRepository, RideService rideService) {
         this.rideReportRepository = rideReportRepository;
         this.rideService = rideService;
-        this.regularUserService = regularUserService;
     }
 
     @Override

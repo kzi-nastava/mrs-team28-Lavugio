@@ -11,7 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FinishRideDTO {
-    private double finalPrice;
+    private Long rideId;
     private CoordinatesDTO finalDestination;
     private String endTime;
+    private boolean finishedEarly;
+    private Double distance;
 }
