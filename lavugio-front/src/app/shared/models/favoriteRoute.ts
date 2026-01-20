@@ -1,7 +1,7 @@
 import { TripDestination } from "./tripDestination";
 
 export interface FavoriteRoute {
-  id: string;
+  id: number;
   name: string;
   destinations: TripDestination[];
 }
