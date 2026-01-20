@@ -25,7 +25,7 @@ public interface DriverService {
     DriverDTO getDriverDTOByEmail(String email);
     List<DriverDTO> getAllDriversDTO();
     List<DriverDTO> getAvailableDriversDTO();
-    DriverDTO updateDriverDTO(Long id, UpdateDriverDTO request, String currentEmail);
+    DriverDTO updateDriverDTO(Long id, UserProfileDTO request);
 
     // Profile Management DTO
     DriverDTO getDriverProfile(String email);

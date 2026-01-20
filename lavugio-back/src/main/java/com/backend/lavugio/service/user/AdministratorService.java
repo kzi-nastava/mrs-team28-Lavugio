@@ -3,6 +3,7 @@ package com.backend.lavugio.service.user;
 import com.backend.lavugio.dto.user.AdministratorDTO;
 import com.backend.lavugio.dto.user.AdministratorRegistrationDTO;
 import com.backend.lavugio.dto.user.UpdateAdministratorDTO;
+import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.model.user.Administrator;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public interface AdministratorService {
     AdministratorDTO getAdministratorDTOById(Long id);
     AdministratorDTO getAdministratorDTOByEmail(String email);
     List<AdministratorDTO> getAllAdministratorsDTO();
-    AdministratorDTO updateAdministratorDTO(Long id, UpdateAdministratorDTO request);
+    AdministratorDTO updateAdministratorDTO(Long id, UserProfileDTO request);
 
     // Profile
     AdministratorDTO getAdministratorProfileDTO();

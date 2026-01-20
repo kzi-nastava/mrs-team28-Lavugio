@@ -2,7 +2,7 @@ package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.dto.user.AdministratorDTO;
 import com.backend.lavugio.dto.user.AdministratorRegistrationDTO;
-import com.backend.lavugio.dto.user.UpdateAdministratorDTO;
+import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.model.user.Administrator;
 import com.backend.lavugio.repository.user.AdministratorRepository;
 import com.backend.lavugio.service.user.AdministratorService;
@@ -118,7 +118,7 @@ public class AdministratorServiceImpl implements AdministratorService {
     }
 
     @Override
-    public AdministratorDTO updateAdministratorDTO(Long id, UpdateAdministratorDTO request) {
+    public AdministratorDTO updateAdministratorDTO(Long id, UserProfileDTO request) {
         Administrator admin = administratorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrator not found with id: " + id));
 
@@ -126,8 +126,8 @@ public class AdministratorServiceImpl implements AdministratorService {
         if (request.getName() != null) {
             admin.setName(request.getName());
         }
-        if (request.getLastName() != null) {
-            admin.setLastName(request.getLastName());
+        if (request.getSurname() != null) {
+            admin.setLastName(request.getSurname());
         }
         if (request.getPhoneNumber() != null) {
             admin.setPhoneNumber(request.getPhoneNumber());

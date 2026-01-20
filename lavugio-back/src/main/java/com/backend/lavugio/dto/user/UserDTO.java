@@ -18,4 +18,5 @@ public class UserDTO {
     private String profilePhotoPath;
     private boolean blocked;
     private String blockReason;
+    private String role;
 }

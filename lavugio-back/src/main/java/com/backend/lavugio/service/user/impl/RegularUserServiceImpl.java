@@ -1,7 +1,7 @@
 package com.backend.lavugio.service.user.impl;
 
-import com.backend.lavugio.dto.user.UpdateUserDTO;
 import com.backend.lavugio.dto.user.UserDTO;
+import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.ride.Ride;
@@ -182,7 +182,7 @@ public class RegularUserServiceImpl implements RegularUserService {
     }
 
     @Override
-    public UserDTO updateRegularUser(Long id, UpdateUserDTO request) {
+    public UserDTO updateRegularUser(Long id, UserProfileDTO request) {
         RegularUser user = regularUserRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -190,8 +190,8 @@ public class RegularUserServiceImpl implements RegularUserService {
         if (request.getName() != null) {
             user.setName(request.getName());
         }
-        if (request.getLastName() != null) {
-            user.setLastName(request.getLastName());
+        if (request.getSurname() != null) {
+            user.setLastName(request.getSurname());
         }
         if (request.getPhoneNumber() != null) {
             user.setPhoneNumber(request.getPhoneNumber());
