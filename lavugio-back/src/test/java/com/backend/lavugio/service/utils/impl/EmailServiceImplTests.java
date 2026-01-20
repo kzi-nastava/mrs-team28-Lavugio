@@ -1,26 +1,15 @@
 package com.backend.lavugio.service.utils.impl;
 
+import com.backend.lavugio.service.utils.EmailService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest  // uključuje Spring kontekst
 class EmailServiceImplTest {
 
-    @Mock
-    private JavaMailSender mailSender;
-
-    @InjectMocks
-    private EmailServiceImpl emailService;
+    @Autowired
+    private EmailService emailService; // Spring će ubaciti mailSender
 
     @Test
     void sendRealEmail() {
@@ -28,6 +17,6 @@ class EmailServiceImplTest {
         String subject = "Integration Test Email";
         String body = "Hello, this is a test from integration test";
 
-        emailService.sendEmail(to, subject, body);
+        emailService.sendEmail(to, subject, body); // mailSender više nije null
     }
 }

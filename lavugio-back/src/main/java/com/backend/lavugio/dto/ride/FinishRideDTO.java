@@ -13,7 +13,6 @@ import lombok.Setter;
 public class FinishRideDTO {
     private Long rideId;
     private CoordinatesDTO finalDestination;
-    private String endTime;
     private boolean finishedEarly;
     private Double distance;
 }

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
@@ -51,6 +52,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
             throw new UnsupportedOperationException("Ride is finished early - not implemented yet");
         }
         ride.setRideStatus(RideStatus.FINISHED);
+        ride.setEndDateTime(LocalDateTime.now());
         sendEmailsToPassengers(ride.getPassengers(), ride.getId());
         sendNotificationsToPassengers(ride.getPassengers(), ride.getId());
     }
