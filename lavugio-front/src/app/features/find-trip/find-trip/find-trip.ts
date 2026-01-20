@@ -16,6 +16,7 @@ import { FavoriteRoutesDialog } from '../favorite-routes-dialog/favorite-routes-
 import { FavoriteRoute } from '@app/shared/models/favoriteRoute';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { DialogService } from '@app/core/services/dialog-service';
+import { FavoriteRouteService } from '@app/core/services/route/favorite-route-service';
 
 @Component({
   selector: 'app-find-trip',
@@ -62,7 +63,9 @@ export class FindTrip implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(public wizardState: WizardStateService, private dialogService: DialogService) {}
+  constructor(public wizardState: WizardStateService,
+      private dialogService: DialogService,
+      private favoriteRouteService: FavoriteRouteService) {}
 
   ngOnInit() {
     this.totalSteps = this.wizardState.getTotalSteps();
@@ -227,6 +230,10 @@ export class FindTrip implements OnInit, OnDestroy {
     },
   ];
 
+  getFavoriteRouites() {
+
+  }
+
   enableMapPickMode() {
     this.isMapPickMode = true;
   }
@@ -270,7 +277,6 @@ export class FindTrip implements OnInit, OnDestroy {
 
   saveFavoriteRoute() {
     if (this.destinations.length < 2) {
-      // OVDE POZIVAŠ SVOJ POSTOJEĆI ERROR MODAL
       this.dialogService.open('Cannot save route', 'Please add at least two destinations to save a favorite route.', true);
       return;
     }
@@ -285,8 +291,7 @@ export class FindTrip implements OnInit, OnDestroy {
       destinations: this.destinations,
     };
     
-    // TODO:
-    // this.yourService.saveFavoriteRoute(favoriteRoutePayload).subscribe(...)
+    this.favoriteRouteService.
     this.dialogService.open('Route saved', 'Your favorite route has been saved successfully.', false);
 
     this.favoriteRouteName = '';

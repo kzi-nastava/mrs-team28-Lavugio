@@ -17,8 +17,12 @@ public class FavoriteRouteController {
     @Autowired
     private FavoriteRouteService favoriteRouteService;
 
+    // FOR TESTING
+    final private Long accountID = 1L;
+
     @PostMapping("/add")
     public ResponseEntity<?> createFavoriteRoute(@RequestBody FavoriteRouteDTO request) {
+        // Authentication auth
         try {
             FavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(favorite);
