@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewFavoriteRouteDTO {
+    private Long id;
     private String name;;
     private List<FavoriteRouteDestinationDTO> destinations;
 }

@@ -1,4 +1,4 @@
-import { Component, effect, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
@@ -64,9 +64,12 @@ export class FindTrip implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(public wizardState: WizardStateService,
-      private dialogService: DialogService,
-      private favoriteRouteService: FavoriteRouteService) {}
+  constructor(
+    public wizardState: WizardStateService,
+    private dialogService: DialogService,
+    private favoriteRouteService: FavoriteRouteService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit() {
     this.totalSteps = this.wizardState.getTotalSteps();
@@ -126,8 +129,8 @@ export class FindTrip implements OnInit, OnDestroy {
         index === 0
           ? MarkerIcons.start
           : index === this.destinations.length - 1
-          ? MarkerIcons.end
-          : MarkerIcons.checkpoint;
+            ? MarkerIcons.end
+            : MarkerIcons.checkpoint;
 
       this.map.addMarker(d.coordinates, icon);
     });
@@ -218,8 +221,42 @@ export class FindTrip implements OnInit, OnDestroy {
 
   favoriteRoutes: FavoriteRoute[] = [];
 
-  getFavoriteRouites() {
+  getFavoriteRoutes() {
+    this.favoriteRouteService.getFavoriteRoutes().subscribe({
+      next: (response) => {
+        this.favoriteRoutes = response;
+      },
+      error: (err) => {
+        this.dialogService.open('Loading Favorite Routes Failed', err.error.message, true);
+      },
+    });
+  }
 
+  private generateDisplayName(destination: {
+    street?: string;
+    houseNumber?: string;
+    city?: string;
+    country?: string;
+  }): string {
+    let displayName = '';
+
+    if (destination.street) {
+      displayName = destination.street;
+
+      if (destination.houseNumber) {
+        displayName += ' ' + destination.houseNumber;
+      }
+
+      if (destination.city) {
+        displayName += ', ' + destination.city;
+      }
+    } else if (destination.city) {
+      displayName = destination.city;
+    } else {
+      displayName = 'Unknown location';
+    }
+
+    return displayName;
   }
 
   enableMapPickMode() {
@@ -241,7 +278,22 @@ export class FindTrip implements OnInit, OnDestroy {
   }
 
   openFavorites() {
-    this.showFavoritesDialog = true;
+    this.favoriteRouteService.getFavoriteRoutes().subscribe({
+      next: (response) => {
+        this.favoriteRoutes = response.map((route: FavoriteRoute) => ({
+          ...route,
+          destinations: route.destinations.map((d) => ({
+            ...d,
+            name: this.generateDisplayName(d),
+          })),
+        }));
+        this.showFavoritesDialog = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.dialogService.open('Loading Favorite Routes Failed', err.error.message, true);
+      },
+    });
   }
 
   closeFavorites() {
@@ -251,7 +303,7 @@ export class FindTrip implements OnInit, OnDestroy {
   applyFavoriteRoute(route: FavoriteRoute) {
     this.destinations = route.destinations.map((d) => ({
       id: crypto.randomUUID(),
-      name: d.name,
+      name: this.generateDisplayName(d),
       street: d.street,
       houseNumber: d.houseNumber,
       city: d.city,
@@ -269,12 +321,20 @@ export class FindTrip implements OnInit, OnDestroy {
 
   saveFavoriteRoute() {
     if (this.destinations.length < 2) {
-      this.dialogService.open('Cannot save route', 'Please add at least two destinations to save a favorite route.', true);
+      this.dialogService.open(
+        'Cannot save route',
+        'Please add at least two destinations to save a favorite route.',
+        true,
+      );
       return;
     }
 
     if (!this.favoriteRouteName.trim()) {
-      this.dialogService.open('Cannot save route', 'Please enter a name for the favorite route.', true);
+      this.dialogService.open(
+        'Cannot save route',
+        'Please enter a name for the favorite route.',
+        true,
+      );
       return;
     }
 
@@ -282,17 +342,22 @@ export class FindTrip implements OnInit, OnDestroy {
       name: this.favoriteRouteName,
       destinations: this.destinations,
     };
-    
+
     this.favoriteRouteService.saveFavoriteRoute(newFavoriteRoute).subscribe({
       next: (respond) => {
-        this.dialogService.open('Route saved', 'Your favorite route has been saved successfully.', false);
-        this.favoriteRouteName = '';
+        this.dialogService.open(
+          'Route saved',
+          'Your favorite route has been saved successfully.',
+          false,
+        );
+        setTimeout(() => {
+          this.favoriteRouteName = '';
+        });
       },
       error: (err) => {
-        this.dialogService.open("Adding Favorite Route Failed", err.error.message, true);
-      }
+        this.dialogService.open('Adding Favorite Route Failed', err.error.message, true);
+      },
     });
-
   }
 
   isFirstStep(): boolean {

@@ -15,4 +15,8 @@ export class FavoriteRouteService {
   saveFavoriteRoute(favoriteRoute: NewFavoriteRouteRequest): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/favorite-routes/add`, favoriteRoute);
   }
+
+  getFavoriteRoutes(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/favorite-routes`);
+  }
 }

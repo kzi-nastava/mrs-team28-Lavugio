@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.route.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.route.DestinationDTO;
 import com.backend.lavugio.dto.route.NewFavoriteRouteDTO;
 import com.backend.lavugio.dto.route.FavoriteRouteDestinationDTO;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -293,16 +295,15 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     // Helper method to map entity to DTO
     private NewFavoriteRouteDTO mapToDTO(FavoriteRoute favoriteRoute) {
         NewFavoriteRouteDTO dto = new NewFavoriteRouteDTO();
-        /*dto.set(favoriteRoute.getId());
+        dto.setId(favoriteRoute.getId());
         dto.setName(favoriteRoute.getName());
-        dto.setUserId(favoriteRoute.getUser().getId());
-        dto.setUserName(favoriteRoute.getUser().getName() + " " + favoriteRoute.getUser().getLastName());*/
 
         // Get destinations
         List<FavoriteRouteDestination> destinations =
                 favoriteRouteDestinationRepository.findByFavoriteRouteId(favoriteRoute.getId());
 
         List<FavoriteRouteDestinationDTO> destinationDTOs = destinations.stream()
+                .sorted(Comparator.comparing(FavoriteRouteDestination::getDestinationOrder))
                 .map(this::mapDestinationToDTO)
                 .collect(Collectors.toList());
 
@@ -312,18 +313,13 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
 
     private FavoriteRouteDestinationDTO mapDestinationToDTO(FavoriteRouteDestination destination) {
         FavoriteRouteDestinationDTO dto = new FavoriteRouteDestinationDTO();
-        /*dto.setId(destination.getId());
 
         Address address = destination.getAddress();
-        dto.setAddressId(address.getId());
-        dto.setStreetName(address.getStreetName());
+        dto.setStreet(address.getStreetName());
+        dto.setHouseNumber(address.getStreetNumber());
         dto.setCity(address.getCity());
         dto.setCountry(address.getCountry());
-        dto.setStreetNumber(address.getStreetNumber());
-        dto.setZipCode(address.getZipCode());
-        dto.setLongitude(address.getLongitude());
-        dto.setLatitude(address.getLatitude());
-        dto.setDestinationOrder(destination.getDestinationOrder());*/
+        dto.setCoordinates(new CoordinatesDTO(address.getLatitude(), address.getLongitude()));
 
         return dto;
     }

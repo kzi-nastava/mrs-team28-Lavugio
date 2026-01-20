@@ -36,6 +36,19 @@ public class FavoriteRouteController {
 
     // ========== READ ==========
 
+    @GetMapping("")
+    public ResponseEntity<?> getFavoriteRoutes() {
+        // Authentication auth
+        System.out.println("Getting favorite routes for user: " + accountID);
+        try {
+            List<NewFavoriteRouteDTO> response = favoriteRouteService.getFavoriteRoutesDTOByUser(accountID);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getFavoriteRoute(@PathVariable Long id) {
         try {
