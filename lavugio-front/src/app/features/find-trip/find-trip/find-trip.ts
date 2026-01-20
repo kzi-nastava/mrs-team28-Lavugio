@@ -99,6 +99,10 @@ export class FindTrip implements OnInit, OnDestroy {
     const newDestination: TripDestination = {
       id: geocodeResult.place_id?.toString() || crypto.randomUUID(),
       name: geocodeResult.display_name,
+      street: geocodeResult.street || '',
+      houseNumber: geocodeResult.streetNumber || '',
+      city: geocodeResult.city || '',
+      country: geocodeResult.country || '',
       coordinates: {
         latitude: Number(geocodeResult.lat),
         longitude: Number(geocodeResult.lon),
@@ -212,24 +216,7 @@ export class FindTrip implements OnInit, OnDestroy {
 
   showFavoritesDialog = false;
 
-  favoriteRoutes: FavoriteRoute[] = [
-    {
-      id: '1',
-      name: 'Home → Work',
-      destinations: [
-        {
-          id: 'home',
-          name: 'Home aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
-          coordinates: { latitude: 45.1, longitude: 19.8 },
-        },
-        {
-          id: 'work',
-          name: 'Work aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
-          coordinates: { latitude: 45.2, longitude: 19.9 },
-        },
-      ],
-    },
-  ];
+  favoriteRoutes: FavoriteRoute[] = [];
 
   getFavoriteRouites() {
 
@@ -265,6 +252,10 @@ export class FindTrip implements OnInit, OnDestroy {
     this.destinations = route.destinations.map((d) => ({
       id: crypto.randomUUID(),
       name: d.name,
+      street: d.street,
+      houseNumber: d.houseNumber,
+      city: d.city,
+      country: d.country,
       coordinates: {
         latitude: d.coordinates.latitude,
         longitude: d.coordinates.longitude,
@@ -295,13 +286,13 @@ export class FindTrip implements OnInit, OnDestroy {
     this.favoriteRouteService.saveFavoriteRoute(newFavoriteRoute).subscribe({
       next: (respond) => {
         this.dialogService.open('Route saved', 'Your favorite route has been saved successfully.', false);
+        this.favoriteRouteName = '';
       },
       error: (err) => {
-        this.dialogService.open("Adding FavoriteRoute Failed", err.error.message, true);
+        this.dialogService.open("Adding Favorite Route Failed", err.error.message, true);
       }
     });
 
-    this.favoriteRouteName = '';
   }
 
   isFirstStep(): boolean {

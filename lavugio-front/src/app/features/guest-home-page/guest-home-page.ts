@@ -87,6 +87,10 @@ export class GuestHomePage implements AfterViewInit{
     const newDestination: TripDestination = {
       id: geocodeResult.place_id?.toString() || crypto.randomUUID(),
       name: geocodeResult.display_name,
+      street: geocodeResult.street || '',
+      houseNumber: geocodeResult.streetNumber || '',
+      city: geocodeResult.city || '',
+      country: geocodeResult.country || '',
       coordinates: {
         latitude: Number(geocodeResult.lat),
         longitude: Number(geocodeResult.lon),

@@ -28,8 +28,8 @@ public interface FavoriteRouteService {
     List<NewFavoriteRouteDTO> getFavoriteRoutesDTOByUser(Long userId);
     List<NewFavoriteRouteDTO> getAllFavoriteRoutesDTO();
 
-    // UPDATE
-    NewFavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request);
+    // UPDATE - NOT NEEDED
+    //NewFavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request);
 
     // DELETE
     void deleteFavoriteRoute(Long id);

@@ -156,23 +156,18 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
 
         FavoriteRoute savedRoute = favoriteRouteRepository.save(favoriteRoute);
 
-        // Create destinations
         for (int i = 0; i < request.getDestinations().size(); i++) {
             FavoriteRouteDestinationDTO destDto = request.getDestinations().get(i);
 
-            // Create or find address
             Address address = new Address();
-            address.setStreetName(destDto.getStreetName());
+            address.setStreetName(destDto.getStreet());
             address.setCity(destDto.getCity());
             address.setCountry(destDto.getCountry());
-            address.setStreetNumber(destDto.getStreetNumber());
-            address.setZipCode(destDto.getZipCode());
-            address.setLongitude(destDto.getLongitude());
-            address.setLatitude(destDto.getLatitude());
-
+            address.setStreetNumber(destDto.getHouseNumber());
+            address.setLongitude(destDto.getCoordinates().getLongitude());
+            address.setLatitude(destDto.getCoordinates().getLatitude());
             Address savedAddress = addressRepository.save(address);
 
-            // Create destination
             FavoriteRouteDestination destination = new FavoriteRouteDestination();
             destination.setFavoriteRoute(savedRoute);
             destination.setAddress(savedAddress);
@@ -180,7 +175,6 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
 
             favoriteRouteDestinationRepository.save(destination);
         }
-
         return mapToDTO(savedRoute);
     }
 
@@ -212,7 +206,8 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+    // DEPRECATED - NO FAVORITE ROUTE UPDATE
+    /*@Override
     public NewFavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request) {
         FavoriteRoute favoriteRoute = favoriteRouteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Favorite route not found with id: " + id));
@@ -257,7 +252,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
 
         FavoriteRoute updatedRoute = favoriteRouteRepository.save(favoriteRoute);
         return mapToDTO(updatedRoute);
-    }
+    }*/
 
     @Override
     public void deleteFavoriteRoute(Long id) {
@@ -298,10 +293,10 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     // Helper method to map entity to DTO
     private NewFavoriteRouteDTO mapToDTO(FavoriteRoute favoriteRoute) {
         NewFavoriteRouteDTO dto = new NewFavoriteRouteDTO();
-        dto.setId(favoriteRoute.getId());
+        /*dto.set(favoriteRoute.getId());
         dto.setName(favoriteRoute.getName());
         dto.setUserId(favoriteRoute.getUser().getId());
-        dto.setUserName(favoriteRoute.getUser().getName() + " " + favoriteRoute.getUser().getLastName());
+        dto.setUserName(favoriteRoute.getUser().getName() + " " + favoriteRoute.getUser().getLastName());*/
 
         // Get destinations
         List<FavoriteRouteDestination> destinations =
@@ -317,7 +312,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
 
     private FavoriteRouteDestinationDTO mapDestinationToDTO(FavoriteRouteDestination destination) {
         FavoriteRouteDestinationDTO dto = new FavoriteRouteDestinationDTO();
-        dto.setId(destination.getId());
+        /*dto.setId(destination.getId());
 
         Address address = destination.getAddress();
         dto.setAddressId(address.getId());
@@ -328,7 +323,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
         dto.setZipCode(address.getZipCode());
         dto.setLongitude(address.getLongitude());
         dto.setLatitude(address.getLatitude());
-        dto.setDestinationOrder(destination.getDestinationOrder());
+        dto.setDestinationOrder(destination.getDestinationOrder());*/
 
         return dto;
     }

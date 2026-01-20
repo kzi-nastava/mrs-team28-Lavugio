@@ -19,15 +19,17 @@ public class FavoriteRouteController {
     private FavoriteRouteService favoriteRouteService;
 
     // FOR TESTING
-    final private Long accountID = 1L;
+    final private Long accountID = 2L;
 
     @PostMapping("/add")
     public ResponseEntity<?> createFavoriteRoute(@RequestBody NewFavoriteRouteDTO request) {
         // Authentication auth
+        System.out.println("Adding favorite route");
         try {
             NewFavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(accountID, request);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
@@ -65,14 +67,14 @@ public class FavoriteRouteController {
     }
 
     // ========== UPDATE ==========
-
+    // DEPRECATED
     @PutMapping("/{id}")
     public ResponseEntity<?> updateFavoriteRoute(
             @PathVariable Long id,
             @RequestBody UpdateFavoriteRouteDTO request) {
         try {
-            NewFavoriteRouteDTO updated = favoriteRouteService.updateFavoriteRouteDTO(id, request);
-            return ResponseEntity.ok(updated);
+            //NewFavoriteRouteDTO updated = favoriteRouteService.updateFavoriteRouteDTO(id, request);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
