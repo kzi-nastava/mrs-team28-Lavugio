@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, effect, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
@@ -18,6 +18,7 @@ import { Coordinates } from '@app/shared/models/coordinates';
 import { DialogService } from '@app/core/services/dialog-service';
 import { FavoriteRouteService } from '@app/core/services/route/favorite-route-service';
 import { NewFavoriteRouteRequest } from '@app/shared/models/route/newFavoriteRouteRequest';
+import { RideScheduleData } from '../schedule-ride-dialog/schedule-ride-dialog';
 
 @Component({
   selector: 'app-find-trip',
@@ -46,6 +47,8 @@ export class FindTrip implements OnInit, OnDestroy {
   isMapPickMode = false;
 
   destinations: TripDestination[] = [];
+
+  scheduleData = signal<RideScheduleData | null>(null);
 
   currentStep = 0;
   totalSteps = 0;
@@ -171,6 +174,18 @@ export class FindTrip implements OnInit, OnDestroy {
     this.isBabyFriendly = preferences.isBabyFriendly;
   }
 
+  openScheduleDialog() {
+  this.dialogService.openScheduleRide().subscribe({
+    next: (result) => {
+      console.log('Schedule data:', result);
+      this.scheduleData.set(result);
+    },
+    complete: () => {
+      console.log('Modal closed');
+    }
+  });
+}
+
   onFinish() {
     this.saveCurrentStepData();
     console.log('Trip submitted with:', {
@@ -182,7 +197,8 @@ export class FindTrip implements OnInit, OnDestroy {
         isBabyFriendly: this.isBabyFriendly,
       },
     });
-    // Handle trip submission here
+    this.openScheduleDialog();
+    
   }
 
   onNext() {

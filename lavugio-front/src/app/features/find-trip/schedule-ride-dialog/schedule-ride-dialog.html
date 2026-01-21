@@ -1,0 +1,65 @@
+<div
+  class="fixed inset-0 z-[9999] flex items-center justify-center"
+  style="background: rgba(0, 0, 0, 0.45)"
+>
+  <div class="bg-white rounded-lg shadow-xl w-[90%] max-w-lg p-5">
+    <!-- Title -->
+    <h2 class="text-xl font-bold text-[#606C38] mb-4 text-center">Schedule Ride</h2>
+
+    <!-- Radio buttons -->
+    <div class="flex gap-6 mb-4 justify-center">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          name="rideType"
+          [checked]="!isScheduled()"
+          (change)="selectRideNow()"
+          class="w-5 h-5 cursor-pointer accent-[#606C38]"
+        />
+        <span class="text-base font-medium text-[#606C38] select-none">Ride Now</span>
+      </label>
+
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          name="rideType"
+          [checked]="isScheduled()"
+          (change)="selectScheduleRide()"
+          class="w-5 h-5 cursor-pointer accent-[#606C38]"
+        />
+        <span class="text-base font-medium text-[#606C38] select-none">Schedule Ride</span>
+      </label>
+    </div>
+
+    <!-- Time Picker -->
+    <div class="mb-6 w-full">
+      <input
+        type="time"
+        [value]="selectedTime()"
+        (input)="selectedTime.set($any($event.target).value)"
+        [disabled]="!isScheduled()"
+        [min]="minTime()"
+        [max]="maxTime()"
+        class="w-full p-3 text-base text-center border-2 border-[#606C38] rounded-md bg-white cursor-pointer transition-colors hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
+      />
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-3 justify-center">
+      <button
+        (click)="onCancel()"
+        class="px-5 py-2 border border-[#606C38] text-[#606C38] rounded-md hover:bg-[#606C38] hover:text-white transition-colors"
+      >
+        Cancel
+      </button>
+
+      <button
+        (click)="onSchedule()"
+        [disabled]="!isValid()"
+        class="px-5 py-2 bg-[#606C38] text-white rounded-md disabled:opacity-50 hover:bg-[#505a30] transition-colors disabled:hover:bg-[#606C38]"
+      >
+        Schedule
+      </button>
+    </div>
+  </div>
+</div>
