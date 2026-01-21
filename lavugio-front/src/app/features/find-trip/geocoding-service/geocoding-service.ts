@@ -1,6 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
+import { Coordinates } from '@app/shared/models/coordinates';
+import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 
 export interface GeocodeResult {
   place_id?: number;
@@ -46,6 +48,9 @@ export class GeocodingService {
   private photonUrl = 'https://photon.komoot.io/api/';
   private photonReverseUrl = 'https://photon.komoot.io/reverse';
 
+  // OSRM - Open Source Routing Machine for route estimation
+  private osrmUrl = 'https://router.project-osrm.org/route/v1/driving/';
+
   constructor(private http: HttpClient) {}
 
   searchLocations(query: string): Observable<GeocodeResult[]> {
@@ -63,6 +68,34 @@ export class GeocodingService {
       catchError((error) => {
         console.error('Geocoding error:', error);
         return of([]);
+      }),
+    );
+  }
+
+  reverseGeocode(lat: number, lon: number): Observable<GeocodeResult | null> {
+    const params = {
+      lat: lat.toString(),
+      lon: lon.toString(),
+      limit: '1',
+    };
+
+    return this.http.get<PhotonResponse>(this.photonReverseUrl, { params }).pipe(
+      map((response) => {
+        if (!response.features || response.features.length === 0) {
+          return null;
+        }
+
+        const result = this.transformPhotonResults(response)[0];
+
+        if (!result.display_name || result.display_name.trim() === '') {
+          result.display_name = `Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
+        }
+
+        return result;
+      }),
+      catchError((error) => {
+        console.error('Reverse geocoding error:', error);
+        return of(null);
       }),
     );
   }
@@ -107,31 +140,57 @@ export class GeocodingService {
     });
   }
 
-  reverseGeocode(lat: number, lon: number): Observable<GeocodeResult | null> {
+  /**
+   * Return distance in meters and duration in seconds for provided array
+   * of coordinates
+   * @param coordinates - array of Coordinate class
+   * @returns RouteEstimateInfo
+   */
+  getRouteInfo(coordinates: Array<Coordinates>): Observable<RouteEstimateInfo | null> {
+    if (!coordinates || coordinates.length < 2) {
+      return of(null);
+    }
+
+    // Format for OSRM: lon,lat;lon,lat;lon,lat;lon,lat;...
+    const coordString = coordinates
+      .map((coord) => `${coord.longitude},${coord.latitude}`)
+      .join(';');
+
+    const urlToHit = `${this.osrmUrl}${coordString}`;
+
     const params = {
-      lat: lat.toString(),
-      lon: lon.toString(),
-      limit: '1',
+      overview: 'full',
+      geometries: 'geojson',
     };
 
-    return this.http.get<PhotonResponse>(this.photonReverseUrl, { params }).pipe(
+    return this.http.get<any>(urlToHit, { params }).pipe(
       map((response) => {
-        if (!response.features || response.features.length === 0) {
+        if (!response.routes || response.routes.lenght === 0) {
           return null;
         }
 
-        const result = this.transformPhotonResults(response)[0];
-
-        if (!result.display_name || result.display_name.trim() === '') {
-          result.display_name = `Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
-        }
-
-        return result;
+        const route = response.routes[0];
+        return {
+          distanceMeters: route.distance,
+          durationSeconds: route.duration,
+        };
       }),
       catchError((error) => {
-        console.error('Reverse geocoding error:', error);
+        console.error('Routing error:', error);
         return of(null);
       }),
     );
+  }
+
+  /**
+   * Helper to format route info into user-friendly strings
+   * @param info - RouteEstimateInfo object
+   * @returns Object with distance in km and duration in min as strings
+   */
+  formatRouteInfo(info: RouteEstimateInfo): { distanceKm: string; durationMin: string } {
+    return {
+      distanceKm: (info.distanceMeters / 1000).toFixed(2),
+      durationMin: Math.ceil(info.durationSeconds / 60).toString(),
+    };
   }
 }

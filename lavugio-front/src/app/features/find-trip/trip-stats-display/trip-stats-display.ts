@@ -15,12 +15,17 @@ export interface TripStat {
 export class TripStatsDisplay {
   @Input() distance: string = '0km';
   @Input() estimatedTime: string = '0min';
-  @Input() price: string = '0RSD';
+  @Input() price: string = '0 RSD';
   @Input() showPrice: boolean = true;
 
   ngOnChanges(changes: SimpleChanges) {
     // This runs whenever any @Input changes
     // Add call to the endpoint
+    if (this.distance === '' || this.estimatedTime === '' || this.price === '') {
+      this.price = '0 RSD';
+      this.distance = '0km';
+      this.estimatedTime = '0min';
+    }
     console.log('Trip stats updated:', {
       distance: this.distance,
       time: this.estimatedTime,

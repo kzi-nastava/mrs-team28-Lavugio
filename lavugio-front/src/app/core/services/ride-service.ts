@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RideOverviewModel } from '@app/shared/models/rideOverview';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 import { RideOverviewUpdate } from '@app/shared/models/rideOverviewUpdate';
 import { Client, Stomp } from '@stomp/stompjs';
@@ -11,6 +11,8 @@ import { environment } from 'environments/environment';
 import { RideReport } from '@app/shared/models/rideReport';
 import { RideReview } from '@app/shared/models/rideReview';
 import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
+import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
+import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 @Injectable({
   providedIn: 'root',
 })
@@ -22,7 +24,6 @@ export class RideService {
 
   constructor() {}
 
-
   getRideOverview(rideId: number): Observable<RideOverviewModel> {
     return this.http.get<RideOverviewModel>(`${this.mainPortUrl}/${rideId}/overview`);
   }
@@ -31,19 +32,19 @@ export class RideService {
     return this.http.get<RideOverviewModel>(`${this.mainPortUrl}/${rideId}/overview/updated`);
   }
 
-  initializeWebSocketConnection(){
+  initializeWebSocketConnection() {
     let ws = new SockJS(this.socketUrl);
     this.client = new Client({
       webSocketFactory: () => ws,
       reconnectDelay: 5000,
-    })
+    });
   }
 
-  listenToRideUpdates(rideId: number): Observable<RideOverviewUpdate>{
-    if(!this.client){
+  listenToRideUpdates(rideId: number): Observable<RideOverviewUpdate> {
+    if (!this.client) {
       this.initializeWebSocketConnection();
     }
-    return new Observable<RideOverviewUpdate>(observer => {
+    return new Observable<RideOverviewUpdate>((observer) => {
       this.client!.onConnect = () => {
         this.client!.subscribe(`/socket-publisher/rides/${rideId}/update`, (message) => {
           let rideUpdate: RideOverviewUpdate = JSON.parse(message.body);
@@ -54,16 +55,20 @@ export class RideService {
     });
   }
 
-  postRideReport(rideId: number, report: RideReport): Observable<RideReport>{
+  postRideReport(rideId: number, report: RideReport): Observable<RideReport> {
     return this.http.post<RideReport>(`${this.mainPortUrl}/report`, report);
   }
 
   postRideReview(rideId: number, review: RideReview): Observable<RideReview> {
-    return this.http.post<RideReview>(`${this.mainPortUrl}/${rideId}/review`, review)
-}
-  closeConnection(){
-    if(this.client){
+    return this.http.post<RideReview>(`${this.mainPortUrl}/${rideId}/review`, review);
+  }
+  closeConnection() {
+    if (this.client) {
       this.client.deactivate();
     }
+  }
+
+  getPriceForRide(routeInfo: RideEstimateRequest): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/estimate-price`, routeInfo);
   }
 }

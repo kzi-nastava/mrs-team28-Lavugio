@@ -90,9 +90,8 @@
                 isPetFriendly: isPetFriendly,
                 isBabyFriendly: isBabyFriendly
               }"
-              [distance]="tripDistance"
-              [estimatedTime]="tripEstimatedTime"
-              [price]="tripPrice"
+              [estimateRouteInfo]="rideEstimate()"
+              [ridePrice]="ridePrice()"
               (destinationRemoved)="onDestinationRemoved($event)"
               (passengerRemoved)="onPassengerRemoved($event)"
               (canFinishChange)="onCanFinishChange($event)"

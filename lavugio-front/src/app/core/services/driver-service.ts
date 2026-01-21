@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
 import { Observable } from 'rxjs';
 import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DriverService {
-  private mainPortUrl = 'http://localhost:8080/api/drivers';
+  private mainPortUrl = environment.BACKEND_URL + 'api/drivers';
 
   http = inject(HttpClient);
   getDriverLocations(): Observable<DriverMarkerLocation[]> {
