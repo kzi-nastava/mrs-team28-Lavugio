@@ -22,6 +22,7 @@ import { RideScheduleData } from '../schedule-ride-dialog/schedule-ride-dialog';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideService } from '@app/core/services/ride-service';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
+import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
 
 @Component({
   selector: 'app-find-trip',
@@ -200,7 +201,19 @@ export class FindTrip implements OnInit, OnDestroy {
     next: (result) => {
       console.log('Schedule data:', result);
       this.scheduleData.set(result);
-      // DODAJ POZIV NA SERVIS
+      const scheduleRideRequest: ScheduleRideRequest = {
+        destinations: this.destinations,
+        vehicleType: this.selectedVehicleType,
+        isPetFriendly: this.isPetFriendly,
+        isBabyFriendly: this.isBabyFriendly,
+        isScheduled: result.isScheduled,
+        scheduledTime: result.scheduledTime ? result.scheduledTime.toISOString() : undefined,
+        passangers: this.passengers.map(p => p.email),
+        estimatedTimeMinutes: (this.rideEstimate()?.durationSeconds ?? 0) / 60,
+        estimatedDistanceKm: (this.rideEstimate()?.distanceMeters ?? 0) / 1000,
+        price: this.ridePrice(),
+      };
+      this.rideService.scheduleRide(scheduleRideRequest);
     },
     complete: () => {
       console.log('Modal closed');

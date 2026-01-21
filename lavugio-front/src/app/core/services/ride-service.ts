@@ -13,6 +13,7 @@ import { RideReview } from '@app/shared/models/rideReview';
 import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
+import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
 @Injectable({
   providedIn: 'root',
 })
@@ -71,4 +72,8 @@ export class RideService {
   getPriceForRide(routeInfo: RideEstimateRequest): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/estimate-price`, routeInfo);
   }
-}
+
+  scheduleRide(scheduleRideRequest: ScheduleRideRequest): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/schedule`, scheduleRideRequest);
+  }
+ }
