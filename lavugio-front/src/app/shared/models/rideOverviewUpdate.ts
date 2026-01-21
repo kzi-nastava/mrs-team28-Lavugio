@@ -5,6 +5,6 @@ export interface RideOverviewUpdate{
     destinationCoordinates?: Coordinates;
     departureTime?: Date;
     arrivalTime?: Date;
-    status?: "scheduled" | "active" | "finished" | "cancelled" | "denied";
+    status?: "SCHEDULED" | "ACTIVE" | "FINISHED" | "CANCELLED" | "DENIED";
     price?: number;
 }

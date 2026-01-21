@@ -5,7 +5,7 @@ import com.backend.lavugio.model.ride.Review;
 import java.util.List;
 
 public interface ReviewService {
-    Review createReview(Long rideId, RideReviewDTO review);
+    Review createReview(Long rideId, Long userId, RideReviewDTO review);
     Review getReviewById(Long id);
     List<Review> getAllReviews();
     List<Review> getReviewsByRideId(Long rideId);
@@ -15,4 +15,5 @@ public interface ReviewService {
     Double getAverageCarRating(Long driverId);
     Review updateReview(Long id, Review review);
     void deleteReview(Long id);
+    boolean hasReviewed(Long userId, Long rideId);
 }

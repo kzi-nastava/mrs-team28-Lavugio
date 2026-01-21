@@ -4,11 +4,13 @@ import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +26,21 @@ import java.util.NoSuchElementException;
 @Transactional(readOnly = true)
 public class RideServiceImpl implements RideService {
 
-    @Autowired
     private final RideRepository rideRepository;
-    @Autowired
     private final RegularUserRepository regularUserRepository;
-    @Autowired
     private final DriverService driverService;
+    private final RideDestinationService rideDestinationService;
+
+    @Autowired
+    public RideServiceImpl(RideRepository rideRepository,
+                           DriverService driverService,
+                           RegularUserRepository regularUserRepository,
+                           RideDestinationService rideDestinationService) {
+        this.rideRepository = rideRepository;
+        this.driverService = driverService;
+        this.regularUserRepository = regularUserRepository;
+        this.rideDestinationService = rideDestinationService;
+    }
 
     @Override
     @Transactional
