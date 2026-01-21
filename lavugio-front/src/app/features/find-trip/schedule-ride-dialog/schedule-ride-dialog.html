@@ -2,7 +2,7 @@
   class="fixed inset-0 z-[9999] flex items-center justify-center"
   style="background: rgba(0, 0, 0, 0.45)"
 >
-  <div class="bg-white rounded-lg shadow-xl w-[90%] max-w-lg p-5">
+  <div class="bg-white rounded-lg shadow-xl w-[90%] max-w-lg p-5 border border-[#606C38] border-4">
     <!-- Title -->
     <h2 class="text-xl font-bold text-[#606C38] mb-4 text-center">Schedule Ride</h2>
 
@@ -42,6 +42,9 @@
         [max]="maxTime()"
         class="w-full p-3 text-base text-center border-2 border-[#606C38] rounded-md bg-white cursor-pointer transition-colors hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
       />
+      <div class="mt-2 text-sm text-[#606C38] text-center">
+        <p>Ride can be scheduled up to 5 hours in advance.</p>
+      </div>
     </div>
 
     <!-- Action Buttons -->

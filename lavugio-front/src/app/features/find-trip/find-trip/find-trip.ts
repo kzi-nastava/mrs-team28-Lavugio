@@ -6,7 +6,7 @@ import { DestinationSelector } from '../destination-selector/destination-selecto
 import { DestinationsDisplay } from '../destinations-display/destinations-display';
 import { Subject, takeUntil } from 'rxjs';
 import { WizardStateService } from '../wizard-state-service';
-import { GeocodeResult } from '../geocoding-service/geocoding-service';
+import { GeocodeResult, GeocodingService } from '../geocoding-service/geocoding-service';
 import { PreferencesSelect } from '../preferences-select/preferences-select';
 import { Passenger } from '../add-passanger-input/add-passanger-input';
 import { TripSummary } from '../trip-summary/trip-summary';
@@ -19,6 +19,8 @@ import { DialogService } from '@app/core/services/dialog-service';
 import { FavoriteRouteService } from '@app/core/services/route/favorite-route-service';
 import { NewFavoriteRouteRequest } from '@app/shared/models/route/newFavoriteRouteRequest';
 import { RideScheduleData } from '../schedule-ride-dialog/schedule-ride-dialog';
+import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
+import { RideService } from '@app/core/services/ride-service';
 
 @Component({
   selector: 'app-find-trip',
@@ -61,6 +63,8 @@ export class FindTrip implements OnInit, OnDestroy {
   canFinishTrip = false;
   favoriteRouteName: string = '';
 
+  rideEstimate = signal<RouteEstimateInfo | null>(null);
+
   tripDistance = '0km';
   tripEstimatedTime = '0min';
   tripPrice = '0$';
@@ -71,6 +75,8 @@ export class FindTrip implements OnInit, OnDestroy {
     public wizardState: WizardStateService,
     private dialogService: DialogService,
     private favoriteRouteService: FavoriteRouteService,
+    private geocodingService: GeocodingService,
+    private RideService: RideService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -149,15 +155,17 @@ export class FindTrip implements OnInit, OnDestroy {
   }
 
   onPassengerAdded(passenger: Passenger) {
-    console.log('FindTrip - onPassengerAdded:', passenger);
-    this.passengers = [...this.passengers, passenger];
-    console.log('FindTrip - passengers array:', this.passengers);
+    if (this.passengers.find((p) => p.email === passenger.email)) {
+      this.dialogService.open('Duplicate Passenger', 'This passenger has already been added.', true);
+      return;
+    } else {
+      passenger.email = passenger.email.toLocaleLowerCase();
+      this.passengers = [...this.passengers, passenger];
+    }
   }
 
   onPassengerRemoved(passengerId: string) {
-    console.log('FindTrip - onPassengerRemoved:', passengerId);
     this.passengers = this.passengers.filter((p) => p.id !== passengerId);
-    console.log('FindTrip - passengers array:', this.passengers);
   }
 
   onCanFinishChange(canFinish: boolean) {
@@ -179,6 +187,7 @@ export class FindTrip implements OnInit, OnDestroy {
     next: (result) => {
       console.log('Schedule data:', result);
       this.scheduleData.set(result);
+      // DODAJ POZIV NA SERVIS
     },
     complete: () => {
       console.log('Modal closed');
@@ -198,12 +207,61 @@ export class FindTrip implements OnInit, OnDestroy {
       },
     });
     this.openScheduleDialog();
-    
+  }
+
+  loadRideEstimate() {
+    if (this.destinations.length < 2) {
+      return;
+    }
+
+    const coordinates: Coordinates[] = this.destinations.map(d => d.coordinates);
+    this.geocodingService.getRouteInfo(coordinates).subscribe({
+      next: (routeInfo) => {
+        if (!routeInfo) {
+          console.error('Failed to get route info');
+          return;
+        }
+        const request = {
+          distance: routeInfo.distanceMeters,
+          vehicleType: this.selectedVehicleType
+        }
+        this.rideEstimate.set({
+          distanceMeters: routeInfo.distanceMeters,
+          durationSeconds: routeInfo.durationSeconds
+        })
+        /*this.rideService.calculatePrice(request).subscribe({
+          next: (priceResponse) => {
+            // 3. Postavi estimate sa svim podacima
+            this.rideEstimate.set({
+              distance: routeInfo.distance,
+              duration: routeInfo.duration,
+              distanceKm: (routeInfo.distance / 1000).toFixed(2),
+              durationMin: Math.ceil(routeInfo.duration / 60).toString(),
+              price: priceResponse.price,
+              routeGeometry: routeInfo.geometry
+            });
+
+            this.isLoadingEstimate.set(false);
+          },
+          error: (error) => {
+            console.error('Failed to calculate price:', error);
+            this.isLoadingEstimate.set(false);
+          }
+        });*/
+      },
+      error: (error) => {
+        console.error('Failed to get route info:', error);
+      }
+    });
   }
 
   onNext() {
     this.saveCurrentStepData();
     this.wizardState.nextStep();
+
+    if (this.isLastStep()) {
+      this.loadRideEstimate();
+    }
   }
 
   onPrevious() {

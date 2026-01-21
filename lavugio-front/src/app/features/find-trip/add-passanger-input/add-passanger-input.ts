@@ -4,7 +4,6 @@ import { DialogService } from '@app/core/services/dialog-service';
 export interface Passenger {
   id: string;
   email: string;
-  name?: string;
 }
 
 @Component({
@@ -33,19 +32,19 @@ export class AddPassangerInput {
 
   async onAddPassanger() {
     console.log('onAddPassanger called, value:', this.value);
-    
+
     if (!this.value.trim()) {
-      this.dialogService.open('Passanger not found', "No passanger email entered.", true)
+      this.dialogService.open('Passanger not found', 'No passanger email entered.', true);
       console.log('Empty value');
       return;
     }
 
     if (!this.isValidEmail(this.value)) {
-      this.dialogService.open('Passanger not found', "Invalid email format.", true)
+      this.dialogService.open('Passanger not found', 'Invalid email format.', true);
       console.log('Invalid email format:', this.value);
       return;
     }
-    
+
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -54,12 +53,11 @@ export class AddPassangerInput {
       const passenger: Passenger = {
         id: Date.now().toString(),
         email: this.value,
-        name: this.value
       };
-      
+
       console.log('Emitting passenger:', passenger);
       this.passengerAdded.emit(passenger);
-      
+
       // Clear input after successful add
       this.value = '';
       this.valueChange.emit('');
@@ -74,25 +72,6 @@ export class AddPassangerInput {
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  }
-
-  private async checkPassengerExists(email: string): Promise<Passenger | null> {
-    // TODO: Replace this with your actual API call
-    // Example:
-    // const response = await this.http.get<Passenger>(`/api/passengers/${email}`).toPromise();
-    // return response;
-    
-    // Placeholder - simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Simulate successful response
-        resolve({
-          id: Date.now().toString(),
-          email: email,
-          name: 'John Doe' // This would come from your API
-        });
-      }, 1000);
-    });
   }
 
   onFocus() {
