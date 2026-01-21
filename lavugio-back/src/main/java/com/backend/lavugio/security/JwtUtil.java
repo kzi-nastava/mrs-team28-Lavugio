@@ -16,7 +16,7 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:your-secret-key-min-256-bits-must-be-very-long-and-secure-1234567890}")
+    @Value("${jwt.secret:CHANGE_THIS_SECRET_KEY_IN_APPLICATION_PROPERTIES}")
     private String jwtSecret;
 
     @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
