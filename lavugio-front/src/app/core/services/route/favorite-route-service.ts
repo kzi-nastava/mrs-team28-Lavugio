@@ -13,10 +13,10 @@ export class FavoriteRouteService {
   constructor(private http: HttpClient) {}
 
   saveFavoriteRoute(favoriteRoute: NewFavoriteRouteRequest): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/favorite-routes/add`, favoriteRoute);
+    return this.http.post<any>(`${this.apiUrl}api/favorite-routes/add`, favoriteRoute);
   }
 
   getFavoriteRoutes(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/favorite-routes`);
+    return this.http.get<any>(`${this.apiUrl}api/favorite-routes`);
   }
 }
