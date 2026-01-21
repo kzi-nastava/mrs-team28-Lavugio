@@ -2,9 +2,11 @@ package com.backend.lavugio.controller.ride;
 
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.*;
+import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.RideReport;
+import com.backend.lavugio.service.ride.ReviewService;
 import com.backend.lavugio.service.ride.RideReportService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.DriverService;
@@ -28,11 +30,14 @@ public class RideController {
 
     private final RideReportService rideReportService;
 
+    private final ReviewService reviewService;
+
     @Autowired
-    public RideController(RideService rideService, DriverService driverService, RideReportService rideReportService) {
+    public RideController(RideService rideService, DriverService driverService, RideReportService rideReportService, ReviewService reviewService) {
         this.rideService = rideService;
         this.driverService = driverService;
         this.rideReportService = rideReportService;
+        this.reviewService = reviewService;
     }
 
     @PostMapping("/estimate")
@@ -221,10 +226,14 @@ public class RideController {
         return ResponseEntity.ok(statuses);
     }
 
-    @GetMapping(value = "/{rideId}/review", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GetRideReviewDTO> getRideReview(@PathVariable Long rideId){
-        GetRideReviewDTO getRideReviewDTO = new GetRideReviewDTO(1L, 4, 5, "Great ride!");
-        return new ResponseEntity<>(getRideReviewDTO, HttpStatus.OK);
+    @GetMapping(value = "/{rideId}/reviews", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getRideReviews(@PathVariable Long rideId){
+        try{
+            List<GetRideReviewDTO> reviews = this.reviewService.getRideReviewDTOsByRideId(rideId);
+            return new ResponseEntity<>(reviews, HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/{id}/cancel")
@@ -278,8 +287,15 @@ public class RideController {
 
     @PostMapping("/{rideId}/review")
     public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
-        //reviewService.createReview(rideId, rideReviewDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        try{
+            reviewService.createReview(rideId, rideReviewDTO);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (Exception e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{rideId}/complete")
