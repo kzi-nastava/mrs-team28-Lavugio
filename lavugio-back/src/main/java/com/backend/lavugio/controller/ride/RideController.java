@@ -35,12 +35,11 @@ public class RideController {
         this.rideReportService = rideReportService;
     }
 
-    @PostMapping("/estimate")
-    public ResponseEntity<?> estimateRideInfo(@RequestBody RideEstimateRequestDTO request) {
+    @PostMapping("/estimate-price")
+    public ResponseEntity<?> estimateRidePrice(@RequestBody RideEstimateRequestDTO request) {
         try {
-            //RideEstimateDTO estimate = rideService.estimateRide(request);
-            RideEstimateDTO estimate = new RideEstimateDTO(300, 10.0f, 23); // Placeholder vrednosti
-            return ResponseEntity.ok(estimate);
+            double price = rideService.estimateRidePrice(request);
+            return ResponseEntity.ok(price);
         } catch (Exception e) {
             return ResponseEntity.badRequest( ).body(e.getMessage());
         }

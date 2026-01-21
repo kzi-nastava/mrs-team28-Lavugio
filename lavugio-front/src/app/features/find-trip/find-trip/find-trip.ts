@@ -21,6 +21,7 @@ import { NewFavoriteRouteRequest } from '@app/shared/models/route/newFavoriteRou
 import { RideScheduleData } from '../schedule-ride-dialog/schedule-ride-dialog';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideService } from '@app/core/services/ride-service';
+import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 
 @Component({
   selector: 'app-find-trip',
@@ -64,10 +65,7 @@ export class FindTrip implements OnInit, OnDestroy {
   favoriteRouteName: string = '';
 
   rideEstimate = signal<RouteEstimateInfo | null>(null);
-
-  tripDistance = '0km';
-  tripEstimatedTime = '0min';
-  tripPrice = '0$';
+  ridePrice = signal<number>(0);
 
   private destroy$ = new Subject<void>();
 
@@ -76,7 +74,7 @@ export class FindTrip implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private favoriteRouteService: FavoriteRouteService,
     private geocodingService: GeocodingService,
-    private RideService: RideService,
+    private rideService: RideService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -124,6 +122,11 @@ export class FindTrip implements OnInit, OnDestroy {
     this.destinations.push(newDestination);
     this.map.addMarker(newDestination.coordinates, MarkerIcons.checkpoint);
     this.updateRoute();
+    
+    // Recalculate estimate if on review step
+    if (this.isLastStep()) {
+      this.loadRideEstimate();
+    }
   }
 
   onDestinationRemoved(destinationId: string) {
@@ -145,6 +148,11 @@ export class FindTrip implements OnInit, OnDestroy {
     });
 
     this.updateRoute();
+    
+    // Recalculate estimate if on review step
+    if (this.isLastStep()) {
+      this.loadRideEstimate();
+    }
   }
 
   private updateRoute() {
@@ -180,6 +188,11 @@ export class FindTrip implements OnInit, OnDestroy {
     this.selectedVehicleType = preferences.vehicleType;
     this.isPetFriendly = preferences.isPetFriendly;
     this.isBabyFriendly = preferences.isBabyFriendly;
+    
+    // Recalculate price if on review step and vehicle type changed
+    if (this.isLastStep() && this.destinations.length >= 2) {
+      this.loadRideEstimate();
+    }
   }
 
   openScheduleDialog() {
@@ -211,6 +224,8 @@ export class FindTrip implements OnInit, OnDestroy {
 
   loadRideEstimate() {
     if (this.destinations.length < 2) {
+      this.rideEstimate.set(null);
+      this.ridePrice.set(0);
       return;
     }
 
@@ -221,33 +236,30 @@ export class FindTrip implements OnInit, OnDestroy {
           console.error('Failed to get route info');
           return;
         }
-        const request = {
-          distance: routeInfo.distanceMeters,
-          vehicleType: this.selectedVehicleType
-        }
-        this.rideEstimate.set({
+        const routeEstimate: RouteEstimateInfo = {
           distanceMeters: routeInfo.distanceMeters,
           durationSeconds: routeInfo.durationSeconds
-        })
-        /*this.rideService.calculatePrice(request).subscribe({
-          next: (priceResponse) => {
-            // 3. Postavi estimate sa svim podacima
-            this.rideEstimate.set({
-              distance: routeInfo.distance,
-              duration: routeInfo.duration,
-              distanceKm: (routeInfo.distance / 1000).toFixed(2),
-              durationMin: Math.ceil(routeInfo.duration / 60).toString(),
-              price: priceResponse.price,
-              routeGeometry: routeInfo.geometry
-            });
+        }
 
-            this.isLoadingEstimate.set(false);
-          },
-          error: (error) => {
-            console.error('Failed to calculate price:', error);
-            this.isLoadingEstimate.set(false);
+        this.rideEstimate.set(routeEstimate);
+        
+        if (this.selectedVehicleType !== '') {
+          const request: RideEstimateRequest = {
+            distanceMeters: routeEstimate.distanceMeters,
+            selectedVehicleType: this.selectedVehicleType
           }
-        });*/
+  
+          this.rideService.getPriceForRide(request).subscribe({
+            next: (priceResponse) => {
+              console.log("priceResponse", priceResponse);
+              this.ridePrice.set(priceResponse);
+            },
+            error: (error) => {
+              console.error('Failed to calculate price:', error);
+              this.dialogService.open('Price Calculation Failed', 'Unable to calculate ride price at this time.', true);
+            }
+          });
+        }
       },
       error: (error) => {
         console.error('Failed to get route info:', error);

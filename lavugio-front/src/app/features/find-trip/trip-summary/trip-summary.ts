@@ -27,7 +27,8 @@ export class TripSummary implements OnInit, OnChanges {
   @Input() estimateRouteInfo: RouteEstimateInfo | null = null;
   distanceString: string = '';
   estimatedTimeString: string = '';
-  @Input() price: number = 0;
+  @Input() ridePrice: number = 0;
+  priceString: string = '';
   @Output() destinationRemoved = new EventEmitter<string>();
   @Output() passengerRemoved = new EventEmitter<string>();
   @Output() finish = new EventEmitter<void>();
@@ -46,7 +47,7 @@ export class TripSummary implements OnInit, OnChanges {
     if (changes['destinations'] || changes['passengers'] || changes['selectedPreferences']) {
       this.updateCanFinish();
     }
-    if (changes['estimateRouteInfo']) {
+    if (changes['estimateRouteInfo'] || changes['ridePrice']) {
       this.updateEstimateDisplay();
     }
   }
@@ -54,8 +55,9 @@ export class TripSummary implements OnInit, OnChanges {
   private updateEstimateDisplay() {
     if (this.estimateRouteInfo) {
       var estimeRouteInfoFormatted = this.geocodingService.formatRouteInfo(this.estimateRouteInfo);
-      this.distanceString = estimeRouteInfoFormatted.distanceKm;
-      this.estimatedTimeString = estimeRouteInfoFormatted.durationMin;
+      this.distanceString = estimeRouteInfoFormatted.distanceKm + "km";
+      this.estimatedTimeString = estimeRouteInfoFormatted.durationMin + "min";
+      this.priceString = this.ridePrice + " RSD";
     }
   }
 

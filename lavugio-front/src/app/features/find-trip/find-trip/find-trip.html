@@ -91,6 +91,7 @@
                 isBabyFriendly: isBabyFriendly
               }"
               [estimateRouteInfo]="rideEstimate()"
+              [ridePrice]="ridePrice()"
               (destinationRemoved)="onDestinationRemoved($event)"
               (passengerRemoved)="onPassengerRemoved($event)"
               (canFinishChange)="onCanFinishChange($event)"
