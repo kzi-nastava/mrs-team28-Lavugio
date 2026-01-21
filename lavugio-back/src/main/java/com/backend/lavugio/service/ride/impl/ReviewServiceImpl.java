@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.ride.GetRideReviewDTO;
 import com.backend.lavugio.dto.ride.RideReviewDTO;
 import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -98,5 +100,15 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("Review not found with id: " + id);
         }
         reviewRepository.deleteById(id);
+    }
+
+    @Override
+    public List<GetRideReviewDTO> getRideReviewDTOsByRideId(Long rideId){
+        List<Review> reviews =  this.getReviewsByRideId(rideId);
+        List<GetRideReviewDTO> dtos = new ArrayList<>();
+        for (Review review : reviews) {
+            GetRideReviewDTO dto = new GetRideReviewDTO(review);
+        }
+        return dtos;
     }
 }
