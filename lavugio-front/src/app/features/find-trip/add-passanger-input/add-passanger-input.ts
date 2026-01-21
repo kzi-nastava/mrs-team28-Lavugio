@@ -34,14 +34,18 @@ export class AddPassangerInput {
   async onAddPassanger() {
     console.log('onAddPassanger called, value:', this.value);
     
-    // Basic validation
     if (!this.value.trim()) {
-      this.dialogService.open('Passanger not found', "Passanger with selected email was not found.", true)
-      this.errorMessage = 'Please enter a passenger name or email';
+      this.dialogService.open('Passanger not found', "No passanger email entered.", true)
       console.log('Empty value');
       return;
     }
 
+    if (!this.isValidEmail(this.value)) {
+      this.dialogService.open('Passanger not found', "Invalid email format.", true)
+      console.log('Invalid email format:', this.value);
+      return;
+    }
+    
     this.isLoading = true;
     this.errorMessage = '';
 
