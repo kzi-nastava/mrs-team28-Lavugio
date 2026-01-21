@@ -19,4 +19,5 @@ public class UserDTO {
     private boolean blocked;
     private String blockReason;
     private boolean emailVerified;
+    private String role;
 }

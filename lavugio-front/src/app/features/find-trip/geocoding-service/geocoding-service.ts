@@ -5,14 +5,16 @@ import { catchError, map, Observable, of } from 'rxjs';
 export interface GeocodeResult {
   place_id?: number;
   display_name: string;
+
   lat: string;
   lon: string;
+
   type: string;
-  address?: {
-    city?: string;
-    country?: string;
-    state?: string;
-  };
+
+  street?: string;
+  streetNumber?: string | null;
+  city?: string;
+  country?: string;
 }
 
 interface PhotonFeature {
@@ -61,33 +63,46 @@ export class GeocodingService {
       catchError((error) => {
         console.error('Geocoding error:', error);
         return of([]);
-      })
+      }),
     );
   }
 
   private transformPhotonResults(response: PhotonResponse): GeocodeResult[] {
     return response.features.map((feature) => {
       const props = feature.properties;
-      const displayParts = [
-        props.name,
-        props.street,
-        props.housenumber,
-        props.city,
-        props.state,
-        props.country,
-      ].filter(Boolean);
+
+      let displayName = '';
+
+      if (props.street) {
+        displayName = props.street;
+
+        if (props.housenumber) {
+          displayName += ' ' + props.housenumber;
+        }
+
+        if (props.city) {
+          displayName += ', ' + props.city;
+        }
+      } else if (props.city) {
+        displayName = props.city;
+      } else {
+        displayName = props.name || 'Unknown location';
+      }
 
       return {
         place_id: props.osm_id,
-        display_name: displayParts.join(', '),
+
+        display_name: displayName,
+
         lat: feature.geometry.coordinates[1].toString(),
         lon: feature.geometry.coordinates[0].toString(),
+
         type: props.type,
-        address: {
-          city: props.city,
-          country: props.country,
-          state: props.state,
-        },
+
+        street: props.street,
+        streetNumber: props.housenumber ?? null,
+        city: props.city,
+        country: props.country,
       };
     });
   }
@@ -116,7 +131,7 @@ export class GeocodingService {
       catchError((error) => {
         console.error('Reverse geocoding error:', error);
         return of(null);
-      })
+      }),
     );
   }
 }

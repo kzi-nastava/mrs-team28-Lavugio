@@ -85,7 +85,6 @@ public class AdministratorController {
             return ResponseEntity.ok(List.of());
         }
     }
-    
     @PutMapping("/{id}")
     public ResponseEntity<?> updateAdministrator(
             @PathVariable Long id,
@@ -93,8 +92,8 @@ public class AdministratorController {
             // , @AuthenticationPrincipal UserDetails userDetails
         try {
             // String currentEmail = userDetails.getUsername();
-        	AdministratorDTO admin = administratorService.updateAdministratorDTO(id, request); // , currentEmail
-            return ResponseEntity.ok(admin);
+        	// AdministratorDTO admin = administratorService.updateAdministratorDTO(id, request); // , currentEmail
+            return ResponseEntity.ok("Deprecated");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

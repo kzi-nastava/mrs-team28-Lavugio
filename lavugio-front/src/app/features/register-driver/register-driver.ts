@@ -1,8 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { DriverForm } from './driver-form/driver-form';
 import { VehicleForm } from './vehicle-form/vehicle-form';
+import { DriverService } from '@app/core/services/user/driver-service';
+import { DriverRegistration } from '@app/shared/models/user/driverRegistration';
+import { DialogService } from '@app/core/services/dialog-service';
 
 @Component({
   selector: 'app-register-driver',
@@ -11,22 +15,18 @@ import { VehicleForm } from './vehicle-form/vehicle-form';
   styleUrl: './register-driver.css',
 })
 export class RegisterDriver {
+  @ViewChild(DriverForm) driverForm!: DriverForm;
+  @ViewChild(VehicleForm) vehicleForm!: VehicleForm;
+
   currentStep = 0;
 
   driverData: any = {};
   vehicleData: any = {};
 
-  nextStep() {
-    if (this.currentStep < 1) {
-      this.currentStep++;
-    }
-  }
-
-  previousStep() {
-    if (this.currentStep > 0) {
-      this.currentStep--;
-    }
-  }
+  constructor(private driverService: DriverService,
+              private dialogService: DialogService,
+              private router: Router  
+  ) {}
 
   onDriverDataChange(data: any) {
     this.driverData = data;
@@ -37,13 +37,83 @@ export class RegisterDriver {
   }
 
   finishRegistration() {
-    const finalPayload = {
-      driver: this.driverData,
-      vehicle: this.vehicleData
+    // Trigger validation on the current form
+    if (this.currentStep === 0 && this.driverForm) {
+      this.driverForm.onSubmit();
+      // Check if driver form is valid
+      if (!this.driverForm.isFormValid()) {
+        return;
+      }
+    } else if (this.currentStep === 1 && this.vehicleForm) {
+      this.vehicleForm.onSubmit();
+      // Check if vehicle form is valid
+      if (!this.vehicleForm.isFormValid()) {
+        return;
+      }
+      
+      // Proceed with registration
+      this.performRegistration();
+    }
+  }
+
+  private performRegistration() {
+    const fullData: DriverRegistration = {
+      email: this.driverData.email,
+      password: this.driverData.password,
+      name: this.driverData.name,
+      lastName: this.driverData.surname,
+      phoneNumber: this.driverData.phoneNumber,
+      address: this.driverData.address,
+
+      vehicleMake: this.vehicleData.make,
+      vehicleModel: this.vehicleData.model,
+      licenseNumber: this.vehicleData.licenseNumber,
+      licensePlate: this.vehicleData.licensePlate,
+      vehicleColor: this.vehicleData.color,
+      vehicleType: this.vehicleData.vehicleType,
+
+      petFriendly: this.vehicleData.petFriendly,
+      babyFriendly: this.vehicleData.babyFriendly,
     };
 
-    console.log("Slanje na backend:", finalPayload);
-    // Call for backend endpoint to register driver
+    if (fullData.vehicleType == 'Combi') {
+      fullData.vehicleType = 'COMBI';
+    } else if (fullData.vehicleType == 'Luxury') {
+      fullData.vehicleType = 'LUXURY';
+    } else {
+      fullData.vehicleType = 'STANDARD';
+    }
+
+    console.log('Registering driver with data:', fullData);
+
+    this.driverService.registerDriver(fullData).subscribe({
+      next: (res) => {
+        this.dialogService.open('Registration Successful', 'Your driver account has been created successfully!', false);
+        setTimeout(() => {
+          this.router.navigate(['/']); // Change '/home' to your desired route
+        }, 2000);
+      },
+      error: (err) => {
+        console.log(err.error);
+        this.dialogService.open('Registration Failed', err.error.message || 'An error occurred during registration. Please try again.', true);
+      },
+    });
+  }
+
+  nextStep() {
+    // Validate current step before proceeding
+    if (this.currentStep === 0 && this.driverForm) {
+      this.driverForm.onSubmit();
+      // Check if driver form is valid
+      if (!this.driverForm.isFormValid()) {
+        return;
+      }
+    }
+    this.currentStep++;
+  }
+
+  previousStep() {
+    this.currentStep--;
   }
 
   isFirstStep() {

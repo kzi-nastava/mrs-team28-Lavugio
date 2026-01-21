@@ -14,6 +14,8 @@ import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
 import { RegisterDriver } from './features/register-driver/register-driver';
 import { CancelRide } from './features/cancel-ride/cancel-ride';
+import { DriverActivation } from './features/driver-activation/driver-activation';
+import { DriverScheduledRides } from './features/driver-scheduled-rides/driver-scheduled-rides';
 
 export const routes: Routes = [
   {
@@ -52,6 +54,10 @@ export const routes: Routes = [
     component: RegisterDriver
   },
   {
+    path: 'activate-account',
+    component: DriverActivation
+  },
+  {
     path: 'verify-email',
     title: 'Verify Email',
     component: VerifyEmail
@@ -86,5 +92,10 @@ export const routes: Routes = [
     path: 'cancel-ride/:rideId',
     title: 'Otkazivanje vožnje',
     component: CancelRide
+  },
+  {
+    path:'driver-scheduled-rides',
+    title: 'Scheduled rides',
+    component: DriverScheduledRides
   }
 ];

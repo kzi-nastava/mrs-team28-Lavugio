@@ -26,7 +26,7 @@ public class Account {
 	private String email;
 	@Column
 	private String password;
-	@Column
+	@Column(name = "profile_photo_path")
 	private String profilePhotoPath;
 	@Column
 	private String phoneNumber;

@@ -19,6 +19,8 @@ export class ReportForm implements OnDestroy{
   isFailed: WritableSignal<Boolean> = signal(false);
   isLoading: WritableSignal<Boolean> = signal(false);
   rideId: number = 0;
+  reporterId: number = 0;
+  isSuccessful = output();
 
   hideReportOutput = output();
 
@@ -42,11 +44,13 @@ export class ReportForm implements OnDestroy{
     this.isLoading.set(true);
     let report: RideReport = {
       rideId: this.rideId,
-      comment:this.reportControl.value
+      comment:this.reportControl.value,
+      reporterId: this.reporterId
     }
     this.rideService.postRideReport(this.rideId, report).subscribe({
       next: () =>{
         console.log("Report successful")
+        this.isSuccessful.emit();
         this.isDone.set(true);
         this.isLoading.set(false);
       },

@@ -8,13 +8,21 @@ import com.backend.lavugio.service.user.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
-
 @Service
 public class AccountServiceImpl implements AccountService {
 
@@ -25,6 +33,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private final String uploadDir = "uploads/profile-photos/";
+    private final String defaultPhotoUrl = "uploads/profile-photos/default_avatar_photo.jpg";
 
     @Override
     @Transactional
@@ -78,15 +89,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Optional<Account> getAccountById(Long id) {
-        logger.debug("Fetching account with id: {}", id);
-        return accountRepository.findById(id);
+    public Account getAccountById(Long id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found with id :" + id));
     }
 
     @Override
-    public Optional<Account> getAccountByEmail(String email) {
-        logger.debug("Fetching account by email: {}", email);
-        return accountRepository.findByEmail(email);
+    public Account getAccountByEmail(String email) {
+        return accountRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Account with email: " + email + " was not found"));
     }
 
     @Override
@@ -103,37 +113,82 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public Account changePassword(Long accountId, String newPassword) {
-        logger.info("Changing password for account id: {}", accountId);
-        
+    public Account changePassword(Long accountId, String oldPassword, String newPassword) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> {
-                    logger.error("Account not found with id: {}", accountId);
-                    return new UserNotFoundException("Account not found with id: " + accountId);
-                });
+                .orElseThrow(() -> new RuntimeException("Account not found with id: " + accountId));
 
-        // Hash new password
-        account.setPassword(passwordEncoder.encode(newPassword));
-        Account updatedAccount = accountRepository.save(account);
-        logger.info("Password changed successfully for account id: {}", accountId);
-        return updatedAccount;
+        if (passwordEncoder.matches(oldPassword, account.getPassword())) {
+            String hashedPassword = passwordEncoder.encode(newPassword);
+            account.setPassword(hashedPassword);
+            return accountRepository.save(account);
+        } else {
+            throw new RuntimeException("Old password is incorrect.");
+        }
     }
 
     @Override
     @Transactional
-    public Account updateProfilePhoto(Long accountId, String photoPath) {
-        logger.info("Updating profile photo for account id: {}", accountId);
-        
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> {
-                    logger.error("Account not found with id: {}", accountId);
-                    return new UserNotFoundException("Account not found with id: " + accountId);
-                });
+    public Account updateProfilePhoto(Long accountId, MultipartFile file) {
+        try {
+            Account account = accountRepository.findById(accountId)
+                    .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        account.setProfilePhotoPath(photoPath);
-        Account updatedAccount = accountRepository.save(account);
-        logger.info("Profile photo updated successfully for account id: {}", accountId);
-        return updatedAccount;
+            String contentType = file.getContentType();
+
+            if (!contentType.equals("image/jpeg") &&
+                    !contentType.equals("image/png")) {
+                throw new RuntimeException("Only JPG and PNG allowed");
+            }
+
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            if (account.getProfilePhotoPath() != null) {
+                Files.deleteIfExists(Paths.get(account.getProfilePhotoPath()));
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String exstension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String fileName = "user_" + account.getId() + "_" + System.currentTimeMillis() + exstension;
+            String fullpath = uploadDir + fileName;
+            Path path = Paths.get(fullpath);
+            Files.write(path, file.getBytes());
+
+            account.setProfilePhotoPath(fullpath);
+            accountRepository.save(account);
+
+            return account;
+        } catch (IOException e) {
+            throw new RuntimeException("Error saving file", e);
+        }
+
+    }
+
+    @Override
+    public Resource getProfilePhoto(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account with id " + accountId + " not found."));
+
+        String photoPath = account.getProfilePhotoPath();
+
+        try {
+            if (photoPath == null || photoPath.isBlank()) {
+                return new UrlResource(defaultPhotoUrl);
+            }
+
+            Path path = Paths.get(photoPath);
+
+            if (!Files.exists(path)) {
+                return null;
+            }
+
+            return new UrlResource(path.toUri());
+
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error loading photo file", e);
+        }
     }
 
     @Override

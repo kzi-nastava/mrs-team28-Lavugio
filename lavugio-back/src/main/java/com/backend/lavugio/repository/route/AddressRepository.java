@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Long> {
-    Optional<Address> findByStreetNameAndStreetNumberAndCity(String streetName, int streetNumber, String city);
+    Optional<Address> findByStreetNameAndStreetNumberAndCity(String streetName, String streetNumber, String city);
 
     List<Address> findByCity(String city);
 
@@ -24,7 +24,7 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
             "(:zipCode IS NULL OR a.zipCode = :zipCode)")
     List<Address> searchAddresses(String city, String country, Integer zipCode);
 
-    boolean existsByStreetNameAndStreetNumberAndCity(String streetName, int streetNumber, String city);
+    boolean existsByStreetNameAndStreetNumberAndCity(String streetName, String streetNumber, String city);
 
     @Query("SELECT a FROM Address a WHERE " +
             "a.latitude BETWEEN :minLat AND :maxLat AND " +

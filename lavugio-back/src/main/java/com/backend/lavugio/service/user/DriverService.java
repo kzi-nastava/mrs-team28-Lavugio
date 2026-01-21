@@ -1,12 +1,12 @@
 package com.backend.lavugio.service.user;
 
 import com.backend.lavugio.dto.user.*;
+import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.vehicle.Vehicle;
 
 import java.util.List;
-import java.util.Map;
 
 public interface DriverService {
     // Registration
@@ -25,7 +25,7 @@ public interface DriverService {
     DriverDTO getDriverDTOByEmail(String email);
     List<DriverDTO> getAllDriversDTO();
     List<DriverDTO> getAvailableDriversDTO();
-    DriverDTO updateDriverDTO(Long id, UpdateDriverDTO request, String currentEmail);
+    DriverDTO updateDriverDTO(Long id, UserProfileDTO request);
 
     // Profile Management DTO
     DriverDTO getDriverProfile(String email);
@@ -39,11 +39,7 @@ public interface DriverService {
 
 
     Driver activateDriver(Long driverId);
-
-    DriverLocation activateDriver(Long driverId, double longitude, double latitude);
-    DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude);
     void updateDriverDriving(Long driverId, boolean isDriving);
-    void deactivateDriver(Long driverId);
 
     Driver blockDriver(Long driverId, String reason);
     Driver unblockDriver(Long driverId);
@@ -54,7 +50,4 @@ public interface DriverService {
     boolean isDriverAvailable(Long driverId);
     long countActiveDrivers();
     List<Driver> getDriversWithoutVehicle();
-
-    Map<Long, DriverLocation> getAllActiveDriverStatuses();
-    DriverLocation getDriverStatus(Long driverId);
 }

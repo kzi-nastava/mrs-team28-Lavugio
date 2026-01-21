@@ -1,6 +1,6 @@
 package com.backend.lavugio.controller.route;
 
-import com.backend.lavugio.dto.route.FavoriteRouteDTO;
+import com.backend.lavugio.dto.route.NewFavoriteRouteDTO;
 import com.backend.lavugio.dto.route.UpdateFavoriteRouteDTO;
 import com.backend.lavugio.service.route.FavoriteRouteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/favorite-routes")
@@ -17,22 +18,41 @@ public class FavoriteRouteController {
     @Autowired
     private FavoriteRouteService favoriteRouteService;
 
+    // FOR TESTING
+    final private Long accountID = 2L;
+
     @PostMapping("/add")
-    public ResponseEntity<?> createFavoriteRoute(@RequestBody FavoriteRouteDTO request) {
+    public ResponseEntity<?> createFavoriteRoute(@RequestBody NewFavoriteRouteDTO request) {
+        // Authentication auth
+        System.out.println("Adding favorite route");
         try {
-            FavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(favorite);
+            NewFavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(accountID, request);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
     // ========== READ ==========
 
+    @GetMapping("")
+    public ResponseEntity<?> getFavoriteRoutes() {
+        // Authentication auth
+        System.out.println("Getting favorite routes for user: " + accountID);
+        try {
+            List<NewFavoriteRouteDTO> response = favoriteRouteService.getFavoriteRoutesDTOByUser(accountID);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getFavoriteRoute(@PathVariable Long id) {
         try {
-            FavoriteRouteDTO favorite = favoriteRouteService.getFavoriteRouteDTOById(id);
+            NewFavoriteRouteDTO favorite = favoriteRouteService.getFavoriteRouteDTOById(id);
             return ResponseEntity.ok(favorite);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -42,7 +62,7 @@ public class FavoriteRouteController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getFavoriteRoutesByUser(@PathVariable Long userId) {
         try {
-            List<FavoriteRouteDTO> favorites = favoriteRouteService.getFavoriteRoutesDTOByUser(userId);
+            List<NewFavoriteRouteDTO> favorites = favoriteRouteService.getFavoriteRoutesDTOByUser(userId);
             return ResponseEntity.ok(favorites);
         } catch (Exception e) {
             return ResponseEntity.ok(List.of());
@@ -52,7 +72,7 @@ public class FavoriteRouteController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllFavoriteRoutes() {
         try {
-            List<FavoriteRouteDTO> favorites = favoriteRouteService.getAllFavoriteRoutesDTO();
+            List<NewFavoriteRouteDTO> favorites = favoriteRouteService.getAllFavoriteRoutesDTO();
             return ResponseEntity.ok(favorites);
         } catch (Exception e) {
             return ResponseEntity.ok(List.of());
@@ -60,14 +80,14 @@ public class FavoriteRouteController {
     }
 
     // ========== UPDATE ==========
-
+    // DEPRECATED
     @PutMapping("/{id}")
     public ResponseEntity<?> updateFavoriteRoute(
             @PathVariable Long id,
             @RequestBody UpdateFavoriteRouteDTO request) {
         try {
-            FavoriteRouteDTO updated = favoriteRouteService.updateFavoriteRouteDTO(id, request);
-            return ResponseEntity.ok(updated);
+            //NewFavoriteRouteDTO updated = favoriteRouteService.updateFavoriteRouteDTO(id, request);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

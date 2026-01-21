@@ -2,14 +2,11 @@ package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.repository.user.DriverRepository;
 
 import com.backend.lavugio.repository.vehicle.VehicleRepository;
-
-import com.backend.lavugio.service.user.ActiveDriverLocationService;
 
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.Map;
 
 @Service
 public class DriverServiceImpl implements DriverService {
@@ -28,9 +25,6 @@ public class DriverServiceImpl implements DriverService {
 
     @Autowired
     private VehicleRepository vehicleRepository;
-    
-    @Autowired
-    private ActiveDriverLocationService activeDriverLocationService;
 
     @Override
     @Transactional
@@ -109,28 +103,10 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public DriverLocation activateDriver(Long driverId, double longitude, double latitude) throws RuntimeException{
-        if (getDriverById(driverId) == null) {
-            throw new RuntimeException("Driver not found with id: " + driverId);
-        }
-        return activeDriverLocationService.addActiveDriverLocation(driverId, longitude, latitude);
-    }
-
-    @Override
-    public DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude) throws RuntimeException{
-        return activeDriverLocationService.updateDriverLocation(driverId, longitude, latitude);
-    }
-
-    @Override
     public void updateDriverDriving(Long driverId, boolean isDriving) throws RuntimeException{
         Driver driver = this.getDriverById(driverId);
         driver.setDriving(isDriving);
         driverRepository.save(driver);
-    }
-
-    @Override
-    public void deactivateDriver(Long driverId) {
-        activeDriverLocationService.deleteDriverLocation(driverId);
     }
 
     @Override
@@ -208,9 +184,9 @@ public class DriverServiceImpl implements DriverService {
         }
 
         // Check if license plate exists
-        /*if (vehicleRepository.existsByLicensePlate(request.getLicensePlate())) {
+        if (vehicleRepository.existsByLicensePlate(request.getLicensePlate())) {
             throw new RuntimeException("License plate already registered: " + request.getLicensePlate());
-        }*/
+        }
 
         // Create Vehicle
         Vehicle vehicle = new Vehicle();
@@ -233,14 +209,14 @@ public class DriverServiceImpl implements DriverService {
         // Create Driver
         Driver driver = new Driver();
         driver.setEmail(request.getEmail());
-        driver.setPassword(request.getPassword()); // TODO: Add password encoding
+        driver.setPassword(UUID.randomUUID().toString());
         driver.setName(request.getName());
         driver.setLastName(request.getLastName());
         driver.setPhoneNumber(request.getPhoneNumber());
         driver.setProfilePhotoPath(request.getProfilePhotoPath());
         driver.setBlocked(false);
         driver.setBlockReason(null);
-        //driver.setActive(false);
+        driver.setActive(false);
         driver.setVehicle(savedVehicle);
 
         Driver savedDriver = driverRepository.save(driver);
@@ -278,20 +254,20 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public DriverDTO updateDriverDTO(Long id, UpdateDriverDTO request, String currentEmail) {
+    public DriverDTO updateDriverDTO(Long id, UserProfileDTO request) {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Driver not found with id: " + id));
 
         // Verify current user has permission (simple check - email match)
-        if (!driver.getEmail().equals(currentEmail)) {
+        /*if (!driver.getEmail().equals(currentEmail)) {
             throw new RuntimeException("Unauthorized to update this driver");
-        }
+        }*/
 
         if (request.getName() != null) {
             driver.setName(request.getName());
         }
-        if (request.getLastName() != null) {
-            driver.setLastName(request.getLastName());
+        if (request.getSurname() != null) {
+            driver.setLastName(request.getSurname());
         }
         if (request.getPhoneNumber() != null) {
             driver.setPhoneNumber(request.getPhoneNumber());
@@ -304,13 +280,13 @@ public class DriverServiceImpl implements DriverService {
         if (driver.getVehicle() != null) {
             Vehicle vehicle = driver.getVehicle();
 
-            if (request.getLicensePlate() != null) {
+            if (request.getVehicleLicensePlate() != null) {
                 // Check if new license plate is unique
-                if (!vehicle.getLicensePlate().equals(request.getLicensePlate()) &&
-                        vehicleRepository.existsByLicensePlate(request.getLicensePlate())) {
-                    throw new RuntimeException("License plate already exists: " + request.getLicensePlate());
+                if (!vehicle.getLicensePlate().equals(request.getVehicleLicensePlate()) &&
+                        vehicleRepository.existsByLicensePlate(request.getVehicleLicensePlate())) {
+                    throw new RuntimeException("License plate already exists: " + request.getVehicleLicensePlate());
                 }
-                vehicle.setLicensePlate(request.getLicensePlate());
+                vehicle.setLicensePlate(request.getVehicleLicensePlate());
             }
 
             if (request.getVehicleMake() != null) {
@@ -324,16 +300,16 @@ public class DriverServiceImpl implements DriverService {
             }
             if (request.getVehicleType() != null) {
                 try {
-                    vehicle.setType(VehicleType.valueOf(request.getVehicleType().name()));
+                    vehicle.setType(VehicleType.valueOf(request.getVehicleType()));
                 } catch (IllegalArgumentException e) {
                     throw new RuntimeException("Invalid vehicle type: " + request.getVehicleType());
                 }
             }
-            if (request.getBabyFriendly() != null) {
-                vehicle.setBabyFriendly(request.getBabyFriendly());
+            if (request.getVehicleBabyFriendly() != null) {
+                vehicle.setBabyFriendly(request.getVehicleBabyFriendly());
             }
-            if (request.getPetFriendly() != null) {
-                vehicle.setPetFriendly(request.getPetFriendly());
+            if (request.getVehiclePetFriendly() != null) {
+                vehicle.setPetFriendly(request.getVehiclePetFriendly());
             }
 
             vehicleRepository.save(vehicle);
@@ -373,7 +349,6 @@ public class DriverServiceImpl implements DriverService {
         // TODO: Check 8-hour work limit
         // driver.setActive(true);
         Driver savedDriver = driverRepository.save(driver);
-
         return createDriverStatusDTO(savedDriver);
     }
 
@@ -419,11 +394,17 @@ public class DriverServiceImpl implements DriverService {
         dto.setProfilePhotoPath(driver.getProfilePhotoPath());
         dto.setBlocked(driver.isBlocked());
         dto.setBlockReason(driver.getBlockReason());
-        // dto.setActive(driver.isActive());
+        dto.setActive(driver.isActive());
 
         // Map vehicle if exists
         if (driver.getVehicle() != null) {
-            dto.setVehicle(mapVehicleToDTO(driver.getVehicle()));
+            dto.setVehicleMake(driver.getVehicle().getMake());
+            dto.setVehicleModel(driver.getVehicle().getModel());
+            dto.setVehicleType(driver.getVehicle().getType());
+            dto.setVehicleLicensePlate(driver.getVehicle().getLicensePlate());
+            dto.setVehicleColor(driver.getVehicle().getColor());
+            dto.setVehicleBabyFriendly(driver.getVehicle().isBabyFriendly());
+            dto.setVehiclePetFriendly(driver.getVehicle().isPetFriendly());
         }
 
         return dto;
@@ -442,7 +423,13 @@ public class DriverServiceImpl implements DriverService {
         // profile.setActive(driver.isActive());
 
         if (driver.getVehicle() != null) {
-            profile.setVehicle(mapVehicleToDTO(driver.getVehicle()));
+            profile.setVehicleLicensePlate(driver.getVehicle().getLicensePlate());
+            profile.setVehicleMake(driver.getVehicle().getMake());
+            profile.setVehicleModel(driver.getVehicle().getModel());
+            profile.setVehicleColor(driver.getVehicle().getColor());
+            profile.setVehicleType(driver.getVehicle().getType());
+            profile.setVehicleBabyFriendly(driver.getVehicle().isBabyFriendly());
+            profile.setVehiclePetFriendly(driver.getVehicle().isPetFriendly());
         }
 
         // TODO: Calculate actual values
@@ -485,13 +472,5 @@ public class DriverServiceImpl implements DriverService {
         return status;
     }
 
-    @Override
-    public Map<Long, DriverLocation> getAllActiveDriverStatuses() {
-        return activeDriverLocationService.getAllActiveDriverLocations();
-    }
 
-    @Override
-    public DriverLocation getDriverStatus(Long driverId) {
-        return activeDriverLocationService.getDriverLocation(driverId);
-    }
 }

@@ -113,8 +113,8 @@ public class RegularUserController {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             // String currentEmail = userDetails.getUsername();
-            UserDTO user = regularUserService.updateRegularUser(id, request);
-            return ResponseEntity.ok(user);
+            // UserDTO user = regularUserService.updateRegularUser(id, request);
+            return ResponseEntity.ok("Deprecated");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +54,7 @@ public class RideServiceImpl implements RideService {
     @Override
     public Ride getRideById(Long id) {
         return rideRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ride not found with id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Ride not found with id: " + id));
     }
 
     @Override
