@@ -1,0 +1,81 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { environment } from '@environments/environment';
+
+export interface RegistrationRequest {
+  email: string;
+  password: string;
+  name: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  userId: number;
+  email: string;
+  name: string;
+  message: string;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.BACKEND_URL}/regularUsers`;
+  
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  
+  private currentUserSubject = new BehaviorSubject<LoginResponse | null>(
+    this.getStoredUser()
+  );
+  public currentUser$ = this.currentUserSubject.asObservable();
+
+  register(data: RegistrationRequest): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, data);
+  }
+
+  login(data: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, data);
+  }
+
+  storeToken(token: string, user: LoginResponse): void {
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.isAuthenticatedSubject.next(true);
+    this.currentUserSubject.next(user);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('authToken');
+  }
+
+  getStoredUser(): LoginResponse | null {
+    const user = localStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
+  }
+
+  logout(): void {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    this.isAuthenticatedSubject.next(false);
+    this.currentUserSubject.next(null);
+  }
+
+  private hasToken(): boolean {
+    return !!localStorage.getItem('authToken');
+  }
+
+  isAuthenticated(): boolean {
+    return this.hasToken();
+  }
+}

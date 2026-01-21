@@ -18,8 +18,18 @@
             REGISTER
         </h1>
 
+        <!-- Error Message -->
+        <div *ngIf="errorMessage()" class="w-full max-w-md bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ errorMessage() }}
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="successMessage()" class="w-full max-w-md bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ successMessage() }}
+        </div>
+
         <!-- Form -->
-        <form (ngSubmit)="handleRegister()" class="space-y-4 w-full max-w-md">
+        <form (ngSubmit)="handleRegister()" class="space-y-4 w-full max-w-md" [attr.aria-disabled]="loading()">
             <!-- Email Address Field -->
             <div class="relative">
                 <input
@@ -95,9 +105,10 @@
             <!-- Register Button -->
             <button
                 type="submit"
-                class="w-full bg-[#3E4C42] text-white font-semibold py-3 rounded hover:bg-[#2F3A32] transition"
+                [disabled]="loading()"
+                class="w-full bg-[#3E4C42] text-white font-semibold py-3 rounded hover:bg-[#2F3A32] transition disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-                Register
+                {{ loading() ? 'Registering...' : 'Register' }}
             </button>
         </form>
 
