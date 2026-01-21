@@ -1,6 +1,8 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.ride.GetRideReviewDTO;
 import com.backend.lavugio.dto.ride.RideReviewDTO;
+import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.RegularUser;
@@ -13,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,7 +49,6 @@ public class ReviewServiceImpl implements ReviewService {
         if (hasReviewed(userId,  rideId)) {
             throw new IllegalStateException("User has already reviewed this ride");
         }
-
         return reviewRepository.save(review);
     }
 
@@ -118,5 +121,15 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
         return false;
+    }
+
+    @Override
+    public List<GetRideReviewDTO> getRideReviewDTOsByRideId(Long rideId){
+        List<Review> reviews =  this.getReviewsByRideId(rideId);
+        List<GetRideReviewDTO> dtos = new ArrayList<>();
+        for (Review review : reviews) {
+            GetRideReviewDTO dto = new GetRideReviewDTO(review);
+        }
+        return dtos;
     }
 }

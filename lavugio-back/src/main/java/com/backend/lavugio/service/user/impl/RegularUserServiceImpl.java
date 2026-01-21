@@ -3,11 +3,16 @@ package com.backend.lavugio.service.user.impl;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
+import com.backend.lavugio.exception.EmailAlreadyExistsException;
+import com.backend.lavugio.exception.UserNotFoundException;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.user.RegularUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +23,13 @@ import java.util.stream.Collectors;
 @Service
 public class RegularUserServiceImpl implements RegularUserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(RegularUserServiceImpl.class);
+
     @Autowired
     private RegularUserRepository regularUserRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -139,23 +149,30 @@ public class RegularUserServiceImpl implements RegularUserService {
 
     @Override
     public UserDTO createRegularUser(UserRegistrationDTO request) {
+        logger.info("Registering new user with email: {}", request.getEmail());
+        
         // Check if email already exists
         if (regularUserRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists: " + request.getEmail());
+            logger.warn("Registration failed: Email already exists: {}", request.getEmail());
+            throw new EmailAlreadyExistsException("Email already exists: " + request.getEmail());
         }
 
         // Create RegularUser
         RegularUser user = new RegularUser();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword()); // TODO: Add password encoding
+        user.setPassword(passwordEncoder.encode(request.getPassword())); // Hash password
         user.setName(request.getName());
         user.setLastName(request.getLastName());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setProfilePhotoPath(request.getProfilePhotoPath());
+        user.setAddress(request.getAddress());
         user.setBlocked(false);
         user.setBlockReason(null);
+        user.setEmailVerified(false); // Not verified until email confirmation
+        user.setCanOrder(true); // New users can order by default
 
         RegularUser savedUser = regularUserRepository.save(user);
+        logger.info("User registered successfully with id: {}", savedUser.getId());
         return mapToDTO(savedUser);
     }
 
@@ -231,9 +248,11 @@ public class RegularUserServiceImpl implements RegularUserService {
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
         dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setAddress(user.getAddress());
         dto.setProfilePhotoPath(user.getProfilePhotoPath());
         dto.setBlocked(user.isBlocked());
         dto.setBlockReason(user.getBlockReason());
+        dto.setEmailVerified(user.isEmailVerified());
         return dto;
     }
 
@@ -244,9 +263,11 @@ public class RegularUserServiceImpl implements RegularUserService {
         profile.setLastName(user.getLastName());
         profile.setEmail(user.getEmail());
         profile.setPhoneNumber(user.getPhoneNumber());
+        profile.setAddress(user.getAddress());
         profile.setProfilePhotoPath(user.getProfilePhotoPath());
         profile.setBlocked(user.isBlocked());
         profile.setBlockReason(user.getBlockReason());
+        profile.setEmailVerified(user.isEmailVerified());
 
         // TODO: Add ride history and other profile info
         //profile.setTotalRides(0);

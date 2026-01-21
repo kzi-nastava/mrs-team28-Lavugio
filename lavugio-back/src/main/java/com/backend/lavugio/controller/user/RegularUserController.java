@@ -1,39 +1,78 @@
 package com.backend.lavugio.controller.user;
 
+import com.backend.lavugio.dto.user.LoginRequestDTO;
+import com.backend.lavugio.dto.user.LoginResponseDTO;
 import com.backend.lavugio.dto.user.UpdateUserDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
-import com.backend.lavugio.dto.user.LoginRequestDTO;
-import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.user.Account;
+import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.RegularUserService;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/regularUsers")
 public class RegularUserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RegularUserController.class);
+
     @Autowired
     private RegularUserService regularUserService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private JwtUtil jwtUtil;
     
-    // REGISTRATION
+    // REGISTRATION & AUTHENTICATION
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerRegularUser(@RequestBody UserRegistrationDTO request) {
+    public ResponseEntity<?> registerRegularUser(@Valid @RequestBody UserRegistrationDTO request) {
         try {
+            logger.info("Registration attempt for email: {}", request.getEmail());
             UserDTO user = regularUserService.createRegularUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(user); // Changed from createdUser to user
+            logger.info("Registration successful for email: {}", request.getEmail());
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (Exception e) {
+            logger.error("Registration failed: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO request) {
+        try {
+            logger.info("Login attempt for email: {}", request.getEmail());
+            
+            // Authenticate user
+            Account account = accountService.authenticate(request.getEmail(), request.getPassword());
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(account.getEmail(), account.getId());
+            
+            // Prepare response
+            LoginResponseDTO response = new LoginResponseDTO();
+            response.setToken(token);
+            response.setUserId(account.getId());
+            response.setEmail(account.getEmail());
+            response.setName(account.getName());
+            response.setMessage("Login successful");
+            
+            logger.info("Login successful for email: {}", request.getEmail());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Login failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
@@ -154,25 +193,6 @@ public class RegularUserController {
             return ResponseEntity.ok(user.isBlocked());
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
-        }
-    }
-    
-    // AUTHENTICATION ENDPOINT
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
-        try {
-            Account account = accountService.authenticate(request.getEmail(), request.getPassword());
-            UserDTO userDTO = new UserDTO();
-            userDTO.setId(account.getId());
-            userDTO.setName(account.getName());
-            userDTO.setLastName(account.getLastName());
-            userDTO.setEmail(account.getEmail());
-            userDTO.setPhoneNumber(account.getPhoneNumber());
-            userDTO.setProfilePhotoPath(account.getProfilePhotoPath());
-            return ResponseEntity.ok(userDTO);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 

@@ -7,6 +7,8 @@ import { Passenger } from '../add-passanger-input/add-passanger-input';
 import { SelectedPreferencesDisplay } from '../selected-preferences-display/selected-preferences-display';
 import { TripStatsDisplay } from '../trip-stats-display/trip-stats-display';
 import { TripDestination } from '@app/shared/models/tripDestination';
+import { GeocodingService } from '../geocoding-service/geocoding-service';
+import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 
 @Component({
   selector: 'app-trip-summary',
@@ -22,9 +24,11 @@ export class TripSummary implements OnInit, OnChanges {
     isPetFriendly: false,
     isBabyFriendly: false
   };
-  @Input() distance: string = '0km';
-  @Input() estimatedTime: string = '0min';
-  @Input() price: string = '0$';
+  @Input() estimateRouteInfo: RouteEstimateInfo | null = null;
+  distanceString: string = '';
+  estimatedTimeString: string = '';
+  @Input() ridePrice: number = 0;
+  priceString: string = '';
   @Output() destinationRemoved = new EventEmitter<string>();
   @Output() passengerRemoved = new EventEmitter<string>();
   @Output() finish = new EventEmitter<void>();
@@ -32,13 +36,28 @@ export class TripSummary implements OnInit, OnChanges {
 
   canFinish = false;
 
+  constructor(private geocodingService: GeocodingService) {}
+
   ngOnInit() {
     this.updateCanFinish();
+    this.updateEstimateDisplay();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['destinations'] || changes['passengers'] || changes['selectedPreferences']) {
       this.updateCanFinish();
+    }
+    if (changes['estimateRouteInfo'] || changes['ridePrice']) {
+      this.updateEstimateDisplay();
+    }
+  }
+
+  private updateEstimateDisplay() {
+    if (this.estimateRouteInfo) {
+      var estimeRouteInfoFormatted = this.geocodingService.formatRouteInfo(this.estimateRouteInfo);
+      this.distanceString = estimeRouteInfoFormatted.distanceKm + "km";
+      this.estimatedTimeString = estimeRouteInfoFormatted.durationMin + "min";
+      this.priceString = this.ridePrice + " RSD";
     }
   }
 
