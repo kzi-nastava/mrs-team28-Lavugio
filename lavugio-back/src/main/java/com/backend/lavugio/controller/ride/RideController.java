@@ -2,11 +2,11 @@ package com.backend.lavugio.controller.ride;
 
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.*;
-import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.RideReport;
 import com.backend.lavugio.service.ride.ReviewService;
+import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideReportService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.DriverService;
@@ -31,13 +31,15 @@ public class RideController {
     private final RideReportService rideReportService;
 
     private final ReviewService reviewService;
+    private final RideOverviewService rideOverviewService;
 
     @Autowired
-    public RideController(RideService rideService, DriverService driverService, RideReportService rideReportService, ReviewService reviewService) {
+    public RideController(RideService rideService, DriverService driverService, RideReportService rideReportService, ReviewService reviewService, RideOverviewService rideOverviewService) {
         this.rideService = rideService;
         this.driverService = driverService;
         this.rideReportService = rideReportService;
         this.reviewService = reviewService;
+        this.rideOverviewService = rideOverviewService;
     }
 
     @PostMapping("/estimate-price")
@@ -125,48 +127,41 @@ public class RideController {
     }
 
     @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RideOverviewDTO> getRideStatus(@PathVariable Long rideId) {
-//        Ride ride = rideService.getRideById(rideId);
-//        DriverLocation driverLocation = driverService.getDriverStatus(ride.getDriver().getId());
-//        if (driverLocation == null){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        List<RideDestination> rideDestinations = rideDestinationService.getOrderedDestinationsByRideId(rideId);
-//        Address start = rideDestinations.getFirst().getAddress();
-//        Address end = rideDestinations.getLast().getAddress();
-//        RouteTimeEstimation eta;
-//        try {
-//            eta = etaService.calculateEta(driverLocation.getLongitude(), driverLocation.getLatitude(), end.getLongitude(), end.getLatitude());
-//        }catch(Exception e){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        RideStatusDTO status =  new RideStatusDTO();
-//        status.setStartLatitude(start.getLatitude());
-//        status.setStartLongitude(start.getLongitude());
-//        status.setDestinationLatitude(end.getLatitude());
-//        status.setDestinationLongitude(end.getLongitude());
-//        status.setCurrentLatitude(driverLocation.getLatitude());
-//        status.setCurrentLongitude(driverLocation.getLongitude());
-//        status.setRemainingTimeSeconds(eta.getDurationSeconds());
-        RideOverviewDTO status =  new RideOverviewDTO(
-                1L,
-                1L,
-                500,
-                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
-                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
-                RideStatus.ACTIVE,
-                "Petar Petrović",
-                "Nemanjina 4",
-                "Knez Mihailova 12",
-                LocalDateTime.of(2026, 1, 8, 18, 30),
-                LocalDateTime.of(2026, 1, 8, 18, 40),
-                false,
-                false);
-        return new ResponseEntity<>(status, HttpStatus.OK);
+    public ResponseEntity<?> getRideStatus(@PathVariable Long rideId) {
+
+        Long userId = 1L; //placeholder
+//        RideOverviewDTO status =  new RideOverviewDTO(
+//                1L,
+//                1L,
+//                500,
+//                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
+//                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
+//                RideStatus.ACTIVE,
+//                "Petar Petrović",
+//                "Nemanjina 4",
+//                "Knez Mihailova 12",
+//                LocalDateTime.of(2026, 1, 8, 18, 30),
+//                LocalDateTime.of(2026, 1, 8, 18, 40),
+//                false,
+//                false);
+        if (userId == null){
+            return new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try{
+            RideOverviewDTO overviewDTO = rideOverviewService.getRideOverviewDTO(rideId, userId);
+            return new ResponseEntity<>(overviewDTO, HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
+        } catch (Exception e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @GetMapping(value = "/overviews", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RideOverviewDTO>> getRideStatuses() {
+    public ResponseEntity<Collection<RideOverviewDTO>> getRideOverviews() {
 
         List<RideOverviewDTO> statuses = new ArrayList<>();
 
@@ -282,8 +277,9 @@ public class RideController {
 
     @PostMapping("/{rideId}/review")
     public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
+        Long userId = 1L; //placeholder
         try{
-            reviewService.createReview(rideId, rideReviewDTO);
+            reviewService.createReview(rideId, userId, rideReviewDTO);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e){

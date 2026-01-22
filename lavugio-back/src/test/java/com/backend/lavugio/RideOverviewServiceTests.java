@@ -21,7 +21,7 @@ public class RideOverviewServiceTests {
     private SimpMessagingTemplate messagingTemplate;
 
     @Test
-    void testSendRideOverviewUpdateDTO() {
+    void testSendRideOverviewUpdateDTO() throws InterruptedException {
         RideOverviewUpdateDTO dto = new RideOverviewUpdateDTO();
         String endAddress;
 
@@ -35,6 +35,7 @@ public class RideOverviewServiceTests {
 
         Double price;
 
+        Thread.sleep(10000);
         dto.setEndAddress("End address");
         dto.setDestinationCoordinates(destinationCoordinates = new CoordinatesDTO(0.0, 0.0));
         dto.setDepartureTime(departureTime = LocalDateTime.now().minusHours(1));
