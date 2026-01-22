@@ -1,0 +1,40 @@
+<div class="border-2 border-[#BC6C25] bg-white rounded-lg mb-2 transition-all duration-300"
+>
+  <div
+    class="flex justify-between items-center px-6 py-4 cursor-pointer select-none transition-colors"
+    [class.border-b-2]="isExpanded()"
+    [class.border-[#BC6C25]]="isExpanded()"
+    (click)="toggleExpand()"
+  >
+    <span class="sm:text-xl text-[#BC6C25] font-medium flex-1"> Primer imena </span>
+
+    <svg
+      class="w-8 h-8 transition-transform duration-300 shrink-0 text-[#BC6C25]"
+      [class.rotate-180]="isExpanded()"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </div>
+
+  <div
+    class="overflow-hidden transition-all duration-300"
+    [class.max-h-0]="!isExpanded()"
+    [class.max-h-96]="isExpanded()"
+  >
+    <div class="text-center mt-3 font-medium text-lg text-[#606C38] flex mx-6 justify-between">
+        <span> Change from </span>
+        <span> Change to </span>
+    </div>
+    <div class="mx-6 mb-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+    </div>
+  </div>
+</div>

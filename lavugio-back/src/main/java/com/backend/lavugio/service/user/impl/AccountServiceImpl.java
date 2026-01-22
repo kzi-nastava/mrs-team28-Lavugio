@@ -174,11 +174,13 @@ public class AccountServiceImpl implements AccountService {
         String photoPath = account.getProfilePhotoPath();
 
         try {
-            if (photoPath == null || photoPath.isBlank()) {
-                return new UrlResource(defaultPhotoUrl);
-            }
+            Path path;
 
-            Path path = Paths.get(photoPath);
+            if (photoPath == null || photoPath.isBlank()) {
+                path = Paths.get(defaultPhotoUrl);
+            } else {
+                path = Paths.get(photoPath);
+            }
 
             if (!Files.exists(path)) {
                 return null;

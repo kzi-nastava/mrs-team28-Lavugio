@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/administrators/login").permitAll()
                         .requestMatchers("/api/favorite-routes/**").permitAll()
                         .requestMatchers("/api/rides/estimate-price").permitAll()
+                        .requestMatchers("/users/profile-photo").permitAll()
                         // WebSocket for chat (allow all)
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/chat/**").permitAll()

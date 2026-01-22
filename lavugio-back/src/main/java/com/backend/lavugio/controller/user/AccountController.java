@@ -117,7 +117,7 @@ public class AccountController {
     }
 
     @GetMapping("/profile-photo")
-    public ResponseEntity<?> getProfilePhoto() {
+    public ResponseEntity<Resource> getProfilePhoto() {
         System.out.println("Pozvano dobavljanje profilne");
 
         try {
@@ -128,6 +128,9 @@ public class AccountController {
             }
 
             String mimeType = Files.probeContentType(photo.getFile().toPath());
+            if (mimeType == null) {
+                mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(mimeType))
