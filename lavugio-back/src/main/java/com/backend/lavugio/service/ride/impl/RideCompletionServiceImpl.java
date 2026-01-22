@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.FinishRideDTO;
 import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.model.enums.RideStatus;
@@ -9,6 +10,7 @@ import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.ride.RideCompletionService;
+import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.utils.EmailService;
@@ -26,17 +28,19 @@ import java.util.NoSuchElementException;
 public class RideCompletionServiceImpl implements RideCompletionService {
 
     private final RideDestinationService rideDestinationService;
+    private final RideOverviewService rideOverviewService;
     private final RideService rideService;
     private final EmailService emailService;
     private final NotificationService notificationService;
 
 
     @Autowired
-    public RideCompletionServiceImpl(NotificationService notificationService, RideDestinationService rideDestinationService,  RideService rideService, EmailService emailService) {
+    public RideCompletionServiceImpl(NotificationService notificationService, RideDestinationService rideDestinationService,  RideService rideService, EmailService emailService, RideOverviewService rideOverviewService) {
         this.rideDestinationService = rideDestinationService;
         this.rideService = rideService;
         this.emailService = emailService;
         this.notificationService = notificationService;
+        this.rideOverviewService = rideOverviewService;
     }
 
     public void finishRide(FinishRideDTO rideDTO){
@@ -56,6 +60,8 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         ride.getDriver().setDriving(false);
         sendEmailsToPassengers(ride.getPassengers(), ride.getId());
         sendNotificationsToPassengers(ride.getPassengers(), ride.getId());
+        this.rideOverviewService.sendRideOverviewUpdateDTO(rideDTO.getRideId(), route.getLast().getAddress().toString(),
+                new CoordinatesDTO(route.getLast().getAddress().getLatitude(), route.getLast().getAddress().getLongitude()));
     }
 
     private void sendEmailsToPassengers(Collection<RegularUser> passengers, Long rideId){
