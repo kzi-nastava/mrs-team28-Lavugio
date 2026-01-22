@@ -116,25 +116,6 @@ export class RideOverview implements AfterViewInit {
     this.isInfoOpen.set(true);
   }
 
-  executeInterval(driverId: number): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
-
-    this.driverService.getDriverLocation(driverId).subscribe((location: { location: Coordinates }) => {
-      let mark = this.addDriverLocationMarker(location.location);
-      
-      this.intervalId = setInterval(() => {
-        this.driverService.getDriverLocation(driverId).subscribe((newLocation: { location: Coordinates }) => {
-          if (mark) {
-            this.mapComponent?.removeMarker(mark);
-          }
-          mark = this.addDriverLocationMarker(newLocation.location);
-        });
-      }, 60000);
-    });
-  }
-
   addDriverLocationMarker(driverLoc: Coordinates | null): Marker | undefined {
     let mark: Marker | undefined;
     if (driverLoc) {
@@ -191,7 +172,7 @@ export class RideOverview implements AfterViewInit {
     this.getLocation();
 
     this.clientLocationInterval = setInterval(() => {
-      this.getLocation(), 10000});
+      this.getLocation()}, 10000);
   }
 
   getLocation(){
@@ -204,6 +185,11 @@ export class RideOverview implements AfterViewInit {
 
           if (this.clientMarker) {
             this.mapComponent?.removeMarker(this.clientMarker);
+          }
+
+          if (this.rideInfo){
+            this.rideInfo.userLocation.set(coords);
+            this.rideInfo.calculateDuration();
           }
 
           this.clientMarker = this.mapComponent?.addMarker(
