@@ -54,15 +54,33 @@ export class Register {
     this.authService.register(registrationData).subscribe({
       next: (response) => {
         this.loading.set(false);
-        this.successMessage.set('Registration successful! Redirecting to login...');
+        this.successMessage.set('Registration successful! Check your email for verification link. Redirecting to login...');
         setTimeout(() => {
           this.router.navigate(['/login']);
-        }, 2000);
+        }, 3000);
       },
       error: (error) => {
         this.loading.set(false);
-        const errorMsg = error.error?.message || error.message || 'Registration failed. Please try again.';
-        this.errorMessage.set(errorMsg);
+        
+        // Handle different error types
+        if (error.error && error.error.fieldErrors) {
+          // Validation errors
+          const fieldErrors = error.error.fieldErrors;
+          const errorMessages = Object.entries(fieldErrors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join('\n');
+          this.errorMessage.set(errorMessages);
+        } else if (error.error && error.error.message) {
+          // Custom error message
+          this.errorMessage.set(error.error.message);
+        } else if (error.error && typeof error.error === 'string') {
+          // String error
+          this.errorMessage.set(error.error);
+        } else {
+          // Generic error
+          this.errorMessage.set('Registration failed. Please try again.');
+        }
+        
         console.error('Registration error:', error);
       },
     });

@@ -30,7 +30,7 @@ export interface LoginResponse {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.BACKEND_URL}api/regularUsers`;
+  private readonly apiUrl = `${environment.BACKEND_URL}/regularUsers`;
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -46,6 +46,10 @@ export class AuthService {
 
   login(data: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, data);
+  }
+
+  verifyEmail(token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-email`, { token });
   }
 
   storeToken(token: string, user: LoginResponse): void {
