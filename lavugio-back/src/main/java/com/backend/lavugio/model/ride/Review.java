@@ -34,13 +34,13 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @Nullable
     private RegularUser reviewer;
 
-    public Review(Ride ride, RideReviewDTO rideReviewDTO) {
+    public Review(Ride ride, RegularUser reviewer, RideReviewDTO rideReviewDTO) {
         this.carRating = rideReviewDTO.getVehicleRating();
         this.driverRating = rideReviewDTO.getDriverRating();
         this.comment = rideReviewDTO.getComment();
         this.reviewedRide = ride;
+        this.reviewer = reviewer;
     }
 }

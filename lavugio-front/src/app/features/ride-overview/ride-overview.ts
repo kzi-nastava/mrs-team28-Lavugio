@@ -12,6 +12,7 @@ import { ReportForm } from "./report-form/report-form";
 import { ReviewForm } from '@app/shared/components/review-form/review-form';
 import { RideOverviewModel } from '@app/shared/models/rideOverview';
 import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
+import { LocationService } from '@app/core/services/location-service';
 
 @Component({
   selector: 'app-ride-overview',
@@ -38,6 +39,15 @@ export class RideOverview implements AfterViewInit {
 
   private intervalId: any;
   private subscription: Subscription | null = null;
+  private router = inject(Router);
+
+  private locationService = inject(LocationService);
+  private clientMarker?: Marker;
+  private clientLocationInterval: any;
+
+  navigateToCancelRide() {
+    this.router.navigate([`/cancel-ride/${this.rideId}`]);
+  }
 
   @ViewChild('rideInfo') rideInfo!: RideInfo;
   @ViewChild('map') mapComponent!: MapComponent;
@@ -74,8 +84,13 @@ export class RideOverview implements AfterViewInit {
 
     effect(() => {
       const overview = this.rideOverview();
-      if (overview?.driverId) {
-        this.executeInterval(overview.driverId);
+
+      if (!this.mapComponent || !overview) return;
+
+      if (overview.status === 'ACTIVE') {
+        this.startTrackingClientLocation();
+      } else {
+        this.stopTrackingClientLocation();
       }
     }, { injector: this.injector });
   }
@@ -118,6 +133,9 @@ export class RideOverview implements AfterViewInit {
     let mark: Marker | undefined;
     if (driverLoc) {
       mark = this.mapComponent?.addMarker(driverLoc, MarkerIcons.driverAvailable);
+      console.log('Added driver location marker at:', driverLoc);
+    } else {
+      console.warn('Driver location is not available to add marker.');
     }
     return mark;
   }
@@ -165,10 +183,54 @@ export class RideOverview implements AfterViewInit {
   navigateToCancelRide() {
     this.router.navigate([`/cancel-ride/${this.rideId}`]);
   }
+  startTrackingClientLocation(): void {
+    this.getLocation();
+
+    this.clientLocationInterval = setInterval(() => {
+      this.getLocation()}, 10000);
+  }
+
+  getLocation(){
+    this.locationService.getLocation()
+        .then(position => {
+          const coords: Coordinates = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+
+          if (this.clientMarker) {
+            this.mapComponent?.removeMarker(this.clientMarker);
+          }
+
+          if (this.rideInfo){
+            this.rideInfo.userLocation.set(coords);
+            this.rideInfo.calculateDuration();
+          }
+
+          this.clientMarker = this.mapComponent?.addMarker(
+            coords,
+            MarkerIcons.driverAvailable
+          );
+        })
+        .catch(err => console.error('Location error:', err))
+  }
+
+  stopTrackingClientLocation(): void {
+    if (this.clientLocationInterval) {
+      clearInterval(this.clientLocationInterval);
+      this.clientLocationInterval = null;
+    }
+
+    if (this.clientMarker) {
+      this.mapComponent?.removeMarker(this.clientMarker);
+      this.clientMarker = undefined;
+    }
+  }
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
     clearInterval(this.intervalId);
+    clearInterval(this.clientLocationInterval);
     this.rideService.closeConnection();
     window.removeEventListener('resize', () => {
       this.isDesktop.set(window.innerWidth >= 1024);

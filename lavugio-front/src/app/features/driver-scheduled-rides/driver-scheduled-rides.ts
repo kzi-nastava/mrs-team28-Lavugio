@@ -13,7 +13,7 @@ import { FinishRide } from '@app/shared/models/finishRide';
 
 @Component({
   selector: 'app-driver-scheduled-rides',
-  imports: [BaseInfoPage, ScheduledRides, MapComponent, Navbar],
+  imports: [ScheduledRides, MapComponent, Navbar],
   templateUrl: './driver-scheduled-rides.html',
   styleUrl: './driver-scheduled-rides.css',
 })

@@ -16,4 +16,5 @@ public interface RideReportService {
     long countReportsForRide(Long rideId);
     long countReportsForDriver(Long driverId);
     void deleteReport(Long id);
+    boolean hasReported(Long userId, Long rideId);
 }

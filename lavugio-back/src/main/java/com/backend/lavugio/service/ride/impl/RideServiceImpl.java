@@ -5,12 +5,14 @@ import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.pricing.PricingService;
 import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +34,19 @@ public class RideServiceImpl implements RideService {
     private final RegularUserRepository regularUserRepository;
     private final DriverService driverService;
     private final PricingService pricingService;
+    private final RideDestinationService rideDestinationService;
 
     @Autowired
-    public RideServiceImpl(RideRepository rideRepository, DriverService driverService, PricingService pricingService,  RegularUserRepository regularUserRepository) {
+    public RideServiceImpl(RideRepository rideRepository,
+                           DriverService driverService,
+                           PricingService pricingService,
+                           RegularUserRepository regularUserRepository,
+                           RideDestinationService rideDestinationService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
         this.regularUserRepository = regularUserRepository;
+        this.rideDestinationService = rideDestinationService;
     }
 
     @Override
