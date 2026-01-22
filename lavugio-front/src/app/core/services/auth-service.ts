@@ -30,7 +30,7 @@ export interface LoginResponse {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.BACKEND_URL}api/regularUsers`;
+  private readonly apiUrl = `${environment.BACKEND_URL}/api/regularUsers`;
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
