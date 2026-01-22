@@ -2,12 +2,14 @@ package com.backend.lavugio.dto.ride;
 
 import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.ride.Ride;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,8 +21,6 @@ public class RideOverviewDTO {
     private Long driverId;
 
     private double price;
-
-    private CoordinatesDTO driverCoordinates;
 
     private CoordinatesDTO[] checkpoints;
 
@@ -39,4 +39,19 @@ public class RideOverviewDTO {
     private boolean isReviewed;
 
     private boolean isReported;
+
+    public RideOverviewDTO(Ride ride, List<CoordinatesDTO> coordinates, String start, String end, boolean isReviewed, boolean isReported) {
+        this.rideId = ride.getId();
+        this.driverId = ride.getDriver().getId();
+        this.price = ride.getPrice();
+        this.checkpoints = coordinates.toArray(new CoordinatesDTO[0]);
+        this.status = ride.getRideStatus();
+        this.driverName = ride.getDriver().getName();
+        this.startAddress = start;
+        this.endAddress = end;
+        this.departureTime = ride.getStartDateTime();
+        this.arrivalTime = ride.getEndDateTime();
+        this.isReviewed = isReviewed;
+        this.isReported = isReported;
+    }
 }

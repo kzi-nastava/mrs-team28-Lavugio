@@ -1,5 +1,7 @@
 package com.backend.lavugio.service.ride;
 
+import com.backend.lavugio.dto.ride.FinishRideDTO;
+import com.backend.lavugio.dto.ride.RideOverviewDTO;
 import com.backend.lavugio.dto.ride.RideEstimateRequestDTO;
 import com.backend.lavugio.dto.ride.RideRequestDTO;
 import com.backend.lavugio.dto.ride.RideResponseDTO;
