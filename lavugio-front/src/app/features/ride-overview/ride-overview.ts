@@ -39,7 +39,6 @@ export class RideOverview implements AfterViewInit {
 
   private intervalId: any;
   private subscription: Subscription | null = null;
-  private router = inject(Router);
 
   private locationService = inject(LocationService);
   private clientMarker?: Marker;
@@ -180,9 +179,7 @@ export class RideOverview implements AfterViewInit {
     }
   }
 
-  navigateToCancelRide() {
-    this.router.navigate([`/cancel-ride/${this.rideId}`]);
-  }
+
   startTrackingClientLocation(): void {
     this.getLocation();
 
