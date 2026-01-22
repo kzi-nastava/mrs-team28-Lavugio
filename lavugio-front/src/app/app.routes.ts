@@ -83,7 +83,7 @@ export const routes: Routes = [
     component: GuestHomePage
   },
   {
-    path: 'ride-overview',
+    path: ':rideId/ride-overview',
     title: 'Ride Overview',
     component: RideOverview
   }

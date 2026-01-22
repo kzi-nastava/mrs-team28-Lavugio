@@ -13,6 +13,7 @@ import { RideReview } from '@app/shared/models/rideReview';
 import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
+import { FinishRide } from '@app/shared/models/finishRide';
 @Injectable({
   providedIn: 'root',
 })
@@ -62,8 +63,13 @@ export class RideService {
   postRideReview(rideId: number, review: RideReview): Observable<RideReview> {
     return this.http.post<RideReview>(`${this.mainPortUrl}/${rideId}/review`, review);
   }
-  closeConnection() {
-    if (this.client) {
+
+  postRideFinish(finish: FinishRide): Observable<FinishRide>{
+    return this.http.post<FinishRide>(`${this.mainPortUrl}/finish`, finish);
+  }
+
+  closeConnection(){
+    if(this.client){
       this.client.deactivate();
     }
   }

@@ -2,6 +2,7 @@ package com.backend.lavugio.service.ride.impl;
 
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
+import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
@@ -9,6 +10,7 @@ import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
+import com.backend.lavugio.service.pricing.PricingService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverService;
@@ -31,15 +33,18 @@ public class RideServiceImpl implements RideService {
     private final RideRepository rideRepository;
     private final RegularUserRepository regularUserRepository;
     private final DriverService driverService;
+    private final PricingService pricingService;
     private final RideDestinationService rideDestinationService;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
                            DriverService driverService,
+                           PricingService pricingService,
                            RegularUserRepository regularUserRepository,
                            RideDestinationService rideDestinationService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
+        this.pricingService = pricingService;
         this.regularUserRepository = regularUserRepository;
         this.rideDestinationService = rideDestinationService;
     }
@@ -333,4 +338,11 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot change status of cancelled ride");
         }
     }
+
+    public Double calculatePrice(VehicleType vehicleType, Double distance){
+        Double kilometerPrice = pricingService.getKilometerPricing();
+        Double vehicleTypePrice = pricingService.getVehiclePricingByVehicleType(vehicleType);
+        return vehicleTypePrice + kilometerPrice * distance;
+    }
+
 }

@@ -8,6 +8,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -24,6 +25,7 @@ public class EmailServiceImpl implements EmailService {
      * @param subject - naslov emaila
      * @param body - sadržaj emaila
      */
+    @Async
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
@@ -41,6 +43,7 @@ public class EmailServiceImpl implements EmailService {
      * @param body - sadržaj emaila
      * @param attachmentPath - putanja do fajla koji se šalje
      */
+    @Async
     public void sendEmailWithAttachment(String to, String subject, String body, String attachmentPath)
             throws MessagingException {
 

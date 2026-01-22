@@ -6,6 +6,7 @@ import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.RideReport;
 import com.backend.lavugio.service.ride.ReviewService;
+import com.backend.lavugio.service.ride.RideCompletionService;
 import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideReportService;
 import com.backend.lavugio.service.ride.RideService;
@@ -33,12 +34,20 @@ public class RideController {
     private final ReviewService reviewService;
     private final RideOverviewService rideOverviewService;
 
+    private final RideCompletionService  rideCompletionService;
+
     @Autowired
-    public RideController(RideService rideService, DriverService driverService, RideReportService rideReportService, ReviewService reviewService, RideOverviewService rideOverviewService) {
+    public RideController(RideService rideService,
+                          DriverService driverService,
+                          RideReportService rideReportService,
+                          ReviewService reviewService,
+                          RideCompletionService rideCompletionService,
+                          RideOverviewService rideOverviewService){
         this.rideService = rideService;
         this.driverService = driverService;
         this.rideReportService = rideReportService;
         this.reviewService = reviewService;
+        this.rideCompletionService = rideCompletionService;
         this.rideOverviewService = rideOverviewService;
     }
 
@@ -289,18 +298,17 @@ public class RideController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping("/{rideId}/complete")
-    public ResponseEntity<?> completeRide(@PathVariable Long rideId,
-                                          @RequestBody FinishRideDTO finishRideDTO) {
-//        Ride ride = rideService.getRideById(rideId);
-//        Driver driver = ride.getDriver();
-//        rideService.updateRideStatus(rideId, RideStatus.FINISHED);
-//        driverService.updateDriverDriving(driver.getId(), false);
-//        notificationService.notifyPassengersAboutFinishedRide(ride);
-//        for (RegularUser user : ride.getPassengers()){
-//            userService.enableUserOrdering(user.getId());
-//        }
-        // notificationService.notifyPassengersAboutCompletedRide();
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping("/finish")
+    public ResponseEntity<?> finishRide(@RequestBody FinishRideDTO finishRideDTO) {
+        try{
+            rideCompletionService.finishRide(finishRideDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(NoSuchElementException e){
+            return new  ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+        }  catch (Exception e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

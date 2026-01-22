@@ -57,6 +57,7 @@ export class Ride {
     if (rideId) {
       this.rideActionOutput.emit({action: 'FINISH', rideId});
     }
+
   }
 
   onFinishEarly(event: Event){
