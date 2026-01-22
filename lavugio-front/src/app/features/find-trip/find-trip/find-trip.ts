@@ -1,4 +1,4 @@
-import { Component, effect, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
@@ -6,7 +6,7 @@ import { DestinationSelector } from '../destination-selector/destination-selecto
 import { DestinationsDisplay } from '../destinations-display/destinations-display';
 import { Subject, takeUntil } from 'rxjs';
 import { WizardStateService } from '../wizard-state-service';
-import { GeocodeResult } from '../geocoding-service/geocoding-service';
+import { GeocodeResult, GeocodingService } from '../geocoding-service/geocoding-service';
 import { PreferencesSelect } from '../preferences-select/preferences-select';
 import { Passenger } from '../add-passanger-input/add-passanger-input';
 import { TripSummary } from '../trip-summary/trip-summary';
@@ -16,6 +16,12 @@ import { FavoriteRoutesDialog } from '../favorite-routes-dialog/favorite-routes-
 import { FavoriteRoute } from '@app/shared/models/favoriteRoute';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { DialogService } from '@app/core/services/dialog-service';
+import { FavoriteRouteService } from '@app/core/services/route/favorite-route-service';
+import { NewFavoriteRouteRequest } from '@app/shared/models/route/newFavoriteRouteRequest';
+import { RideScheduleData } from '../schedule-ride-dialog/schedule-ride-dialog';
+import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
+import { RideService } from '@app/core/services/ride-service';
+import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 
 @Component({
   selector: 'app-find-trip',
@@ -45,6 +51,8 @@ export class FindTrip implements OnInit, OnDestroy {
 
   destinations: TripDestination[] = [];
 
+  scheduleData = signal<RideScheduleData | null>(null);
+
   currentStep = 0;
   totalSteps = 0;
   currentTitle = '';
@@ -56,13 +64,19 @@ export class FindTrip implements OnInit, OnDestroy {
   canFinishTrip = false;
   favoriteRouteName: string = '';
 
-  tripDistance = '0km';
-  tripEstimatedTime = '0min';
-  tripPrice = '0$';
+  rideEstimate = signal<RouteEstimateInfo | null>(null);
+  ridePrice = signal<number>(0);
 
   private destroy$ = new Subject<void>();
 
-  constructor(public wizardState: WizardStateService, private dialogService: DialogService) {}
+  constructor(
+    public wizardState: WizardStateService,
+    private dialogService: DialogService,
+    private favoriteRouteService: FavoriteRouteService,
+    private geocodingService: GeocodingService,
+    private rideService: RideService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit() {
     this.totalSteps = this.wizardState.getTotalSteps();
@@ -95,6 +109,10 @@ export class FindTrip implements OnInit, OnDestroy {
     const newDestination: TripDestination = {
       id: geocodeResult.place_id?.toString() || crypto.randomUUID(),
       name: geocodeResult.display_name,
+      street: geocodeResult.street || '',
+      houseNumber: geocodeResult.streetNumber || '',
+      city: geocodeResult.city || '',
+      country: geocodeResult.country || '',
       coordinates: {
         latitude: Number(geocodeResult.lat),
         longitude: Number(geocodeResult.lon),
@@ -104,6 +122,11 @@ export class FindTrip implements OnInit, OnDestroy {
     this.destinations.push(newDestination);
     this.map.addMarker(newDestination.coordinates, MarkerIcons.checkpoint);
     this.updateRoute();
+    
+    // Recalculate estimate if on review step
+    if (this.isLastStep()) {
+      this.loadRideEstimate();
+    }
   }
 
   onDestinationRemoved(destinationId: string) {
@@ -118,13 +141,18 @@ export class FindTrip implements OnInit, OnDestroy {
         index === 0
           ? MarkerIcons.start
           : index === this.destinations.length - 1
-          ? MarkerIcons.end
-          : MarkerIcons.checkpoint;
+            ? MarkerIcons.end
+            : MarkerIcons.checkpoint;
 
       this.map.addMarker(d.coordinates, icon);
     });
 
     this.updateRoute();
+    
+    // Recalculate estimate if on review step
+    if (this.isLastStep()) {
+      this.loadRideEstimate();
+    }
   }
 
   private updateRoute() {
@@ -135,15 +163,17 @@ export class FindTrip implements OnInit, OnDestroy {
   }
 
   onPassengerAdded(passenger: Passenger) {
-    console.log('FindTrip - onPassengerAdded:', passenger);
-    this.passengers = [...this.passengers, passenger];
-    console.log('FindTrip - passengers array:', this.passengers);
+    if (this.passengers.find((p) => p.email === passenger.email)) {
+      this.dialogService.open('Duplicate Passenger', 'This passenger has already been added.', true);
+      return;
+    } else {
+      passenger.email = passenger.email.toLocaleLowerCase();
+      this.passengers = [...this.passengers, passenger];
+    }
   }
 
   onPassengerRemoved(passengerId: string) {
-    console.log('FindTrip - onPassengerRemoved:', passengerId);
     this.passengers = this.passengers.filter((p) => p.id !== passengerId);
-    console.log('FindTrip - passengers array:', this.passengers);
   }
 
   onCanFinishChange(canFinish: boolean) {
@@ -158,7 +188,25 @@ export class FindTrip implements OnInit, OnDestroy {
     this.selectedVehicleType = preferences.vehicleType;
     this.isPetFriendly = preferences.isPetFriendly;
     this.isBabyFriendly = preferences.isBabyFriendly;
+    
+    // Recalculate price if on review step and vehicle type changed
+    if (this.isLastStep() && this.destinations.length >= 2) {
+      this.loadRideEstimate();
+    }
   }
+
+  openScheduleDialog() {
+  this.dialogService.openScheduleRide().subscribe({
+    next: (result) => {
+      console.log('Schedule data:', result);
+      this.scheduleData.set(result);
+      // DODAJ POZIV NA SERVIS
+    },
+    complete: () => {
+      console.log('Modal closed');
+    }
+  });
+}
 
   onFinish() {
     this.saveCurrentStepData();
@@ -171,12 +219,61 @@ export class FindTrip implements OnInit, OnDestroy {
         isBabyFriendly: this.isBabyFriendly,
       },
     });
-    // Handle trip submission here
+    this.openScheduleDialog();
+  }
+
+  loadRideEstimate() {
+    if (this.destinations.length < 2) {
+      this.rideEstimate.set(null);
+      this.ridePrice.set(0);
+      return;
+    }
+
+    const coordinates: Coordinates[] = this.destinations.map(d => d.coordinates);
+    this.geocodingService.getRouteInfo(coordinates).subscribe({
+      next: (routeInfo) => {
+        if (!routeInfo) {
+          console.error('Failed to get route info');
+          return;
+        }
+        const routeEstimate: RouteEstimateInfo = {
+          distanceMeters: routeInfo.distanceMeters,
+          durationSeconds: routeInfo.durationSeconds
+        }
+
+        this.rideEstimate.set(routeEstimate);
+        
+        if (this.selectedVehicleType !== '') {
+          const request: RideEstimateRequest = {
+            distanceMeters: routeEstimate.distanceMeters,
+            selectedVehicleType: this.selectedVehicleType
+          }
+  
+          this.rideService.getPriceForRide(request).subscribe({
+            next: (priceResponse) => {
+              console.log("priceResponse", priceResponse);
+              this.ridePrice.set(priceResponse);
+            },
+            error: (error) => {
+              console.error('Failed to calculate price:', error);
+              this.dialogService.open('Price Calculation Failed', 'Unable to calculate ride price at this time.', true);
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Failed to get route info:', error);
+      }
+    });
   }
 
   onNext() {
     this.saveCurrentStepData();
     this.wizardState.nextStep();
+
+    if (this.isLastStep()) {
+      this.loadRideEstimate();
+    }
   }
 
   onPrevious() {
@@ -208,24 +305,45 @@ export class FindTrip implements OnInit, OnDestroy {
 
   showFavoritesDialog = false;
 
-  favoriteRoutes: FavoriteRoute[] = [
-    {
-      id: '1',
-      name: 'Home → Work',
-      destinations: [
-        {
-          id: 'home',
-          name: 'Home aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
-          coordinates: { latitude: 45.1, longitude: 19.8 },
-        },
-        {
-          id: 'work',
-          name: 'Work aodjaoidjasodjaoidjoaidoiajdoiasjdoiasjdoiasjdoiasiaiadoi',
-          coordinates: { latitude: 45.2, longitude: 19.9 },
-        },
-      ],
-    },
-  ];
+  favoriteRoutes: FavoriteRoute[] = [];
+
+  getFavoriteRoutes() {
+    this.favoriteRouteService.getFavoriteRoutes().subscribe({
+      next: (response) => {
+        this.favoriteRoutes = response;
+      },
+      error: (err) => {
+        this.dialogService.open('Loading Favorite Routes Failed', err.error.message, true);
+      },
+    });
+  }
+
+  private generateDisplayName(destination: {
+    street?: string;
+    houseNumber?: string;
+    city?: string;
+    country?: string;
+  }): string {
+    let displayName = '';
+
+    if (destination.street) {
+      displayName = destination.street;
+
+      if (destination.houseNumber) {
+        displayName += ' ' + destination.houseNumber;
+      }
+
+      if (destination.city) {
+        displayName += ', ' + destination.city;
+      }
+    } else if (destination.city) {
+      displayName = destination.city;
+    } else {
+      displayName = 'Unknown location';
+    }
+
+    return displayName;
+  }
 
   enableMapPickMode() {
     this.isMapPickMode = true;
@@ -246,7 +364,22 @@ export class FindTrip implements OnInit, OnDestroy {
   }
 
   openFavorites() {
-    this.showFavoritesDialog = true;
+    this.favoriteRouteService.getFavoriteRoutes().subscribe({
+      next: (response) => {
+        this.favoriteRoutes = response.map((route: FavoriteRoute) => ({
+          ...route,
+          destinations: route.destinations.map((d) => ({
+            ...d,
+            name: this.generateDisplayName(d),
+          })),
+        }));
+        this.showFavoritesDialog = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.dialogService.open('Loading Favorite Routes Failed', err.error.message, true);
+      },
+    });
   }
 
   closeFavorites() {
@@ -256,7 +389,11 @@ export class FindTrip implements OnInit, OnDestroy {
   applyFavoriteRoute(route: FavoriteRoute) {
     this.destinations = route.destinations.map((d) => ({
       id: crypto.randomUUID(),
-      name: d.name,
+      name: this.generateDisplayName(d),
+      street: d.street,
+      houseNumber: d.houseNumber,
+      city: d.city,
+      country: d.country,
       coordinates: {
         latitude: d.coordinates.latitude,
         longitude: d.coordinates.longitude,
@@ -270,26 +407,43 @@ export class FindTrip implements OnInit, OnDestroy {
 
   saveFavoriteRoute() {
     if (this.destinations.length < 2) {
-      // OVDE POZIVAŠ SVOJ POSTOJEĆI ERROR MODAL
-      this.dialogService.open('Cannot save route', 'Please add at least two destinations to save a favorite route.', true);
+      this.dialogService.open(
+        'Cannot save route',
+        'Please add at least two destinations to save a favorite route.',
+        true,
+      );
       return;
     }
 
     if (!this.favoriteRouteName.trim()) {
-      this.dialogService.open('Cannot save route', 'Please enter a name for the favorite route.', true);
+      this.dialogService.open(
+        'Cannot save route',
+        'Please enter a name for the favorite route.',
+        true,
+      );
       return;
     }
 
-    const favoriteRoutePayload = {
+    const newFavoriteRoute: NewFavoriteRouteRequest = {
       name: this.favoriteRouteName,
       destinations: this.destinations,
     };
-    
-    // TODO:
-    // this.yourService.saveFavoriteRoute(favoriteRoutePayload).subscribe(...)
-    this.dialogService.open('Route saved', 'Your favorite route has been saved successfully.', false);
 
-    this.favoriteRouteName = '';
+    this.favoriteRouteService.saveFavoriteRoute(newFavoriteRoute).subscribe({
+      next: (respond) => {
+        this.dialogService.open(
+          'Route saved',
+          'Your favorite route has been saved successfully.',
+          false,
+        );
+        setTimeout(() => {
+          this.favoriteRouteName = '';
+        });
+      },
+      error: (err) => {
+        this.dialogService.open('Adding Favorite Route Failed', err.error.message, true);
+      },
+    });
   }
 
   isFirstStep(): boolean {

@@ -89,8 +89,6 @@ export class RegisterDriver {
     this.driverService.registerDriver(fullData).subscribe({
       next: (res) => {
         this.dialogService.open('Registration Successful', 'Your driver account has been created successfully!', false);
-        // Redirect to another page after successful registration
-        // Example: redirect to home/dashboard page after 2 seconds
         setTimeout(() => {
           this.router.navigate(['/']); // Change '/home' to your desired route
         }, 2000);

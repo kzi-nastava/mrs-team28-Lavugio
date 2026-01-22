@@ -1,5 +1,6 @@
 package com.backend.lavugio.dto.route;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import lombok.*;
 
 @Data
@@ -8,14 +9,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FavoriteRouteDestinationDTO {
-    private Long id;
-    private Long addressId;
-    private String streetName;
+    private String street;
+    private String houseNumber;
     private String city;
     private String country;
-    private int streetNumber;
-    private int zipCode;
-    private Double longitude;
-    private Double latitude;
-    private Integer destinationOrder;
+    private CoordinatesDTO coordinates;
 }

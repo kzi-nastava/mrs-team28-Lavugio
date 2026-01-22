@@ -1,6 +1,7 @@
 package com.backend.lavugio.service.ride;
 
 import com.backend.lavugio.dto.ride.FinishRideDTO;
+import com.backend.lavugio.dto.ride.RideEstimateRequestDTO;
 import com.backend.lavugio.dto.ride.RideRequestDTO;
 import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
@@ -46,6 +47,7 @@ public interface RideService {
     Float calculateTotalDistanceForDriver(Long driverId);
     Float calculateAverageFareForDriver(Long driverId);
     List<Ride> applyParametersToRides(List<Ride> rides, boolean ascending, DriverHistorySortFieldEnum sortBy, String dateRangeStart, String dateRangeEnd);
+    double estimateRidePrice(RideEstimateRequestDTO request);
     Double calculatePrice(VehicleType vehicleType, Double distance);
 
     // Instant Ride Creation

@@ -1,6 +1,8 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.ride.GetRideReviewDTO;
 import com.backend.lavugio.dto.ride.RideReviewDTO;
+import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.repository.ride.ReviewRepository;
@@ -11,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,19 +31,25 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public Review createReview(Long rideId, RideReviewDTO rideReviewDTO) {
         Ride ride = rideService.getRideById(rideId);
-        Review review = new Review(ride, rideReviewDTO);
-        if (review.getReviewedRide() == null) {
+        if (ride == null) {
             throw new IllegalArgumentException("Ride cannot be null");
         }
-        if (review.getReviewedRide().getCreator() == null) {
+        if (ride.getCreator() == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
+        if (ride.getRideStatus() != RideStatus.FINISHED) {
+            throw  new IllegalArgumentException("Ride is not finished");
+        }
+        if (ride.getEndDateTime().plusHours(24*3).isAfter(LocalDateTime.now())){
+            throw new IllegalArgumentException("Ride cannot be reviewed 3 days after concluding");
+        }
+
+        Review review = new Review(ride, rideReviewDTO);
         if (reviewRepository.existsByReviewedRideIdAndReviewerId(
                 review.getReviewedRide().getId(),
                 review.getReviewedRide().getCreator().getId())) {
             throw new IllegalStateException("User has already reviewed this ride");
         }
-
         return reviewRepository.save(review);
     }
 
@@ -98,5 +108,15 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("Review not found with id: " + id);
         }
         reviewRepository.deleteById(id);
+    }
+
+    @Override
+    public List<GetRideReviewDTO> getRideReviewDTOsByRideId(Long rideId){
+        List<Review> reviews =  this.getReviewsByRideId(rideId);
+        List<GetRideReviewDTO> dtos = new ArrayList<>();
+        for (Review review : reviews) {
+            GetRideReviewDTO dto = new GetRideReviewDTO(review);
+        }
+        return dtos;
     }
 }
