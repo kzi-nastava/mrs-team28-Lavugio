@@ -9,7 +9,7 @@ import { environment } from 'environments/environment';
   providedIn: 'root',
 })
 export class DriverService {
-  private mainPortUrl = environment.BACKEND_URL + 'api/drivers';
+  private mainPortUrl = environment.BACKEND_URL + '/api/drivers';
 
   http = inject(HttpClient);
   getDriverLocations(): Observable<DriverMarkerLocation[]> {

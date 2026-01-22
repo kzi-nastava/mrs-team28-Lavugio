@@ -8,15 +8,15 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class FavoriteRouteService {
-  private apiUrl = environment.BACKEND_URL;
+  private apiUrl = environment.BACKEND_URL+"/api";
 
   constructor(private http: HttpClient) {}
 
   saveFavoriteRoute(favoriteRoute: NewFavoriteRouteRequest): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}api/favorite-routes/add`, favoriteRoute);
+    return this.http.post<any>(`${this.apiUrl}/favorite-routes/add`, favoriteRoute);
   }
 
   getFavoriteRoutes(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}api/favorite-routes`);
+    return this.http.get<any>(`${this.apiUrl}/favorite-routes`);
   }
 }
