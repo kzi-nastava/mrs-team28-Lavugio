@@ -6,7 +6,7 @@
     [class.border-[#BC6C25]]="isExpanded()"
     (click)="toggleExpand()"
   >
-    <span class="sm:text-xl text-[#BC6C25] font-medium flex-1"> Primer imena </span>
+    <span class="sm:text-xl text-lg text-[#BC6C25] font-medium flex-1"> Primer imena </span>
 
     <svg
       class="w-8 h-8 transition-transform duration-300 shrink-0 text-[#BC6C25]"
@@ -24,17 +24,32 @@
   <div
     class="overflow-hidden transition-all duration-300"
     [class.max-h-0]="!isExpanded()"
-    [class.max-h-96]="isExpanded()"
+    
   >
-    <div class="text-center mt-3 font-medium text-lg text-[#606C38] flex mx-6 justify-between">
-        <span> Change from </span>
-        <span> Change to </span>
+    <div class="text-center mt-3 font-medium text-lg text-[#606C38] flex mx-6  justify-between">
+        <span> pera@peric.com </span>
     </div>
-    <div class="mx-6 mb-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="mx-6 mb-6 mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
       <app-driver-update-request-row></app-driver-update-request-row>
       <app-driver-update-request-row></app-driver-update-request-row>
       <app-driver-update-request-row></app-driver-update-request-row>
       <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+      <app-driver-update-request-row></app-driver-update-request-row>
+    </div>
+    <div class="flex justify-center sm:justify-end gap-4 mb-6 mx-6" >
+      <button class="bg-[#C70000] hover:bg-[#D10000] p-4 rounded-lg text-white font-medium text-xl">
+        Cancel
+      </button>
+      <button class="bg-[#606C38] hover:bg-[#708238] p-4 rounded-lg text-white font-medium text-xl">
+        Approve
+      </button>
     </div>
   </div>
 </div>
