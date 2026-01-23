@@ -66,15 +66,27 @@
   <app-profile-info-row
     [label]="'Vehicle Type'"
     [value]="profile.vehicleType!"
+    [options]="vehicleTypeOptions"
     (valueChanged)="onFieldChanged('vehicleType', $event)"
   >
   </app-profile-info-row>
 
+  
   <app-profile-info-row
-    [label]="'Active in last 24h'"
-    [value]="profile.activeTime!"
-    [editable]="false"
+  [label]="'License Plate'"
+    [value]="profile.vehicleLicensePlate!"
+    [editable]="true"
     [singleLineLabel]="true"
+    (valueChanged)="onFieldChanged('vehicleLicensePlate', $event)"
+    >
+  </app-profile-info-row>
+  
+  <app-profile-info-row
+    [label]="'Number of seats'"
+    [value]="getSeatsString(profile.vehicleSeats!)"
+    [editable]="true"
+    [singleLineLabel]="true"
+    (valueChanged)="onFieldChanged('vehicleSeats', $event)"
   >
   </app-profile-info-row>
 
@@ -83,10 +95,18 @@
 
   <app-profile-info-row [label]="'Baby Friendly'" [value]="'false'" [isBoolean]="true">
   </app-profile-info-row>
-  }
+  
+  <app-profile-info-row
+    [label]="'Active in last 24h'"
+    [value]="profile.activeTime!"
+    [editable]="false"
+    [singleLineLabel]="true"
+  >
+  </app-profile-info-row>
+}
 
-  <!-- Buttons -->
-  <div class="grid grid-cols-2 sm:col-span-2 gap-4">
+<!-- Buttons -->
+<div class="grid grid-cols-2 sm:col-span-2 gap-4">
     <div
       class="justify-self-start"
       [class.col-span-2]="!editService.isEditMode() && profile.role !== 'DRIVER'"

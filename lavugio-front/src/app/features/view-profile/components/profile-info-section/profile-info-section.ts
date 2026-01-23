@@ -5,9 +5,8 @@ import { ProfileEdit } from '../../services/profile-edit';
 import { UserProfile } from '@app/shared/models/user/userProfile';
 import { UserService } from '@app/core/services/user/user-service';
 import { DialogService } from '@app/core/services/dialog-service';
-import { getRoleString } from '@app/shared/models/user/userProfile';
 import { ChangePasswordDialog } from '../change-password-dialog/change-password-dialog';
-
+import { DriverService } from '@app/core/services/user/driver-service';
 
 @Component({
   selector: 'app-profile-info-section',
@@ -23,14 +22,14 @@ export class ProfileInfoSection {
   @Input() profile!: UserProfile;
   updatedProfile!: UserProfile;
   showPasswordDialog = false;
+  vehicleTypeOptions = ['Standard', 'Luxury', 'Combi'];
 
-  constructor(private userService: UserService,
-              private dialogService: DialogService
-  ) {}
+  private userService = inject(UserService);
+  private dialogService = inject(DialogService);
+  private driverService = inject(DriverService);
 
   ngOnInit() {
     this.updatedProfile = structuredClone(this.profile);
-
   }
 
   editButtonText = computed(() => {
@@ -44,11 +43,21 @@ export class ProfileInfoSection {
   });
 
   onFieldChanged(field: keyof UserProfile, value: string) {
-    (this.updatedProfile[field] as string) = value;
+    if (field === 'vehicleSeats') {
+      this.updatedProfile[field] = Number(value);
+    } else {
+      (this.updatedProfile[field] as string) = value;
+    }
   }
 
   onEditClick() {
     if (this.editService.isEditMode()) {
+      console.log('Validating and saving profile:', this.updatedProfile);
+      var validateProfileUpdate = this.validateProfileUpdate();
+      if (validateProfileUpdate !== true) {
+        this.dialogService.open('Validation Error', validateProfileUpdate as string, true);
+        return;
+      }
       if (this.profile.role === 'DRIVER') {
         this.sendEditRequest();
       } else {
@@ -94,12 +103,7 @@ export class ProfileInfoSection {
     this.userService.updateProfile(this.updatedProfile).subscribe({
       next: () => {
         const title: string = "Update Successful!";
-        var message: string = "";
-        if (getRoleString(this.profile.role) === "Driver") {
-          message = "Update request sent successfully!";  
-        } else {
-          message = "Profile updated successfully!";  
-        }
+        var message: string = "Profile updated successfully!";
         this.dialogService.open(title, message, false);
         this.editService.disableEditMode();
       },
@@ -117,10 +121,46 @@ export class ProfileInfoSection {
 
   private sendEditRequest() {
     console.log('Sending edit request:', this.profile);
-    // API call za slanje requesta adminu
-    // this.profileService.sendEditRequest(this.profile).subscribe(...)
+    this.driverService.sendEditRequest(this.profile).subscribe({
+      next: () => {
+        console.log('Edit request sent successfully');
+        this.dialogService.open('Request Sent', 'Your edit request has been sent to the administrator for approval.', false);
+        this.editService.disableEditMode();
+      },
+      error: (error) => {
+        console.error('Error sending edit request:', error);
+        this.dialogService.open('Error', 'There was an error sending your edit request. Please try again later.', true);
+        this.editService.disableEditMode();
+      }
+    });
+  }
 
-    // Nakon uspešnog slanja, isključi edit mode
-    this.editService.disableEditMode();
+  private validateProfileUpdate(): string | boolean {
+    
+    const phoneFormat1Regex = /^06\d{5,9}$/;
+    const phoneFormat2Regex = /^\+381\d{6,10}$/
+    if (!phoneFormat1Regex.test(this.updatedProfile.phoneNumber) && !phoneFormat2Regex.test(this.updatedProfile.phoneNumber)) {
+      return "Phone number format is invalid.";
+    }
+    
+    if (this.updatedProfile.role === 'DRIVER') {
+      const seatsNum = Number(this.updatedProfile.vehicleSeats);
+      if (!Number.isInteger(seatsNum) || seatsNum < 1) {
+        return "Vehicle seats number must be a positive integer.";
+      }
+      const licensePlateRegex = /^[A-Z]{2}-\d{3,5}-[A-Z]{2}$/;
+      if (!licensePlateRegex.test(this.updatedProfile.vehicleLicensePlate || '')) {
+        return "License plate format is invalid.";
+      }
+    }
+
+    return true;
+  }
+
+  getSeatsString(seats?: number): string {
+    if (this.profile.role !== 'DRIVER' || seats === undefined || seats === null) {
+      return '';
+    }
+    return seats.toString();
   }
 }

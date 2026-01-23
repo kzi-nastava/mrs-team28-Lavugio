@@ -20,6 +20,10 @@ export class UserService {
     return this.http.put<any>(`${this.apiUrl}/users/profile`, updatedProfile);
   }
 
+  sendEditRequest(updatedProfile: UserProfile): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/users/profile/edit-request`, updatedProfile);
+  }
+
   uploadProfilePicture(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);

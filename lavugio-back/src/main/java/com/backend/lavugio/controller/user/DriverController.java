@@ -137,7 +137,32 @@ public class DriverController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
+    @PutMapping("/edit-request")
+    public ResponseEntity<?> createDriverEditRequest(
+            @RequestBody DriverUpdateRequestDTO request) {
+    	// @AuthenticationPrincipal UserDetails userDetails
+        try {
+            Long accountId = 1L;
+            driverService.createDriverEditRequest(request, accountId);
+            return ResponseEntity.ok("Driver edit request created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/edit-requests")
+    public ResponseEntity<?> getDriverEditRequests() {
+        try {
+            // TODO: IMPLEMENTIRAJ OSTATAK
+            List<DriverUpdateRequestDTO> requests = driverService.getAllPendingDriverEditRequests();
+            List<DriverUpdateRequestDTO> requests = new ArrayList<>(); // Placeholder for requests list
+            return ResponseEntity.ok(requests);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteDriver(
             @PathVariable Long id) {

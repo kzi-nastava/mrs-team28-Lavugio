@@ -21,6 +21,7 @@ export class ProfileView {
   ngOnInit() {
     this.userService.getUserProfile().subscribe({
       next: (profile) => {
+        console.log("Loaded profile:", profile);
         this.userProfile = profile;
         this.isDriver = profile.role === "DRIVER";
       },

@@ -2,10 +2,12 @@ package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.user.Driver;
+import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.repository.user.DriverRepository;
 
+import com.backend.lavugio.repository.user.DriverUpdateRequestRepository;
 import com.backend.lavugio.repository.vehicle.VehicleRepository;
 
 import com.backend.lavugio.service.user.DriverService;
@@ -25,6 +27,9 @@ public class DriverServiceImpl implements DriverService {
 
     @Autowired
     private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private DriverUpdateRequestRepository driverUpdateRequestRepository;
 
     @Override
     @Transactional
@@ -221,6 +226,31 @@ public class DriverServiceImpl implements DriverService {
 
         Driver savedDriver = driverRepository.save(driver);
         return mapToDTO(savedDriver);
+    }
+
+    @Override
+    public void createDriverEditRequest(DriverUpdateRequestDTO request, Long driverId) {
+        DriverUpdateRequest editRequest = new DriverUpdateRequest();
+        editRequest.setDriverId(driverId);
+        editRequest.setName(request.getName());
+        editRequest.setLastName(request.getLastName());
+        editRequest.setPhoneNumber(request.getPhoneNumber());
+        editRequest.setAddress(request.getAddress());
+        editRequest.setMake(request.getMake());
+        editRequest.setModel(request.getModel());
+        editRequest.setLicensePlate(request.getLicensePlate());
+        editRequest.setSeatsNumber(request.getSeatsNumber());
+        editRequest.setPetFriendly(request.isPetFriendly());
+        editRequest.setBabyFriendly(request.isBabyFriendly());
+        editRequest.setColor(request.getColor());
+        editRequest.setType(request.getType());
+        editRequest.setValidated(false);
+        driverUpdateRequestRepository.save(editRequest);
+    }
+
+    @Override
+    public List<DriverUpdateRequest> getAllPendingDriverEditRequests() {
+        return driverUpdateRequestRepository.findByValidatedFalse();
     }
 
     @Override

@@ -22,6 +22,17 @@
     />
   </div>
 
+  } @else if (options() && options()!.length > 0) {
+  <!-- Dropdown select -->
+  <select
+    [value]="editableValue()"
+    (change)="onInputChange($any($event.target).value)"
+    class="font-medium text-[#BC6C25] text-lg bg-transparent border border-[#BC6C25] rounded px-2 py-1 outline-none w-full sm:flex-1 text-left sm:text-right mt-1 sm:mt-0 cursor-pointer"
+  >
+    @for (option of options(); track option) {
+      <option [value]="option">{{ option }}</option>
+    }
+  </select>
   } @else {
   <!-- Normal input -->
   <input
