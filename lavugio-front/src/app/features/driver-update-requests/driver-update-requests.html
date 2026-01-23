@@ -13,9 +13,17 @@
       Driver Update Requests
     </h1>
     <div class="flex flex-col mt-5">
-      <app-driver-update-request> </app-driver-update-request>
-      <app-driver-update-request> </app-driver-update-request>
-      <app-driver-update-request> </app-driver-update-request>
+      @for (request of updateRequests; track $index) {
+        <app-driver-update-request 
+          [oldProfile]="request.oldProfile" 
+          [newProfile]="request.newProfile">
+        </app-driver-update-request>
+      }
+      @empty {
+        <div class="text-center text-gray-500 py-8">
+          No driver update requests available.
+        </div>
+      }
     </div>
   </div>
 </div>

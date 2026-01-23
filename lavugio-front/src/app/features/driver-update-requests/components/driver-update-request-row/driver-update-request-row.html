@@ -1,23 +1,45 @@
 <div class="sm:my-3 my-1 sm:text-base flex">
-  <span class="mr-2 flex items-center font-medium text-[#BC6C25]"> Name: </span>
-<div
-    class="flex flex-col sm:flex-row sm:justify-between w-full sm:items-center sm:gap-2 text-[#606C38] font-medium"
->
-    <span> Aleksandar </span>
-    <div class="flex justify-left sm:justify-center flex-1">
-        <svg
-            class="sm:w-4 sm:h-4 h-3 w-3 rotate-90 sm:rotate-0 text-[#606C38]"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="M8 6L8 2L10 2L16 8L10 14L8 14L8 10L-1.74845e-07 10L-3.01991e-07 6L8 6Z"
-                fill="#606C38"
-            />
-        </svg>
+  <span class="mr-2 flex items-center font-medium text-[#BC6C25] whitespace-nowrap shrink-0">
+    {{ label() }}:
+  </span>
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:gap-2 flex-1 min-w-0 text-[#606C38] font-medium"
+  >
+    <div class="min-w-0 flex-1 overflow-hidden">
+      <p
+        class="whitespace-nowrap value"
+        (mouseenter)="addScrollIfNeeded($event.target)"
+        (mouseleave)="removeScroll($event.target)"
+        (touchstart)="addScrollIfNeeded($event.target)"
+        (touchend)="removeScroll($event.target)"
+      >
+        {{ oldValue() }}
+      </p>
     </div>
-    <span> Konstantin </span>
-</div>
+    <div class="flex justify-left sm:justify-center shrink-0 px-2">
+      <svg
+        class="sm:w-4 sm:h-4 h-3 w-3 rotate-90 sm:rotate-0 text-[#606C38]"
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M8 6L8 2L10 2L16 8L10 14L8 14L8 10L-1.74845e-07 10L-3.01991e-07 6L8 6Z"
+          fill="#606C38"
+        />
+      </svg>
+    </div>
+    <div class="min-w-0 flex-1 overflow-hidden">
+      <p
+        class="whitespace-nowrap value"
+        (mouseenter)="addScrollIfNeeded($event.target)"
+        (mouseleave)="removeScroll($event.target)"
+        (touchstart)="addScrollIfNeeded($event.target)"
+        (touchend)="removeScroll($event.target)"
+      >
+        {{ newValue() }}
+      </p>
+    </div>
+  </div>
 </div>
 <hr class="my-2 border-t-2 border-[#BC6C25]" />
