@@ -1,4 +1,4 @@
-import { Component, input, InputSignal, signal, computed } from '@angular/core';
+import { Component, input, InputSignal, signal, computed, output } from '@angular/core';
 import { DriverUpdateRequestRow } from '../driver-update-request-row/driver-update-request-row';
 import { DriverUpdateRequestDiffDTO, EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
 
@@ -17,6 +17,9 @@ interface ChangedField {
 export class DriverUpdateRequest {
 
   isExpanded = signal<boolean>(false);
+
+  approve = output<number>();
+  reject = output<number>();
 
   toggleExpand() {
     this.isExpanded.set(!this.isExpanded());
@@ -81,10 +84,10 @@ export class DriverUpdateRequest {
   }
 
   approveEditRequest() {
-    alert('Edit request approved (functionality not implemented).');
+    this.approve.emit(this.request().requestId);
   }
 
   rejectEditRequest() {
-    alert('Edit request rejected (functionality not implemented).');
+    this.reject.emit(this.request().requestId);
   }
 }

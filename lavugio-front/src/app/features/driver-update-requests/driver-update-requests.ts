@@ -35,4 +35,28 @@ export class DriverUpdateRequests {
       }
     });
   }
+
+  handleApprove(requestId: number) {
+    this.driverService.approveEditRequest(requestId).subscribe({
+      next: () => {
+        this.updateRequests.update((requests) => requests.filter((r) => r.requestId !== requestId));
+      },
+      error: (err) => {
+        console.error('Failed to approve driver update request:', err);
+      },
+    });
+  }
+
+  handleReject(requestId: number) {
+    this.driverService.rejectEditRequest(requestId).subscribe({
+      next: () => {
+        this.updateRequests.update((requests) => requests.filter((r) => r.requestId !== requestId));
+      },
+      error: (err) => {
+        console.error('Failed to reject driver update request:', err);
+      },
+    });
+  }
+
+  
 }

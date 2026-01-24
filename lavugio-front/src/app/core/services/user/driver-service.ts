@@ -22,4 +22,12 @@ export class DriverService {
   getEditRequests() {
     return this.http.get<DriverUpdateRequestDiffDTO[]>(`${this.apiUrl}/edit-requests`);
   }
+
+  approveEditRequest(requestId: number) {
+    return this.http.post<void>(`${this.apiUrl}/edit-requests/${requestId}/approve`, {});
+  }
+
+  rejectEditRequest(requestId: number) {
+    return this.http.post<void>(`${this.apiUrl}/edit-requests/${requestId}/reject`, {});
+  }
 }

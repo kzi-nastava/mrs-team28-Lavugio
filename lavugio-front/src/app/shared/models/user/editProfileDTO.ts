@@ -30,6 +30,8 @@ export interface EditDriverProfileRequestDTO {
 }
 
 export function MapProfileToEditDriverProfileRequestDTO(profile: UserProfile): EditDriverProfileRequestDTO {
+    console.log(profile.vehicleBabyFriendly);
+    console.log(profile.vehiclePetFriendly);
     return {
         profile: MapProfileToEditProfileDTO(profile),
         vehicleMake: profile.vehicleMake || '',

@@ -299,6 +299,43 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    public void approveEditRequest(Long requestId) {
+        DriverUpdateRequest request = driverUpdateRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Edit request not found with id: " + requestId));
+        Driver driver = driverRepository.findById(request.getDriverId())
+                .orElseThrow(() -> new RuntimeException("Driver not found with id: " + request.getDriverId()));
+        Vehicle vehicle = driver.getVehicle();
+        vehicle.setMake(request.getMake());
+        vehicle.setModel(request.getModel());
+        vehicle.setLicensePlate(request.getLicensePlate());
+        vehicle.setColor(request.getColor());
+        try {
+            vehicle.setType(request.getType());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid vehicle type: " + request.getType());
+        }
+        vehicle.setBabyFriendly(request.isBabyFriendly());
+        vehicle.setPetFriendly(request.isPetFriendly());
+        vehicleRepository.save(vehicle);
+
+        driver.setName(request.getName());
+        driver.setLastName(request.getLastName());
+        driver.setPhoneNumber(request.getPhoneNumber());
+        driverRepository.save(driver);
+        
+        request.setValidated(true);
+        driverUpdateRequestRepository.save(request);
+    }
+
+    @Override
+    public void rejectEditRequest(Long requestId) {
+        DriverUpdateRequest request = driverUpdateRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Edit request not found with id: " + requestId));
+        request.setValidated(true);
+        driverUpdateRequestRepository.save(request);
+    }
+
+    @Override
     public DriverDTO getDriverDTOById(Long id) {
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Driver not found with id: " + id));

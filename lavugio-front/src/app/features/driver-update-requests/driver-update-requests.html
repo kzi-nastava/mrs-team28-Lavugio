@@ -15,7 +15,9 @@
     <div class="flex flex-col mt-5">
       @for (request of updateRequests(); track $index) {
         <app-driver-update-request 
-          [request]="request">
+          [request]="request"
+          (approve)="handleApprove($event)"
+          (reject)="handleReject($event)">
         </app-driver-update-request>
       }
       @empty {

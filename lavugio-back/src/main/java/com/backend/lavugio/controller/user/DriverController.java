@@ -142,6 +142,7 @@ public class DriverController {
     public ResponseEntity<?> createDriverEditRequest(
             @RequestBody DriverUpdateRequestDTO request) {
     	// @AuthenticationPrincipal UserDetails userDetails
+        System.out.println("Request for driver edit received");
         try {
             driverService.createDriverEditRequest(request, accountId);
             return ResponseEntity.ok().body(Map.of("message","Driver edit request created successfully"));
@@ -157,6 +158,26 @@ public class DriverController {
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/edit-requests/{requestId}/approve")
+    public ResponseEntity<?> approveEditRequest(@PathVariable Long requestId) {
+        try {
+            this.driverService.approveEditRequest(requestId);
+            return ResponseEntity.ok().body(Map.of("message", "Edit request successfully approved."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/edit-requests/{requestId}/reject")
+    public ResponseEntity<?> rejectEditRequest(@PathVariable Long requestId) {
+        try {
+            this.driverService.rejectEditRequest(requestId);
+            return ResponseEntity.ok().body(Map.of("message", "Edit request successfully rejected."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
