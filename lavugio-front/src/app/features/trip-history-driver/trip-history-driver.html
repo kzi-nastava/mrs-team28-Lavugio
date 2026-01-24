@@ -1,5 +1,12 @@
 <app-base-info-page>
-  <app-date-filter>
-  </app-date-filter>
-  <app-table></app-table>
+  <app-date-filter></app-date-filter>
+  <app-table 
+    [rides]="rides()" 
+    [loading]="loading()"
+    [loadingDirection]="loadingDirection()"
+    [hasMoreNewer]="hasMoreNewer()"
+    [hasMoreOlder]="hasMoreOlder()"
+    (loadOlder)="loadOlder()"
+    (loadNewer)="loadNewer()">
+  </app-table>
 </app-base-info-page>

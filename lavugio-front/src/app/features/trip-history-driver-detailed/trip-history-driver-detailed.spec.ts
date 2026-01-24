@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TripHistoryDriverDetailed } from './trip-history-driver-detailed';
+import {RideHistoryDriverDetailed} from './trip-history-driver-detailed'
 
 describe('TripHistoryDriverDetailed', () => {
-  let component: TripHistoryDriverDetailed;
-  let fixture: ComponentFixture<TripHistoryDriverDetailed>;
+  let component: RideHistoryDriverDetailed;
+  let fixture: ComponentFixture<RideHistoryDriverDetailed>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TripHistoryDriverDetailed]
+      imports: [RideHistoryDriverDetailed]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TripHistoryDriverDetailed);
+    fixture = TestBed.createComponent(RideHistoryDriverDetailed);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

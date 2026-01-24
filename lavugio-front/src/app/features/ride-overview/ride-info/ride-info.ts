@@ -4,7 +4,7 @@ import { DialogService } from '@app/core/services/dialog-service';
 import { DriverService } from '@app/core/services/driver-service';
 import { MapService } from '@app/core/services/map-service';
 import { Coordinates } from '@app/shared/models/coordinates';
-import { RideOverviewModel } from '@app/shared/models/rideOverview';
+import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { catchError, EMPTY, timeout } from 'rxjs';
 import { RideService } from '@app/core/services/ride-service';
 

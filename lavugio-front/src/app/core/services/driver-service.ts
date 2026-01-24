@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
 import { Observable } from 'rxjs';
-import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
+import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { environment } from 'environments/environment';
+import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistoryDriverPagingModel';
 
 @Injectable({
   providedIn: 'root',
@@ -25,5 +26,22 @@ export class DriverService {
   }
   getScheduledRides(driverId: number) {
     return this.http.get<ScheduledRideDTO[]>(`${this.mainPortUrl}/${driverId}/scheduled-rides`);
+  }
+
+  getDriverRideHistory(driverId: number,
+      page: number, 
+      pageSize: number, 
+      sorting: 'ASC' | 'DESC', 
+      sortBy: 'START' | 'DEPARTURE' | 'DESTINATION',
+      startDate: string,
+      endDate: string){
+
+    let params = new HttpParams().set('page', page)
+      .set('pageSize', pageSize)
+      .set('sorting', sorting)
+      .set('sortBy', sortBy)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get<RideHistoryDriverPagingModel>(`${this.mainPortUrl}/${driverId}/history`, {params}) 
   }
 }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseInfoPage } from '../base-info-page/base-info-page';
+import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
 import { Passengers } from './passengers/passengers';
 import { TripInfo } from './trip-info/trip-info';
 
@@ -9,6 +9,6 @@ import { TripInfo } from './trip-info/trip-info';
   templateUrl: './trip-history-driver-detailed.html',
   styleUrl: './trip-history-driver-detailed.css',
 })
-export class TripHistoryDriverDetailed {
+export class RideHistoryDriverDetailed {
 
 }
