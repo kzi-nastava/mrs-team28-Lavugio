@@ -59,16 +59,30 @@ export class UserEmailInput implements OnDestroy {
         distinctUntilChanged(),
         tap(() => {
           this.isLoading = true;
+          this.cdr.markForCheck();
         }),
-        switchMap((query) => this.userService.searchUserEmails(query)),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((results) => {
-        this.suggestions = results;
-        this.showSuggestions = results.length > 0;
-        this.isLoading = false;
+        switchMap(
+          (query) =>
+            this.userService.searchUserEmailsMock(query),
 
-        this.cdr.markForCheck();
+          // this.userService.searchUserEmails(query)
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (results) => {
+          this.suggestions = results;
+          this.showSuggestions = results.length > 0;
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error fetching email suggestions:', err);
+          this.suggestions = [];
+          this.showSuggestions = false;
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
       });
   }
 

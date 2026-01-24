@@ -6,26 +6,23 @@
     </div>
     <app-user-email-input
       [placeholder]="'Enter user email...'"
-      [value]="selectedEmail"
+      [value]="selectedEmail()"
       (valueChange)="onEmailChange($event)"
       (emailSelected)="onEmailSelected($event)"
     ></app-user-email-input>
     <div class="my-2 text-[#606C38] font-medium">Enter the reason for blocking:</div>
     <textarea
+      [(ngModel)]="blockReason"
       class="w-full border-2 border-[#606C38] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#606C38]"
       rows="5"
       placeholder="Enter reason..."
     ></textarea>
-    <div class="flex sm:justify-end justify-center   mt-4">
-      <button
+    <div class="flex sm:justify-end justify-center mt-4">
+      <button (click)="blockUser()"
         class="px-6 py-3 border-[#BC6C25] border-2 bg-[#BC6C25] text-white rounded-sm font-bold hover:bg-[#DDA15E] hover:border-[#DDA15E] transition-colors"
       >
         Block User
       </button>
     </div>
-  </div>
-
-  <div>
-    <!-- Placeholder -->
   </div>
 </app-white-sheet-background>
