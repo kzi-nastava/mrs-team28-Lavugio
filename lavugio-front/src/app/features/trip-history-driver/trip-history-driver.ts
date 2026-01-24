@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { BaseInfoPage } from '../base-info-page/base-info-page';
 import { DateFilter } from './date-filter/date-filter';
 import { Table } from './table/table';
@@ -14,6 +14,7 @@ import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistor
   styleUrl: './trip-history-driver.css',
 })
 export class RideHistoryDriver {
+  @ViewChild('table') table! : Table;
   driverService = inject(DriverService);
   
   oldestLoadedPage = signal(0);
@@ -32,8 +33,8 @@ export class RideHistoryDriver {
   loadingDirection = signal<'none' | 'older' | 'newer'>('none');
   
   driverId = 1;
-  startDate = '2024-01-01';
-  endDate = '2025-12-31';
+  startDate = '2000-01-01';
+  endDate = '2100-12-31';
 
   constructor() {
     this.loadInitialRides();
@@ -168,5 +169,31 @@ export class RideHistoryDriver {
       this.newestLoadedPage.update(p => p - pagesToRemove);
       this.hasMoreOlder.set(true);
     }
+  }
+
+  updateSortBy(output: 'START' | 'DEPARTURE' | 'DESTINATION'){
+    console.log("filters applied")
+    if (this.sortBy == output){
+      if (this.sorting == 'ASC'){
+        this.sorting = 'DESC';
+      } else{
+        this.sorting = 'ASC';
+      }
+    } else {
+      this.sortBy = output;
+      this.sorting = 'DESC';
+    }
+    this.scrollToTop();
+  }
+
+  updateSelectedDate(date: {start: string, end: string}){
+    this.startDate = date.start;
+    this.endDate = date.end;
+    this.scrollToTop();
+  }
+
+  scrollToTop(){
+    this.table.scrollContainer()!.nativeElement.scrollTop = 0;
+    this.loadInitialRides();
   }
 }

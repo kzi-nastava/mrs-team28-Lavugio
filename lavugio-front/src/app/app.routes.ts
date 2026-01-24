@@ -19,7 +19,7 @@ import { DriverScheduledRides } from './features/driver-scheduled-rides/driver-s
 
 export const routes: Routes = [
   {
-    path: 'trip-history-driver',
+    path: 'ride-history-driver',
     component: RideHistoryDriver,
   },
   {

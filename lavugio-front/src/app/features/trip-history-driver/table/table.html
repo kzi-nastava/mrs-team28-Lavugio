@@ -1,6 +1,6 @@
 <div class="bg-white/5 flex flex-col h-[70vh]">
   <div class="top-0 z-10 bg-[rgb(255,254,248)]">
-    <app-header></app-header>
+    <app-header (updateTableOutput)="updateSortBy($event)"></app-header>
   </div>
 
   <div #scrollContainer class="overflow-y-auto bg-[rgb(255,254,248)]">
@@ -24,7 +24,6 @@
       </app-row>
     }
 
-    <!-- Loading indicator za dno -->
     @if (loadingDirection() === 'older') {
       <div class="flex justify-center py-4">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#283618]"></div>

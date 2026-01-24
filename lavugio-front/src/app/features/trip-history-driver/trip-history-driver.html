@@ -1,6 +1,7 @@
 <app-base-info-page>
-  <app-date-filter></app-date-filter>
-  <app-table 
+  <app-date-filter (dateRangeSelected)="updateSelectedDate($event)"></app-date-filter>
+  <app-table #table
+    (updateSortByOutput)="updateSortBy($event)"
     [rides]="rides()" 
     [loading]="loading()"
     [loadingDirection]="loadingDirection()"

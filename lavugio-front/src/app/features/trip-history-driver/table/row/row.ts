@@ -20,8 +20,10 @@ export class Row {
 
   navigate() {
     const id = this.rideId();
-    if (id) {
-      this.router.navigate([`/ride/${id}`]); 
+    if (id != null) {
+      this.router.navigate([`ride-history-driver/${id}`]); 
+    } else{
+      console.log(id);
     }
   }
 }

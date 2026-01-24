@@ -19,6 +19,7 @@ export class Table implements OnDestroy {
   
   loadOlder = output<void>();
   loadNewer = output<void>();
+  updateSortByOutput = output<any>();
   
   topSentinel = viewChild<ElementRef>('topSentinel');
   bottomSentinel = viewChild<ElementRef>('bottomSentinel');
@@ -132,6 +133,10 @@ export class Table implements OnDestroy {
     }
     
     return { date: '', time: '' };
+  }
+
+  updateSortBy(output: 'START' | 'DEPARTURE' | 'DESTINATION'){
+    this.updateSortByOutput.emit(output);
   }
 
   ngOnDestroy() {
