@@ -3,7 +3,7 @@
   <div class="flex items-center gap-2">
     <!-- Input container with relative positioning for dropdown -->
     <div class="flex-1 relative">
-      <div class="border border-[#606C38] rounded-md bg-white overflow-hidden">
+      <div class="border-[#606C38] border-2 rounded-md bg-white overflow-hidden">
         <input
           type="text"
           [value]="value"
@@ -47,35 +47,18 @@
         <div
           class="absolute top-full left-0 right-0 mt-1 bg-white border border-[#606C38] rounded-md shadow-lg z-50 max-h-60 overflow-y-auto scrollbar scrollbar-thin scrollbar-thumb-[#BC6C25] hover:scrollbar-thumb-[#DDA15E] scrollbar-thumb-rounded scrollbar-track-gray-100"
         >
-          @for (suggestion of suggestions; track suggestion.place_id) {
+          @for (suggestion of suggestions; track suggestion.email) {
             <div
               (click)="selectSuggestion(suggestion)"
               class="px-3 py-2 hover:bg-[#DDA15E] hover:bg-opacity-20 cursor-pointer border-b border-[#606C38] border-opacity-10 last:border-b-0"
             >
               <div class="text-[#606C38] text-sm font-medium">
-                {{ suggestion.display_name }}
+                {{ suggestion.email }}
               </div>
             </div>
           }
         </div>
       }
     </div>
-
-    <button
-      type="button"
-      (click)="activateMapPickMode()"
-      class="h-11 w-11 flex items-center justify-center border border-[#606C38] rounded-md bg-white hover:bg-[#DDA15E] hover:bg-opacity-20"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5 text-[#606C38]"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-      >
-        <path
-          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"
-        />
-      </svg>
-    </button>
   </div>
 </div>

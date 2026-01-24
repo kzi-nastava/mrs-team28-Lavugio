@@ -18,6 +18,7 @@ import { DriverActivation } from './features/driver-activation/driver-activation
 import { DriverScheduledRides } from './features/driver-scheduled-rides/driver-scheduled-rides';
 import { AdminPanel } from './features/admin-panel/admin-panel';
 import { DriverUpdateRequests } from './features/driver-update-requests/driver-update-requests';
+import { BlockUser } from './features/block-user/block-user';
 
 export const routes: Routes = [
   {
@@ -109,5 +110,10 @@ export const routes: Routes = [
     path: 'driver-update-requests',
     title: 'Driver Update Requests',
     component: DriverUpdateRequests
+  },
+  {
+    path: 'block-user',
+    title: 'Block User',
+    component: BlockUser
   }
 ];

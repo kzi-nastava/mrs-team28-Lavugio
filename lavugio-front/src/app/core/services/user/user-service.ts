@@ -52,4 +52,8 @@ export class UserService {
     return this.http.get<any>(`${this.apiUrl}/users/activate/validate?token=${token}`);
   }
 
+  searchUserEmails(query: string): Observable<{ email: string }[]> {
+    return this.http.get<{ email: string }[]>(`${this.apiUrl}/users/search?email=${encodeURIComponent(query)}`);
+  }
+
 }

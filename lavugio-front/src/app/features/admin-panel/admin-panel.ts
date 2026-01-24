@@ -22,7 +22,7 @@ export class AdminPanel {
   }
 
   openBlockUser() {
-    alert('Not implemented yet')
+    this.router.navigate(['/block-user']);
   }
 
   openReportsView() {
