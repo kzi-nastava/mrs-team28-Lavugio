@@ -65,7 +65,7 @@
 
   <app-profile-info-row
     [label]="'Vehicle Type'"
-    [value]="profile.vehicleType!"
+    [value]="getVehicleTypeString(profile.vehicleType!)"
     [options]="vehicleTypeOptions"
     (valueChanged)="onFieldChanged('vehicleType', $event)"
   >

@@ -38,7 +38,7 @@ public class AccountController {
     @Autowired
     private DriverService driverService;
 
-    private static Long accountId = 1L;
+    private static Long accountId = 5L;
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
@@ -72,7 +72,7 @@ public class AccountController {
                 dto.setVehicleColor(vehicle.getColor());
                 dto.setVehicleBabyFriendly(vehicle.isBabyFriendly());
                 dto.setVehiclePetFriendly(vehicle.isPetFriendly());
-                //dto.setVehicleSeats(vehicle.getSeats());
+                dto.setVehicleSeats(vehicle.getSeatsNumber());
             }
 
         } else if (account instanceof RegularUser) {

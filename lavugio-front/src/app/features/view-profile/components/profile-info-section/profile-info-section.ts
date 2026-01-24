@@ -171,9 +171,26 @@ export class ProfileInfoSection {
   }
 
   getSeatsString(seats?: number): string {
-    if (this.profile.role !== 'DRIVER' || seats === undefined || seats === null) {
+    if (seats === undefined || seats === null) {
       return '';
     }
     return seats.toString();
   }
+
+  
+
+  getVehicleTypeString(type?: string): string {
+    if (!type) return '';
+    switch (type) {
+      case 'STANDARD':
+        return 'Standard';
+      case 'LUXURY':
+        return 'Luxury';
+      case 'COMBI':
+        return 'Combi';
+      default:
+        return '';
+    }
+  }
+
 }
