@@ -18,21 +18,21 @@ public class DriverUpdateRequestDTO {
     private AccountUpdateDTO profile;
 
     @Column(nullable = false)
-    private String make;
+    private String vehicleMake;
     @Column(nullable = false)
-    private String model;
+    private String vehicleModel;
     @Column(nullable = false)
-    private String licensePlate;
+    private String vehicleLicensePlate;
     @Column(nullable = false)
-    private int seatsNumber;
+    private int vehicleSeats;
     @Column(nullable = false)
-    private boolean petFriendly;
+    private boolean vehiclePetFriendly;
     @Column(nullable = false)
-    private boolean babyFriendly;
+    private boolean vehicleBabyFriendly;
     @Column(nullable = false)
-    private String color;
+    private String vehicleColor;
 
     @Enumerated(EnumType.STRING)
     @Column
-    private VehicleType type;
+    private VehicleType vehicleType;
 }

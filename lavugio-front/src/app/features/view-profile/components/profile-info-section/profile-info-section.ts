@@ -177,8 +177,6 @@ export class ProfileInfoSection {
     return seats.toString();
   }
 
-  
-
   getVehicleTypeString(type?: string): string {
     if (!type) return '';
     switch (type) {

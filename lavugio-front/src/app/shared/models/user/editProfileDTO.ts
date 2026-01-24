@@ -42,3 +42,9 @@ export function MapProfileToEditDriverProfileRequestDTO(profile: UserProfile): E
         vehicleType: profile.vehicleType || '',
     }
 }
+
+export interface DriverUpdateRequestDiffDTO {
+    requestId: number;
+    oldData: EditDriverProfileRequestDTO;
+    newData: EditDriverProfileRequestDTO;
+}

@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DriverRegistration } from '@app/shared/models/user/driverRegistration';
-import { EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
-import { UserProfile } from '@app/shared/models/user/userProfile';
+import { DriverUpdateRequestDiffDTO, EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -18,5 +17,9 @@ export class DriverService {
 
   sendEditRequest(updatedProfile: EditDriverProfileRequestDTO) {
     return this.http.post<any>(`${this.apiUrl}/edit-request`, updatedProfile);
+  }
+
+  getEditRequests() {
+    return this.http.get<DriverUpdateRequestDiffDTO[]>(`${this.apiUrl}/edit-requests`);
   }
 }
