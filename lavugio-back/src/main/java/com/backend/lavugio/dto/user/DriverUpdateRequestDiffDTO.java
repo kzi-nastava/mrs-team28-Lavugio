@@ -14,4 +14,6 @@ public class DriverUpdateRequestDiffDTO {
 
     private DriverUpdateRequestDTO oldData;
     private DriverUpdateRequestDTO newData;
+
+    private String email;
 }

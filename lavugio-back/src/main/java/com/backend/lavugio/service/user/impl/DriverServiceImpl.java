@@ -290,7 +290,9 @@ public class DriverServiceImpl implements DriverService {
             newData.setVehicleBabyFriendly(request.isBabyFriendly());
             newData.setVehiclePetFriendly(request.isPetFriendly());
             requestDTO.setNewData(newData);
-            
+
+            requestDTO.setEmail(driver.getEmail());
+
             requestsDTO.add(requestDTO);
         }
         return requestsDTO;

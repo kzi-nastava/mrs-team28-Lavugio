@@ -47,4 +47,5 @@ export interface DriverUpdateRequestDiffDTO {
     requestId: number;
     oldData: EditDriverProfileRequestDTO;
     newData: EditDriverProfileRequestDTO;
+    email: string;
 }

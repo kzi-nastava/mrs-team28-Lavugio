@@ -125,7 +125,7 @@
 					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+	</dependency>
 	</dependencies>
 
 	<build>

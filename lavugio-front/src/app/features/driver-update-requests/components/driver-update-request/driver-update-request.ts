@@ -77,17 +77,14 @@ export class DriverUpdateRequest {
   }
 
   getDriverEmail(): string {
-    const req = this.request();
-    const profile = req.oldData?.profile ?? req.newData?.profile;
-    const emailField = profile?.phoneNumber; // Email is not in EditProfileDTO; keep header minimal or adjust when available
-    return emailField ?? '';
+    return this.request().email;
   }
 
   approveEditRequest() {
     alert('Edit request approved (functionality not implemented).');
   }
 
-  cancelEditRequest() {
-    alert('Edit request canceled (functionality not implemented).');
+  rejectEditRequest() {
+    alert('Edit request rejected (functionality not implemented).');
   }
 }
