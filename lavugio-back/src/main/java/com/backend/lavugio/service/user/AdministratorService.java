@@ -2,7 +2,6 @@ package com.backend.lavugio.service.user;
 
 import com.backend.lavugio.dto.user.AdministratorDTO;
 import com.backend.lavugio.dto.user.AdministratorRegistrationDTO;
-import com.backend.lavugio.dto.user.UpdateAdministratorDTO;
 import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.model.user.Administrator;
 

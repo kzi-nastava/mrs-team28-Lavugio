@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DriverRegistration } from '@app/shared/models/user/driverRegistration';
+import { EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
 import { UserProfile } from '@app/shared/models/user/userProfile';
 
 @Injectable({
@@ -15,7 +16,7 @@ export class DriverService {
     return this.http.post(`${this.apiUrl}/register`, data);
   }
 
-  sendEditRequest(updatedProfile: UserProfile) {
+  sendEditRequest(updatedProfile: EditDriverProfileRequestDTO) {
     return this.http.post<any>(`${this.apiUrl}/edit-request`, updatedProfile);
   }
 }

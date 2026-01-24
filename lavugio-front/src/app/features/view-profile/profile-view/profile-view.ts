@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, effect } from '@angular/core';
 import { ProfileHeader } from '../components/profile-header/profile-header';
 import { ProfileInfoSection } from '../components/profile-info-section/profile-info-section';
 import { Navbar } from '@app/shared/components/navbar/navbar';
@@ -13,8 +13,8 @@ import { UserProfile } from '@app/shared/models/user/userProfile';
 })
 export class ProfileView {
   
-  userProfile: UserProfile | null = null;
-  isDriver = false;
+  userProfile = signal<UserProfile | null>(null);
+  isDriver = signal<boolean>(false);
 
   constructor(private userService: UserService) {}
 
@@ -22,8 +22,8 @@ export class ProfileView {
     this.userService.getUserProfile().subscribe({
       next: (profile) => {
         console.log("Loaded profile:", profile);
-        this.userProfile = profile;
-        this.isDriver = profile.role === "DRIVER";
+        this.userProfile.set(profile);
+        this.isDriver.set(profile.role === "DRIVER");
       },
       error: (err) => {
         console.error("Failed to load profile:", err);

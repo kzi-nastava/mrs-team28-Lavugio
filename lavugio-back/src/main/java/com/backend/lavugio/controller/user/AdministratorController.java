@@ -88,7 +88,7 @@ public class AdministratorController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateAdministrator(
             @PathVariable Long id,
-            @RequestBody UpdateAdministratorDTO request) {
+            @RequestBody AccountUpdateAdministratorDTO request) {
             // , @AuthenticationPrincipal UserDetails userDetails
         try {
             // String currentEmail = userDetails.getUsername();

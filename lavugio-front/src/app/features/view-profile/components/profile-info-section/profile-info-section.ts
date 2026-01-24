@@ -7,6 +7,8 @@ import { UserService } from '@app/core/services/user/user-service';
 import { DialogService } from '@app/core/services/dialog-service';
 import { ChangePasswordDialog } from '../change-password-dialog/change-password-dialog';
 import { DriverService } from '@app/core/services/user/driver-service';
+import { EditProfileDTO, MapProfileToEditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
+import { EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
 
 @Component({
   selector: 'app-profile-info-section',
@@ -51,6 +53,7 @@ export class ProfileInfoSection {
   }
 
   onEditClick() {
+    console.log("aaa");
     if (this.editService.isEditMode()) {
       console.log('Validating and saving profile:', this.updatedProfile);
       var validateProfileUpdate = this.validateProfileUpdate();
@@ -61,7 +64,7 @@ export class ProfileInfoSection {
       if (this.profile.role === 'DRIVER') {
         this.sendEditRequest();
       } else {
-        this.saveProfile();
+        this.updateProfile();
       }
     } else {
       this.editService.enableEditMode();
@@ -97,15 +100,24 @@ export class ProfileInfoSection {
     });
   }
 
-  private saveProfile() {
+  private updateProfile() {
     console.log('Start profile:', this.profile);
     console.log('Updated profile:', this.updatedProfile);
+    const edit: EditProfileDTO = {
+      name: this.updatedProfile.name,
+      surname: this.updatedProfile.surname,
+      phoneNumber: this.updatedProfile.phoneNumber,
+      address: this.updatedProfile.address,
+    };
     this.userService.updateProfile(this.updatedProfile).subscribe({
       next: () => {
         const title: string = "Update Successful!";
-        var message: string = "Profile updated successfully!";
-        this.dialogService.open(title, message, false);
-        this.editService.disableEditMode();
+        const message: string = "Profile updated successfully!";
+        const dialogRef = this.dialogService.open(title, message, false);
+        dialogRef.afterClosed().subscribe(() => {
+          this.editService.disableEditMode();
+          window.location.reload();
+        });
       },
       error: (error) => {
         console.log("Error during profile update:", error);
@@ -121,7 +133,8 @@ export class ProfileInfoSection {
 
   private sendEditRequest() {
     console.log('Sending edit request:', this.profile);
-    this.driverService.sendEditRequest(this.profile).subscribe({
+    const editRequest: EditDriverProfileRequestDTO = MapProfileToEditDriverProfileRequestDTO(this.updatedProfile);
+    this.driverService.sendEditRequest(editRequest).subscribe({
       next: () => {
         console.log('Edit request sent successfully');
         this.dialogService.open('Request Sent', 'Your edit request has been sent to the administrator for approval.', false);

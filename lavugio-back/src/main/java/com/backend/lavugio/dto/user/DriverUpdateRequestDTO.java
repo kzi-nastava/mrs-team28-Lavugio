@@ -15,13 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DriverUpdateRequestDTO {
     @Column
-    private String name;
-    @Column
-    private String lastName;
-    @Column
-    private String phoneNumber;
-    @Column
-    private String address;
+    private AccountUpdateDTO profile;
 
     @Column(nullable = false)
     private String make;

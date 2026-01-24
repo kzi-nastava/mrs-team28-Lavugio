@@ -232,10 +232,10 @@ public class DriverServiceImpl implements DriverService {
     public void createDriverEditRequest(DriverUpdateRequestDTO request, Long driverId) {
         DriverUpdateRequest editRequest = new DriverUpdateRequest();
         editRequest.setDriverId(driverId);
-        editRequest.setName(request.getName());
-        editRequest.setLastName(request.getLastName());
-        editRequest.setPhoneNumber(request.getPhoneNumber());
-        editRequest.setAddress(request.getAddress());
+        editRequest.setName(request.getProfile().getName());
+        editRequest.setLastName(request.getProfile().getSurname());
+        editRequest.setPhoneNumber(request.getProfile().getPhoneNumber());
+        editRequest.setAddress(request.getProfile().getAddress());
         editRequest.setMake(request.getMake());
         editRequest.setModel(request.getModel());
         editRequest.setLicensePlate(request.getLicensePlate());

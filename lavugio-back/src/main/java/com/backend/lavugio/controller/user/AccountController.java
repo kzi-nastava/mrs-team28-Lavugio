@@ -1,5 +1,6 @@
 package com.backend.lavugio.controller.user;
 
+import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.UpdatePasswordDTO;
 import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.model.user.Account;
@@ -41,7 +42,7 @@ public class AccountController {
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
-        Account account = accountService.getAccountByEmail("sarah.driver@example.com");
+        Account account = accountService.getAccountById(accountId);
 
         if (account == null) {
             return ResponseEntity.notFound().build();
@@ -84,18 +85,11 @@ public class AccountController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateCurrentUserProfile(@RequestBody UserProfileDTO updatedProfile) {
+    public ResponseEntity<?> updateCurrentUserProfile(@RequestBody AccountUpdateDTO updatedProfile) {
         // Authentication auth
         System.out.println("Pozvan update profila");
-        String loggedInUser = "REGULAR_USER";
         try {
-            if (loggedInUser == "DRIVER") {
-                driverService.updateDriverDTO(accountId, updatedProfile);
-            } else if (loggedInUser == "REGULAR_USER") {
-                regularUserService.updateRegularUser(accountId, updatedProfile);
-            } else {
-                administratorService.updateAdministratorDTO(accountId, updatedProfile);
-            }
+            accountService.updateAccount(accountId, updatedProfile);
             return ResponseEntity.ok().body(Map.of("Message", "Update successful"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.user.impl;
 
+import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.exception.InvalidCredentialsException;
 import com.backend.lavugio.exception.UserNotFoundException;
 import com.backend.lavugio.model.user.Account;
@@ -53,7 +54,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public Account updateAccount(Long id, Account account) {
+    public Account updateAccount(Long id, AccountUpdateDTO accountUpdate) {
         logger.info("Updating account with id: {}", id);
         
         Account existing = accountRepository.findById(id)
@@ -62,11 +63,10 @@ public class AccountServiceImpl implements AccountService {
                     return new UserNotFoundException("Account not found with id: " + id);
                 });
 
-        existing.setName(account.getName());
-        existing.setLastName(account.getLastName());
-        existing.setPhoneNumber(account.getPhoneNumber());
-        existing.setProfilePhotoPath(account.getProfilePhotoPath());
-        existing.setAddress(account.getAddress());
+        existing.setName(accountUpdate.getName());
+        existing.setLastName(accountUpdate.getSurname());
+        existing.setPhoneNumber(accountUpdate.getPhoneNumber());
+        //existing.setAddress(accountUpdate.getAddress()); ??
 
         Account updatedAccount = accountRepository.save(existing);
         logger.info("Account updated successfully with id: {}", id);

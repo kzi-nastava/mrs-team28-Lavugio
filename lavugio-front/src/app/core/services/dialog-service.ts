@@ -8,7 +8,15 @@ import {
 import { RideScheduleData, ScheduleRideDialog } from '@app/features/find-trip/schedule-ride-dialog/schedule-ride-dialog';
 import { ErrorDialog } from '@app/shared/components/error-dialog/error-dialog';
 import { SuccessDialog } from '@app/shared/components/success-dialog/success-dialog';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+
+export class DialogRef {
+  constructor(private closeSubject: Subject<void>) {}
+
+  afterClosed(): Observable<void> {
+    return this.closeSubject.asObservable();
+  }
+}
 
 @Injectable({
   providedIn: 'root',
@@ -16,14 +24,17 @@ import { Subject } from 'rxjs';
 export class DialogService {
   private dialogRef?: ComponentRef<ErrorDialog | SuccessDialog>;
   private scheduleDialogRef?: ComponentRef<ScheduleRideDialog>;
+  private closeSubject?: Subject<void>;
 
   constructor(
     private appRef: ApplicationRef,
     private injector: EnvironmentInjector,
   ) {}
 
-  open(title: string, message: string, isError: boolean = true) {
-    if (this.dialogRef) return;
+  open(title: string, message: string, isError: boolean = true): DialogRef {
+    if (this.dialogRef) return new DialogRef(new Subject<void>());
+
+    this.closeSubject = new Subject<void>();
 
     this.dialogRef = createComponent(isError ? ErrorDialog : SuccessDialog, {
       environmentInjector: this.injector,
@@ -37,10 +48,15 @@ export class DialogService {
     this.appRef.attachView(this.dialogRef.hostView);
 
     document.body.appendChild(this.dialogRef.location.nativeElement);
+
+    return new DialogRef(this.closeSubject);
   }
 
   close() {
     if (!this.dialogRef) return;
+
+    this.closeSubject?.next();
+    this.closeSubject?.complete();
 
     this.appRef.detachView(this.dialogRef.hostView);
     this.dialogRef.destroy();

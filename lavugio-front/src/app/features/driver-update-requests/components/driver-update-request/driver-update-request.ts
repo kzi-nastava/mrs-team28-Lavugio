@@ -44,7 +44,7 @@ export class DriverUpdateRequest {
       { key: 'address', label: 'Address' },
       { key: 'vehicleMake', label: 'Vehicle Make' },
       { key: 'vehicleModel', label: 'Vehicle Model' },
-      { key: 'vehicelColor', label: 'Vehicle Color' },
+      { key: 'vehicleColor', label: 'Vehicle Color' },
       { key: 'vehicleLicensePlate', label: 'License Plate' },
       { key: 'vehicleSeats', label: 'Seats' },
       { key: 'vehiclePetFriendly', label: 'Pet Friendly' },
