@@ -25,10 +25,9 @@ public class DriverHistoryDetailedDTO {
     private boolean isCancelled;
     private boolean hasPanic;
     private List<PassengerTableRowDTO> passengers;
-    private CoordinatesDTO startCoordinates;
-    private CoordinatesDTO destinationCoordinates;
+    private CoordinatesDTO[] checkpoints;
 
-    public DriverHistoryDetailedDTO(Ride ride, RideDestination startLocation, RideDestination destinationLocation){
+    public DriverHistoryDetailedDTO(Ride ride, RideDestination startLocation, RideDestination destinationLocation, CoordinatesDTO[] checkpoints){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
         this.startDateTime = ride.getStartDateTime().format(formatter);
         this.endDateTime = ride.getEndDateTime() != null ? ride.getEndDateTime().format(formatter) : "not finished";
@@ -37,7 +36,6 @@ public class DriverHistoryDetailedDTO {
         this.price = ride.getPrice();
         this.isCancelled = ride.getRideStatus() == RideStatus.CANCELLED;
         this.hasPanic = ride.isHasPanic();
-        this.startCoordinates = new CoordinatesDTO(startLocation.getAddress());
-        this.destinationCoordinates = new CoordinatesDTO(destinationLocation.getAddress());
+        this.checkpoints = checkpoints;
     }
 }

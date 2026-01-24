@@ -193,8 +193,8 @@ public class AdministratorController {
                     false,
                     false,
                     passengers,
-                    new CoordinatesDTO(44.8125, 20.4612),
-                    new CoordinatesDTO(44.8023, 20.4856)
+                    new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),
+                    new CoordinatesDTO(44.8023, 20.4856)}
             );
 
             return new ResponseEntity<>(dto, HttpStatus.OK);

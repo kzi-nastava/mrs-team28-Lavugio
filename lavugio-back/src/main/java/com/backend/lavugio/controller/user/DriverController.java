@@ -250,23 +250,49 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{driverId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<DriverHistoryDTO>> getAllDriverHistory(@PathVariable Long driverId,
-                                                                            @RequestParam(defaultValue = "false") boolean ascending,
-                                                                            @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
-                                                                            @RequestParam(required = false) String dateRangeStart,
-                                                                            @RequestParam(required = false) String dateRangeEnd) {
-//        List<Ride> rides = rideService.getFinishedRidesForDriver(driverId);
-//        rideService.applyParametersToRides(rides, ascending, sortBy, dateRangeStart, dateRangeEnd);
-//        List<DriverHistoryDTO> ridesDTO = new ArrayList<>();
-//        for (Ride ride : rides){
-//            ridesDTO.add(new DriverHistoryDTO(ride));
-//        }
-        List<DriverHistoryDTO> rides = new ArrayList<>();
-        rides.add(new DriverHistoryDTO(1L, "Location A", "Location B", "11:23 15.03.2024", "12:01 15.03.2024"));
-        rides.add(new DriverHistoryDTO(2L, "Location C", "Location D", "09:10 14.03.2024", "09:45 14.03.2024"));
-        rides.add(new DriverHistoryDTO(3L, "Location E", "Location F", "14:05 13.03.2024", "14:50 13.03.2024"));
-        return new ResponseEntity<>(rides, HttpStatus.OK);
+    public ResponseEntity<DriverHistoryPagingDTO> getAllDriverHistory(
+            @PathVariable Long driverId,
+            @RequestParam int page,
+            @RequestParam int pageSize,
+            @RequestParam(defaultValue = "DESC") String sorting,
+            @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
+            @RequestParam(required = false) String dateRangeStart,
+            @RequestParam(required = false) String dateRangeEnd
+    ) {
+
+        // MOCK PODACI (glume bazu)
+        List<DriverHistoryDTO> allRides = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            allRides.add(new DriverHistoryDTO(
+                    (long) i,
+                    "Location A" + i,
+                    "Location B",
+                    "11:23 15.03.2024",
+                    "12:01 15.03.2024"
+            ));
+        }
+
+        int totalElements = allRides.size();
+
+        int fromIndex = page * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalElements);
+
+        List<DriverHistoryDTO> pageContent = new ArrayList<>();
+
+        if (fromIndex < totalElements) {
+            pageContent = allRides.subList(fromIndex, toIndex);
+        }
+
+        boolean reachedEnd = toIndex >= totalElements;
+
+        DriverHistoryPagingDTO pagingDTO = new DriverHistoryPagingDTO();
+        pagingDTO.setDriverHistory(pageContent.toArray(new DriverHistoryDTO[0]));
+        pagingDTO.setTotalElements(totalElements);
+        pagingDTO.setReachedEnd(reachedEnd);
+
+        return ResponseEntity.ok(pagingDTO);
     }
+
 
     @GetMapping(value = "/{driverId}/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverHistoryDetailedDTO> getDriverHistoryByRideId(@PathVariable Long rideId){
@@ -301,8 +327,8 @@ public class DriverController {
                 false,
                 false,
                 passengers,
-                new CoordinatesDTO(44.8125, 20.4612),
-                new CoordinatesDTO(44.8023, 20.4856)
+                new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),
+                                    new CoordinatesDTO(44.8023, 20.4856)}
         );
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
