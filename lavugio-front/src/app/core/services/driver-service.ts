@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { environment } from 'environments/environment';
 import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistoryDriverPagingModel';
+import { RideHistoryDriverDetailedModel } from '@app/shared/models/ride/rideHistoryDriverDetailed';
 
 @Injectable({
   providedIn: 'root',
@@ -43,5 +44,9 @@ export class DriverService {
       .set('startDate', startDate)
       .set('endDate', endDate);
     return this.http.get<RideHistoryDriverPagingModel>(`${this.mainPortUrl}/${driverId}/history`, {params}) 
+  }
+
+  getDriverRideHistoryDetailed(rideId: number){
+    return this.http.get<RideHistoryDriverDetailedModel>(`${this.mainPortUrl}/history/${rideId}`);
   }
 }
