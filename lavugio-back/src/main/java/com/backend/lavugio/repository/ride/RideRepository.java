@@ -3,6 +3,8 @@ package com.backend.lavugio.repository.ride;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.user.Driver;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +19,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     // Find by driver
     List<Ride> findByDriver(Driver driver);
+
     List<Ride> findByDriverId(Long driverId);
 
     // Find by status
@@ -27,6 +30,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     // Find by price
     List<Ride> findByPriceGreaterThan(float minPrice);
+
     List<Ride> findByPriceBetween(float minPrice, float maxPrice);
 
     // Find by passengers (ManyToMany relationship)
@@ -36,6 +40,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     // Count queries
     long countByRideStatus(RideStatus status);
+
     long countByDriverId(Long driverId);
 
     // Custom queries
@@ -98,4 +103,59 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     List<Ride> findByStartDateTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     List<Ride> findByStartDateTime(LocalDateTime date);
+
+    @Query(value = """
+        SELECT r.*
+        FROM rides r
+        JOIN ride_destinations cStart ON cStart.ride_id = r.id\s
+            AND cStart.destination_order = (
+                SELECT MIN(c1.destination_order)\s
+                FROM ride_destinations c1\s
+                WHERE c1.ride_id = r.id
+            )
+        JOIN ride_destinations cEnd ON cEnd.ride_id = r.id\s
+            AND cEnd.destination_order = (
+                SELECT MAX(c2.destination_order)\s
+                FROM ride_destinations c2\s
+                WHERE c2.ride_id = r.id
+            )
+        JOIN addresses aStart ON aStart.id = cStart.address_id
+        JOIN addresses aEnd ON aEnd.id = cEnd.address_id
+        WHERE r.driver_id = :driverId\s
+            AND r.start_date_time BETWEEN :startDate AND :endDate
+            AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        ORDER BY\s
+            CASE WHEN :sorting = 'ASC' THEN
+                CASE\s
+                    WHEN :sortBy = 'START' THEN TO_CHAR(r.start_date_time, 'YYYY-MM-DD HH24:MI:SS')
+                    WHEN :sortBy = 'DEPARTURE' THEN CONCAT(aStart.street_name, ' ', aStart.street_number, ' ', aStart.city)
+                    WHEN :sortBy = 'DESTINATION' THEN CONCAT(aEnd.street_name, ' ', aEnd.street_number, ' ', aEnd.city)
+                END
+            END  NULLS LAST,
+            CASE WHEN :sorting = 'DESC' THEN
+                CASE\s
+                    WHEN :sortBy = 'START' THEN TO_CHAR(r.start_date_time, 'YYYY-MM-DD HH24:MI:SS')
+                    WHEN :sortBy = 'DEPARTURE' THEN CONCAT(aStart.street_name, ' ', aStart.street_number, ' ', aStart.city)
+                    WHEN :sortBy = 'DESTINATION' THEN CONCAT(aEnd.street_name, ' ', aEnd.street_number, ' ', aEnd.city)
+                END
+            END DESC NULLS LAST
+        """,
+                    countQuery = """
+            SELECT COUNT(DISTINCT r.id)
+            FROM rides r
+            WHERE r.driver_id = :driverId\s
+                AND r.start_date_time BETWEEN :startDate AND :endDate
+                AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        """,
+            nativeQuery = true)
+    Page<Ride> findRidesForDriver(
+            @Param("driverId") Long driverId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("sortBy") String sortBy,
+            @Param("sorting") String sorting,
+            Pageable pageable
+    );
+
+
 }

@@ -14,12 +14,11 @@ import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
-import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverRegistrationTokenService;
-import org.apache.coyote.Response;
+import com.backend.lavugio.service.utils.DateTimeParserService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,13 +43,9 @@ public class DriverController {
     private DriverAvailabilityService driverAvailabilityService;
     @Autowired
     private ScheduledRideService  scheduledRideService;
-
     @Autowired
-    public DriverController(RideService rideService, RideDestinationService rideDestinationService, DriverAvailabilityService driverAvailabilityService) {
-        this.rideService = rideService;
-        this.rideDestinationService = rideDestinationService;
-        this.driverAvailabilityService = driverAvailabilityService;
-    }
+    private DateTimeParserService dateTimeParserService;
+
  // ========== REGISTRATION ==========
     
     @PostMapping("/register")
@@ -256,41 +251,54 @@ public class DriverController {
             @RequestParam int pageSize,
             @RequestParam(defaultValue = "DESC") String sorting,
             @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
-            @RequestParam(required = false) String dateRangeStart,
-            @RequestParam(required = false) String dateRangeEnd
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate
     ) {
 
-        // MOCK PODACI (glume bazu)
-        List<DriverHistoryDTO> allRides = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
-            allRides.add(new DriverHistoryDTO(
-                    (long) i,
-                    "Location A" + i,
-                    "Location B",
-                    "11:23 15.03.2024",
-                    "12:01 15.03.2024"
-            ));
-        }
+//        // MOCK PODACI (glume bazu)
+//        List<DriverHistoryDTO> allRides = new ArrayList<>();
+//        for (int i = 0; i < 1000; i++) {
+//            allRides.add(new DriverHistoryDTO(
+//                    (long) i,
+//                    "Location A" + i,
+//                    "Location B",
+//                    "11:23 15.03.2024",
+//                    "12:01 15.03.2024"
+//            ));
+//        }
+//
+//        int totalElements = allRides.size();
+//
+//        int fromIndex = page * pageSize;
+//        int toIndex = Math.min(fromIndex + pageSize, totalElements);
+//
+//        List<DriverHistoryDTO> pageContent = new ArrayList<>();
+//
+//        if (fromIndex < totalElements) {
+//            pageContent = allRides.subList(fromIndex, toIndex);
+//        }
+//
+//        boolean reachedEnd = toIndex >= totalElements;
+//
+//        DriverHistoryPagingDTO pagingDTO = new DriverHistoryPagingDTO();
+//        pagingDTO.setDriverHistory(pageContent.toArray(new DriverHistoryDTO[0]));
+//        pagingDTO.setTotalElements((long) totalElements);
+//        pagingDTO.setReachedEnd(reachedEnd);
 
-        int totalElements = allRides.size();
+        LocalDateTime start = dateTimeParserService.parseStartOfDay(startDate);
+        LocalDateTime end = dateTimeParserService.parseEndOfDay(endDate);
 
-        int fromIndex = page * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, totalElements);
+        DriverHistoryPagingDTO dto = rideService.getDriverHistory(
+                driverId,
+                start,
+                end,
+                sortBy.toString(),
+                sorting,
+                pageSize,
+                page
+        );
 
-        List<DriverHistoryDTO> pageContent = new ArrayList<>();
-
-        if (fromIndex < totalElements) {
-            pageContent = allRides.subList(fromIndex, toIndex);
-        }
-
-        boolean reachedEnd = toIndex >= totalElements;
-
-        DriverHistoryPagingDTO pagingDTO = new DriverHistoryPagingDTO();
-        pagingDTO.setDriverHistory(pageContent.toArray(new DriverHistoryDTO[0]));
-        pagingDTO.setTotalElements(totalElements);
-        pagingDTO.setReachedEnd(reachedEnd);
-
-        return ResponseEntity.ok(pagingDTO);
+        return ResponseEntity.ok(dto);
     }
 
 

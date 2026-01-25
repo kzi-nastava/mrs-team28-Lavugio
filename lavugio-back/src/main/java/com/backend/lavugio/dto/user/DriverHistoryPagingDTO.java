@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DriverHistoryPagingDTO {
     private DriverHistoryDTO[] driverHistory;
-    private int totalElements;
+    private Long totalElements;
     private boolean reachedEnd;
 }
