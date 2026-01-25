@@ -10,13 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -211,5 +212,10 @@ public class AccountServiceImpl implements AccountService {
 
         logger.info("User authenticated successfully: {}", email);
         return account;
+    }
+
+    @Override
+    public List<String> findTop5EmailsByPrefix(String prefix, Pageable pageable) {
+        return this.accountRepository.findTop5EmailsByPrefix(prefix, pageable);
     }
 }

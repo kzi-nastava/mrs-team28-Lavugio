@@ -5,6 +5,7 @@ import com.backend.lavugio.model.user.Account;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface AccountService {
@@ -19,4 +20,5 @@ public interface AccountService {
     Account updateProfilePhoto(Long accountId, MultipartFile file);
     Resource getProfilePhoto(Long accountId);
     Account authenticate(String email, String password);
+    List<String> findTop5EmailsByPrefix(String prefix, Pageable pageable);
 }

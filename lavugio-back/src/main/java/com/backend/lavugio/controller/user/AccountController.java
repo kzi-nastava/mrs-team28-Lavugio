@@ -1,6 +1,7 @@
 package com.backend.lavugio.controller.user;
 
 import com.backend.lavugio.dto.user.AccountUpdateDTO;
+import com.backend.lavugio.dto.user.EmailSuggestionDTO;
 import com.backend.lavugio.dto.user.UpdatePasswordDTO;
 import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.model.user.Account;
@@ -14,12 +15,16 @@ import com.backend.lavugio.service.user.DriverService;
 import com.backend.lavugio.service.user.RegularUserService;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.nio.file.Files;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -145,6 +150,22 @@ public class AccountController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/email-suggestions")
+    public ResponseEntity<List<EmailSuggestionDTO>> getEmailSuggestions(@RequestParam String query) {
+        if (query == null || query.trim().length() < 2) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        Pageable pageable = PageRequest.of(0, 5);
+        List<String> emails = accountService.findTop5EmailsByPrefix(query.trim(), pageable);
+
+        List<EmailSuggestionDTO> suggestions = emails.stream()
+                .map(EmailSuggestionDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(suggestions);
     }
 
 }

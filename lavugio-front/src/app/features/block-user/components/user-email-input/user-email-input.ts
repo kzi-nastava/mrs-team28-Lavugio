@@ -61,22 +61,19 @@ export class UserEmailInput implements OnDestroy {
           this.isLoading = true;
           this.cdr.markForCheck();
         }),
-        switchMap(
-          (query) =>
-            this.userService.searchUserEmailsMock(query),
-
-          // this.userService.searchUserEmails(query)
+        switchMap((query) =>
+          this.userService.searchUserEmails(query)
         ),
         takeUntil(this.destroy$),
       )
       .subscribe({
-        next: (results) => {
+        next: (results: UserEmailResult[]) => {
           this.suggestions = results;
           this.showSuggestions = results.length > 0;
           this.isLoading = false;
           this.cdr.markForCheck();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error fetching email suggestions:', err);
           this.suggestions = [];
           this.showSuggestions = false;

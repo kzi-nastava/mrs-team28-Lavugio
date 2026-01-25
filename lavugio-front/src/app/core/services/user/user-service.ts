@@ -65,7 +65,7 @@ export class UserService {
     }
 
     return this.http.get<{ email: string }[]>(
-      `/api/users/email-suggestions?query=${encodeURIComponent(query)}`,
+      `${this.apiUrl}/users/email-suggestions?query=${encodeURIComponent(query)}`,
     );
   }
 
