@@ -11,9 +11,13 @@
                 md:max-w-2xl
                 shadow-none md:shadow-2xl
                 p-6 md:p-10">
-        @if (userProfile != null) {
-            <app-profile-header [profile]="userProfile"></app-profile-header>
-            <app-profile-info-section [profile]="userProfile" ></app-profile-info-section>
+        @if (userProfile() != null) {
+            <app-profile-header [profile]="userProfile()!"></app-profile-header>
+            <app-profile-info-section [profile]="userProfile()!" ></app-profile-info-section>
+        } @else {
+            <div class="flex justify-center items-center min-h-screen">
+                <p class="text-gray-500 text-lg">Loading profile...</p>
+            </div>
         }
     </div>
 

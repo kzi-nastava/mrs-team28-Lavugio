@@ -1,0 +1,55 @@
+<div class="border-2 border-[#BC6C25] bg-white rounded-lg mb-2 transition-all duration-300"
+>
+  <div
+    class="flex justify-between items-center px-6 py-4 cursor-pointer select-none transition-colors"
+    [class.border-b-2]="isExpanded()"
+    [class.border-[#BC6C25]]="isExpanded()"
+    (click)="toggleExpand()"
+  >
+    <span class="sm:text-xl text-lg text-[#BC6C25] font-medium flex-1">{{ getDriverName() }}</span>
+
+    <svg
+      class="w-8 h-8 transition-transform duration-300 shrink-0 text-[#BC6C25]"
+      [class.rotate-180]="isExpanded()"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </div>
+
+  <div
+    class="overflow-hidden transition-all duration-300"
+    [class.max-h-0]="!isExpanded()"
+    
+  >
+    <div class="text-center mt-3 font-medium text-lg text-[#606C38] flex mx-6 justify-between">
+        <span>{{ getDriverEmail() }}</span>
+    </div>
+    <div class="mx-6 mb-6 mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+      @for (field of changedFields(); track field.label) {
+        <app-driver-update-request-row
+          [label]="field.label"
+          [oldValue]="field.oldValue"
+          [newValue]="field.newValue">
+        </app-driver-update-request-row>
+      }
+      @empty {
+        <div class="col-span-full text-center text-gray-500 py-4">
+          No changes detected
+        </div>
+      }
+    </div>
+    <div class="flex justify-center sm:justify-end gap-4 mb-6 mx-6" >
+      <button (click)="cancelEditRequest()" class="bg-[#C70000] hover:bg-[#D10000] p-4 rounded-lg text-white font-medium text-xl">
+        Cancel
+      </button>
+      <button (click)="approveEditRequest()" class="bg-[#606C38] hover:bg-[#708238] p-4 rounded-lg text-white font-medium text-xl">
+        Approve
+      </button>
+    </div>
+  </div>
+</div>

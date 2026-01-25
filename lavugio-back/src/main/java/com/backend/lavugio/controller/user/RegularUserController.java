@@ -2,7 +2,7 @@ package com.backend.lavugio.controller.user;
 
 import com.backend.lavugio.dto.user.LoginRequestDTO;
 import com.backend.lavugio.dto.user.LoginResponseDTO;
-import com.backend.lavugio.dto.user.UpdateUserDTO;
+import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.dto.user.EmailVerificationDTO;
@@ -174,7 +174,7 @@ public class RegularUserController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateRegularUser(
             @PathVariable Long id,
-            @RequestBody UpdateUserDTO request) {
+            @RequestBody AccountUpdateDTO request) {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             // String currentEmail = userDetails.getUsername();

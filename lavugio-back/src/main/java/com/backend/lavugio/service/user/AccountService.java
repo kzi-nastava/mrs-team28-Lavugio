@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.user;
 
+import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.model.user.Account;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface AccountService {
     Account createAccount(Account account);
-    Account updateAccount(Long id, Account account);
+    Account updateAccount(Long id, AccountUpdateDTO accountUpdate);
     void deleteAccount(Long id);
     Account getAccountById(Long id);
     Account getAccountByEmail(String email);

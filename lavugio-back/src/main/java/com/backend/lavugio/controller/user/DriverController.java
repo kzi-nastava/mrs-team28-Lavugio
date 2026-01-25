@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -14,12 +13,10 @@ import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
-import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverRegistrationTokenService;
-import org.apache.coyote.Response;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -126,7 +123,7 @@ public class DriverController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateDriver(
             @PathVariable Long id,
-            @RequestBody UpdateDriverDTO request) {
+            @RequestBody AccountUpdateDriverDTO request) {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             //String currentEmail = userDetails.getUsername();
@@ -137,7 +134,32 @@ public class DriverController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
+    @PutMapping("/edit-request")
+    public ResponseEntity<?> createDriverEditRequest(
+            @RequestBody DriverUpdateRequestDTO request) {
+    	// @AuthenticationPrincipal UserDetails userDetails
+        try {
+            Long accountId = 1L;
+            driverService.createDriverEditRequest(request, accountId);
+            return ResponseEntity.ok("Driver edit request created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/edit-requests")
+    public ResponseEntity<?> getDriverEditRequests() {
+        try {
+            // TODO: IMPLEMENTIRAJ OSTATAK
+            // List<DriverUpdateRequestDTO> requests = driverService.getAllPendingDriverEditRequests();
+            // List<DriverUpdateRequestDTO> requests = new ArrayList<>(); // Placeholder for requests list
+            return ResponseEntity.ok("aa");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteDriver(
             @PathVariable Long id) {

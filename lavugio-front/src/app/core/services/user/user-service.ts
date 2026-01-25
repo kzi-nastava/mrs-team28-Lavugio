@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { UserProfile } from '@app/shared/models/user/userProfile';
 import { Observable } from 'rxjs';
 import { environment } from 'environments/environment';
+import { EditDriverProfileRequestDTO, EditProfileDTO } from '@app/shared/models/user/editProfileDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +17,12 @@ export class UserService {
     return this.http.get<UserProfile>(`${this.apiUrl}/users/profile`);
   }
 
-  updateProfile(updatedProfile: UserProfile): Observable<any> {
+  updateProfile(updatedProfile: EditProfileDTO): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/users/profile`, updatedProfile);
+  }
+
+  sendEditRequest(updatedProfile: EditDriverProfileRequestDTO): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/users/profile/edit-request`, updatedProfile);
   }
 
   uploadProfilePicture(file: File): Observable<any> {

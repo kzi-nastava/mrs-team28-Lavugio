@@ -8,8 +8,8 @@ export class UserProfile {
   role: 'DRIVER' | 'REGULAR_USER' | 'ADMINISTRATOR' = 'REGULAR_USER';
 
   vehicleMake?: string;
-  vehicleModel?: string;
-  vehicelColor?: string;
+  vehicleModel?: string; 
+  vehicleColor?: string;
   vehicleLicensePlate?: string;
   vehicleSeats?: number;
   vehiclePetFriendly?: boolean;

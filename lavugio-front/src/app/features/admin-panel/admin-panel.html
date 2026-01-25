@@ -1,0 +1,51 @@
+<app-navbar></app-navbar>
+
+<div class="min-h-[calc(100vh-4rem)]
+      flex
+      justify-center
+      items-center
+      bg-white
+      md:bg-linear-to-br
+      md:from-[#606C38]
+      md:to-[#283618]">
+    <div class="w-full min-h-[calc(100vh-4rem)]
+            bg-white
+            md:max-w-2xl
+            shadow-none md:shadow-2xl
+            p-6 md:p-10
+            flex flex-col
+            justify-center">
+
+        <!-- Header -->
+        <h1 class="md:text-3xl text-xl font-bold text-center text-white bg-[#BC6C25] rounded-lg py-4 mb-2 max-w-md mx-auto w-full">
+            Administrator Panel
+        </h1>
+
+        <!-- Buttons - uvek dole -->
+        <div class="flex flex-col gap-3 pt-6 w-full max-w-md mx-auto">
+
+            <button (click)="openDriverRegistration()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                Register Driver
+            </button>
+
+            <button (click)="openDriverUpdateRequest()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                Driver Update Requests
+            </button>
+
+            <button (click)="openBlockUser()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                Block User
+            </button>
+
+            <button (click)="openReportsView()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                See Reports
+            </button>
+
+
+        </div>
+    </div>
+
+</div>

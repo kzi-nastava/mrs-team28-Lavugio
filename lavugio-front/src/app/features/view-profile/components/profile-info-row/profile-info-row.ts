@@ -15,6 +15,7 @@ export class ProfileInfoRow {
   editable = input<boolean>(true);
   singleLineLabel = input<boolean>(false);
   isBoolean = input<boolean>(false);
+  options = input<string[]>();
 
   valueChanged = output<string>();
   editableValue = signal<string>('');
