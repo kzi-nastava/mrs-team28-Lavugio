@@ -4,6 +4,7 @@ import { WhiteSheetBackground } from '@app/shared/components/white-sheet-backgro
 import { UserEmailInput } from './components/user-email-input/user-email-input';
 import { DialogService } from '@app/core/services/dialog-service';
 import { FormsModule } from '@angular/forms';
+import { UserService } from '@app/core/services/user/user-service';
 
 @Component({
   selector: 'app-block-user',
@@ -12,12 +13,12 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './block-user.css',
 })
 export class BlockUser {
+  userService = inject(UserService);
+
   selectedEmail = signal('');
   blockReason = signal('');
 
   onEmailSelected(event: { email: string }) {
-    console.log('User email selected for blocking:', event.email);
-    // Implement blocking logic here
   }
 
   onEmailChange(event: string) {
@@ -31,13 +32,19 @@ export class BlockUser {
     this.dialogService.openConfirm("Confirm Block", "Are you sure you want to block this user?")
     .subscribe((confirmed) => {
       if (confirmed) {
-        alert('Blocking user: ' + this.selectedEmail());
-        alert('Reason: ' + this.blockReason());
+        this.userService.blockUser(this.selectedEmail(), this.blockReason()).subscribe({
+          next: () => {
+            this.dialogService.open("Success", "User has been blocked successfully.", false);
+          },
+          error: (err) => {
+            console.log(err); 
+            this.dialogService.open("Error", "Failed to block user: " + err.error.message, true);
+          }
+        });
         this.selectedEmail.set('');
         this.blockReason.set('');
-        // TODO: Call your service here with this.selectedEmail() and this.blockReason()
       } else {
-        alert('User block action was cancelled.');
+        console.log('User block cancelled');
       }
     });
   }

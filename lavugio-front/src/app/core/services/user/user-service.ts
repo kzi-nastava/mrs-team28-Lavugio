@@ -89,4 +89,11 @@ export class UserService {
 
     return of(filtered).pipe(delay(500));
   }
+
+  blockUser(email: string, reason: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/users/block`, {
+      email: email,
+      reason: reason,
+    });
+  }
 }

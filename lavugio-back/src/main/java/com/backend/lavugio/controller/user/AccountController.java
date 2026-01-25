@@ -1,9 +1,6 @@
 package com.backend.lavugio.controller.user;
 
-import com.backend.lavugio.dto.user.AccountUpdateDTO;
-import com.backend.lavugio.dto.user.EmailSuggestionDTO;
-import com.backend.lavugio.dto.user.UpdatePasswordDTO;
-import com.backend.lavugio.dto.user.UserProfileDTO;
+import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.Administrator;
 import com.backend.lavugio.model.user.Driver;
@@ -166,6 +163,16 @@ public class AccountController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(suggestions);
+    }
+
+    @PostMapping("/block")
+    public ResponseEntity<?> blockUser(@RequestBody BlockUserDTO blockUserDTO) {
+        try {
+            accountService.blockUser(blockUserDTO);
+            return ResponseEntity.ok().body(Map.of("message", "User blocked successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
 }
