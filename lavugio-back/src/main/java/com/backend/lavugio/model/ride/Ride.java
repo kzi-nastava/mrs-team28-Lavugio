@@ -6,9 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.backend.lavugio.dto.user.PassengerTableRowDTO;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.route.RideDestination;
+import com.backend.lavugio.model.user.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -37,5 +38,23 @@ public class DriverHistoryDetailedDTO {
         this.cancelled = ride.getRideStatus() == RideStatus.CANCELLED;
         this.panic = ride.isHasPanic();
         this.checkpoints = checkpoints;
+    }
+
+    public DriverHistoryDetailedDTO(Ride ride){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+        this.start = ride.getStartDateTime().format(formatter);
+        this.end = ride.getEndDateTime() != null ? ride.getEndDateTime().format(formatter) : "not finished";
+        this.departure = ride.getStartAddress();
+        this.destination = ride.getEndAddress();
+        this.price = ride.getPrice();
+        this.cancelled = ride.getRideStatus() == RideStatus.CANCELLED;
+        this.panic = ride.isHasPanic();
+        this.checkpoints = ride.getCheckpoints().stream()
+                .sorted(Comparator.comparing(RideDestination::getDestinationOrder))
+                .map(checkpoint -> new CoordinatesDTO(
+                        checkpoint.getAddress().getLatitude(),
+                        checkpoint.getAddress().getLongitude()
+                ))
+                .toArray(CoordinatesDTO[]::new);
     }
 }

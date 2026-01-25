@@ -1,8 +1,11 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.dto.user.DriverHistoryDTO;
+import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
 import com.backend.lavugio.dto.user.DriverHistoryPagingDTO;
+import com.backend.lavugio.dto.user.PassengerTableRowDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -368,6 +372,18 @@ public class RideServiceImpl implements RideService {
                 .toList();
 
         dto.setDriverHistory(driverHistoryDTOs.toArray(new DriverHistoryDTO[0]));
+        return dto;
+    }
+
+    @Override
+    public DriverHistoryDetailedDTO getDriverHistoryDetailed(Long rideId) {
+        Ride ride = this.getRideById(rideId);
+        DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(ride);
+        List<PassengerTableRowDTO> passengers = new ArrayList<>();
+        for (RegularUser regularUser : ride.getPassengers()){
+            passengers.add(new PassengerTableRowDTO(regularUser));
+        }
+        dto.setPassengers(passengers);
         return dto;
     }
 

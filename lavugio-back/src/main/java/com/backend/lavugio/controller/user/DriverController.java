@@ -309,45 +309,46 @@ public class DriverController {
 //        RideDestination startDestination = destinations.get(0);
 //        RideDestination endDestination = destinations.get(1);
 //        DriverHistoryDetailedDTO rideDTO = new DriverHistoryDetailedDTO(ride, startDestination, endDestination);
-        List<PassengerTableRowDTO> passengers = new ArrayList<>();
-        passengers.add(new PassengerTableRowDTO(
-                1L,
-                "Marko Marković",
-                "imageUrl"
-        ));
-        passengers.add(new PassengerTableRowDTO(
-                2L,
-                "Ana Anić",
-                "imageUrl"
-        ));
-        passengers.add(new PassengerTableRowDTO(
-                3L,
-                "Petar Petrović",
-                "imageUrl"
-        ));
-        passengers.add(new PassengerTableRowDTO(4L,
-                "Petar Petrović",
-                "user_2_1768848779634.jpg"
-        ));
-        passengers.add(new PassengerTableRowDTO(
-                5L,
-                "Petar Petrović",
-                "default_avatar_photo.jpg"
-        ));
+//        List<PassengerTableRowDTO> passengers = new ArrayList<>();
+//        passengers.add(new PassengerTableRowDTO(
+//                1L,
+//                "Marko Marković",
+//                "imageUrl"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(
+//                2L,
+//                "Ana Anić",
+//                "imageUrl"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(
+//                3L,
+//                "Petar Petrović",
+//                "imageUrl"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(4L,
+//                "Petar Petrović",
+//                "user_2_1768848779634.jpg"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(
+//                5L,
+//                "Petar Petrović",
+//                "default_avatar_photo.jpg"
+//        ));
+//
+//        DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(
+//                "11:23 15.03.2024",
+//                "12:45 15.03.2024",
+//                "Kneza Miloša 15, Beograd",
+//                "Bulevar kralja Aleksandra 73, Beograd",
+//                1250.50,
+//                true,
+//                false,
+//                passengers,
+//                new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),
+//                                    new CoordinatesDTO(44.8023, 20.4856)}
+//        );
 
-        DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(
-                "11:23 15.03.2024",
-                "12:45 15.03.2024",
-                "Kneza Miloša 15, Beograd",
-                "Bulevar kralja Aleksandra 73, Beograd",
-                1250.50,
-                true,
-                false,
-                passengers,
-                new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),
-                                    new CoordinatesDTO(44.8023, 20.4856)}
-        );
-
+        DriverHistoryDetailedDTO dto = rideService.getDriverHistoryDetailed(rideId);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 

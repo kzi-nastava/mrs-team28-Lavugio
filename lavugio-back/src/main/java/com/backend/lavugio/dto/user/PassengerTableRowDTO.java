@@ -18,5 +18,7 @@ public class PassengerTableRowDTO {
     public PassengerTableRowDTO(RegularUser user){
         this.id = user.getId();
         this.name = user.getName() + " " + user.getLastName();
+        String[] parts = user.getProfilePhotoPath().split("[/\\\\]");
+        this.passengerIconName = parts[parts.length - 1];
     }
 }
