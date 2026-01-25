@@ -224,11 +224,17 @@ export class FindTrip implements OnInit, OnDestroy {
 
   onFinish() {
     this.saveCurrentStepData();
-    this.userService.isUserBlocked().subscribe({
+    this.userService.canUserOrderRide().subscribe({
       next: (response) => {
         console.log(response);
-        if (response.blocked) {
-          this.dialogService.openBlocked(response.reason);
+        if (response.block.blocked) {
+          this.dialogService.openBlocked(response.block.reason);
+        } else if (response.isInRide) {
+          this.dialogService.open(
+            'Cannot Order Ride',
+            'You are already in an active ride and cannot order a new one.',
+            true,
+          );
         } else {
           console.log('Trip submitted with:', {
             destinations: this.destinations,

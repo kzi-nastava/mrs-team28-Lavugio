@@ -184,4 +184,14 @@ public class AccountController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
+
+    @GetMapping("/can-order-ride")
+    public ResponseEntity<?> canOrder() {
+        try {
+            CanOrderRideDTO canOrderRideDTO = accountService.canOrderRide(accountId);
+            return ResponseEntity.ok(canOrderRideDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
 }
