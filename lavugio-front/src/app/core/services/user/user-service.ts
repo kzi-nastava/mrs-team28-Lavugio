@@ -65,7 +65,7 @@ export class UserService {
     }
 
     return this.http.get<{ email: string }[]>(
-      `/api/users/email-suggestions?query=${encodeURIComponent(query)}`,
+      `${this.apiUrl}/users/email-suggestions?query=${encodeURIComponent(query)}`,
     );
   }
 
@@ -88,5 +88,12 @@ export class UserService {
     );
 
     return of(filtered).pipe(delay(500));
+  }
+
+  blockUser(email: string, reason: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/users/block`, {
+      email: email,
+      reason: reason,
+    });
   }
 }

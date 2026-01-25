@@ -1,22 +1,26 @@
 package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.dto.user.AccountUpdateDTO;
+import com.backend.lavugio.dto.user.BlockUserDTO;
 import com.backend.lavugio.exception.InvalidCredentialsException;
 import com.backend.lavugio.exception.UserNotFoundException;
 import com.backend.lavugio.model.user.Account;
+import com.backend.lavugio.model.user.Administrator;
+import com.backend.lavugio.model.user.BlockableAccount;
 import com.backend.lavugio.repository.user.AccountRepository;
 import com.backend.lavugio.service.user.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -211,5 +215,34 @@ public class AccountServiceImpl implements AccountService {
 
         logger.info("User authenticated successfully: {}", email);
         return account;
+    }
+
+    @Override
+    public List<String> findTop5EmailsByPrefix(String prefix, Pageable pageable) {
+        return this.accountRepository.findTop5EmailsByPrefix(prefix, pageable);
+    }
+
+    @Override
+    public void blockUser(BlockUserDTO blockUserDTO) {
+        Account account = this.accountRepository.findByEmail(blockUserDTO.getEmail())
+                .orElseThrow(() -> new RuntimeException("Account with this email doesn't exist"));
+
+        if (account instanceof Administrator) {
+            throw new IllegalArgumentException("Cannot block administrator account");
+        }
+
+        BlockableAccount blockableAccount = (BlockableAccount) account;
+
+        if (blockableAccount.isBlocked()) {
+            throw new RuntimeException("This user is already blocked.");
+        }
+
+        blockableAccount.setBlocked(true);
+        if (blockUserDTO.getReason().isBlank()) {
+            blockableAccount.setBlockReason("Administrator left no block reason.");
+        } else {
+            blockableAccount.setBlockReason(blockUserDTO.getReason());
+        }
+        accountRepository.save(blockableAccount);
     }
 }
