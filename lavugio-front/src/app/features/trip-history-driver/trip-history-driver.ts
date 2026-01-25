@@ -24,7 +24,7 @@ export class RideHistoryDriver {
   hasMoreOlder = signal(true);
   
   pageSize = 10;
-  maxLoadedPages = 5; 
+  maxLoadedPages = 3; 
   sorting: 'ASC' | 'DESC' = 'DESC';
   sortBy: 'START' | 'DEPARTURE' | 'DESTINATION' = 'START';
   
@@ -32,9 +32,9 @@ export class RideHistoryDriver {
   loading = signal(false);
   loadingDirection = signal<'none' | 'older' | 'newer'>('none');
   
-  driverId = 1;
-  startDate = '2000-01-01';
-  endDate = '2100-12-31';
+  driverId = 5;
+  startDate = '01/01/2000';
+  endDate = '31/12/2100';
 
   constructor() {
     this.loadInitialRides();
@@ -63,6 +63,7 @@ export class RideHistoryDriver {
           this.hasMoreNewer.set(false);
           this.loading.set(false);
           this.loadingDirection.set('none');
+          console.log(response);
         },
         error: (err) => {
           console.error('Error while loading', err);
@@ -99,6 +100,7 @@ export class RideHistoryDriver {
           
           this.loading.set(false);
           this.loadingDirection.set('none');
+          console.log(response);
         },
         error: (err) => {
           console.error('Error while loading older rides', err);
@@ -136,6 +138,7 @@ export class RideHistoryDriver {
           
           this.loading.set(false);
           this.loadingDirection.set('none');
+          console.log(response);
         },
         error: (err) => {
           console.error('Error while loading newer rides', err);
@@ -186,9 +189,9 @@ export class RideHistoryDriver {
     this.scrollToTop();
   }
 
-  updateSelectedDate(date: {start: string, end: string}){
-    this.startDate = date.start;
-    this.endDate = date.end;
+  updateSelectedDate(date: {startDate: string, endDate: string}){
+    this.startDate = date.startDate;
+    this.endDate = date.endDate;
     this.scrollToTop();
   }
 
