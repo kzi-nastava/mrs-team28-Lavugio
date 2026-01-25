@@ -175,4 +175,13 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/is-blocked")
+    public ResponseEntity<?> isBlocked() {
+        try {
+            IsAccountBlockedDTO isAccountBlockedDTO = accountService.isBlocked(accountId);
+            return ResponseEntity.ok(isAccountBlockedDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
 }

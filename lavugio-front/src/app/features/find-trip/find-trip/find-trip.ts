@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, effect, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  effect,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
@@ -22,6 +30,7 @@ import { RideScheduleData } from '../schedule-ride-dialog/schedule-ride-dialog';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideService } from '@app/core/services/ride-service';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
+import { UserService } from '@app/core/services/user/user-service';
 
 @Component({
   selector: 'app-find-trip',
@@ -76,6 +85,7 @@ export class FindTrip implements OnInit, OnDestroy {
     private geocodingService: GeocodingService,
     private rideService: RideService,
     private cdr: ChangeDetectorRef,
+    private userService: UserService,
   ) {}
 
   ngOnInit() {
@@ -122,7 +132,7 @@ export class FindTrip implements OnInit, OnDestroy {
     this.destinations.push(newDestination);
     this.map.addMarker(newDestination.coordinates, MarkerIcons.checkpoint);
     this.updateRoute();
-    
+
     // Recalculate estimate if on review step
     if (this.isLastStep()) {
       this.loadRideEstimate();
@@ -148,7 +158,7 @@ export class FindTrip implements OnInit, OnDestroy {
     });
 
     this.updateRoute();
-    
+
     // Recalculate estimate if on review step
     if (this.isLastStep()) {
       this.loadRideEstimate();
@@ -164,7 +174,11 @@ export class FindTrip implements OnInit, OnDestroy {
 
   onPassengerAdded(passenger: Passenger) {
     if (this.passengers.find((p) => p.email === passenger.email)) {
-      this.dialogService.open('Duplicate Passenger', 'This passenger has already been added.', true);
+      this.dialogService.open(
+        'Duplicate Passenger',
+        'This passenger has already been added.',
+        true,
+      );
       return;
     } else {
       passenger.email = passenger.email.toLocaleLowerCase();
@@ -188,7 +202,7 @@ export class FindTrip implements OnInit, OnDestroy {
     this.selectedVehicleType = preferences.vehicleType;
     this.isPetFriendly = preferences.isPetFriendly;
     this.isBabyFriendly = preferences.isBabyFriendly;
-    
+
     // Recalculate price if on review step and vehicle type changed
     if (this.isLastStep() && this.destinations.length >= 2) {
       this.loadRideEstimate();
@@ -196,30 +210,47 @@ export class FindTrip implements OnInit, OnDestroy {
   }
 
   openScheduleDialog() {
-  this.dialogService.openScheduleRide().subscribe({
-    next: (result) => {
-      console.log('Schedule data:', result);
-      this.scheduleData.set(result);
-      // DODAJ POZIV NA SERVIS
-    },
-    complete: () => {
-      console.log('Modal closed');
-    }
-  });
-}
+    this.dialogService.openScheduleRide().subscribe({
+      next: (result) => {
+        console.log('Schedule data:', result);
+        this.scheduleData.set(result);
+        // DODAJ POZIV NA SERVIS
+      },
+      complete: () => {
+        console.log('Modal closed');
+      },
+    });
+  }
 
   onFinish() {
     this.saveCurrentStepData();
-    console.log('Trip submitted with:', {
-      destinations: this.destinations,
-      passengers: this.passengers,
-      preferences: {
-        vehicleType: this.selectedVehicleType,
-        isPetFriendly: this.isPetFriendly,
-        isBabyFriendly: this.isBabyFriendly,
+    this.userService.isUserBlocked().subscribe({
+      next: (response) => {
+        console.log(response);
+        if (response.blocked) {
+          this.dialogService.openBlocked(response.reason);
+        } else {
+          console.log('Trip submitted with:', {
+            destinations: this.destinations,
+            passengers: this.passengers,
+            preferences: {
+              vehicleType: this.selectedVehicleType,
+              isPetFriendly: this.isPetFriendly,
+              isBabyFriendly: this.isBabyFriendly,
+            },
+          });
+          this.openScheduleDialog();
+        }
+      },
+      error: (error) => {
+        console.error('Error checking if user is blocked:', error);
+        this.dialogService.open(
+          'Error',
+          'Unable to verify user status. Please try again later.',
+          true,
+        );
       },
     });
-    this.openScheduleDialog();
   }
 
   loadRideEstimate() {
@@ -229,7 +260,7 @@ export class FindTrip implements OnInit, OnDestroy {
       return;
     }
 
-    const coordinates: Coordinates[] = this.destinations.map(d => d.coordinates);
+    const coordinates: Coordinates[] = this.destinations.map((d) => d.coordinates);
     this.geocodingService.getRouteInfo(coordinates).subscribe({
       next: (routeInfo) => {
         if (!routeInfo) {
@@ -238,32 +269,36 @@ export class FindTrip implements OnInit, OnDestroy {
         }
         const routeEstimate: RouteEstimateInfo = {
           distanceMeters: routeInfo.distanceMeters,
-          durationSeconds: routeInfo.durationSeconds
-        }
+          durationSeconds: routeInfo.durationSeconds,
+        };
 
         this.rideEstimate.set(routeEstimate);
-        
+
         if (this.selectedVehicleType !== '') {
           const request: RideEstimateRequest = {
             distanceMeters: routeEstimate.distanceMeters,
-            selectedVehicleType: this.selectedVehicleType
-          }
-  
+            selectedVehicleType: this.selectedVehicleType,
+          };
+
           this.rideService.getPriceForRide(request).subscribe({
             next: (priceResponse) => {
-              console.log("priceResponse", priceResponse);
+              console.log('priceResponse', priceResponse);
               this.ridePrice.set(priceResponse);
             },
             error: (error) => {
               console.error('Failed to calculate price:', error);
-              this.dialogService.open('Price Calculation Failed', 'Unable to calculate ride price at this time.', true);
-            }
+              this.dialogService.open(
+                'Price Calculation Failed',
+                'Unable to calculate ride price at this time.',
+                true,
+              );
+            },
           });
         }
       },
       error: (error) => {
         console.error('Failed to get route info:', error);
-      }
+      },
     });
   }
 
