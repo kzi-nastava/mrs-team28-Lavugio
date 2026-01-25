@@ -229,7 +229,7 @@ export class FindTrip implements OnInit, OnDestroy {
         console.log(response);
         if (response.block.blocked) {
           this.dialogService.openBlocked(response.block.reason);
-        } else if (response.isInRide) {
+        } else if (response.inRide) {
           this.dialogService.open(
             'Cannot Order Ride',
             'You are already in an active ride and cannot order a new one.',
