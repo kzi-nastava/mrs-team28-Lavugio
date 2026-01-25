@@ -294,7 +294,7 @@ public class DriverController {
     }
 
 
-    @GetMapping(value = "/{driverId}/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverHistoryDetailedDTO> getDriverHistoryByRideId(@PathVariable Long rideId){
 //        Ride ride = rideService.getRideById(rideId);
 //        List<RideDestination> destinations = rideDestinationService.getStartAndEndDestinationForRide(rideId);
@@ -305,17 +305,26 @@ public class DriverController {
         passengers.add(new PassengerTableRowDTO(
                 1L,
                 "Marko Marković",
-                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "image/png")
+                "imageUrl"
         ));
         passengers.add(new PassengerTableRowDTO(
                 2L,
                 "Ana Anić",
-                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==", "image/png")
+                "imageUrl"
         ));
         passengers.add(new PassengerTableRowDTO(
                 3L,
                 "Petar Petrović",
-                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA+G6D9wAAAABJRU5ErkJggg==", "image/png")
+                "imageUrl"
+        ));
+        passengers.add(new PassengerTableRowDTO(4L,
+                "Petar Petrović",
+                "user_2_1768848779634.jpg"
+        ));
+        passengers.add(new PassengerTableRowDTO(
+                5L,
+                "Petar Petrović",
+                "default_avatar_photo.jpg"
         ));
 
         DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(
@@ -324,7 +333,7 @@ public class DriverController {
                 "Kneza Miloša 15, Beograd",
                 "Bulevar kralja Aleksandra 73, Beograd",
                 1250.50,
-                false,
+                true,
                 false,
                 passengers,
                 new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),

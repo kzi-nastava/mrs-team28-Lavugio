@@ -17,25 +17,25 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DriverHistoryDetailedDTO {
-    private String startDateTime;
-    private String endDateTime;
-    private String startLocation;
-    private String destinationLocation;
+    private String start;
+    private String end;
+    private String departure;
+    private String destination;
     private double price;
-    private boolean isCancelled;
-    private boolean hasPanic;
+    private boolean cancelled;
+    private boolean panic;
     private List<PassengerTableRowDTO> passengers;
     private CoordinatesDTO[] checkpoints;
 
-    public DriverHistoryDetailedDTO(Ride ride, RideDestination startLocation, RideDestination destinationLocation, CoordinatesDTO[] checkpoints){
+    public DriverHistoryDetailedDTO(Ride ride, RideDestination departure, RideDestination destination, CoordinatesDTO[] checkpoints){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
-        this.startDateTime = ride.getStartDateTime().format(formatter);
-        this.endDateTime = ride.getEndDateTime() != null ? ride.getEndDateTime().format(formatter) : "not finished";
-        this.startLocation = startLocation.getAddress().toString();
-        this.destinationLocation = destinationLocation.getAddress().toString();
+        this.start = ride.getStartDateTime().format(formatter);
+        this.end = ride.getEndDateTime() != null ? ride.getEndDateTime().format(formatter) : "not finished";
+        this.departure = departure.getAddress().toString();
+        this.destination = destination.getAddress().toString();
         this.price = ride.getPrice();
-        this.isCancelled = ride.getRideStatus() == RideStatus.CANCELLED;
-        this.hasPanic = ride.isHasPanic();
+        this.cancelled = ride.getRideStatus() == RideStatus.CANCELLED;
+        this.panic = ride.isHasPanic();
         this.checkpoints = checkpoints;
     }
 }
