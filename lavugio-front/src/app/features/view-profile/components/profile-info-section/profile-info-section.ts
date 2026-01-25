@@ -32,6 +32,14 @@ export class ProfileInfoSection {
 
   ngOnInit() {
     this.updatedProfile = structuredClone(this.profile);
+    if (this.updatedProfile.vehiclePetFriendly === undefined) {
+      this.updatedProfile.vehiclePetFriendly = false;
+    }
+    if (this.updatedProfile.vehicleBabyFriendly === undefined) {
+      this.updatedProfile.vehicleBabyFriendly = false;
+    }
+    console.log('Initialized profile editing with profile:', this.profile);
+    console.log('Updated profile with booleans:', this.updatedProfile);
   }
 
   editButtonText = computed(() => {
@@ -45,11 +53,17 @@ export class ProfileInfoSection {
   });
 
   onFieldChanged(field: keyof UserProfile, value: string) {
+    console.log(`Field changed: ${field} = ${value}`);
     if (field === 'vehicleSeats') {
       this.updatedProfile[field] = Number(value);
+    } else if (field === 'vehiclePetFriendly' || field === 'vehicleBabyFriendly') {
+      const boolValue = value === 'true';
+      (this.updatedProfile[field] as boolean) = boolValue;
+      console.log(`Set ${field} to ${boolValue}`);
     } else {
       (this.updatedProfile[field] as string) = value;
     }
+    console.log('Updated profile after change:', this.updatedProfile);
   }
 
   onEditClick() {
@@ -132,8 +146,8 @@ export class ProfileInfoSection {
   }
 
   private sendEditRequest() {
-    console.log('Sending edit request:', this.profile);
     const editRequest: EditDriverProfileRequestDTO = MapProfileToEditDriverProfileRequestDTO(this.updatedProfile);
+    console.log('Edit request being sent:', editRequest);
     this.driverService.sendEditRequest(editRequest).subscribe({
       next: () => {
         console.log('Edit request sent successfully');
@@ -176,8 +190,6 @@ export class ProfileInfoSection {
     }
     return seats.toString();
   }
-
-  
 
   getVehicleTypeString(type?: string): string {
     if (!type) return '';

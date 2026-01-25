@@ -29,7 +29,11 @@ public interface DriverService {
     DriverDTO updateDriverDTO(Long id, UserProfileDTO request);
 
     void createDriverEditRequest(DriverUpdateRequestDTO request, Long driverId);
-    List<DriverUpdateRequest> getAllPendingDriverEditRequests();
+    List<DriverUpdateRequestDiffDTO> getAllPendingDriverEditRequests();
+
+    void rejectEditRequest(Long requestId);
+    void approveEditRequest(Long requestId);
+
     // Profile Management DTO
     DriverDTO getDriverProfile(String email);
     DriverDTO getDriverProfileById(Long id);

@@ -90,10 +90,10 @@
   >
   </app-profile-info-row>
 
-  <app-profile-info-row [label]="'Pet Friendly'" [value]="'true'" [isBoolean]="true">
+  <app-profile-info-row [label]="'Pet Friendly'" [value]="profile.vehiclePetFriendly ?? false" [isBoolean]="true" (valueChanged)="onFieldChanged('vehiclePetFriendly', $event)">
   </app-profile-info-row>
 
-  <app-profile-info-row [label]="'Baby Friendly'" [value]="'false'" [isBoolean]="true">
+  <app-profile-info-row [label]="'Baby Friendly'" [value]="profile.vehicleBabyFriendly ?? false" [isBoolean]="true" (valueChanged)="onFieldChanged('vehicleBabyFriendly', $event)">
   </app-profile-info-row>
   
   <app-profile-info-row

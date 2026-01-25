@@ -13,6 +13,7 @@ import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
+import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -41,6 +42,8 @@ public class DriverController {
     private DriverAvailabilityService driverAvailabilityService;
     @Autowired
     private ScheduledRideService  scheduledRideService;
+
+    private Long accountId = 5L;
 
     @Autowired
     public DriverController(RideService rideService, RideDestinationService rideDestinationService, DriverAvailabilityService driverAvailabilityService) {
@@ -135,14 +138,14 @@ public class DriverController {
         }
     }
 
-    @PutMapping("/edit-request")
+    @PostMapping("/edit-request")
     public ResponseEntity<?> createDriverEditRequest(
             @RequestBody DriverUpdateRequestDTO request) {
     	// @AuthenticationPrincipal UserDetails userDetails
+        System.out.println("Request for driver edit received");
         try {
-            Long accountId = 1L;
             driverService.createDriverEditRequest(request, accountId);
-            return ResponseEntity.ok("Driver edit request created successfully");
+            return ResponseEntity.ok().body(Map.of("message","Driver edit request created successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -151,12 +154,30 @@ public class DriverController {
     @GetMapping("/edit-requests")
     public ResponseEntity<?> getDriverEditRequests() {
         try {
-            // TODO: IMPLEMENTIRAJ OSTATAK
-            // List<DriverUpdateRequestDTO> requests = driverService.getAllPendingDriverEditRequests();
-            // List<DriverUpdateRequestDTO> requests = new ArrayList<>(); // Placeholder for requests list
-            return ResponseEntity.ok("aa");
+            List<DriverUpdateRequestDiffDTO> requests = driverService.getAllPendingDriverEditRequests();
+            return ResponseEntity.ok(requests);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/edit-requests/{requestId}/approve")
+    public ResponseEntity<?> approveEditRequest(@PathVariable Long requestId) {
+        try {
+            this.driverService.approveEditRequest(requestId);
+            return ResponseEntity.ok().body(Map.of("message", "Edit request successfully approved."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/edit-requests/{requestId}/reject")
+    public ResponseEntity<?> rejectEditRequest(@PathVariable Long requestId) {
+        try {
+            this.driverService.rejectEditRequest(requestId);
+            return ResponseEntity.ok().body(Map.of("message", "Edit request successfully rejected."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 

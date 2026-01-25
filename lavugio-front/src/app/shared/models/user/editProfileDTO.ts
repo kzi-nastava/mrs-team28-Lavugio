@@ -30,6 +30,8 @@ export interface EditDriverProfileRequestDTO {
 }
 
 export function MapProfileToEditDriverProfileRequestDTO(profile: UserProfile): EditDriverProfileRequestDTO {
+    console.log(profile.vehicleBabyFriendly);
+    console.log(profile.vehiclePetFriendly);
     return {
         profile: MapProfileToEditProfileDTO(profile),
         vehicleMake: profile.vehicleMake || '',
@@ -41,4 +43,11 @@ export function MapProfileToEditDriverProfileRequestDTO(profile: UserProfile): E
         vehicleBabyFriendly: profile.vehicleBabyFriendly || false,
         vehicleType: profile.vehicleType || '',
     }
+}
+
+export interface DriverUpdateRequestDiffDTO {
+    requestId: number;
+    oldData: EditDriverProfileRequestDTO;
+    newData: EditDriverProfileRequestDTO;
+    email: string;
 }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -236,21 +237,102 @@ public class DriverServiceImpl implements DriverService {
         editRequest.setLastName(request.getProfile().getSurname());
         editRequest.setPhoneNumber(request.getProfile().getPhoneNumber());
         editRequest.setAddress(request.getProfile().getAddress());
-        editRequest.setMake(request.getMake());
-        editRequest.setModel(request.getModel());
-        editRequest.setLicensePlate(request.getLicensePlate());
-        editRequest.setSeatsNumber(request.getSeatsNumber());
-        editRequest.setPetFriendly(request.isPetFriendly());
-        editRequest.setBabyFriendly(request.isBabyFriendly());
-        editRequest.setColor(request.getColor());
-        editRequest.setType(request.getType());
+        editRequest.setMake(request.getVehicleMake());
+        editRequest.setModel(request.getVehicleModel());
+        editRequest.setLicensePlate(request.getVehicleLicensePlate());
+        editRequest.setSeatsNumber(request.getVehicleSeats());
+        editRequest.setPetFriendly(request.isVehiclePetFriendly());
+        editRequest.setBabyFriendly(request.isVehicleBabyFriendly());
+        editRequest.setColor(request.getVehicleColor());
+        editRequest.setType(request.getVehicleType());
         editRequest.setValidated(false);
         driverUpdateRequestRepository.save(editRequest);
     }
 
     @Override
-    public List<DriverUpdateRequest> getAllPendingDriverEditRequests() {
-        return driverUpdateRequestRepository.findByValidatedFalse();
+    public List<DriverUpdateRequestDiffDTO> getAllPendingDriverEditRequests() {
+        List<DriverUpdateRequest> requests = driverUpdateRequestRepository.findByValidatedFalse();
+        List<DriverUpdateRequestDiffDTO> requestsDTO = new ArrayList<>();
+        for (DriverUpdateRequest request : requests) {
+            Driver driver = driverRepository.findById(request.getDriverId())
+                .orElseThrow(() -> new RuntimeException("Driver not found with id: " + request.getDriverId()));
+            
+                DriverUpdateRequestDiffDTO requestDTO = new DriverUpdateRequestDiffDTO();
+            
+            requestDTO.setRequestId(request.getId());
+
+            DriverUpdateRequestDTO oldData = new DriverUpdateRequestDTO();
+            AccountUpdateDTO oldAccount = new AccountUpdateDTO();
+            oldAccount.setName(driver.getName());
+            oldAccount.setSurname(driver.getLastName());
+            oldAccount.setPhoneNumber(driver.getPhoneNumber());
+            oldData.setProfile(oldAccount);
+            oldData.setVehicleModel(driver.getVehicle().getModel());
+            oldData.setVehicleMake(driver.getVehicle().getMake());
+            oldData.setVehicleLicensePlate(driver.getVehicle().getLicensePlate());
+            oldData.setVehicleColor(driver.getVehicle().getColor());
+            oldData.setVehicleType(driver.getVehicle().getType());
+            oldData.setVehicleBabyFriendly(driver.getVehicle().isBabyFriendly());
+            oldData.setVehiclePetFriendly(driver.getVehicle().isPetFriendly());
+            requestDTO.setOldData(oldData);
+
+            DriverUpdateRequestDTO newData = new DriverUpdateRequestDTO();
+            AccountUpdateDTO newAccount = new AccountUpdateDTO();
+            newAccount.setName(request.getName());
+            newAccount.setSurname(request.getLastName());
+            newAccount.setPhoneNumber(request.getPhoneNumber());
+            newData.setProfile(newAccount);
+            newData.setVehicleModel(request.getModel());
+            newData.setVehicleMake(request.getMake());
+            newData.setVehicleLicensePlate(request.getLicensePlate());
+            newData.setVehicleColor(request.getColor());
+            newData.setVehicleType(request.getType());
+            newData.setVehicleBabyFriendly(request.isBabyFriendly());
+            newData.setVehiclePetFriendly(request.isPetFriendly());
+            requestDTO.setNewData(newData);
+
+            requestDTO.setEmail(driver.getEmail());
+
+            requestsDTO.add(requestDTO);
+        }
+        return requestsDTO;
+    }
+
+    @Override
+    public void approveEditRequest(Long requestId) {
+        DriverUpdateRequest request = driverUpdateRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Edit request not found with id: " + requestId));
+        Driver driver = driverRepository.findById(request.getDriverId())
+                .orElseThrow(() -> new RuntimeException("Driver not found with id: " + request.getDriverId()));
+        Vehicle vehicle = driver.getVehicle();
+        vehicle.setMake(request.getMake());
+        vehicle.setModel(request.getModel());
+        vehicle.setLicensePlate(request.getLicensePlate());
+        vehicle.setColor(request.getColor());
+        try {
+            vehicle.setType(request.getType());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid vehicle type: " + request.getType());
+        }
+        vehicle.setBabyFriendly(request.isBabyFriendly());
+        vehicle.setPetFriendly(request.isPetFriendly());
+        vehicleRepository.save(vehicle);
+
+        driver.setName(request.getName());
+        driver.setLastName(request.getLastName());
+        driver.setPhoneNumber(request.getPhoneNumber());
+        driverRepository.save(driver);
+        
+        request.setValidated(true);
+        driverUpdateRequestRepository.save(request);
+    }
+
+    @Override
+    public void rejectEditRequest(Long requestId) {
+        DriverUpdateRequest request = driverUpdateRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Edit request not found with id: " + requestId));
+        request.setValidated(true);
+        driverUpdateRequestRepository.save(request);
     }
 
     @Override
