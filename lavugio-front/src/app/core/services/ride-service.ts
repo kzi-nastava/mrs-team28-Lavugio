@@ -20,7 +20,7 @@ import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistor
   providedIn: 'root',
 })
 export class RideService {
-  mainPortUrl = environment.BACKEND_URL + 'api/rides';
+  mainPortUrl = environment.BACKEND_URL + '/api/rides';
   socketUrl = environment.BACKEND_URL + '/socket';
   client: Client | undefined;
   http = inject(HttpClient);

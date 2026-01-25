@@ -1,6 +1,5 @@
 package com.backend.lavugio.service.user;
 
-import com.backend.lavugio.dto.user.UpdateUserDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserProfileDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;

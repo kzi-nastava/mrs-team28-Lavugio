@@ -25,6 +25,7 @@ export class DriverService {
   registerDriver(data: any): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/register`, data);
   }
+  
   getScheduledRides(driverId: number) {
     return this.http.get<ScheduledRideDTO[]>(`${this.mainPortUrl}/${driverId}/scheduled-rides`);
   }

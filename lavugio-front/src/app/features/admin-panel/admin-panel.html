@@ -1,0 +1,28 @@
+<app-navbar></app-navbar>
+
+<app-white-sheet-background title="Administrator Panel" spacing="center" width="sm">
+    <!-- Buttons - uvek dole -->
+        <div class="flex flex-col gap-3 pt-6 w-full max-w-md mx-auto">
+
+            <button (click)="openDriverRegistration()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                Register Driver
+            </button>
+
+            <button (click)="openDriverUpdateRequest()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                Driver Update Requests
+            </button>
+
+            <button (click)="openBlockUser()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                Block User
+            </button>
+
+            <button (click)="openReportsView()"
+                class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
+                See Reports
+            </button>
+
+        </div>
+</app-white-sheet-background>

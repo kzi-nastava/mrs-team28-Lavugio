@@ -6,6 +6,6 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UpdateAdministratorDTO extends UpdateUserDTO {
+public class AccountUpdateAdministratorDTO extends AccountUpdateDTO {
 
 }
