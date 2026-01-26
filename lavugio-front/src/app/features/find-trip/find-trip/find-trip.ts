@@ -264,7 +264,14 @@ export class FindTrip implements OnInit, OnDestroy {
     this.rideService.findRide(rideRequest).subscribe({
       next: (response) => {
         console.log('Ride found:', response);
-        // Handle the response as needed
+        this.dialogService.open(
+          'Ride Found',
+          'Your ride has been successfully found and scheduled.',
+          false,
+        );
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
       },
       error: (error) => {
         console.error('Error finding ride:', error);
