@@ -47,6 +47,9 @@ public interface DriverService {
 
     Driver activateDriver(Long driverId);
     void updateDriverDriving(Long driverId, boolean isDriving);
+    
+    void setDriverStatus(Long driverId, Boolean active);
+    boolean canDriverLogout(Long driverId);
 
     Driver blockDriver(Long driverId, String reason);
     Driver unblockDriver(Long driverId);

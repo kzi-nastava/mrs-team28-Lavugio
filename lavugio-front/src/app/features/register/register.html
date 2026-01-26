@@ -69,6 +69,27 @@
                 </button>
             </div>
 
+            <!-- Confirm Password Field -->
+            <div class="relative">
+                <input
+                    [type]="showConfirmPassword() ? 'text' : 'password'"
+                    [(ngModel)]="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25]"
+                />
+                <button
+                    type="button"
+                    (click)="toggleConfirmPasswordVisibility()"
+                    class="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
             <!-- Name Field -->
             <input
                 type="text"
@@ -104,6 +125,49 @@
                 placeholder="Phone number"
                 class="w-full px-4 py-3 bg-[#F5F5F5] border border-gray-300 rounded focus:outline-none focus:border-[#BC6C25]"
             />
+
+            <!-- Profile Picture Upload -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Profile Picture (Optional)</label>
+                <div class="flex items-center gap-4">
+                    <!-- File Input -->
+                    <input
+                        #fileInput
+                        type="file"
+                        accept="image/*"
+                        (change)="onProfilePictureSelected($event)"
+                        class="hidden"
+                    />
+                    
+                    <!-- Upload Button -->
+                    <button
+                        type="button"
+                        (click)="triggerFileInput()"
+                        class="px-4 py-2 bg-[#BC6C25] text-white rounded hover:bg-[#9D5620] transition"
+                    >
+                        Choose Image
+                    </button>
+
+                    <!-- File Name -->
+                    <span class="text-sm text-gray-600">
+                        {{ profilePicture() ? profilePicture()!.name : 'No file selected' }}
+                    </span>
+                </div>
+
+                <!-- Image Preview -->
+                <div *ngIf="profilePicturePreview()" class="relative w-full h-32 border border-gray-300 rounded overflow-hidden bg-gray-100">
+                    <img [src]="profilePicturePreview()" alt="Profile preview" class="w-full h-full object-cover" />
+                    <button
+                        type="button"
+                        (click)="removeProfilePicture()"
+                        class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
 
             <!-- Register Button -->
             <button

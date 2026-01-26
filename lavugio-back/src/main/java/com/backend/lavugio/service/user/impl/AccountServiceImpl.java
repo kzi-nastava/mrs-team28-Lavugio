@@ -39,8 +39,8 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private final String uploadDir = "uploads/profile-photos/";
-    private final String defaultPhotoUrl = "uploads/profile-photos/default_avatar_photo.jpg";
+    private final String uploadDir = System.getProperty("user.dir") + "/uploads/profile-photos/";
+    private final String defaultPhotoUrl = System.getProperty("user.dir") + "/uploads/profile-photos/default_avatar_photo.jpg";
 
     @Override
     @Transactional
@@ -182,11 +182,16 @@ public class AccountServiceImpl implements AccountService {
 
             if (photoPath == null || photoPath.isBlank()) {
                 path = Paths.get(defaultPhotoUrl);
+                System.out.println("Using default photo: " + path.toAbsolutePath());
             } else {
                 path = Paths.get(photoPath);
+                System.out.println("Using user photo: " + path.toAbsolutePath());
             }
 
+            System.out.println("Photo file exists: " + Files.exists(path));
+            
             if (!Files.exists(path)) {
+                System.out.println("Photo file not found, returning null");
                 return null;
             }
 

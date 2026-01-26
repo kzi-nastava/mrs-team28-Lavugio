@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
@@ -40,10 +42,44 @@ public class AccountController {
     @Autowired
     private DriverService driverService;
 
-    private static Long accountId = 5L;
+    /**
+     * Helper method to extract account ID from authentication principal
+     * Handles both String and Long types
+     */
+    private Long extractAccountId(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return null;
+        }
+        
+        Object principal = authentication.getPrincipal();
+        
+        // Check for anonymous user
+        if (principal instanceof String && "anonymousUser".equals(principal)) {
+            return null;
+        }
+        
+        if (principal instanceof Long) {
+            return (Long) principal;
+        } else if (principal instanceof String) {
+            try {
+                return Long.valueOf((String) principal);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else if (principal instanceof Integer) {
+            return ((Integer) principal).longValue();
+        }
+        return null;
+    }
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         Account account = accountService.getAccountById(accountId);
 
         if (account == null) {
@@ -57,8 +93,7 @@ public class AccountController {
         dto.setName(account.getName());
         dto.setSurname(account.getLastName());
         dto.setPhoneNumber(account.getPhoneNumber());
-        // TODO: Popuni adresu iz odgovarajućeg izvora
-        dto.setAddress("Neka adresa");
+        dto.setAddress(account.getAddress());
         dto.setProfilePhotoPath(account.getProfilePhotoPath());
 
         if (account instanceof Driver) {
@@ -88,7 +123,12 @@ public class AccountController {
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateCurrentUserProfile(@RequestBody AccountUpdateDTO updatedProfile) {
-        // Authentication auth
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvan update profila");
         try {
             accountService.updateAccount(accountId, updatedProfile);
@@ -101,7 +141,12 @@ public class AccountController {
 
     @PostMapping("/profile-photo")
     public ResponseEntity<?> uploadProfilePhoto(@RequestParam("file") MultipartFile file) {
-        // Authentication auth
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvan upload profilne");
         try {
             Account updatedAccount = accountService.updateProfilePhoto(accountId, file);
@@ -114,6 +159,12 @@ public class AccountController {
 
     @GetMapping("/profile-photo")
     public ResponseEntity<Resource> getProfilePhoto() {
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvano dobavljanje profilne");
 
         try {
@@ -139,7 +190,12 @@ public class AccountController {
 
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordDTO passwordUpdate) {
-        // Authentication auth
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvana promena lozinke");
         try {
             accountService.changePassword(accountId, passwordUpdate.getOldPassword(), passwordUpdate.getNewPassword());

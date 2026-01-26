@@ -30,12 +30,14 @@ public class JwtUtil {
      * Generate JWT token for a user
      * @param email User's email (will be used as subject/identifier)
      * @param userId User's ID
+     * @param role User's role (DRIVER, REGULAR_USER, ADMIN)
      * @return JWT token string
      */
-    public String generateToken(String email, Long userId) {
+    public String generateToken(String email, Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("email", email);
+        claims.put("role", role);
         return createToken(claims, email);
     }
 
@@ -83,6 +85,19 @@ public class JwtUtil {
                 return ((Integer) userId).longValue();
             }
             return Long.valueOf(userId.toString());
+        } catch (Exception e) {
+            throw new InvalidTokenException("Invalid token: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Extract role from token
+     * @param token JWT token
+     * @return User role (DRIVER, REGULAR_USER, ADMIN)
+     */
+    public String extractRole(String token) {
+        try {
+            return getClaims(token).get("role", String.class);
         } catch (Exception e) {
             throw new InvalidTokenException("Invalid token: " + e.getMessage());
         }
