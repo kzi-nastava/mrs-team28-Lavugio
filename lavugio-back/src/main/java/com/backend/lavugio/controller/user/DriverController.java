@@ -66,7 +66,7 @@ public class DriverController {
         }
     }
 
-    @PostMapping("/activate")
+    /*@PostMapping("/activate")
     public ResponseEntity<?> activateDriver(@RequestBody DriverActivationRequestDTO request) {
         try {
             System.out.println("Activating driver activated");
@@ -75,7 +75,7 @@ public class DriverController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
-    }
+    }*/
 
     /*@PostMapping("/validate-token")
     public ResponseEntity<?> validateToken() {
@@ -256,7 +256,7 @@ public class DriverController {
             Long accountId = 5L; // Placeholder for current user's account ID
             Driver driver = driverService.activateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " activated in controller");
-            return ResponseEntity.ok().body("Driver activated successfully");
+            return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -269,7 +269,7 @@ public class DriverController {
             Long accountId = 5L; // Placeholder for current user's account ID
             Driver driver = driverService.deactivateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
-            return ResponseEntity.ok().body("Driver deactivated successfully");
+            return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
