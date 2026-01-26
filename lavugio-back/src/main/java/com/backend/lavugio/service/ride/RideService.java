@@ -36,7 +36,7 @@ public interface RideService {
     Ride updateRide(Long id, Ride ride);
     Ride updateRideStatus(Long id, RideStatus newStatus);
     Ride addPassengerToRide(Long rideId, Long passengerId);
-    Ride addPassengerToRide(Ride ride, List<String> passengerEmails);
+    Ride addPassengersToRide(Ride ride, List<String> passengerEmails);
     Ride removePassengerFromRide(Long rideId, Long passengerId);
 
     // Delete operations

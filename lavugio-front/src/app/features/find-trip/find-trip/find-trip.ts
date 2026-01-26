@@ -252,10 +252,27 @@ export class FindTrip implements OnInit, OnDestroy {
         };
 
         console.log('Creating ride with:', rideRequest);
-        // TODO: Call ride service with rideRequest
+        this.findRide(rideRequest);
       },
       complete: () => {
         console.log('Modal closed');
+      },
+    });
+  }
+
+  findRide(rideRequest: RideRequestDTO) {
+    this.rideService.findRide(rideRequest).subscribe({
+      next: (response) => {
+        console.log('Ride found:', response);
+        // Handle the response as needed
+      },
+      error: (error) => {
+        console.error('Error finding ride:', error);
+        this.dialogService.open(
+          'Error',
+          'Unable to find a ride at this time. Please try again later.',
+          true,
+        );
       },
     });
   }

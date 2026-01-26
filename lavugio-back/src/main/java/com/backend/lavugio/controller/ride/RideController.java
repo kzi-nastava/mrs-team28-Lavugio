@@ -61,30 +61,19 @@ public class RideController {
         }
     }
 
-    @PostMapping("/instant")
-    public ResponseEntity<?> createInstantRide(
+    // 3. Create scheduled ride (for future)
+    @PostMapping("/find-ride")
+    public ResponseEntity<?> findRide(
             @RequestBody RideRequestDTO request) {
         // @AuthenticationPrincipal UserDetails userDetails,
         Long creatorId = 1L;
         try {
-            RideResponseDTO ride = rideService.createInstantRide(creatorId, request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(ride);
-        } catch (Exception e) {
-            // notificationService.sendNoDriversAvailable(userDetails.getUsername());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
-        }
-    }
-
-    // 3. Create scheduled ride (for future)
-    @PostMapping("/schedule")
-    public ResponseEntity<?> createScheduledRide(
-            @RequestBody RideRequestDTO request) {
-        // @AuthenticationPrincipal UserDetails userDetails,
-        try {
-            //String userEmail = userDetails.getUsername();
-            String userEmail = "email@emailovic.com"; // Placeholder vrednost
-            //RideDTO ride = rideService.createScheduledRide(userEmail, request);
-            RideResponseDTO ride = new RideResponseDTO(); // Placeholder vrednost
+            RideResponseDTO ride;
+            if (request.isScheduled()) {
+                ride = new RideResponseDTO();
+            } else {
+                ride = rideService.createInstantRide(creatorId, request);
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(ride);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

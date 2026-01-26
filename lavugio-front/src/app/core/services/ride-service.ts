@@ -15,6 +15,7 @@ import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
 import { FinishRide } from '@app/shared/models/finishRide';
+import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
 @Injectable({
   providedIn: 'root',
 })
@@ -81,5 +82,9 @@ export class RideService {
 
   scheduleRide(scheduleRideRequest: ScheduleRideRequest): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/schedule`, scheduleRideRequest);
+  }
+
+  findRide(request: RideRequestDTO): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/find-ride`, request);
   }
  }

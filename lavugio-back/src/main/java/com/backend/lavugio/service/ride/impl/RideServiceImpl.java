@@ -213,7 +213,7 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
-    public Ride addPassengerToRide(Ride ride, List<String> passengerEmails) {
+    public Ride addPassengersToRide(Ride ride, List<String> passengerEmails) {
         Set<RegularUser> registeredPassengers = new HashSet<>();
         for (String passengerEmail : passengerEmails) {
             Optional<RegularUser> passenger = regularUserRepository.findByEmail(passengerEmail);
@@ -346,7 +346,7 @@ public class RideServiceImpl implements RideService {
         Duration estimatedRideDuration = Duration.ofSeconds(estimatedDurationSeconds);
         Duration totalActiveTimeAfterRide = currentActiveTime.plus(estimatedRideDuration);
 
-        Duration maxAllowed = Duration.ofHours(8).plus(Duration.ofMinutes(15)); // Maximum daily limit
+        Duration maxAllowed = Duration.ofHours(8).plus(Duration.ofMinutes(15)); // Maximum daily limit with 15 minutes buffer
 
         return totalActiveTimeAfterRide.compareTo(maxAllowed) <= 0;
     }
@@ -410,7 +410,7 @@ public class RideServiceImpl implements RideService {
         }
 
         // Add passengers to ride
-        this.addPassengerToRide(ride, request.getPassengerEmails());
+        this.addPassengersToRide(ride, request.getPassengerEmails());
         return ride;
     }
 
