@@ -245,6 +245,9 @@ export class FindTrip implements OnInit, OnDestroy {
           petFriendly: this.isPetFriendly,
           scheduledTime: result.scheduledTime ? new Date(result.scheduledTime).toISOString().replace('Z', '') : '',
           scheduled: result.isScheduled,
+          estimatedDurationSeconds: this.rideEstimate()?.durationSeconds ?? 0,
+          distance: this.rideEstimate()?.distanceMeters ?? 0,
+          price: this.ridePrice(),
         };
 
         console.log('Creating ride with:', rideRequest);

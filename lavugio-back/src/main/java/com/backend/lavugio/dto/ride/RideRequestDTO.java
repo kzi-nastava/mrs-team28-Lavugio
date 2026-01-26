@@ -26,4 +26,9 @@ public class RideRequestDTO {
     public RideDestinationDTO getStartAddress() {
         return destinations.getFirst();
     }
+
+    private int estimatedDurationSeconds;
+
+    private int price;
+    private int distance;
 }
