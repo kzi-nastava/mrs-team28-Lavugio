@@ -1,6 +1,7 @@
 package com.backend.lavugio.exception;
 
 import com.backend.lavugio.dto.ErrorResponseDTO;
+import com.backend.lavugio.dto.ValidationErrorResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -107,24 +108,25 @@ public class GlobalExceptionHandler {
      * Handle validation errors from @Valid annotation (400 Bad Request)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+    public ResponseEntity<ValidationErrorResponseDTO> handleValidationExceptions(
             MethodArgumentNotValidException ex,
             WebRequest request) {
         
         logger.warn("Validation error: {}", ex.getMessage());
         
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
+                fieldErrors.put(error.getField(), error.getDefaultMessage())
         );
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("message", "Validation failed");
-        response.put("error", "VALIDATION_ERROR");
-        response.put("timestamp", LocalDateTime.now());
-        response.put("path", request.getDescription(false).replace("uri=", ""));
-        response.put("fieldErrors", errors);
+        ValidationErrorResponseDTO response = ValidationErrorResponseDTO.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Validation failed")
+                .error("VALIDATION_ERROR")
+                .timestamp(LocalDateTime.now())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .fieldErrors(fieldErrors)
+                .build();
         
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

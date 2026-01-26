@@ -5,7 +5,6 @@ export interface RideOverviewModel{
     driverId: number | null;
     price: number | null;
     status: "SCHEDULED" | "ACTIVE" | "FINISHED" | "CANCELLED" | "DENIED";
-    driverCoordinates: Coordinates | null;
     checkpoints: Coordinates[];
     driverName: string;
     startAddress: string;

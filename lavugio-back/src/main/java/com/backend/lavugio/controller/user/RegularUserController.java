@@ -2,14 +2,16 @@ package com.backend.lavugio.controller.user;
 
 import com.backend.lavugio.dto.user.LoginRequestDTO;
 import com.backend.lavugio.dto.user.LoginResponseDTO;
-import com.backend.lavugio.dto.user.UpdateUserDTO;
+import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
+import com.backend.lavugio.dto.user.EmailVerificationDTO;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.RegularUserService;
+import com.backend.lavugio.service.user.UserRegistrationTokenService;
 
 import java.util.List;
 
@@ -33,6 +35,8 @@ public class RegularUserController {
     private AccountService accountService;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private UserRegistrationTokenService userRegistrationTokenService;
     
     // REGISTRATION & AUTHENTICATION
 
@@ -41,11 +45,32 @@ public class RegularUserController {
         try {
             logger.info("Registration attempt for email: {}", request.getEmail());
             UserDTO user = regularUserService.createRegularUser(request);
+            
+            // Send verification email
+            userRegistrationTokenService.sendVerificationEmail(user.getId(), user.getEmail(), user.getName());
+            
             logger.info("Registration successful for email: {}", request.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        } catch (com.backend.lavugio.exception.EmailAlreadyExistsException e) {
+            logger.warn("Registration failed - Email already exists: {}", request.getEmail());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new com.backend.lavugio.dto.ErrorResponseDTO(
+                            HttpStatus.CONFLICT.value(),
+                            "Email already registered: " + e.getMessage(),
+                            "EMAIL_ALREADY_EXISTS",
+                            java.time.LocalDateTime.now(),
+                            "/api/regularUsers/register"
+                    ));
         } catch (Exception e) {
             logger.error("Registration failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new com.backend.lavugio.dto.ErrorResponseDTO(
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            "REGISTRATION_ERROR",
+                            java.time.LocalDateTime.now(),
+                            "/api/regularUsers/register"
+                    ));
         }
     }
 
@@ -70,9 +95,49 @@ public class RegularUserController {
             
             logger.info("Login successful for email: {}", request.getEmail());
             return ResponseEntity.ok(response);
+        } catch (com.backend.lavugio.exception.UserNotFoundException e) {
+            logger.warn("Login failed - User not found: {}", request.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new com.backend.lavugio.dto.ErrorResponseDTO(
+                            HttpStatus.UNAUTHORIZED.value(),
+                            "Email not found or invalid credentials",
+                            "USER_NOT_FOUND",
+                            java.time.LocalDateTime.now(),
+                            "/api/regularUsers/login"
+                    ));
+        } catch (com.backend.lavugio.exception.InvalidCredentialsException e) {
+            logger.warn("Login failed - Invalid credentials for: {}", request.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new com.backend.lavugio.dto.ErrorResponseDTO(
+                            HttpStatus.UNAUTHORIZED.value(),
+                            "Invalid email or password",
+                            "INVALID_CREDENTIALS",
+                            java.time.LocalDateTime.now(),
+                            "/api/regularUsers/login"
+                    ));
         } catch (Exception e) {
             logger.error("Login failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new com.backend.lavugio.dto.ErrorResponseDTO(
+                            HttpStatus.UNAUTHORIZED.value(),
+                            e.getMessage(),
+                            "LOGIN_ERROR",
+                            java.time.LocalDateTime.now(),
+                            "/api/regularUsers/login"
+                    ));
+        }
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@Valid @RequestBody EmailVerificationDTO request) {
+        try {
+            logger.info("Email verification attempt with token: {}", request.getToken());
+            userRegistrationTokenService.verifyEmail(request.getToken());
+            logger.info("Email verified successfully");
+            return ResponseEntity.ok("Email verified successfully");
+        } catch (Exception e) {
+            logger.error("Email verification failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -109,7 +174,7 @@ public class RegularUserController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateRegularUser(
             @PathVariable Long id,
-            @RequestBody UpdateUserDTO request) {
+            @RequestBody AccountUpdateDTO request) {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             // String currentEmail = userDetails.getUsername();

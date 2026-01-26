@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, effect, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  effect,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { FormBackgroundSheet } from '@app/features/form-background-sheet/form-background-sheet';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { MapComponent } from '@app/shared/components/map/map';
@@ -23,6 +31,9 @@ import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideService } from '@app/core/services/ride-service';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
+import { UserService } from '@app/core/services/user/user-service';
+import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
+import { VehicleType } from '@app/shared/models/vehicleType';
 
 @Component({
   selector: 'app-find-trip',
@@ -77,6 +88,7 @@ export class FindTrip implements OnInit, OnDestroy {
     private geocodingService: GeocodingService,
     private rideService: RideService,
     private cdr: ChangeDetectorRef,
+    private userService: UserService,
   ) {}
 
   ngOnInit() {
@@ -123,7 +135,7 @@ export class FindTrip implements OnInit, OnDestroy {
     this.destinations.push(newDestination);
     this.map.addMarker(newDestination.coordinates, MarkerIcons.checkpoint);
     this.updateRoute();
-    
+
     // Recalculate estimate if on review step
     if (this.isLastStep()) {
       this.loadRideEstimate();
@@ -149,7 +161,7 @@ export class FindTrip implements OnInit, OnDestroy {
     });
 
     this.updateRoute();
-    
+
     // Recalculate estimate if on review step
     if (this.isLastStep()) {
       this.loadRideEstimate();
@@ -165,7 +177,11 @@ export class FindTrip implements OnInit, OnDestroy {
 
   onPassengerAdded(passenger: Passenger) {
     if (this.passengers.find((p) => p.email === passenger.email)) {
-      this.dialogService.open('Duplicate Passenger', 'This passenger has already been added.', true);
+      this.dialogService.open(
+        'Duplicate Passenger',
+        'This passenger has already been added.',
+        true,
+      );
       return;
     } else {
       passenger.email = passenger.email.toLocaleLowerCase();
@@ -189,50 +205,100 @@ export class FindTrip implements OnInit, OnDestroy {
     this.selectedVehicleType = preferences.vehicleType;
     this.isPetFriendly = preferences.isPetFriendly;
     this.isBabyFriendly = preferences.isBabyFriendly;
-    
+
     // Recalculate price if on review step and vehicle type changed
     if (this.isLastStep() && this.destinations.length >= 2) {
       this.loadRideEstimate();
     }
   }
 
-  openScheduleDialog() {
-  this.dialogService.openScheduleRide().subscribe({
-    next: (result) => {
-      console.log('Schedule data:', result);
-      this.scheduleData.set(result);
-      const scheduleRideRequest: ScheduleRideRequest = {
-        destinations: this.destinations,
-        vehicleType: this.selectedVehicleType,
-        isPetFriendly: this.isPetFriendly,
-        isBabyFriendly: this.isBabyFriendly,
-        isScheduled: result.isScheduled,
-        scheduledTime: result.scheduledTime ? result.scheduledTime.toISOString() : undefined,
-        passangers: this.passengers.map(p => p.email),
-        estimatedTimeMinutes: (this.rideEstimate()?.durationSeconds ?? 0) / 60,
-        estimatedDistanceKm: (this.rideEstimate()?.distanceMeters ?? 0) / 1000,
-        price: this.ridePrice(),
-      };
-      this.rideService.scheduleRide(scheduleRideRequest);
-    },
-    complete: () => {
-      console.log('Modal closed');
-    }
-  });
-}
+  openScheduleDialog(tripData: {
+    destinations: TripDestination[];
+    passengers: Passenger[];
+    preferences: {
+      vehicleType: string;
+      isPetFriendly: boolean;
+      isBabyFriendly: boolean;
+    };
+  }) {
+    this.dialogService.openScheduleRide().subscribe({
+      next: (result) => {
+        console.log('Schedule data:', result);
+        this.scheduleData.set(result);
+
+        const rideRequest: RideRequestDTO = {
+          destinations: this.destinations.map((d, index) => ({
+            location: {
+              orderIndex: index,
+              latitude: d.coordinates.latitude,
+              longitude: d.coordinates.longitude,
+            },
+            address: d.name,
+            streetName: d.street,
+            city: d.city,
+            country: d.country,
+            streetNumber: parseInt(d.houseNumber) || 0,
+            zipCode: 0,
+          })),
+          passengerEmails: this.passengers.map((p) => p.email),
+          vehicleType: this.selectedVehicleType as VehicleType,
+          babyFriendly: this.isBabyFriendly,
+          petFriendly: this.isPetFriendly,
+          scheduledTime: result.scheduledTime ? new Date(result.scheduledTime).toISOString().replace('Z', '') : '',
+          scheduled: result.isScheduled,
+          estimatedDurationSeconds: this.rideEstimate()?.durationSeconds ?? 0,
+          distance: this.rideEstimate()?.distanceMeters ?? 0,
+          price: this.ridePrice(),
+        };
+
+        console.log('Creating ride with:', rideRequest);
+        // TODO: Call ride service with rideRequest
+      },
+      complete: () => {
+        console.log('Modal closed');
+      },
+    });
+  }
 
   onFinish() {
     this.saveCurrentStepData();
-    console.log('Trip submitted with:', {
-      destinations: this.destinations,
-      passengers: this.passengers,
-      preferences: {
-        vehicleType: this.selectedVehicleType,
-        isPetFriendly: this.isPetFriendly,
-        isBabyFriendly: this.isBabyFriendly,
+    this.userService.canUserOrderRide().subscribe({
+      next: (response) => {
+        console.log(response);
+        if (response.block.blocked) {
+          this.dialogService.openBlocked(response.block.reason);
+        } else if (response.inRide) {
+          this.dialogService.open(
+            'Cannot Order Ride',
+            'You are already in an active ride and cannot order a new one.',
+            true,
+          );
+        } else {
+          const tripData = {
+            destinations: this.destinations,
+            passengers: this.passengers.map((p) => {
+              p.email = p.email.toLowerCase();
+              return p;
+            }),
+            preferences: {
+              vehicleType: this.selectedVehicleType,
+              isPetFriendly: this.isPetFriendly,
+              isBabyFriendly: this.isBabyFriendly,
+            },
+          };
+          console.log('Trip submitted with:', tripData);
+          this.openScheduleDialog(tripData);
+        }
+      },
+      error: (error) => {
+        console.error('Error checking if user is blocked:', error);
+        this.dialogService.open(
+          'Error',
+          'Unable to verify user status. Please try again later.',
+          true,
+        );
       },
     });
-    this.openScheduleDialog();
   }
 
   loadRideEstimate() {
@@ -242,7 +308,7 @@ export class FindTrip implements OnInit, OnDestroy {
       return;
     }
 
-    const coordinates: Coordinates[] = this.destinations.map(d => d.coordinates);
+    const coordinates: Coordinates[] = this.destinations.map((d) => d.coordinates);
     this.geocodingService.getRouteInfo(coordinates).subscribe({
       next: (routeInfo) => {
         if (!routeInfo) {
@@ -251,32 +317,36 @@ export class FindTrip implements OnInit, OnDestroy {
         }
         const routeEstimate: RouteEstimateInfo = {
           distanceMeters: routeInfo.distanceMeters,
-          durationSeconds: routeInfo.durationSeconds
-        }
+          durationSeconds: routeInfo.durationSeconds,
+        };
 
         this.rideEstimate.set(routeEstimate);
-        
+
         if (this.selectedVehicleType !== '') {
           const request: RideEstimateRequest = {
             distanceMeters: routeEstimate.distanceMeters,
-            selectedVehicleType: this.selectedVehicleType
-          }
-  
+            selectedVehicleType: this.selectedVehicleType,
+          };
+
           this.rideService.getPriceForRide(request).subscribe({
             next: (priceResponse) => {
-              console.log("priceResponse", priceResponse);
+              console.log('priceResponse', priceResponse);
               this.ridePrice.set(priceResponse);
             },
             error: (error) => {
               console.error('Failed to calculate price:', error);
-              this.dialogService.open('Price Calculation Failed', 'Unable to calculate ride price at this time.', true);
-            }
+              this.dialogService.open(
+                'Price Calculation Failed',
+                'Unable to calculate ride price at this time.',
+                true,
+              );
+            },
           });
         }
       },
       error: (error) => {
         console.error('Failed to get route info:', error);
-      }
+      },
     });
   }
 

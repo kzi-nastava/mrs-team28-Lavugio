@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, computed, signal, inject, OnInit, OnDestroy, effect, output, input } from '@angular/core';
+import { Component, computed, signal, inject, OnInit, OnDestroy, output, input } from '@angular/core';
 import { DialogService } from '@app/core/services/dialog-service';
 import { DriverService } from '@app/core/services/driver-service';
 import { MapService } from '@app/core/services/map-service';
@@ -63,7 +63,7 @@ export class RideInfo implements OnInit, OnDestroy {
   reviewClicked = output();
   
   // Internal state
-  driverLocation = signal<Coordinates | null>(null);
+  userLocation = signal<Coordinates | null>(null);
   duration = signal<number>(0);
   
   // Computed values
@@ -119,56 +119,19 @@ export class RideInfo implements OnInit, OnDestroy {
     return Math.ceil(diffMs / 60000);
   });
 
-  constructor() {
-    effect(() => {
-      const driver = this.driverLocation();
-      const cps = this.checkpoints();
-      if (driver && cps && cps.length > 0) {
-        this.calculateDuration();
-      }
-    });
-
-    effect(() => {
-      const overview = this.rideOverview();
-      if (overview?.driverId) {
-        this.fetchDriverLocation(overview.driverId);
-      }
-    });
-  } 
-
   ngOnInit() {
     this.createOneMinuteInterval();
-  }
-
-  fetchDriverLocation(driverId: number | null | undefined) {
-    if (!driverId || driverId === 0) {
-      this.driverLocation.set(null);
-      return;
-    }
-    
-    this.driverService.getDriverLocation(driverId).pipe(
-      timeout(5000),
-      catchError(err => {
-        console.error('Error fetching driver location:', err);
-        this.driverLocation.set(null);
-        return EMPTY;
-      })
-    ).subscribe(location => {
-      console.log('Driver location fetched:', location);
-      this.driverLocation.set(location.location);
-    });
   }
 
   createOneMinuteInterval() {
     this.nowIntervalId = setInterval(() => {
       this.now.set(new Date());
-      this.calculateDuration();
     }, 60000);
   }
 
   calculateDuration(): void {
     const checkpoints = this.checkpoints();
-    const driver = this.driverLocation();
+    const driver = this.userLocation();
 
     if (!driver || !checkpoints || checkpoints.length === 0) {
       console.warn('No checkpoints or driver location available for duration calculation.');

@@ -7,9 +7,9 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateUserDTO {
+public class AccountUpdateDTO {
     private String name;
-    private String lastName;
+    private String surname;
     private String phoneNumber;
-    private String profilePhotoPath;
+    private String address;
 }

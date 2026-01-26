@@ -9,7 +9,7 @@ import { environment } from 'environments/environment';
   providedIn: 'root',
 })
 export class DriverService {
-  private mainPortUrl = environment.BACKEND_URL + 'api/drivers';
+  private mainPortUrl = environment.BACKEND_URL + '/api/drivers';
 
   http = inject(HttpClient);
   getDriverLocations(): Observable<DriverMarkerLocation[]> {
@@ -23,6 +23,7 @@ export class DriverService {
   registerDriver(data: any): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/register`, data);
   }
+  
   getScheduledRides(driverId: number) {
     return this.http.get<ScheduledRideDTO[]>(`${this.mainPortUrl}/${driverId}/scheduled-rides`);
   }

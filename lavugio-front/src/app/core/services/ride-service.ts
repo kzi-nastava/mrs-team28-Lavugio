@@ -14,11 +14,12 @@ import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
+import { FinishRide } from '@app/shared/models/finishRide';
 @Injectable({
   providedIn: 'root',
 })
 export class RideService {
-  mainPortUrl = environment.BACKEND_URL + 'api/rides';
+  mainPortUrl = environment.BACKEND_URL + '/api/rides';
   socketUrl = environment.BACKEND_URL + '/socket';
   client: Client | undefined;
   http = inject(HttpClient);
@@ -63,8 +64,13 @@ export class RideService {
   postRideReview(rideId: number, review: RideReview): Observable<RideReview> {
     return this.http.post<RideReview>(`${this.mainPortUrl}/${rideId}/review`, review);
   }
-  closeConnection() {
-    if (this.client) {
+
+  postRideFinish(finish: FinishRide): Observable<FinishRide>{
+    return this.http.post<FinishRide>(`${this.mainPortUrl}/finish`, finish);
+  }
+
+  closeConnection(){
+    if(this.client){
       this.client.deactivate();
     }
   }

@@ -1,0 +1,34 @@
+<!-- Overlay -->
+<div
+  class="fixed inset-0 flex items-center justify-center"
+  style="background: rgba(0, 0, 0, 0.45);"
+>
+
+  <!-- Dialog -->
+  <div class="bg-white rounded-lg shadow-lg w-[420px] p-6 text-center border-4 border-red-600">
+
+    <h2 class="text-red-600 font-bold text-xl mb-4">
+      Your account is blocked
+    </h2>
+
+    <div class="mb-2 text-red-500">
+      <p>
+        You have been blocked from using this service for the following reason:
+      </p>
+    </div>
+
+    <div class="bg-gray-50 border border-gray-200 rounded p-4 mb-6 min-h-[200px] max-h-[300px] overflow-y-auto">
+      <p class="text-gray-800 text-base whitespace-pre-wrap text-left">
+        {{ reason }}
+      </p>
+    </div>
+
+    <button
+      (click)="close()"
+      class="border border-red-600 px-6 py-1.5 rounded
+             text-red-600 hover:bg-red-600 hover:text-white transition">
+      OK
+    </button>
+
+  </div>
+</div>

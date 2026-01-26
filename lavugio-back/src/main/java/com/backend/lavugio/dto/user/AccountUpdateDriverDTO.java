@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateDriverDTO extends UpdateUserDTO {
+public class AccountUpdateDriverDTO extends AccountUpdateDTO {
     private String licenseNumber;
     private String licensePlate;
     private String vehicleMake;

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -14,11 +13,11 @@ import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
-import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverRegistrationTokenService;
-import org.apache.coyote.Response;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,6 +40,10 @@ public class DriverController {
     private DriverRegistrationTokenService driverRegistrationTokenService;
     @Autowired
     private DriverAvailabilityService driverAvailabilityService;
+    @Autowired
+    private ScheduledRideService  scheduledRideService;
+
+    private Long accountId = 5L;
 
     @Autowired
     public DriverController(RideService rideService, RideDestinationService rideDestinationService, DriverAvailabilityService driverAvailabilityService) {
@@ -123,7 +126,7 @@ public class DriverController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateDriver(
             @PathVariable Long id,
-            @RequestBody UpdateDriverDTO request) {
+            @RequestBody AccountUpdateDriverDTO request) {
     	// @AuthenticationPrincipal UserDetails userDetails
         try {
             //String currentEmail = userDetails.getUsername();
@@ -134,7 +137,50 @@ public class DriverController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
+    @PostMapping("/edit-request")
+    public ResponseEntity<?> createDriverEditRequest(
+            @RequestBody DriverUpdateRequestDTO request) {
+    	// @AuthenticationPrincipal UserDetails userDetails
+        System.out.println("Request for driver edit received");
+        try {
+            driverService.createDriverEditRequest(request, accountId);
+            return ResponseEntity.ok().body(Map.of("message","Driver edit request created successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/edit-requests")
+    public ResponseEntity<?> getDriverEditRequests() {
+        try {
+            List<DriverUpdateRequestDiffDTO> requests = driverService.getAllPendingDriverEditRequests();
+            return ResponseEntity.ok(requests);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/edit-requests/{requestId}/approve")
+    public ResponseEntity<?> approveEditRequest(@PathVariable Long requestId) {
+        try {
+            this.driverService.approveEditRequest(requestId);
+            return ResponseEntity.ok().body(Map.of("message", "Edit request successfully approved."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/edit-requests/{requestId}/reject")
+    public ResponseEntity<?> rejectEditRequest(@PathVariable Long requestId) {
+        try {
+            this.driverService.rejectEditRequest(requestId);
+            return ResponseEntity.ok().body(Map.of("message", "Edit request successfully rejected."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteDriver(
             @PathVariable Long id) {
@@ -330,62 +376,63 @@ public class DriverController {
             @PathVariable Long driverId
     ) {
 
-        List<ScheduledRideDTO> scheduledRides = new ArrayList<>();
+//        List<ScheduledRideDTO> scheduledRides = new ArrayList<>();
+//
+//        CoordinatesDTO[] checkpoints1 = {
+//                new CoordinatesDTO(44.7866, 20.4489),
+//                new CoordinatesDTO(44.8000, 20.4600)
+//        };
+//
+//        CoordinatesDTO[] checkpoints2 = {
+//                new CoordinatesDTO(45.2671, 19.8335),
+//                new CoordinatesDTO(45.2500, 19.8200)
+//        };
+//
+//        CoordinatesDTO[] checkpoints3 = {
+//                new CoordinatesDTO(43.3209, 21.8958),
+//                new CoordinatesDTO(43.3100, 21.9000)
+//        };
+//
+//        scheduledRides.add(
+//                new ScheduledRideDTO(
+//                        1L,
+//                        "Location A",
+//                        "Location B",
+//                        LocalDateTime.of(2025, 2, 21, 10, 50),
+//                        checkpoints1,
+//                        500F,
+//                        RideStatus.ACTIVE,
+//                        true
+//                )
+//        );
+//
+//        scheduledRides.add(
+//                new ScheduledRideDTO(
+//                        2L,
+//                        "Location C",
+//                        "Location D",
+//                        LocalDateTime.of(2025, 2, 22, 14, 30),
+//                        checkpoints2,
+//                        400F,
+//                        RideStatus.SCHEDULED,
+//                        false
+//                )
+//        );
+//
+//        scheduledRides.add(
+//                new ScheduledRideDTO(
+//                        3L,
+//                        "Location E",
+//                        "Location F",
+//                        LocalDateTime.of(2025, 2, 23, 9, 15),
+//                        checkpoints3,
+//                        600F,
+//                        RideStatus.SCHEDULED,
+//                        false
+//                )
+//        );
 
-        CoordinatesDTO[] checkpoints1 = {
-                new CoordinatesDTO(44.7866, 20.4489),
-                new CoordinatesDTO(44.8000, 20.4600)
-        };
-
-        CoordinatesDTO[] checkpoints2 = {
-                new CoordinatesDTO(45.2671, 19.8335),
-                new CoordinatesDTO(45.2500, 19.8200)
-        };
-
-        CoordinatesDTO[] checkpoints3 = {
-                new CoordinatesDTO(43.3209, 21.8958),
-                new CoordinatesDTO(43.3100, 21.9000)
-        };
-
-        scheduledRides.add(
-                new ScheduledRideDTO(
-                        1L,
-                        "Location A",
-                        "Location B",
-                        LocalDateTime.of(2025, 2, 21, 10, 50),
-                        checkpoints1,
-                        500F,
-                        RideStatus.ACTIVE,
-                        true
-                )
-        );
-
-        scheduledRides.add(
-                new ScheduledRideDTO(
-                        2L,
-                        "Location C",
-                        "Location D",
-                        LocalDateTime.of(2025, 2, 22, 14, 30),
-                        checkpoints2,
-                        400F,
-                        RideStatus.SCHEDULED,
-                        false
-                )
-        );
-
-        scheduledRides.add(
-                new ScheduledRideDTO(
-                        3L,
-                        "Location E",
-                        "Location F",
-                        LocalDateTime.of(2025, 2, 23, 9, 15),
-                        checkpoints3,
-                        600F,
-                        RideStatus.SCHEDULED,
-                        false
-                )
-        );
-
+        List<ScheduledRideDTO> scheduledRides = scheduledRideService.getScheduledRidesForDriver(driverId);
         return ResponseEntity.ok(scheduledRides);
     }
 

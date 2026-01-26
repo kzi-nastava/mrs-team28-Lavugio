@@ -1,7 +1,6 @@
 package com.backend.lavugio.controller.user;
 
-import com.backend.lavugio.dto.user.UpdatePasswordDTO;
-import com.backend.lavugio.dto.user.UserProfileDTO;
+import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.Administrator;
 import com.backend.lavugio.model.user.Driver;
@@ -13,12 +12,16 @@ import com.backend.lavugio.service.user.DriverService;
 import com.backend.lavugio.service.user.RegularUserService;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.nio.file.Files;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -37,11 +40,11 @@ public class AccountController {
     @Autowired
     private DriverService driverService;
 
-    private static Long accountId = 1L;
+    private static Long accountId = 5L;
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
-        Account account = accountService.getAccountByEmail("sarah.driver@example.com");
+        Account account = accountService.getAccountById(accountId);
 
         if (account == null) {
             return ResponseEntity.notFound().build();
@@ -71,7 +74,7 @@ public class AccountController {
                 dto.setVehicleColor(vehicle.getColor());
                 dto.setVehicleBabyFriendly(vehicle.isBabyFriendly());
                 dto.setVehiclePetFriendly(vehicle.isPetFriendly());
-                //dto.setVehicleSeats(vehicle.getSeats());
+                dto.setVehicleSeats(vehicle.getSeatsNumber());
             }
 
         } else if (account instanceof RegularUser) {
@@ -84,18 +87,11 @@ public class AccountController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateCurrentUserProfile(@RequestBody UserProfileDTO updatedProfile) {
+    public ResponseEntity<?> updateCurrentUserProfile(@RequestBody AccountUpdateDTO updatedProfile) {
         // Authentication auth
         System.out.println("Pozvan update profila");
-        String loggedInUser = "REGULAR_USER";
         try {
-            if (loggedInUser == "DRIVER") {
-                driverService.updateDriverDTO(accountId, updatedProfile);
-            } else if (loggedInUser == "REGULAR_USER") {
-                regularUserService.updateRegularUser(accountId, updatedProfile);
-            } else {
-                administratorService.updateAdministratorDTO(accountId, updatedProfile);
-            }
+            accountService.updateAccount(accountId, updatedProfile);
             return ResponseEntity.ok().body(Map.of("Message", "Update successful"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -117,7 +113,7 @@ public class AccountController {
     }
 
     @GetMapping("/profile-photo")
-    public ResponseEntity<?> getProfilePhoto() {
+    public ResponseEntity<Resource> getProfilePhoto() {
         System.out.println("Pozvano dobavljanje profilne");
 
         try {
@@ -128,6 +124,9 @@ public class AccountController {
             }
 
             String mimeType = Files.probeContentType(photo.getFile().toPath());
+            if (mimeType == null) {
+                mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(mimeType))
@@ -150,4 +149,49 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/email-suggestions")
+    public ResponseEntity<List<EmailSuggestionDTO>> getEmailSuggestions(@RequestParam String query) {
+        if (query == null || query.trim().length() < 2) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        Pageable pageable = PageRequest.of(0, 5);
+        List<String> emails = accountService.findTop5EmailsByPrefix(query.trim(), pageable);
+
+        List<EmailSuggestionDTO> suggestions = emails.stream()
+                .map(EmailSuggestionDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(suggestions);
+    }
+
+    @PostMapping("/block")
+    public ResponseEntity<?> blockUser(@RequestBody BlockUserDTO blockUserDTO) {
+        try {
+            accountService.blockUser(blockUserDTO);
+            return ResponseEntity.ok().body(Map.of("message", "User blocked successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/is-blocked")
+    public ResponseEntity<?> isBlocked() {
+        try {
+            IsAccountBlockedDTO isAccountBlockedDTO = accountService.isBlocked(accountId);
+            return ResponseEntity.ok(isAccountBlockedDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/can-order-ride")
+    public ResponseEntity<?> canOrder() {
+        try {
+            CanOrderRideDTO canOrderRideDTO = accountService.canOrderRide(accountId);
+            return ResponseEntity.ok(canOrderRideDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
 }

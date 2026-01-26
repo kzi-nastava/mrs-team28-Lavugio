@@ -1,9 +1,13 @@
 package com.backend.lavugio.service.ride;
 
+import com.backend.lavugio.dto.ride.FinishRideDTO;
+import com.backend.lavugio.dto.ride.FinishRideDTO;
+import com.backend.lavugio.dto.ride.RideOverviewDTO;
 import com.backend.lavugio.dto.ride.RideEstimateRequestDTO;
 import com.backend.lavugio.dto.ride.RideRequestDTO;
 import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
+import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 
@@ -46,6 +50,9 @@ public interface RideService {
     Float calculateAverageFareForDriver(Long driverId);
     List<Ride> applyParametersToRides(List<Ride> rides, boolean ascending, DriverHistorySortFieldEnum sortBy, String dateRangeStart, String dateRangeEnd);
     double estimateRidePrice(RideEstimateRequestDTO request);
+    Double calculatePrice(VehicleType vehicleType, Double distance);
+
     // Instant Ride Creation
-    RideResponseDTO createInstantRide(String userEmail, RideRequestDTO request);
+    RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);
+
 }

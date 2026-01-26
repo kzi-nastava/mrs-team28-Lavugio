@@ -2,11 +2,12 @@ package com.backend.lavugio.controller.ride;
 
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.ride.*;
-import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.RideReport;
 import com.backend.lavugio.service.ride.ReviewService;
+import com.backend.lavugio.service.ride.RideCompletionService;
+import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideReportService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.DriverService;
@@ -31,13 +32,23 @@ public class RideController {
     private final RideReportService rideReportService;
 
     private final ReviewService reviewService;
+    private final RideOverviewService rideOverviewService;
+
+    private final RideCompletionService  rideCompletionService;
 
     @Autowired
-    public RideController(RideService rideService, DriverService driverService, RideReportService rideReportService, ReviewService reviewService) {
+    public RideController(RideService rideService,
+                          DriverService driverService,
+                          RideReportService rideReportService,
+                          ReviewService reviewService,
+                          RideCompletionService rideCompletionService,
+                          RideOverviewService rideOverviewService){
         this.rideService = rideService;
         this.driverService = driverService;
         this.rideReportService = rideReportService;
         this.reviewService = reviewService;
+        this.rideCompletionService = rideCompletionService;
+        this.rideOverviewService = rideOverviewService;
     }
 
     @PostMapping("/estimate-price")
@@ -54,11 +65,9 @@ public class RideController {
     public ResponseEntity<?> createInstantRide(
             @RequestBody RideRequestDTO request) {
         // @AuthenticationPrincipal UserDetails userDetails,
+        Long creatorId = 1L;
         try {
-            //String userEmail = userDetails.getUsername();
-            String userEmail = "michael.brown@example.com"; // Placeholder vrednost
-            // WORK FROM HERE
-            RideResponseDTO ride = rideService.createInstantRide(userEmail, request);
+            RideResponseDTO ride = rideService.createInstantRide(creatorId, request);
             return ResponseEntity.status(HttpStatus.CREATED).body(ride);
         } catch (Exception e) {
             // notificationService.sendNoDriversAvailable(userDetails.getUsername());
@@ -125,49 +134,41 @@ public class RideController {
     }
 
     @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RideOverviewDTO> getRideStatus(@PathVariable Long rideId) {
-//        Ride ride = rideService.getRideById(rideId);
-//        DriverLocation driverLocation = driverService.getDriverStatus(ride.getDriver().getId());
-//        if (driverLocation == null){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        List<RideDestination> rideDestinations = rideDestinationService.getOrderedDestinationsByRideId(rideId);
-//        Address start = rideDestinations.getFirst().getAddress();
-//        Address end = rideDestinations.getLast().getAddress();
-//        RouteTimeEstimation eta;
-//        try {
-//            eta = etaService.calculateEta(driverLocation.getLongitude(), driverLocation.getLatitude(), end.getLongitude(), end.getLatitude());
-//        }catch(Exception e){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        RideStatusDTO status =  new RideStatusDTO();
-//        status.setStartLatitude(start.getLatitude());
-//        status.setStartLongitude(start.getLongitude());
-//        status.setDestinationLatitude(end.getLatitude());
-//        status.setDestinationLongitude(end.getLongitude());
-//        status.setCurrentLatitude(driverLocation.getLatitude());
-//        status.setCurrentLongitude(driverLocation.getLongitude());
-//        status.setRemainingTimeSeconds(eta.getDurationSeconds());
-        RideOverviewDTO status =  new RideOverviewDTO(
-                1L,
-                1L,
-                500,
-                new CoordinatesDTO(45.23654995890653, 19.830107688903812),
-                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
-                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
-                RideStatus.FINISHED,
-                "Petar Petrović",
-                "Nemanjina 4",
-                "Knez Mihailova 12",
-                LocalDateTime.of(2026, 1, 8, 18, 30),
-                LocalDateTime.of(2026, 1, 8, 18, 40),
-                false,
-                false);
-        return new ResponseEntity<>(status, HttpStatus.OK);
+    public ResponseEntity<?> getRideStatus(@PathVariable Long rideId) {
+
+        Long userId = 1L; //placeholder
+//        RideOverviewDTO status =  new RideOverviewDTO(
+//                1L,
+//                1L,
+//                500,
+//                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
+//                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
+//                RideStatus.ACTIVE,
+//                "Petar Petrović",
+//                "Nemanjina 4",
+//                "Knez Mihailova 12",
+//                LocalDateTime.of(2026, 1, 8, 18, 30),
+//                LocalDateTime.of(2026, 1, 8, 18, 40),
+//                false,
+//                false);
+        if (userId == null){
+            return new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try{
+            RideOverviewDTO overviewDTO = rideOverviewService.getRideOverviewDTO(rideId, userId);
+            return new ResponseEntity<>(overviewDTO, HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
+        } catch (Exception e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @GetMapping(value = "/overviews", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RideOverviewDTO>> getRideStatuses() {
+    public ResponseEntity<Collection<RideOverviewDTO>> getRideOverviews() {
 
         List<RideOverviewDTO> statuses = new ArrayList<>();
 
@@ -175,7 +176,6 @@ public class RideController {
                 1L,
                 1L,
                 500,
-                new CoordinatesDTO(30.2671, 19.8335),
                 new CoordinatesDTO[]{new CoordinatesDTO(30.2861, 19.8017),
                 new CoordinatesDTO(30.2750, 19.8200)},
                 RideStatus.ACTIVE,
@@ -192,7 +192,6 @@ public class RideController {
                 2L,
                 1L,
                 500,
-                new CoordinatesDTO(31.2671, 20.8335),
                 new CoordinatesDTO[]{new CoordinatesDTO(31.2861, 20.8017),
                 new CoordinatesDTO(31.2750, 20.8200)},
                 RideStatus.FINISHED,
@@ -209,7 +208,6 @@ public class RideController {
                 3L,
                 null,
                 500,
-                null, // driver još nije dodeljen
                 new CoordinatesDTO[]{new CoordinatesDTO(32.2861, 21.8017),
                 new CoordinatesDTO(32.2750, 21.8200)},
                 com.backend.lavugio.model.enums.RideStatus.SCHEDULED,
@@ -286,8 +284,9 @@ public class RideController {
 
     @PostMapping("/{rideId}/review")
     public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
+        Long userId = 1L; //placeholder
         try{
-            reviewService.createReview(rideId, rideReviewDTO);
+            reviewService.createReview(rideId, userId, rideReviewDTO);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (Exception e){
@@ -297,18 +296,17 @@ public class RideController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping("/{rideId}/complete")
-    public ResponseEntity<?> completeRide(@PathVariable Long rideId,
-                                          @RequestBody FinishRideDTO finishRideDTO) {
-//        Ride ride = rideService.getRideById(rideId);
-//        Driver driver = ride.getDriver();
-//        rideService.updateRideStatus(rideId, RideStatus.FINISHED);
-//        driverService.updateDriverDriving(driver.getId(), false);
-//        notificationService.notifyPassengersAboutFinishedRide(ride);
-//        for (RegularUser user : ride.getPassengers()){
-//            userService.enableUserOrdering(user.getId());
-//        }
-        // notificationService.notifyPassengersAboutCompletedRide();
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping("/finish")
+    public ResponseEntity<?> finishRide(@RequestBody FinishRideDTO finishRideDTO) {
+        try{
+            rideCompletionService.finishRide(finishRideDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(NoSuchElementException e){
+            return new  ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+        }  catch (Exception e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

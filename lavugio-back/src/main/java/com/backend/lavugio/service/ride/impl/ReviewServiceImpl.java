@@ -5,9 +5,11 @@ import com.backend.lavugio.dto.ride.RideReviewDTO;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.Review;
 import com.backend.lavugio.model.ride.Ride;
+import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.ride.ReviewRepository;
 import com.backend.lavugio.service.ride.ReviewService;
 import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.user.RegularUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,36 +20,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReviewServiceImpl implements ReviewService {
 
-    @Autowired
     private final ReviewRepository reviewRepository;
-    @Autowired
     private final RideService rideService;
+    private final RegularUserService  regularUserService;
+
+    @Autowired
+    public ReviewServiceImpl(ReviewRepository reviewRepository, RideService rideService,  RegularUserService regularUserService) {
+        this.reviewRepository = reviewRepository;
+        this.rideService = rideService;
+        this.regularUserService = regularUserService;
+    }
 
     @Override
     @Transactional
-    public Review createReview(Long rideId, RideReviewDTO rideReviewDTO) {
+    public Review createReview(Long rideId, Long userId, RideReviewDTO rideReviewDTO) {
         Ride ride = rideService.getRideById(rideId);
+        RegularUser user =  regularUserService.getRegularUserById(userId);
+        Review review = new Review(ride, user, rideReviewDTO);
         if (ride == null) {
             throw new IllegalArgumentException("Ride cannot be null");
         }
-        if (ride.getCreator() == null) {
+        if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
-        if (ride.getRideStatus() != RideStatus.FINISHED) {
-            throw  new IllegalArgumentException("Ride is not finished");
-        }
-        if (ride.getEndDateTime().plusHours(24*3).isAfter(LocalDateTime.now())){
-            throw new IllegalArgumentException("Ride cannot be reviewed 3 days after concluding");
-        }
-
-        Review review = new Review(ride, rideReviewDTO);
-        if (reviewRepository.existsByReviewedRideIdAndReviewerId(
-                review.getReviewedRide().getId(),
-                review.getReviewedRide().getCreator().getId())) {
+        if (hasReviewed(userId,  rideId)) {
             throw new IllegalStateException("User has already reviewed this ride");
         }
         return reviewRepository.save(review);
@@ -108,6 +107,20 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("Review not found with id: " + id);
         }
         reviewRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean hasReviewed(Long userId, Long rideId) {
+        List<Review> reviews =  getReviewsByRideId(rideId);
+        if  (reviews.isEmpty()) {
+            return false;
+        }
+        for  (Review review : reviews) {
+            if (review.getReviewer().getId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

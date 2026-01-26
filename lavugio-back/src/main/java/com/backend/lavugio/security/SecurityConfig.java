@@ -8,6 +8,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,27 +30,16 @@ public class SecurityConfig {
      * - Disable CSRF (since we're using stateless JWT)
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
         http
+                .cors(cors -> cors.disable()) // CORS is configured via CorsConfig class
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        // Public endpoints (no authentication required)
-                        .requestMatchers("/api/regularUsers/register").permitAll()
-                        .requestMatchers("/api/regularUsers/login").permitAll()
-                        .requestMatchers("/api/drivers/register").permitAll()
-                        .requestMatchers("/api/drivers/login").permitAll()
-                        .requestMatchers("/api/administrators/register").permitAll()
-                        .requestMatchers("/api/administrators/login").permitAll()
-                        .requestMatchers("/api/favorite-routes/**").permitAll()
-                        .requestMatchers("/api/rides/estimate-price").permitAll()
-                        // WebSocket for chat (allow all)
-                        .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/api/chat/**").permitAll()
-                        // All other endpoints require authentication
-                        .anyRequest().authenticated()
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .httpBasic(basic -> basic.disable());
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                );
 
         return http.build();
     }

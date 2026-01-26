@@ -24,13 +24,10 @@ public class RideReportServiceImpl implements RideReportService {
 
     private final RideService rideService;
 
-    private final RegularUserService regularUserService;
-
     @Autowired
-    public RideReportServiceImpl(RideReportRepository rideReportRepository, RideService rideService,  RegularUserService regularUserService) {
+    public RideReportServiceImpl(RideReportRepository rideReportRepository, RideService rideService) {
         this.rideReportRepository = rideReportRepository;
         this.rideService = rideService;
-        this.regularUserService = regularUserService;
     }
 
     @Override
@@ -43,11 +40,8 @@ public class RideReportServiceImpl implements RideReportService {
         if  (ride == null) {
             throw new IllegalArgumentException("Ride not found");
         }
-        List<RideReport> reports = getReportsByRideId(reportDTO.getRideId());
-        for (RideReport report : reports) {
-            if (report.getReporter().getId().equals(reportDTO.getReporterId())){
-                throw new IllegalStateException("Reporter already exists");
-            }
+        if (hasReported(reportDTO.getReporterId(), reportDTO.getRideId())) {
+            throw new IllegalStateException("User has already reported this ride");
         }
         RideReport report = new RideReport(null, ride, reportDTO.getComment(), ride.getCreator());
         return rideReportRepository.save(report);
@@ -109,5 +103,19 @@ public class RideReportServiceImpl implements RideReportService {
             throw new RuntimeException("Report not found with id: " + id);
         }
         rideReportRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean hasReported(Long userId, Long rideId) {
+        List<RideReport> reports =  getReportsByRideId(rideId);
+        if (reports.isEmpty()) {
+            return false;
+        }
+        for (RideReport report : reports) {
+            if (report.getReporter().getId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

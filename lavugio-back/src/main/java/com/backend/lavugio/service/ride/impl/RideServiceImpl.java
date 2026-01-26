@@ -1,15 +1,26 @@
 package com.backend.lavugio.service.ride.impl;
 
 import com.backend.lavugio.dto.ride.*;
+import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
+import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.route.RideDestination;
+import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.user.Driver;
+import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
+import com.backend.lavugio.service.pricing.PricingService;
 import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.route.RideDestinationService;
+import com.backend.lavugio.service.user.DriverActivityService;
+import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
+import com.backend.lavugio.service.utils.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,21 +28,42 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RideServiceImpl implements RideService {
 
-    @Autowired
     private final RideRepository rideRepository;
-    @Autowired
     private final RegularUserRepository regularUserRepository;
-    @Autowired
     private final DriverService driverService;
+    private final PricingService pricingService;
+    private final RideDestinationService rideDestinationService;
+    private final DriverAvailabilityService driverAvailabilityService;
+    private final DriverActivityService driverActivityService;
+    private final com.backend.lavugio.service.route.AddressService addressService;
+
+    @Autowired
+    public RideServiceImpl(RideRepository rideRepository,
+                           DriverService driverService,
+                           PricingService pricingService,
+                           RegularUserRepository regularUserRepository,
+                           RideDestinationService rideDestinationService,
+                           DriverAvailabilityService driverAvailabilityService,
+                           DriverActivityService driverActivityService,
+                           com.backend.lavugio.service.route.AddressService addressService) {
+        this.rideRepository = rideRepository;
+        this.driverService = driverService;
+        this.pricingService = pricingService;
+        this.regularUserRepository = regularUserRepository;
+        this.rideDestinationService = rideDestinationService;
+        this.driverAvailabilityService = driverAvailabilityService;
+        this.driverActivityService = driverActivityService;
+        this.addressService = addressService;
+    }
 
     @Override
     @Transactional
@@ -179,18 +211,16 @@ public class RideServiceImpl implements RideService {
     @Override
     @Transactional
     public Ride addPassengerToRide(Ride ride, List<String> passengerEmails) {
+        Set<RegularUser> registeredPassengers = new HashSet<>();
         for (String passengerEmail : passengerEmails) {
-            RegularUser passenger = regularUserRepository.findByEmail(passengerEmail)
-                    .orElseThrow(() -> new RuntimeException("Passenger not found with email: " + passengerEmail));
-            if (ride.getRideStatus() != RideStatus.SCHEDULED) {
-                throw new IllegalStateException("Cannot add passenger to ride in status: " + ride.getRideStatus());
+            Optional<RegularUser> passenger = regularUserRepository.findByEmail(passengerEmail);
+            if (passenger.isPresent()) {
+                registeredPassengers.add(passenger.get());
+            } else {
+                // TODO: LOGIKA SLANJA MEJLOVA NEREGISTROVANIM PUTNICIMA
             }
-
-            if (ride.getPassengers().contains(passenger)) {
-                throw new IllegalStateException("Passenger already in this ride");
-            }
-            ride.getPassengers().add(passenger);
         }
+        ride.setPassengers(registeredPassengers);
         return rideRepository.save(ride);
     }
 
@@ -265,42 +295,120 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
-    public RideResponseDTO createInstantRide(String userEmail, RideRequestDTO request) {
-        // Get the user who created the ride
-        RegularUser creator = regularUserRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+    public RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request) {
+        RegularUser creator = regularUserRepository.findById(creatorID)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
 
         // Find an available driver
-        /*List<Driver> availableDrivers = driverService.getAvailableDrivers();
+        List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
         if (availableDrivers.isEmpty()) {
-            throw new RuntimeException("No available drivers at the moment");
+            throw new RuntimeException("There are no available drivers at the moment");
         }
 
-        // Select the first available driver
-        Driver selectedDriver = availableDrivers.get(0);*/
+        // Sort the drivers by distance from first location
+        List<DriverLocationDTO> sortedDrivers = availableDrivers.stream()
+                .sorted(Comparator.comparingDouble(driver ->
+                        GeoUtils.distanceKm(
+                                request.getStartAddress().getLocation().getLatitude(),
+                                request.getStartAddress().getLocation().getLongitude(),
+                                driver.getLocation().getLatitude(),
+                                driver.getLocation().getLongitude()
+                        )
+                ))
+                .toList();
 
-        Driver selectedDriver = driverService.getDriverById(1L); // Placeholder - should implement driver selection logic
+        for (DriverLocationDTO driverLocationDTO : sortedDrivers) {
+            Driver driver = this.driverService.getDriverById(driverLocationDTO.getId());
+            boolean isVehicleSuitable = this.isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
+            boolean isDriverUnderDailyLimit = this.isDriverUnderDailyLimit(driver.getId(), request.getEstimatedDurationSeconds());
+            boolean driverHasScheduledRideSoon = this.driverHasScheduledRideSoon(driver.getId(), request.getEstimatedDurationSeconds());
+            if (isVehicleSuitable && isDriverUnderDailyLimit && !driverHasScheduledRideSoon) {
+                Ride ride = createInstantRide(driver, creator, request);
+                return mapToRideResponseDTO(ride);
+            }
+        }
+        throw new RuntimeException("There are no available drivers at the moment");
+    }
 
-        // Create the ride
+    private boolean isVehicleSuitable(Vehicle vehicle, boolean requestBabyFriendly, boolean requestPetFriendly, int passangersNum, VehicleType vehicleType) {
+        boolean petSuitable = !requestPetFriendly || vehicle.isPetFriendly();
+        boolean babySuitable = !requestBabyFriendly || vehicle.isBabyFriendly();
+        boolean passangersSuitable = vehicle.getSeatsNumber()-1 >=  passangersNum;
+        boolean vehicleTypeSuitable = vehicleType == vehicle.getType();
+        return petSuitable && babySuitable && passangersSuitable && vehicleTypeSuitable;
+    }
+
+    private boolean isDriverUnderDailyLimit(Long driverId, int estimatedDurationSeconds) {
+        Duration currentActiveTime = this.driverActivityService.getActiveTimeIn24Hours(driverId);
+        Duration estimatedRideDuration = Duration.ofSeconds(estimatedDurationSeconds);
+        Duration totalActiveTimeAfterRide = currentActiveTime.plus(estimatedRideDuration);
+
+        Duration maxAllowed = Duration.ofHours(8).plus(Duration.ofMinutes(15)); // Maximum daily limit
+
+        return totalActiveTimeAfterRide.compareTo(maxAllowed) <= 0;
+    }
+
+    private boolean driverHasScheduledRideSoon(Long driverId, int estimatedRideDurationSeconds) {
+        List<Ride> rides = this.getScheduledRidesForDriver(driverId);
+        if (rides.isEmpty()) {
+            return false;
+        }
+        LocalDateTime estimatedNewRideFinishTime = LocalDateTime.now().plusSeconds(estimatedRideDurationSeconds).plusMinutes(15);
+        for (Ride ride : rides) {
+            if (ride.getStartDateTime().isBefore(estimatedNewRideFinishTime))  {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Ride createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
-        ride.setDriver(selectedDriver);
+        ride.setDriver(driver);
         ride.setStartDateTime(LocalDateTime.now());
-        ride.setEndDateTime(null); // Will be set when ride finishes
-        ride.setPrice(300); // Placeholder - should be calculated based on distance and vehicle type
-        ride.setDistance(3000); // Placeholder - should be calculated
+        ride.setEndDateTime(null);
+        ride.setPrice(request.getPrice());
+        ride.setDistance(request.getDistance());
         ride.setRideStatus(RideStatus.SCHEDULED);
-
-        // Add passengers to ride
-        if (request.getPassengerEmails() != null && !request.getPassengerEmails().isEmpty()) {
-            ride = addPassengerToRide(ride, request.getPassengerEmails());
-        }
+        ride.setHasPanic(false);
 
         // Save the ride
-        ride = rideRepository.save(ride);
+        rideRepository.save(ride);
 
-        // Convert to response DTO
-        return mapToRideResponseDTO(ride);
+        // Map and persist destinations from request to ride
+        if (request.getDestinations() != null && !request.getDestinations().isEmpty()) {
+            for (RideDestinationDTO destDTO : request.getDestinations()) {
+                // Build Address entity from DTO
+                Address address = new Address();
+                address.setStreetName(destDTO.getStreetName());
+                address.setCity(destDTO.getCity());
+                address.setCountry(destDTO.getCountry());
+                // Backend Address expects String streetNumber
+                address.setStreetNumber(String.valueOf(destDTO.getStreetNumber()));
+                address.setZipCode(destDTO.getZipCode());
+                address.setLongitude(destDTO.getLocation().getLongitude());
+                address.setLatitude(destDTO.getLocation().getLatitude());
+
+                // Persist or reuse existing address
+                address = addressService.createAddress(address);
+
+                // Create ride destination linking ride and address
+                RideDestination rideDestination = new RideDestination();
+                rideDestination.setRide(ride);
+                rideDestination.setAddress(address);
+                Integer orderIndex = destDTO.getLocation().getOrderIndex();
+                // Store as 1-based order
+                rideDestination.setDestinationOrder(orderIndex != null ? orderIndex + 1 : null);
+
+                // Persist destination
+                rideDestinationService.addDestinationToRide(rideDestination);
+            }
+        }
+
+        // Add passengers to ride
+        this.addPassengerToRide(ride, request.getPassengerEmails());
+        return ride;
     }
 
     private RideResponseDTO mapToRideResponseDTO(Ride ride) {
@@ -322,4 +430,11 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot change status of cancelled ride");
         }
     }
+
+    public Double calculatePrice(VehicleType vehicleType, Double distance){
+        Double kilometerPrice = pricingService.getKilometerPricing();
+        Double vehicleTypePrice = pricingService.getVehiclePricingByVehicleType(vehicleType);
+        return vehicleTypePrice + kilometerPrice * distance;
+    }
+
 }

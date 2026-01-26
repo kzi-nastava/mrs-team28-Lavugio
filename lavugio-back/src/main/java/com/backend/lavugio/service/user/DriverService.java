@@ -4,6 +4,7 @@ import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverLocation;
+import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.model.vehicle.Vehicle;
 
 import java.util.List;
@@ -26,6 +27,12 @@ public interface DriverService {
     List<DriverDTO> getAllDriversDTO();
     List<DriverDTO> getAvailableDriversDTO();
     DriverDTO updateDriverDTO(Long id, UserProfileDTO request);
+
+    void createDriverEditRequest(DriverUpdateRequestDTO request, Long driverId);
+    List<DriverUpdateRequestDiffDTO> getAllPendingDriverEditRequests();
+
+    void rejectEditRequest(Long requestId);
+    void approveEditRequest(Long requestId);
 
     // Profile Management DTO
     DriverDTO getDriverProfile(String email);
