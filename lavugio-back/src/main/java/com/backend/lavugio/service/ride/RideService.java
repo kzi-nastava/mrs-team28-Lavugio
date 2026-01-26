@@ -53,5 +53,6 @@ public interface RideService {
     Double calculatePrice(VehicleType vehicleType, Double distance);
 
     // Instant Ride Creation
-    RideResponseDTO createInstantRide(String userEmail, RideRequestDTO request);
+    RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);
+
 }

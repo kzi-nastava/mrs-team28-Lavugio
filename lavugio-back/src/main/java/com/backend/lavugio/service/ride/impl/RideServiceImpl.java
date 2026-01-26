@@ -7,6 +7,7 @@ import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
+import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.user.RegularUser;
@@ -43,6 +44,7 @@ public class RideServiceImpl implements RideService {
     private final RideDestinationService rideDestinationService;
     private final DriverAvailabilityService driverAvailabilityService;
     private final DriverActivityService driverActivityService;
+    private final com.backend.lavugio.service.route.AddressService addressService;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -51,7 +53,8 @@ public class RideServiceImpl implements RideService {
                            RegularUserRepository regularUserRepository,
                            RideDestinationService rideDestinationService,
                            DriverAvailabilityService driverAvailabilityService,
-                           DriverActivityService driverActivityService) {
+                           DriverActivityService driverActivityService,
+                           com.backend.lavugio.service.route.AddressService addressService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -59,6 +62,7 @@ public class RideServiceImpl implements RideService {
         this.rideDestinationService = rideDestinationService;
         this.driverAvailabilityService = driverAvailabilityService;
         this.driverActivityService = driverActivityService;
+        this.addressService = addressService;
     }
 
     @Override
@@ -207,7 +211,7 @@ public class RideServiceImpl implements RideService {
     @Override
     @Transactional
     public Ride addPassengerToRide(Ride ride, List<String> passengerEmails) {
-        Set<RegularUser> registeredPassengers = new HashSet<>()
+        Set<RegularUser> registeredPassengers = new HashSet<>();
         for (String passengerEmail : passengerEmails) {
             Optional<RegularUser> passenger = regularUserRepository.findByEmail(passengerEmail);
             if (passenger.isPresent()) {
@@ -298,7 +302,7 @@ public class RideServiceImpl implements RideService {
         // Find an available driver
         List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
         if (availableDrivers.isEmpty()) {
-            throw new RuntimeException("No available drivers at the moment");
+            throw new RuntimeException("There are no available drivers at the moment");
         }
 
         // Sort the drivers by distance from first location
@@ -319,10 +323,11 @@ public class RideServiceImpl implements RideService {
             boolean isDriverUnderDailyLimit = this.isDriverUnderDailyLimit(driver.getId(), request.getEstimatedDurationSeconds());
             boolean driverHasScheduledRideSoon = this.driverHasScheduledRideSoon(driver.getId(), request.getEstimatedDurationSeconds());
             if (isVehicleSuitable && isDriverUnderDailyLimit && !driverHasScheduledRideSoon) {
-                createInstantRide(driver, creator, request);
-                break;
+                Ride ride = createInstantRide(driver, creator, request);
+                return mapToRideResponseDTO(ride);
             }
         }
+        throw new RuntimeException("There are no available drivers at the moment");
     }
 
     private boolean isVehicleSuitable(Vehicle vehicle, boolean requestBabyFriendly, boolean requestPetFriendly, int passangersNum, VehicleType vehicleType) {
@@ -330,11 +335,7 @@ public class RideServiceImpl implements RideService {
         boolean babySuitable = !requestBabyFriendly || vehicle.isBabyFriendly();
         boolean passangersSuitable = vehicle.getSeatsNumber()-1 >=  passangersNum;
         boolean vehicleTypeSuitable = vehicleType == vehicle.getType();
-        if (petSuitable && babySuitable && passangersSuitable && vehicleTypeSuitable) {
-            return true;
-        } else {
-            return false;
-        }
+        return petSuitable && babySuitable && passangersSuitable && vehicleTypeSuitable;
     }
 
     private boolean isDriverUnderDailyLimit(Long driverId, int estimatedDurationSeconds) {
@@ -361,7 +362,7 @@ public class RideServiceImpl implements RideService {
         return false;
     }
 
-    private void createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
+    private Ride createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
         ride.setDriver(driver);
@@ -375,8 +376,39 @@ public class RideServiceImpl implements RideService {
         // Save the ride
         rideRepository.save(ride);
 
+        // Map and persist destinations from request to ride
+        if (request.getDestinations() != null && !request.getDestinations().isEmpty()) {
+            for (RideDestinationDTO destDTO : request.getDestinations()) {
+                // Build Address entity from DTO
+                Address address = new Address();
+                address.setStreetName(destDTO.getStreetName());
+                address.setCity(destDTO.getCity());
+                address.setCountry(destDTO.getCountry());
+                // Backend Address expects String streetNumber
+                address.setStreetNumber(String.valueOf(destDTO.getStreetNumber()));
+                address.setZipCode(destDTO.getZipCode());
+                address.setLongitude(destDTO.getLocation().getLongitude());
+                address.setLatitude(destDTO.getLocation().getLatitude());
+
+                // Persist or reuse existing address
+                address = addressService.createAddress(address);
+
+                // Create ride destination linking ride and address
+                RideDestination rideDestination = new RideDestination();
+                rideDestination.setRide(ride);
+                rideDestination.setAddress(address);
+                Integer orderIndex = destDTO.getLocation().getOrderIndex();
+                // Store as 1-based order
+                rideDestination.setDestinationOrder(orderIndex != null ? orderIndex + 1 : null);
+
+                // Persist destination
+                rideDestinationService.addDestinationToRide(rideDestination);
+            }
+        }
+
         // Add passengers to ride
         this.addPassengerToRide(ride, request.getPassengerEmails());
+        return ride;
     }
 
     private RideResponseDTO mapToRideResponseDTO(Ride ride) {

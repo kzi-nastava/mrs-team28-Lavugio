@@ -65,11 +65,9 @@ public class RideController {
     public ResponseEntity<?> createInstantRide(
             @RequestBody RideRequestDTO request) {
         // @AuthenticationPrincipal UserDetails userDetails,
+        Long creatorId = 1L;
         try {
-            //String userEmail = userDetails.getUsername();
-            String userEmail = "michael.brown@example.com"; // Placeholder vrednost
-            // WORK FROM HERE
-            RideResponseDTO ride = rideService.createInstantRide(userEmail, request);
+            RideResponseDTO ride = rideService.createInstantRide(creatorId, request);
             return ResponseEntity.status(HttpStatus.CREATED).body(ride);
         } catch (Exception e) {
             // notificationService.sendNoDriversAvailable(userDetails.getUsername());
