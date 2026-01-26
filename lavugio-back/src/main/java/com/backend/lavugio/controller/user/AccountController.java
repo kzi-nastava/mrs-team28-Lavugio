@@ -207,6 +207,7 @@ public class AccountController {
     @GetMapping("/is-blocked")
     public ResponseEntity<?> isBlocked() {
         try {
+            Long accountId = 1L;
             IsAccountBlockedDTO isAccountBlockedDTO = accountService.isBlocked(accountId);
             return ResponseEntity.ok(isAccountBlockedDTO);
         } catch (Exception e) {
@@ -217,6 +218,7 @@ public class AccountController {
     @GetMapping("/can-order-ride")
     public ResponseEntity<?> canOrder() {
         try {
+            Long accountId = 1L;
             CanOrderRideDTO canOrderRideDTO = accountService.canOrderRide(accountId);
             return ResponseEntity.ok(canOrderRideDTO);
         } catch (Exception e) {
