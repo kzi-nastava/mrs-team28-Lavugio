@@ -31,6 +31,8 @@ import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideService } from '@app/core/services/ride-service';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 import { UserService } from '@app/core/services/user/user-service';
+import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
+import { VehicleType } from '@app/shared/models/vehicleType';
 
 @Component({
   selector: 'app-find-trip',
@@ -209,12 +211,44 @@ export class FindTrip implements OnInit, OnDestroy {
     }
   }
 
-  openScheduleDialog() {
+  openScheduleDialog(tripData: {
+    destinations: TripDestination[];
+    passengers: Passenger[];
+    preferences: {
+      vehicleType: string;
+      isPetFriendly: boolean;
+      isBabyFriendly: boolean;
+    };
+  }) {
     this.dialogService.openScheduleRide().subscribe({
       next: (result) => {
         console.log('Schedule data:', result);
         this.scheduleData.set(result);
-        // DODAJ POZIV NA SERVIS
+
+        const rideRequest: RideRequestDTO = {
+          destinations: this.destinations.map((d, index) => ({
+            location: {
+              orderIndex: index,
+              latitude: d.coordinates.latitude,
+              longitude: d.coordinates.longitude,
+            },
+            address: d.name,
+            streetName: d.street,
+            city: d.city,
+            country: d.country,
+            streetNumber: parseInt(d.houseNumber) || 0,
+            zipCode: 0,
+          })),
+          passengerEmails: this.passengers.map((p) => p.email),
+          vehicleType: this.selectedVehicleType as VehicleType,
+          babyFriendly: this.isBabyFriendly,
+          petFriendly: this.isPetFriendly,
+          scheduledTime: result.scheduledTime ? new Date(result.scheduledTime).toISOString().replace('Z', '') : '',
+          scheduled: result.isScheduled,
+        };
+
+        console.log('Creating ride with:', rideRequest);
+        // TODO: Call ride service with rideRequest
       },
       complete: () => {
         console.log('Modal closed');
@@ -236,16 +270,20 @@ export class FindTrip implements OnInit, OnDestroy {
             true,
           );
         } else {
-          console.log('Trip submitted with:', {
+          const tripData = {
             destinations: this.destinations,
-            passengers: this.passengers,
+            passengers: this.passengers.map((p) => {
+              p.email = p.email.toLowerCase();
+              return p;
+            }),
             preferences: {
               vehicleType: this.selectedVehicleType,
               isPetFriendly: this.isPetFriendly,
               isBabyFriendly: this.isBabyFriendly,
             },
-          });
-          this.openScheduleDialog();
+          };
+          console.log('Trip submitted with:', tripData);
+          this.openScheduleDialog(tripData);
         }
       },
       error: (error) => {

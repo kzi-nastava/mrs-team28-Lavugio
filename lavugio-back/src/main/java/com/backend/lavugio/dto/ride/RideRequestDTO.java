@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RideRequestDTO {
-    private List<RideDestinationDTO> stops;
+    private List<RideDestinationDTO> destinations;
 
     private List<String> passengerEmails;
     private VehicleType vehicleType;
@@ -24,6 +24,6 @@ public class RideRequestDTO {
     private boolean scheduled;
 
     public RideDestinationDTO getStartAddress() {
-        return stops.getFirst();
+        return destinations.getFirst();
     }
 }

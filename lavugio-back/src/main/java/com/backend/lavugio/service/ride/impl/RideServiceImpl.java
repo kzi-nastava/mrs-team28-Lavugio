@@ -1,19 +1,24 @@
 package com.backend.lavugio.service.ride.impl;
 
 import com.backend.lavugio.dto.ride.*;
+import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.Driver;
+import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.pricing.PricingService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
+import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
+import com.backend.lavugio.service.utils.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -35,18 +41,21 @@ public class RideServiceImpl implements RideService {
     private final DriverService driverService;
     private final PricingService pricingService;
     private final RideDestinationService rideDestinationService;
+    private final DriverAvailabilityService driverAvailabilityService;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
                            DriverService driverService,
                            PricingService pricingService,
                            RegularUserRepository regularUserRepository,
-                           RideDestinationService rideDestinationService) {
+                           RideDestinationService rideDestinationService,
+                           DriverAvailabilityService driverAvailabilityService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
         this.regularUserRepository = regularUserRepository;
         this.rideDestinationService = rideDestinationService;
+        this.driverAvailabilityService = driverAvailabilityService;
     }
 
     @Override
@@ -282,20 +291,33 @@ public class RideServiceImpl implements RideService {
     @Override
     @Transactional
     public RideResponseDTO createInstantRide(String userEmail, RideRequestDTO request) {
-        // Get the user who created the ride
         RegularUser creator = regularUserRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
 
         // Find an available driver
-        /*List<Driver> availableDrivers = driverService.getAvailableDrivers();
+        List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
         if (availableDrivers.isEmpty()) {
             throw new RuntimeException("No available drivers at the moment");
         }
 
-        // Select the first available driver
-        Driver selectedDriver = availableDrivers.get(0);*/
+        // Sort the drivers by distance from first location
+        List<DriverLocationDTO> sortedDrivers = availableDrivers.stream()
+                .sorted(Comparator.comparingDouble(driver ->
+                        GeoUtils.distanceKm(
+                                request.getStartAddress().getLocation().getLatitude(),
+                                request.getStartAddress().getLocation().getLongitude(),
+                                driver.getLocation().getLatitude(),
+                                driver.getLocation().getLongitude()
+                        )
+                ))
+                .toList();
 
-        Driver selectedDriver = driverService.getDriverById(1L); // Placeholder - should implement driver selection logic
+        for (DriverLocationDTO driverLocationDTO : sortedDrivers) {
+            Driver driver = this.driverService.getDriverById(driverLocationDTO.getId());
+            boolean isVehicleSuitable = isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
+            boolean isDriverUnderDailyLimit = ;
+            // TODO: NASTAVI OVDE ZAKAZIVANJE VOZNJE NAKON STO URADIS DRIVER ACTIVITY
+        }
 
         // Create the ride
         Ride ride = new Ride();
@@ -317,6 +339,18 @@ public class RideServiceImpl implements RideService {
 
         // Convert to response DTO
         return mapToRideResponseDTO(ride);
+    }
+
+    private boolean isVehicleSuitable(Vehicle vehicle, boolean requestBabyFriendly, boolean requestPetFriendly, int passangersNum, VehicleType vehicleType) {
+        boolean petSuitable = !requestPetFriendly || vehicle.isPetFriendly();
+        boolean babySuitable = !requestBabyFriendly || vehicle.isBabyFriendly();
+        boolean passangersSuitable = vehicle.getSeatsNumber()-1 >=  passangersNum;
+        boolean vehicleTypeSuitable = vehicleType == vehicle.getType();
+        if (petSuitable && babySuitable && passangersSuitable && vehicleTypeSuitable) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private RideResponseDTO mapToRideResponseDTO(Ride ride) {
