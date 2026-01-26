@@ -134,10 +134,47 @@ public class RegularUserController {
             logger.info("Email verification attempt with token: {}", request.getToken());
             userRegistrationTokenService.verifyEmail(request.getToken());
             logger.info("Email verified successfully");
-            return ResponseEntity.ok("Email verified successfully");
-        } catch (Exception e) {
+            return ResponseEntity.ok(new java.util.HashMap<String, String>() {{
+                put("message", "Email verified successfully");
+                put("status", "success");
+            }});
+        } catch (RuntimeException e) {
             logger.error("Email verification failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(new java.util.HashMap<String, String>() {{
+                put("message", e.getMessage());
+                put("status", "error");
+            }});
+        } catch (Exception e) {
+            logger.error("Unexpected error during email verification: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(new java.util.HashMap<String, String>() {{
+                put("message", "Email verification failed: " + e.getMessage());
+                put("status", "error");
+            }});
+        }
+    }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmailGet(@RequestParam String token) {
+        try {
+            logger.info("Email verification attempt (GET) with token: {}", token);
+            userRegistrationTokenService.verifyEmail(token);
+            logger.info("Email verified successfully");
+            return ResponseEntity.ok(new java.util.HashMap<String, String>() {{
+                put("message", "Email verified successfully");
+                put("status", "success");
+            }});
+        } catch (RuntimeException e) {
+            logger.error("Email verification failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new java.util.HashMap<String, String>() {{
+                put("message", e.getMessage());
+                put("status", "error");
+            }});
+        } catch (Exception e) {
+            logger.error("Unexpected error during email verification: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(new java.util.HashMap<String, String>() {{
+                put("message", "Email verification failed: " + e.getMessage());
+                put("status", "error");
+            }});
         }
     }
 

@@ -4,6 +4,7 @@ import com.backend.lavugio.service.utils.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -15,8 +16,12 @@ import java.io.File;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+    
     @Autowired
     private JavaMailSender mailSender;
+    
+    @Value("${spring.mail.from}")
+    private String fromEmail;
 
     /**
      * Šalje običan email sa body tekstom
@@ -28,6 +33,7 @@ public class EmailServiceImpl implements EmailService {
     @Async
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
@@ -50,6 +56,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
+        helper.setFrom(fromEmail);
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(body);

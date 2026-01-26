@@ -64,11 +64,19 @@ public class UserRegistrationTokenServiceImpl implements UserRegistrationTokenSe
     public void verifyEmail(String tokenValue) {
         logger.info("Attempting to verify email with token: {}", tokenValue);
         
+        if (tokenValue == null || tokenValue.trim().isEmpty()) {
+            logger.error("Token is null or empty");
+            throw new RuntimeException("Token cannot be empty");
+        }
+        
         UserRegistrationToken token = userRegistrationTokenRepository.findByToken(tokenValue)
                 .orElseThrow(() -> {
-                    logger.warn("Verification token not found: {}", tokenValue);
-                    return new RuntimeException("Invalid token");
+                    logger.warn("Verification token not found in database: {}", tokenValue);
+                    return new RuntimeException("Invalid token - token not found");
                 });
+
+        logger.info("Token found. Used: {}, Expires at: {}, Current time: {}", 
+                token.isUsed(), token.getExpiresAt(), java.time.LocalDateTime.now());
 
         if (token.isUsed()) {
             logger.warn("Token already used: {}", tokenValue);
@@ -76,7 +84,8 @@ public class UserRegistrationTokenServiceImpl implements UserRegistrationTokenSe
         }
 
         if (token.isExpired()) {
-            logger.warn("Token expired: {}", tokenValue);
+            logger.warn("Token expired. Expires at: {}, Current: {}", 
+                    token.getExpiresAt(), java.time.LocalDateTime.now());
             throw new RuntimeException("Token expired");
         }
 
@@ -89,10 +98,12 @@ public class UserRegistrationTokenServiceImpl implements UserRegistrationTokenSe
         // Mark user as verified
         user.setEmailVerified(true);
         regularUserRepository.save(user);
+        logger.info("User email marked as verified for user id: {}", token.getUserId());
 
         // Mark token as used
         token.setUsed(true);
         userRegistrationTokenRepository.save(token);
+        logger.info("Token marked as used");
 
         logger.info("Email verified successfully for user id: {}", token.getUserId());
     }
