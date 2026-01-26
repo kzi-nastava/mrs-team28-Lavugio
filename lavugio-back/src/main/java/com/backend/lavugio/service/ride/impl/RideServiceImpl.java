@@ -16,6 +16,7 @@ import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.pricing.PricingService;
 import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverActivityService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
@@ -45,6 +46,7 @@ public class RideServiceImpl implements RideService {
     private final DriverAvailabilityService driverAvailabilityService;
     private final DriverActivityService driverActivityService;
     private final com.backend.lavugio.service.route.AddressService addressService;
+    private final RideQueryService rideQueryService;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -54,7 +56,8 @@ public class RideServiceImpl implements RideService {
                            RideDestinationService rideDestinationService,
                            DriverAvailabilityService driverAvailabilityService,
                            DriverActivityService driverActivityService,
-                           com.backend.lavugio.service.route.AddressService addressService) {
+                           com.backend.lavugio.service.route.AddressService addressService,
+                           RideQueryService rideQueryService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -63,6 +66,7 @@ public class RideServiceImpl implements RideService {
         this.driverAvailabilityService = driverAvailabilityService;
         this.driverActivityService = driverActivityService;
         this.addressService = addressService;
+        this.rideQueryService = rideQueryService;
     }
 
     @Override
@@ -87,23 +91,22 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public Ride getRideById(Long id) {
-        return rideRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Ride not found with id: " + id));
+        return rideQueryService.getRideById(id);
     }
 
     @Override
     public List<Ride> getAllRides() {
-        return rideRepository.findAll();
+        return rideQueryService.getAllRides();
     }
 
     @Override
     public List<Ride> getRidesByDriverId(Long driverId) {
-        return rideRepository.findByDriverId(driverId);
+        return rideQueryService.getRidesByDriverId(driverId);
     }
 
     @Override
     public List<Ride> getRidesByPassengerId(Long passengerId) {
-        return rideRepository.findByPassengerId(passengerId);
+        return rideQueryService.getRidesByPassengerId(passengerId);
     }
 
     @Override
@@ -113,26 +116,26 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public List<Ride> getRidesByStatus(RideStatus status) {
-        return rideRepository.findByRideStatus(status);
+        return rideQueryService.getRidesByStatus(status);
     }
 
     @Override
     public List<Ride> getUpcomingRidesForDriver(Long driverId) {
-        return rideRepository.findUpcomingRidesByDriver(driverId, LocalDateTime.now());
+        return rideQueryService.getUpcomingRidesForDriver(driverId);
     }
 
     @Override
     public List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return rideRepository.findByStartDateTimeBetween(startDate, endDate);
+        return rideQueryService.getRidesInDateRange(startDate, endDate);
     }
 
     @Override
     public List<Ride> getActiveRides() {
-        return rideRepository.findAllActiveRides();
+        return rideQueryService.getActiveRides();
     }
 
     public List<Ride> getScheduledRidesForDriver(Long driverId){
-        return rideRepository.findByDriverIdAndRideStatus(driverId, RideStatus.SCHEDULED);
+        return rideQueryService.getScheduledRidesForDriver(driverId);
     }
 
     @Override
@@ -275,17 +278,17 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public Float calculateTotalEarningsForDriver(Long driverId) {
-        return rideRepository.calculateTotalEarningsForDriver(driverId).orElse(0.0f);
+        return rideQueryService.calculateTotalEarningsForDriver(driverId);
     }
 
     @Override
     public Float calculateTotalDistanceForDriver(Long driverId) {
-        return rideRepository.calculateTotalDistanceForDriver(driverId).orElse(0.0f);
+        return rideQueryService.calculateTotalDistanceForDriver(driverId);
     }
 
     @Override
     public Float calculateAverageFareForDriver(Long driverId) {
-        return rideRepository.calculateAverageFareForDriver(driverId).orElse(0.0f);
+        return rideQueryService.calculateAverageFareForDriver(driverId);
     }
 
     @Override

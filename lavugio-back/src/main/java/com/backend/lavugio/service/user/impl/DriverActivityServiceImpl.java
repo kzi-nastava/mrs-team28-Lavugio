@@ -4,6 +4,7 @@ import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverActivity;
 import com.backend.lavugio.repository.user.DriverActivityRepository;
 import com.backend.lavugio.repository.user.DriverRepository;
+import com.backend.lavugio.service.user.DriverActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class DriverActivityServiceImpl {
+public class DriverActivityServiceImpl implements DriverActivityService {
     @Autowired
     private DriverActivityRepository activityRepository;
 
     @Autowired
     private DriverRepository driverRepository;
 
+    @Override
     public void startActivity(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
@@ -41,6 +43,7 @@ public class DriverActivityServiceImpl {
         }
     }
 
+    @Override
     public void endActivity(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
@@ -56,6 +59,7 @@ public class DriverActivityServiceImpl {
         driverRepository.save(driver);
     }
 
+    @Override
     public Duration getActiveTimeIn24Hours(Long driverId) {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
         List<DriverActivity> activities =
@@ -66,13 +70,15 @@ public class DriverActivityServiceImpl {
                 .reduce(Duration.ZERO, Duration::plus);
     }
 
-    private Duration calculateDuration(DriverActivity activity) {
+    @Override
+    public Duration calculateDuration(DriverActivity activity) {
         LocalDateTime end = activity.getEndTime() != null
                 ? activity.getEndTime()
                 : LocalDateTime.now();
         return Duration.between(activity.getStartTime(), end);
     }
 
+    @Override
     public String getFormattedActiveTime(Long driverId) {
         Duration duration = getActiveTimeIn24Hours(driverId);
         long hours = duration.toHours();
