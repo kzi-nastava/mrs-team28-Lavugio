@@ -26,6 +26,21 @@ export class Login {
     this.showPassword.update(val => !val);
   }
 
+  redirectBasedOnRole(role: string) {
+    switch (role) {
+      case 'DRIVER':
+        this.router.navigate(['/driver-scheduled-rides']);
+        break;
+      case 'ADMINISTRATOR':
+        this.router.navigate(['/admin-panel']);
+        break;
+      case 'REGULAR_USER':
+      default:
+        this.router.navigate(['/find-trip']);
+        break;
+    }
+  }
+
   handleLogin() {
     // Clear previous messages
     this.errorMessage.set('');
@@ -54,8 +69,10 @@ export class Login {
         // Store token and user data
         this.authService.storeToken(response.token, response);
         this.successMessage.set('Login successful! Redirecting...');
+        
+        // Redirect based on user role
         setTimeout(() => {
-          this.router.navigate(['/home-page']);
+          this.redirectBasedOnRole(response.role);
         }, 1000);
       },
       error: (error) => {

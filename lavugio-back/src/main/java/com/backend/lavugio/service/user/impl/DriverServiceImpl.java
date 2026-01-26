@@ -139,6 +139,35 @@ public class DriverServiceImpl implements DriverService {
         driver.setDriving(isDriving);
         driverRepository.save(driver);
     }
+    
+    @Override
+    @Transactional
+    public void setDriverStatus(Long driverId, Boolean active) {
+        Driver driver = getDriverById(driverId);
+        
+        if (driver.isBlocked()) {
+            throw new RuntimeException("Cannot change status of a blocked driver");
+        }
+        
+        // If driver is currently driving and wants to go inactive, save as pending
+        if (driver.isDriving() && !active) {
+            driver.setPendingStatusChange(false); // false = wants to be inactive
+            driverRepository.save(driver);
+            throw new RuntimeException("Status change saved. Will apply after ride completes.");
+        }
+        
+        // If driver wants to go active or is not driving, apply immediately
+        driver.setActive(active);
+        driver.setPendingStatusChange(null); // Clear any pending change
+        driverRepository.save(driver);
+    }
+    
+    @Override
+    public boolean canDriverLogout(Long driverId) {
+        Driver driver = getDriverById(driverId);
+        // Driver can logout only if they are not currently driving
+        return !driver.isDriving();
+    }
 
     @Override
     @Transactional

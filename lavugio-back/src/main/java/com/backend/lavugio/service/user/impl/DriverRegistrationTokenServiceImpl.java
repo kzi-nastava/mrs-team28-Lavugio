@@ -61,7 +61,7 @@ public class DriverRegistrationTokenServiceImpl implements DriverRegistrationTok
 
         Driver driver = driverRepository.findById(token.getDriverId())
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
-
+        driver.setEmailVerified(true);
         driver.setPassword(passwordEncoder.encode(password));
         driverRepository.save(driver);
         token.setUsed(true);
