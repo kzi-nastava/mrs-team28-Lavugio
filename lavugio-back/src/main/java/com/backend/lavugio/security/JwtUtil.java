@@ -149,7 +149,7 @@ public class JwtUtil {
 
     /**
      * Helper method to extract account ID from authentication principal
-     * Handles both String and Long types
+     * Works with both legacy (Long/String) and new UserPrincipal approach
      */
     public static Long extractAccountId(Authentication authentication) {
         if (authentication == null || authentication.getPrincipal() == null) {
@@ -163,6 +163,12 @@ public class JwtUtil {
             return null;
         }
 
+        // New approach: UserPrincipal
+        if (principal instanceof UserPrincipal) {
+            return ((UserPrincipal) principal).getUserId();
+        }
+
+        // Legacy approach: Direct Long/String/Integer
         if (principal instanceof Long) {
             return (Long) principal;
         } else if (principal instanceof String) {
