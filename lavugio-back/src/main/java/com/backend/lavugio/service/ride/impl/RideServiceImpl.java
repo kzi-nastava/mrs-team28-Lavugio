@@ -431,7 +431,58 @@ public class RideServiceImpl implements RideService {
         ride.setCreator(creator);
         ride.setDriver(driver);
         ride.setStartDateTime(LocalDateTime.now());
+        ride.setEstimatedDurationSeconds(request.getEstimatedDurationSeconds());
         ride.setEndDateTime(null);
+        ride.setPrice(request.getPrice());
+        ride.setDistance(request.getDistance());
+        ride.setRideStatus(RideStatus.SCHEDULED);
+        ride.setHasPanic(false);
+
+        // Save the ride
+        rideRepository.save(ride);
+
+        // Map and persist destinations from request to ride
+        if (request.getDestinations() != null && !request.getDestinations().isEmpty()) {
+            for (RideDestinationDTO destDTO : request.getDestinations()) {
+                // Build Address entity from DTO
+                Address address = new Address();
+                address.setStreetName(destDTO.getStreetName());
+                address.setCity(destDTO.getCity());
+                address.setCountry(destDTO.getCountry());
+                // Backend Address expects String streetNumber
+                address.setStreetNumber(String.valueOf(destDTO.getStreetNumber()));
+                address.setZipCode(destDTO.getZipCode());
+                address.setLongitude(destDTO.getLocation().getLongitude());
+                address.setLatitude(destDTO.getLocation().getLatitude());
+
+                // Persist or reuse existing address
+                address = addressService.createAddress(address);
+
+                // Create ride destination linking ride and address
+                RideDestination rideDestination = new RideDestination();
+                rideDestination.setRide(ride);
+                rideDestination.setAddress(address);
+                Integer orderIndex = destDTO.getLocation().getOrderIndex();
+                // Store as 1-based order
+                rideDestination.setDestinationOrder(orderIndex != null ? orderIndex + 1 : null);
+
+                // Persist destination
+                rideDestinationService.addDestinationToRide(rideDestination);
+            }
+        }
+
+        // Add passengers to ride
+        this.addPassengersToRide(ride, request.getPassengerEmails());
+        return ride;
+    }
+
+    private Ride createScheduledRide(Driver driver, RegularUser creator, RideRequestDTO request) {
+        Ride ride = new Ride();
+        ride.setCreator(creator);
+        ride.setDriver(driver);
+        ride.setStartDateTime(request.getScheduledTime());
+        ride.setEndDateTime(null);
+        ride.setEstimatedDurationSeconds(request.getEstimatedDurationSeconds());
         ride.setPrice(request.getPrice());
         ride.setDistance(request.getDistance());
         ride.setRideStatus(RideStatus.SCHEDULED);
