@@ -6,9 +6,9 @@ import { ResetPassword } from './features/reset-password/reset-password';
 import { Register } from './features/register/register';
 import { VerifyEmail } from './features/verify-email/verify-email';
 import { VerificationSuccess } from './features/verification-success/verification-success';
-import { TripHistoryDriver } from '@app/features/trip-history-driver/trip-history-driver';
+import { RideHistoryDriver as RideHistoryDriver } from '@app/features/trip-history-driver/trip-history-driver';
 import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
-import { TripHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
+import { RideHistoryDriverDetailed as RideHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
 import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
@@ -23,8 +23,8 @@ import { authGuardFn } from '@app/core/guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path: 'trip-history-driver',
-    component: TripHistoryDriver,
+    path: 'ride-history-driver',
+    component: RideHistoryDriver,
     canActivate: [authGuardFn],
   },
   {
@@ -38,8 +38,8 @@ export const routes: Routes = [
     canActivate: [authGuardFn],
   },
   {
-    path: 'trip-history-driver-detailed',
-    component: TripHistoryDriverDetailed,
+    path: 'ride-history-driver/:rideId',
+    component: RideHistoryDriverDetailed,
     canActivate: [authGuardFn],
   },
   {

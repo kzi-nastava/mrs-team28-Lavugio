@@ -1,4 +1,4 @@
-package com.backend.lavugio.websocket;
+package com.backend.lavugio.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

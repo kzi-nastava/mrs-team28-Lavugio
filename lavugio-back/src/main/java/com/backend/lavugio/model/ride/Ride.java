@@ -1,10 +1,16 @@
 package com.backend.lavugio.model.ride;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import com.backend.lavugio.dto.user.PassengerTableRowDTO;
 import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.route.Address;
+import com.backend.lavugio.model.route.RideDestination;
+import com.backend.lavugio.model.user.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,4 +69,31 @@ public class Ride {
 
     @Column(nullable = false)
     private boolean hasPanic;
+
+    @OneToMany(mappedBy = "ride", fetch = FetchType.EAGER)
+    private List<RideDestination> checkpoints;
+
+    @Transient
+    public String getStartAddress() {
+        if (checkpoints == null || checkpoints.isEmpty()) {
+            return null;
+        }
+        return checkpoints.stream()
+                .min(Comparator.comparing(RideDestination::getDestinationOrder))
+                .map(RideDestination::getAddress)
+                .map(Address::toString)
+                .orElse(null);
+    }
+
+    @Transient
+    public String getEndAddress() {
+        if (checkpoints == null || checkpoints.isEmpty()) {
+            return null;
+        }
+        return checkpoints.stream()
+                .max(Comparator.comparing(RideDestination::getDestinationOrder))
+                .map(RideDestination::getAddress)
+                .map(Address::toString)
+                .orElse(null);
+    }
 }

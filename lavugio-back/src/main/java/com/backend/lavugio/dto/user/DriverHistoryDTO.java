@@ -21,10 +21,14 @@ public class DriverHistoryDTO {
 
     public DriverHistoryDTO(Ride ride){
         this.rideId = ride.getId();
-        this.startAddress = ride.getStartDateTime().toString();
-        this.endAddress = ride.getEndDateTime().toString();
+        this.startAddress = ride.getCheckpoints().getFirst().getAddress().toString();
+        this.endAddress = ride.getCheckpoints().getLast().getAddress().toString();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
         this.startDate = ride.getStartDateTime().format(formatter);
-        this.endDate = ride.getEndDateTime().format(formatter);
+        if (ride.getEndDateTime()!=null){
+            this.endDate = ride.getEndDateTime().format(formatter);
+        } else{
+            this.endDate = "";
+        }
     }
 }

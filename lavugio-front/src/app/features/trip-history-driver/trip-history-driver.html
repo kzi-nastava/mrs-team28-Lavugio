@@ -1,5 +1,13 @@
 <app-base-info-page>
-  <app-date-filter>
-  </app-date-filter>
-  <app-table></app-table>
+  <app-date-filter (dateRangeSelected)="updateSelectedDate($event)"></app-date-filter>
+  <app-table #table
+    (updateSortByOutput)="updateSortBy($event)"
+    [rides]="rides()" 
+    [loading]="loading()"
+    [loadingDirection]="loadingDirection()"
+    [hasMoreNewer]="hasMoreNewer()"
+    [hasMoreOlder]="hasMoreOlder()"
+    (loadOlder)="loadOlder()"
+    (loadNewer)="loadNewer()">
+  </app-table>
 </app-base-info-page>

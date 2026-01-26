@@ -2,24 +2,39 @@
 -- LAVUGIO - PostgreSQL Init Script
 -- ====================================
 
--- Čišćenje baze (opciono - obriši ako ne želiš)
--- DROP TABLE IF EXISTS ride_passengers CASCADE;
--- DROP TABLE IF EXISTS favorite_route_destinations CASCADE;
--- DROP TABLE IF EXISTS ride_destinations CASCADE;
--- DROP TABLE IF EXISTS ride_reports CASCADE;
--- DROP TABLE IF EXISTS reviews CASCADE;
--- DROP TABLE IF EXISTS messages CASCADE;
--- DROP TABLE IF EXISTS notifications CASCADE;
--- DROP TABLE IF EXISTS favorite_routes CASCADE;
--- DROP TABLE IF EXISTS rides CASCADE;
--- DROP TABLE IF EXISTS driver_registration_token CASCADE;
--- DROP TABLE IF EXISTS drivers CASCADE;
--- DROP TABLE IF EXISTS regular_users CASCADE;
--- DROP TABLE IF EXISTS blockable_accounts CASCADE;
--- DROP TABLE IF EXISTS administrators CASCADE;
--- DROP TABLE IF EXISTS accounts CASCADE;
--- DROP TABLE IF EXISTS vehicles CASCADE;
--- DROP TABLE IF EXISTS addresses CASCADE;
+-- ====================================
+-- BRISANJE SVIH PODATAKA IZ TABELA
+-- ====================================
+TRUNCATE TABLE ride_passengers CASCADE;
+TRUNCATE TABLE favorite_route_destinations CASCADE;
+TRUNCATE TABLE ride_destinations CASCADE;
+TRUNCATE TABLE ride_reports CASCADE;
+TRUNCATE TABLE reviews CASCADE;
+TRUNCATE TABLE messages CASCADE;
+TRUNCATE TABLE notifications CASCADE;
+TRUNCATE TABLE favorite_routes CASCADE;
+TRUNCATE TABLE rides CASCADE;
+TRUNCATE TABLE driver_registration_token CASCADE;
+TRUNCATE TABLE drivers CASCADE;
+TRUNCATE TABLE regular_users CASCADE;
+TRUNCATE TABLE blockable_accounts CASCADE;
+TRUNCATE TABLE administrators CASCADE;
+TRUNCATE TABLE accounts CASCADE;
+TRUNCATE TABLE vehicles CASCADE;
+TRUNCATE TABLE addresses CASCADE;
+
+-- Reset sequences
+ALTER SEQUENCE addresses_id_seq RESTART WITH 1;
+ALTER SEQUENCE vehicles_id_seq RESTART WITH 1;
+ALTER SEQUENCE accounts_id_seq RESTART WITH 1;
+ALTER SEQUENCE driver_registration_token_id_seq RESTART WITH 1;
+ALTER SEQUENCE rides_id_seq RESTART WITH 1;
+ALTER SEQUENCE ride_destinations_id_seq RESTART WITH 1;
+ALTER SEQUENCE reviews_id_seq RESTART WITH 1;
+ALTER SEQUENCE favorite_routes_id_seq RESTART WITH 1;
+ALTER SEQUENCE favorite_route_destinations_id_seq RESTART WITH 1;
+ALTER SEQUENCE notifications_id_seq RESTART WITH 1;
+ALTER SEQUENCE messages_id_seq RESTART WITH 1;
 
 -- ====================================
 -- 1. ADDRESSES
@@ -34,9 +49,14 @@ INSERT INTO addresses (id, street_name, city, country, street_number, zip_code, 
                                                                                                          (7, 'Niška', 'Niš', 'Srbija', '33', 18000, 21.8958, 43.3209),
                                                                                                          (8, 'Vozda Karađorđa', 'Niš', 'Srbija', '12', 18000, 21.9028, 43.3192),
                                                                                                          (9, 'Kralja Petra', 'Kragujevac', 'Srbija', '55', 34000, 20.9111, 44.0125),
-                                                                                                         (10, 'Svetozara Markovića', 'Kragujevac', 'Srbija', '7', 34000, 20.9142, 44.0145);
+                                                                                                         (10, 'Svetozara Markovića', 'Kragujevac', 'Srbija', '7', 34000, 20.9142, 44.0145),
+                                                                                                         (11, 'Terazije', 'Beograd', 'Srbija', '1', 11000, 20.4612, 44.8125),
+                                                                                                         (12, 'Trg Republike', 'Beograd', 'Srbija', '5', 11000, 20.4598, 44.8170),
+                                                                                                         (13, 'Skadarlija', 'Beograd', 'Srbija', '29', 11000, 20.4642, 44.8189),
+                                                                                                         (14, 'Bulevar Oslobođenja', 'Novi Sad', 'Srbija', '80', 21000, 19.8369, 45.2504),
+                                                                                                         (15, 'Dunavska', 'Novi Sad', 'Srbija', '27', 21000, 19.8440, 45.2569);
 
-SELECT setval('addresses_id_seq', 10, true);
+SELECT setval('addresses_id_seq', 15, true);
 
 -- ====================================
 -- 2. VEHICLES
@@ -122,88 +142,149 @@ INSERT INTO driver_registration_token (id, token, driver_id, created_at, expires
 SELECT setval('driver_registration_token_id_seq', 3, true);
 
 -- ====================================
--- 9. RIDES
+-- 9. RIDES - 120 vožnji za vozača ID 5
 -- ====================================
-INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, price, distance, ride_status, has_panic) VALUES
-                                                                                                                        (1, 5, 1, '2025-01-15 08:30:00', '2025-01-15 09:00:00', 450.00, 5.2, 'FINISHED', false),
-                                                                                                                        (2, 7, 2, '2025-01-16 14:00:00', '2025-01-16 14:45:00', 820.00, 12.5, 'FINISHED', false),
-                                                                                                                        (3, 8, 3, '2025-01-17 10:15:00', '2025-01-17 11:00:00', 650.00, 8.3, 'FINISHED', false),
-                                                                                                                        (4, 5, 4, '2025-01-18 16:30:00', '2025-01-18 17:15:00', 550.00, 6.8, 'FINISHED', false),
-                                                                                                                        (5, 7, 1, '2025-01-19 09:00:00', '2025-01-19 09:40:00', 720.00, 10.2, 'FINISHED', false),
-                                                                                                                        (6, 8, 2, '2025-01-20 12:00:00', '2025-01-20 12:50:00', 980.00, 15.7, 'FINISHED', true),
-                                                                                                                        (7, 5, 9, '2025-01-21 15:00:00', NULL, 600.00, 7.5, 'ACTIVE', false),
-                                                                                                                        (8, 7, 10, '2025-01-23 10:00:00', NULL, 500.00, 6.0, 'SCHEDULED', false),
-                                                                                                                        (9, NULL, 3, '2025-01-24 14:00:00', NULL, 700.00, 9.0, 'SCHEDULED', false),
-                                                                                                                        (10, 5, 4, '2025-01-22 11:30:00', '2025-01-22 11:35:00', 300.00, 2.5, 'CANCELLED', false);
 
-SELECT setval('rides_id_seq', 10, true);
+-- Vožnje za vozača 5 (120 vožnji)
+INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, price, distance, ride_status, has_panic)
+SELECT
+    id,
+    5 as driver_id,
+    (ARRAY[1, 2, 3, 4, 9, 10])[1 + mod(id::integer, 6)] as user_id,
+    timestamp '2024-10-01 08:00:00' + (id || ' days')::interval + (mod(id::integer, 12) || ' hours')::interval,
+    CASE
+        WHEN id <= 80 THEN timestamp '2024-10-01 08:00:00' + (id || ' days')::interval + (mod(id::integer, 12) + 1 || ' hours')::interval
+        ELSE NULL
+        END as end_date_time,
+    300.0 + (random() * 700)::numeric(10,2) as price,
+    2.0 + (random() * 18)::numeric(10,2) as distance,
+    CASE
+        WHEN id <= 80 THEN 'FINISHED'
+        WHEN id <= 100 THEN 'SCHEDULED'
+        WHEN id <= 110 THEN 'ACTIVE'
+        ELSE 'CANCELLED'
+        END as ride_status,
+    CASE WHEN id = 50 THEN true ELSE false END as has_panic
+FROM generate_series(1, 120) as id;
+
+-- Dodatne vožnje za ostale vozače
+INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, price, distance, ride_status, has_panic) VALUES
+                                                                                                                        (121, 7, 2, '2024-11-16 14:00:00', '2024-11-16 14:45:00', 820.00, 12.5, 'FINISHED', false),
+                                                                                                                        (122, 8, 3, '2024-12-17 10:15:00', '2024-12-17 11:00:00', 650.00, 8.3, 'FINISHED', false),
+                                                                                                                        (123, 7, 1, '2025-01-19 09:00:00', '2025-01-19 09:40:00', 720.00, 10.2, 'FINISHED', false),
+                                                                                                                        (124, 8, 2, '2025-01-20 12:00:00', '2025-01-20 12:50:00', 980.00, 15.7, 'FINISHED', true),
+                                                                                                                        (125, 7, 10, '2025-01-23 10:00:00', NULL, 500.00, 6.0, 'SCHEDULED', false),
+                                                                                                                        (126, NULL, 3, '2025-01-24 14:00:00', NULL, 700.00, 9.0, 'SCHEDULED', false);
+
+SELECT setval('rides_id_seq', 126, true);
 
 -- ====================================
 -- 10. RIDE_PASSENGERS (Many-to-Many)
 -- ====================================
+INSERT INTO ride_passengers (ride_id, user_id)
+SELECT
+    r.id,
+    r.user_id
+FROM rides r
+WHERE r.id <= 120;
+
+-- Dodatni putnici za ostale vožnje
 INSERT INTO ride_passengers (ride_id, user_id) VALUES
-                                                   (1, 1),
-                                                   (2, 2),
-                                                   (3, 3),
-                                                   (4, 4),
-                                                   (5, 1),
-                                                   (6, 2),
-                                                   (6, 3), -- Ride 6 ima 2 putnika
-                                                   (7, 9),
-                                                   (8, 10),
-                                                   (9, 3),
-                                                   (10, 4);
+                                                   (121, 2),
+                                                   (122, 3),
+                                                   (123, 1),
+                                                   (124, 2),
+                                                   (124, 3),
+                                                   (125, 10),
+                                                   (126, 3);
 
 -- ====================================
 -- 11. RIDE_DESTINATIONS
 -- ====================================
-INSERT INTO ride_destinations (id, ride_id, address_id, destination_order) VALUES
-                                                                               (1, 1, 1, 0),
-                                                                               (2, 1, 2, 1),
-                                                                               (3, 2, 3, 0),
-                                                                               (4, 2, 4, 1),
-                                                                               (5, 3, 5, 0),
-                                                                               (6, 3, 6, 1),
-                                                                               (7, 4, 7, 0),
-                                                                               (8, 4, 8, 1),
-                                                                               (9, 5, 1, 0),
-                                                                               (10, 5, 3, 1),
-                                                                               (11, 6, 2, 0),
-                                                                               (12, 6, 4, 1),
-                                                                               (13, 6, 5, 2), -- Ride 6 ima 3 destinacije
-                                                                               (14, 7, 9, 0),
-                                                                               (15, 7, 10, 1),
-                                                                               (16, 8, 1, 0),
-                                                                               (17, 8, 2, 1),
-                                                                               (18, 9, 3, 0),
-                                                                               (19, 9, 4, 1),
-                                                                               (20, 10, 5, 0),
-                                                                               (21, 10, 6, 1);
 
-SELECT setval('ride_destinations_id_seq', 21, true);
+-- Destinacije za vozača 5 (120 vožnji sa po 2 destinacije)
+-- ID range: 1-240
+INSERT INTO ride_destinations (id, ride_id, address_id, destination_order)
+SELECT
+    (id - 1) * 2 + 1,
+    id,
+    1 + mod((id - 1)::integer, 15),
+    0
+FROM generate_series(1, 120) as id;
+
+INSERT INTO ride_destinations (id, ride_id, address_id, destination_order)
+SELECT
+    (id - 1) * 2 + 2,
+    id,
+    1 + mod(id::integer, 15),
+    1
+FROM generate_series(1, 120) as id;
+
+-- Dodaj treću destinaciju za neke vožnje (svaka 3. vožnja)
+-- ID range: 241-250
+INSERT INTO ride_destinations (id, ride_id, address_id, destination_order)
+SELECT
+    240 + ROW_NUMBER() OVER (),
+    id * 3,
+    1 + mod((id * 3 + 7)::integer, 15),
+    2
+FROM generate_series(1, 10) as id
+WHERE id * 3 <= 120;
+
+-- Destinacije za ostale vožnje (121-126)
+-- ID range: 251-263
+INSERT INTO ride_destinations (id, ride_id, address_id, destination_order) VALUES
+                                                                               (251, 121, 3, 0),
+                                                                               (252, 121, 4, 1),
+                                                                               (253, 122, 5, 0),
+                                                                               (254, 122, 6, 1),
+                                                                               (255, 123, 1, 0),
+                                                                               (256, 123, 3, 1),
+                                                                               (257, 124, 2, 0),
+                                                                               (258, 124, 4, 1),
+                                                                               (259, 124, 5, 2),
+                                                                               (260, 125, 1, 0),
+                                                                               (261, 125, 2, 1),
+                                                                               (262, 126, 3, 0),
+                                                                               (263, 126, 4, 1);
+
+SELECT setval('ride_destinations_id_seq', 263, true);
 
 -- ====================================
 -- 12. REVIEWS
 -- ====================================
-INSERT INTO reviews (id, car_rating, driver_rating, comment, ride_id, user_id) VALUES
-                                                                                   (1, 5, 5, 'Odlična vožnja, sve pohvale!', 1, 1),
-                                                                                   (2, 4, 5, 'Vozač je bio izuzetno ljubazan, ali auto malo stariji.', 2, 2),
-                                                                                   (3, 5, 4, 'Auto fantastičan, vozač malo brzo vozi.', 3, 3),
-                                                                                   (4, 3, 3, 'Prosečno iskustvo, ništa posebno.', 4, 4),
-                                                                                   (5, 5, 5, 'Perfektna vožnja, siguran i udoban prevoz!', 5, 1),
-                                                                                   (6, 2, 2, 'Auto bio prljav, vozač neprijatan. Panično dugme aktivirano.', 6, 2);
+-- Reviews za prvih 50 završenih vožnji vozača 5
+INSERT INTO reviews (id, car_rating, driver_rating, comment, ride_id, user_id)
+SELECT
+    id,
+    3 + floor(random() * 3)::integer,
+    3 + floor(random() * 3)::integer,
+    CASE mod(id, 5)
+        WHEN 0 THEN 'Odlična vožnja, sve pohvale!'
+        WHEN 1 THEN 'Vozač je bio izuzetno ljubazan.'
+        WHEN 2 THEN 'Auto čist i udoban.'
+        WHEN 3 THEN 'Prosečno iskustvo.'
+        ELSE 'Sve je bilo u redu.'
+        END,
+    id,
+    (ARRAY[1, 2, 3, 4, 9, 10])[1 + mod(id::integer, 6)]
+FROM generate_series(1, 50) as id;
 
-SELECT setval('reviews_id_seq', 6, true);
+-- Dodatni reviews
+INSERT INTO reviews (id, car_rating, driver_rating, comment, ride_id, user_id) VALUES
+                                                                                   (51, 4, 5, 'Vozač je bio izuzetno ljubazan, ali auto malo stariji.', 121, 2),
+                                                                                   (52, 5, 4, 'Auto fantastičan, vozač malo brzo vozi.', 122, 3),
+                                                                                   (53, 5, 5, 'Perfektna vožnja, siguran i udoban prevoz!', 123, 1),
+                                                                                   (54, 2, 2, 'Auto bio prljav, vozač neprijatan. Panično dugme aktivirano.', 124, 2);
+
+SELECT setval('reviews_id_seq', 54, true);
 
 -- ====================================
 -- 13. RIDE_REPORTS
 -- ====================================
 INSERT INTO ride_reports (report_id, ride_id, report_message, account_id) VALUES
-                                                                              (1, 6, 'Vozač je vozio prebrzo i ignorisao moje molbe da uspori. Osećao sam se ugroženo.', 2),
-                                                                              (2, 4, 'Auto je bio nečist i imao je neugodan miris.', 4);
-
--- ride_reports koristi SEQUENCE umesto IDENTITY, pa ne treba setval
--- SELECT setval('ride_reports_report_id_seq', 2, true);
+                                                                              (1, 124, 'Vozač je vozio prebrzo i ignorisao moje molbe da uspori. Osećao sam se ugroženo.', 2),
+                                                                              (2, 50, 'Aktivirano panično dugme zbog neprijatne situacije.', 9);
 
 -- ====================================
 -- 14. FAVORITE_ROUTES
@@ -238,11 +319,11 @@ SELECT setval('favorite_route_destinations_id_seq', 10, true);
 -- 16. NOTIFICATIONS
 -- ====================================
 INSERT INTO notifications (id, title, text, link_to_ride, user_id, notification_type, sent_date, sent_time, is_read) VALUES
-                                                                                                                         (1, 'Vožnja završena', 'Vaša vožnja je uspešno završena. Hvala što koristite Lavugio!', '/rides/1', 1, 'REGULAR', '2025-01-15', '09:00:00', true),
-                                                                                                                         (2, 'Ocenite vožnju', 'Molimo vas da ocenite svoju poslednju vožnju.', '/rides/2', 2, 'REGULAR', '2025-01-16', '14:45:00', true),
-                                                                                                                         (3, 'PANIKA!', 'Korisnik je aktivirao panično dugme tokom vožnje #6', '/rides/6', 11, 'PANIC', '2025-01-20', '12:35:00', true),
-                                                                                                                         (4, 'Vožnja zakazana', 'Vaša vožnja je zakazana za sutra u 10:00.', '/rides/8', 10, 'LINKED', '2025-01-22', '18:00:00', false),
-                                                                                                                         (5, 'Novi vozač dostupan', 'Vaš zahtev za vožnju je prihvaćen. Vozač je na putu!', '/rides/7', 9, 'LINKED', '2025-01-21', '15:05:00', true);
+                                                                                                                         (1, 'Vožnja završena', 'Vaša vožnja je uspešno završena. Hvala što koristite Lavugio!', '/rides/1', 1, 'REGULAR', '2024-10-01', '09:00:00', true),
+                                                                                                                         (2, 'Ocenite vožnju', 'Molimo vas da ocenite svoju poslednju vožnju.', '/rides/2', 2, 'REGULAR', '2024-10-02', '14:45:00', true),
+                                                                                                                         (3, 'PANIKA!', 'Korisnik je aktivirao panično dugme tokom vožnje #50', '/rides/50', 11, 'PANIC', '2024-11-19', '12:35:00', true),
+                                                                                                                         (4, 'Vožnja zakazana', 'Vaša vožnja je zakazana za sutra u 10:00.', '/rides/125', 10, 'LINKED', '2025-01-22', '18:00:00', false),
+                                                                                                                         (5, 'Novi vozač dostupan', 'Vaš zahtev za vožnju je prihvaćen. Vozač je na putu!', '/rides/105', 9, 'LINKED', '2025-01-15', '15:05:00', true);
 
 SELECT setval('notifications_id_seq', 5, true);
 
@@ -250,12 +331,12 @@ SELECT setval('notifications_id_seq', 5, true);
 -- 17. MESSAGES
 -- ====================================
 INSERT INTO messages (id, sender_id, receiver_id, message_date, message_time, text, is_read) VALUES
-                                                                                                 (1, 1, 5, '2025-01-15', '08:25:00', 'Gde ste? Čekam ispred zgrade.', true),
-                                                                                                 (2, 5, 1, '2025-01-15', '08:26:00', 'Stigao sam, vidim vas!', true),
-                                                                                                 (3, 2, 7, '2025-01-16', '13:55:00', 'Možete li me pokupiti 5 minuta ranije?', true),
-                                                                                                 (4, 7, 2, '2025-01-16', '13:56:00', 'Naravno, već sam u blizini.', true),
-                                                                                                 (5, 9, 5, '2025-01-21', '14:58:00', 'Koliko će još trajati do mene?', true),
-                                                                                                 (6, 5, 9, '2025-01-21', '14:59:00', 'Stižem za 2 minuta!', true),
+                                                                                                 (1, 1, 5, '2024-10-01', '08:25:00', 'Gde ste? Čekam ispred zgrade.', true),
+                                                                                                 (2, 5, 1, '2024-10-01', '08:26:00', 'Stigao sam, vidim vas!', true),
+                                                                                                 (3, 2, 7, '2024-11-16', '13:55:00', 'Možete li me pokupiti 5 minuta ranije?', true),
+                                                                                                 (4, 7, 2, '2024-11-16', '13:56:00', 'Naravno, već sam u blizini.', true),
+                                                                                                 (5, 9, 5, '2025-01-15', '14:58:00', 'Koliko će još trajati do mene?', true),
+                                                                                                 (6, 5, 9, '2025-01-15', '14:59:00', 'Stižem za 2 minuta!', true),
                                                                                                  (7, 10, 7, '2025-01-22', '17:55:00', 'Potvrdite vožnju za sutra.', false),
                                                                                                  (8, 3, 11, '2025-01-20', '12:40:00', 'Prijavljujem vozača zbog brzine.', true);
 
@@ -278,7 +359,11 @@ SELECT 'Drivers', COUNT(*) FROM drivers
 UNION ALL
 SELECT 'Administrators', COUNT(*) FROM administrators
 UNION ALL
-SELECT 'Rides', COUNT(*) FROM rides
+SELECT 'Rides (Total)', COUNT(*) FROM rides
+UNION ALL
+SELECT 'Rides (Driver 5)', COUNT(*) FROM rides WHERE driver_id = 5
+UNION ALL
+SELECT 'Ride Destinations', COUNT(*) FROM ride_destinations
 UNION ALL
 SELECT 'Reviews', COUNT(*) FROM reviews
 UNION ALL

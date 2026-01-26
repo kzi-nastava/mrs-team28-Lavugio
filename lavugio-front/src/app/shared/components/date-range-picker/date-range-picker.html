@@ -1,9 +1,18 @@
-<mat-form-field class="inline-block h-auto w-full italic border-[#BC6C25]" subscriptSizing="dynamic">
-  <mat-label class="text-[#BC6C25] ">Enter range</mat-label>
-  <mat-date-range-input  [rangePicker]="picker">
-    <input matStartDate class="text-[#BC6C25]" placeholder="Start date">
-    <input matEndDate  placeholder="End date">
+<mat-form-field class="inline-block h-auto w-full border-[#BC6C25]" subscriptSizing="dynamic">
+  <mat-label class="text-[#BC6C25]">Enter range</mat-label>
+
+  <mat-date-range-input
+    #rangeInput
+    [rangePicker]="picker"
+  >
+    <input matStartDate readonly>
+    <input matEndDate readonly>
   </mat-date-range-input>
+
   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-  <mat-date-range-picker #picker></mat-date-range-picker>
+
+  <mat-date-range-picker
+    #picker
+    (closed)="emitRange(rangeInput.value)">
+  </mat-date-range-picker>
 </mat-form-field>

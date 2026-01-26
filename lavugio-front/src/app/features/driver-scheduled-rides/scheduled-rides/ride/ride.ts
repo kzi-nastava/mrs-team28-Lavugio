@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { Coordinates } from '@app/shared/models/coordinates';
-import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
+import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 
 @Component({
   selector: 'app-ride',
