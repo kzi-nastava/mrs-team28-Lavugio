@@ -34,11 +34,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwtUtil.isTokenValid(token)) {
                 Long userId = jwtUtil.extractUserId(token);
-                System.out.println("JWT Filter - Authenticated user ID: " + userId);
+                String email = jwtUtil.extractEmail(token);
+                String role = jwtUtil.extractRole(token);
+                
+                System.out.println("JWT Filter - Authenticated user ID: " + userId + ", Email: " + email + ", Role: " + role);
 
-                // Postavi Authentication u SecurityContext
+                // Create UserPrincipal with all user details
+                UserPrincipal userPrincipal = new UserPrincipal(userId, email, role);
+
+                // Set Authentication in SecurityContext with UserPrincipal and authorities
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(userId, null, null);
+                        new UsernamePasswordAuthenticationToken(
+                            userPrincipal, 
+                            null, 
+                            userPrincipal.getAuthorities()
+                        );
 
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);

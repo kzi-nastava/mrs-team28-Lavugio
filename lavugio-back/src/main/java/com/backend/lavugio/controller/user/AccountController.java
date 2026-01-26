@@ -7,6 +7,7 @@ import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.security.JwtUtil;
+import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.AdministratorService;
 import com.backend.lavugio.service.user.DriverService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +48,7 @@ public class AccountController {
 
 
     @GetMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
