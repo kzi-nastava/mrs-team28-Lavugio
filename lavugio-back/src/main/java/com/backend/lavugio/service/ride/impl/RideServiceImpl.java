@@ -301,13 +301,13 @@ public class RideServiceImpl implements RideService {
     public RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request) {
         RegularUser creator = regularUserRepository.findById(creatorID)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
-
+        System.out.println("Found creator: " + creator.getEmail());
         // Find an available driver
         List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
         if (availableDrivers.isEmpty()) {
             throw new RuntimeException("There are no available drivers at the moment");
         }
-
+        System.out.println("Found available drivers: " + availableDrivers.size());
         // Sort the drivers by distance from first location
         List<DriverLocationDTO> sortedDrivers = availableDrivers.stream()
                 .sorted(Comparator.comparingDouble(driver ->
@@ -320,12 +320,16 @@ public class RideServiceImpl implements RideService {
                 ))
                 .toList();
 
+        System.out.println("Sorted drivers by distance");
         for (DriverLocationDTO driverLocationDTO : sortedDrivers) {
             Driver driver = this.driverService.getDriverById(driverLocationDTO.getId());
+            System.out.println("Checking driver: " + driver.getId());
             boolean isVehicleSuitable = this.isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
             boolean isDriverUnderDailyLimit = this.isDriverUnderDailyLimit(driver.getId(), request.getEstimatedDurationSeconds());
             boolean driverHasScheduledRideSoon = this.driverHasScheduledRideSoon(driver.getId(), request.getEstimatedDurationSeconds());
+            System.out.println("Vehicle suitable: " + isVehicleSuitable + ", Under daily limit: " + isDriverUnderDailyLimit + ", Has scheduled ride soon: " + driverHasScheduledRideSoon);
             if (isVehicleSuitable && isDriverUnderDailyLimit && !driverHasScheduledRideSoon) {
+                System.out.println("Assigning driver: " + driver.getId());
                 Ride ride = createInstantRide(driver, creator, request);
                 return mapToRideResponseDTO(ride);
             }
@@ -333,20 +337,27 @@ public class RideServiceImpl implements RideService {
         throw new RuntimeException("There are no available drivers at the moment");
     }
 
+    @Transactional
     public RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request) {
         RegularUser creator = regularUserRepository.findById(creatorID)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
+
+        System.out.println("Found creator: " + creator.getEmail());
 
         List<Driver> allDrivers = this.driverService.getAllDrivers();
         if (allDrivers.isEmpty()) {
             throw new RuntimeException("There are no registered drivers at the moment");
         }
 
+        System.out.println("Got all drivers: " + allDrivers.size());
+
         for (Driver driver : allDrivers) {
             boolean isVehicleSuitable = this.isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
             boolean isDriverUnderDailyLimitScheduled = this.isDriverUnderDailyLimitScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());
             boolean driverHasScheduledRideSoonScheduled = this.driverHasScheduledRideSoonScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());
+            System.out.println("Is vehicle suitable: " + isVehicleSuitable + ", Under daily limit for scheduled: " + isDriverUnderDailyLimitScheduled + ", Has scheduled ride soon for scheduled: " + driverHasScheduledRideSoonScheduled);
             if (isVehicleSuitable && isDriverUnderDailyLimitScheduled && !driverHasScheduledRideSoonScheduled) {
+                System.out.println("Assigning driver for scheduled ride: " + driver.getId());
                 Ride ride = createScheduledRide(driver, creator, request);
                 return mapToRideResponseDTO(ride);
             }
@@ -426,6 +437,7 @@ public class RideServiceImpl implements RideService {
         return false;
     }
 
+    @Transactional
     private Ride createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
@@ -476,6 +488,7 @@ public class RideServiceImpl implements RideService {
         return ride;
     }
 
+    @Transactional
     private Ride createScheduledRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);

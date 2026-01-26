@@ -75,6 +75,7 @@ public class RideController {
             if (request.isScheduled()) {
                 ride = rideService.createScheduledRide(creatorId, request);
             } else {
+                System.out.println("Creating instant ride");
                 ride = rideService.createInstantRide(creatorId, request);
             }
             return ResponseEntity.status(HttpStatus.CREATED).body(ride);

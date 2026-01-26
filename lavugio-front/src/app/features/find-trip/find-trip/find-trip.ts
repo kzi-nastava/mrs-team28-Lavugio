@@ -241,7 +241,7 @@ export class FindTrip implements OnInit, OnDestroy {
             zipCode: 0,
           })),
           passengerEmails: this.passengers.map((p) => p.email),
-          vehicleType: this.selectedVehicleType as VehicleType,
+          vehicleType: this.selectedVehicleType.toUpperCase() as VehicleType,
           babyFriendly: this.isBabyFriendly,
           petFriendly: this.isPetFriendly,
           scheduledTime: result.scheduledTime ? new Date(result.scheduledTime).toISOString().replace('Z', '') : '',
