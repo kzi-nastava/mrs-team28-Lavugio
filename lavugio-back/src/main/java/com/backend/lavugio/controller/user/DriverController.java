@@ -1,5 +1,6 @@
 package com.backend.lavugio.controller.user;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverRegistrationTokenService;
+import com.backend.lavugio.service.utils.DateTimeParserService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,11 +49,8 @@ public class DriverController {
     private Long accountId = 5L;
 
     @Autowired
-    public DriverController(RideService rideService, RideDestinationService rideDestinationService, DriverAvailabilityService driverAvailabilityService) {
-        this.rideService = rideService;
-        this.rideDestinationService = rideDestinationService;
-        this.driverAvailabilityService = driverAvailabilityService;
-    }
+    private DateTimeParserService dateTimeParserService;
+
  // ========== REGISTRATION ==========
     
     @PostMapping("/register")
@@ -121,6 +120,40 @@ public class DriverController {
             return ResponseEntity.ok(drivers);
         } catch (Exception e) {
             return ResponseEntity.ok(List.of());
+        }
+    }
+    
+    @PostMapping("/{driverId}/status")
+    public ResponseEntity<?> changeDriverStatus(
+            @PathVariable Long driverId,
+            @RequestBody Map<String, Boolean> request) {
+        try {
+            Boolean active = request.get("active");
+            if (active == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Active status is required"));
+            }
+            
+            driverService.setDriverStatus(driverId, active);
+            
+            return ResponseEntity.ok(Map.of(
+                "message", "Driver status updated successfully",
+                "active", active
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/{driverId}/can-logout")
+    public ResponseEntity<?> canDriverLogout(@PathVariable Long driverId) {
+        try {
+            boolean canLogout = driverService.canDriverLogout(driverId);
+            return ResponseEntity.ok(Map.of(
+                "canLogout", canLogout,
+                "message", canLogout ? "Driver can logout" : "Driver has an active ride"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
     
@@ -320,61 +353,110 @@ public class DriverController {
     }
 
     @GetMapping(value = "/{driverId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<DriverHistoryDTO>> getAllDriverHistory(@PathVariable Long driverId,
-                                                                            @RequestParam(defaultValue = "false") boolean ascending,
-                                                                            @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
-                                                                            @RequestParam(required = false) String dateRangeStart,
-                                                                            @RequestParam(required = false) String dateRangeEnd) {
-//        List<Ride> rides = rideService.getFinishedRidesForDriver(driverId);
-//        rideService.applyParametersToRides(rides, ascending, sortBy, dateRangeStart, dateRangeEnd);
-//        List<DriverHistoryDTO> ridesDTO = new ArrayList<>();
-//        for (Ride ride : rides){
-//            ridesDTO.add(new DriverHistoryDTO(ride));
+    public ResponseEntity<DriverHistoryPagingDTO> getAllDriverHistory(
+            @PathVariable Long driverId,
+            @RequestParam int page,
+            @RequestParam int pageSize,
+            @RequestParam(defaultValue = "DESC") String sorting,
+            @RequestParam(defaultValue = "START_DATE") DriverHistorySortFieldEnum sortBy,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate
+    ) {
+
+//        // MOCK PODACI (glume bazu)
+//        List<DriverHistoryDTO> allRides = new ArrayList<>();
+//        for (int i = 0; i < 1000; i++) {
+//            allRides.add(new DriverHistoryDTO(
+//                    (long) i,
+//                    "Location A" + i,
+//                    "Location B",
+//                    "11:23 15.03.2024",
+//                    "12:01 15.03.2024"
+//            ));
 //        }
-        List<DriverHistoryDTO> rides = new ArrayList<>();
-        rides.add(new DriverHistoryDTO(1L, "Location A", "Location B", "11:23 15.03.2024", "12:01 15.03.2024"));
-        rides.add(new DriverHistoryDTO(2L, "Location C", "Location D", "09:10 14.03.2024", "09:45 14.03.2024"));
-        rides.add(new DriverHistoryDTO(3L, "Location E", "Location F", "14:05 13.03.2024", "14:50 13.03.2024"));
-        return new ResponseEntity<>(rides, HttpStatus.OK);
+//
+//        int totalElements = allRides.size();
+//
+//        int fromIndex = page * pageSize;
+//        int toIndex = Math.min(fromIndex + pageSize, totalElements);
+//
+//        List<DriverHistoryDTO> pageContent = new ArrayList<>();
+//
+//        if (fromIndex < totalElements) {
+//            pageContent = allRides.subList(fromIndex, toIndex);
+//        }
+//
+//        boolean reachedEnd = toIndex >= totalElements;
+//
+//        DriverHistoryPagingDTO pagingDTO = new DriverHistoryPagingDTO();
+//        pagingDTO.setDriverHistory(pageContent.toArray(new DriverHistoryDTO[0]));
+//        pagingDTO.setTotalElements((long) totalElements);
+//        pagingDTO.setReachedEnd(reachedEnd);
+
+        LocalDateTime start = dateTimeParserService.parseStartOfDay(startDate);
+        LocalDateTime end = dateTimeParserService.parseEndOfDay(endDate);
+
+        DriverHistoryPagingDTO dto = rideService.getDriverHistory(
+                driverId,
+                start,
+                end,
+                sortBy.toString(),
+                sorting,
+                pageSize,
+                page
+        );
+
+        return ResponseEntity.ok(dto);
     }
 
-    @GetMapping(value = "/{driverId}/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @GetMapping(value = "/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverHistoryDetailedDTO> getDriverHistoryByRideId(@PathVariable Long rideId){
 //        Ride ride = rideService.getRideById(rideId);
 //        List<RideDestination> destinations = rideDestinationService.getStartAndEndDestinationForRide(rideId);
 //        RideDestination startDestination = destinations.get(0);
 //        RideDestination endDestination = destinations.get(1);
 //        DriverHistoryDetailedDTO rideDTO = new DriverHistoryDetailedDTO(ride, startDestination, endDestination);
-        List<PassengerTableRowDTO> passengers = new ArrayList<>();
-        passengers.add(new PassengerTableRowDTO(
-                1L,
-                "Marko Marković",
-                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "image/png")
-        ));
-        passengers.add(new PassengerTableRowDTO(
-                2L,
-                "Ana Anić",
-                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==", "image/png")
-        ));
-        passengers.add(new PassengerTableRowDTO(
-                3L,
-                "Petar Petrović",
-                new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA+G6D9wAAAABJRU5ErkJggg==", "image/png")
-        ));
+//        List<PassengerTableRowDTO> passengers = new ArrayList<>();
+//        passengers.add(new PassengerTableRowDTO(
+//                1L,
+//                "Marko Marković",
+//                "imageUrl"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(
+//                2L,
+//                "Ana Anić",
+//                "imageUrl"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(
+//                3L,
+//                "Petar Petrović",
+//                "imageUrl"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(4L,
+//                "Petar Petrović",
+//                "user_2_1768848779634.jpg"
+//        ));
+//        passengers.add(new PassengerTableRowDTO(
+//                5L,
+//                "Petar Petrović",
+//                "default_avatar_photo.jpg"
+//        ));
+//
+//        DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(
+//                "11:23 15.03.2024",
+//                "12:45 15.03.2024",
+//                "Kneza Miloša 15, Beograd",
+//                "Bulevar kralja Aleksandra 73, Beograd",
+//                1250.50,
+//                true,
+//                false,
+//                passengers,
+//                new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),
+//                                    new CoordinatesDTO(44.8023, 20.4856)}
+//        );
 
-        DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(
-                "11:23 15.03.2024",
-                "12:45 15.03.2024",
-                "Kneza Miloša 15, Beograd",
-                "Bulevar kralja Aleksandra 73, Beograd",
-                1250.50,
-                false,
-                false,
-                passengers,
-                new CoordinatesDTO(44.8125, 20.4612),
-                new CoordinatesDTO(44.8023, 20.4856)
-        );
-
+        DriverHistoryDetailedDTO dto = rideService.getDriverHistoryDetailed(rideId);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 

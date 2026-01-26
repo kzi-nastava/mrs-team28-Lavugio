@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { RideHistoryDriverDetailed } from '../trip-history-driver-detailed';
+import { RideHistoryDriverDetailedModel } from '@app/shared/models/ride/rideHistoryDriverDetailed';
 
 @Component({
   selector: 'app-trip-info',
@@ -7,11 +9,5 @@ import { Component } from '@angular/core';
   styleUrl: './trip-info.css',
 })
 export class TripInfo {
-  begin: string = "20.12.2024 14:30";
-  end: string = "20.12.2024 16:45";
-  departure: string = "Novi Sad, Bulevar oslobođenja 46";
-  destination: string = "Beograd, Trg Republike 5";
-  price: string = "850.00 ";
-  cancelled: string = "false";
-  panic: boolean = false;
+  info = input<RideHistoryDriverDetailedModel | null>();
 }

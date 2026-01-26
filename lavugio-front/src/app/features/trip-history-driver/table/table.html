@@ -1,89 +1,41 @@
-<div class="bg-white/5 flex flex-col h-[70vh] ">
-
+<div class="bg-white/5 flex flex-col h-[70vh]">
   <div class="top-0 z-10 bg-[rgb(255,254,248)]">
-    <app-header></app-header>
+    <app-header (updateTableOutput)="updateSortBy($event)"></app-header>
   </div>
 
-  <div class="overflow-y-auto bg-[rgb(255,254,248)]">
-    <app-row route="/trip-history-driver-detailed"
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
-    <app-row
-      [startDate]="'15.02.2005.'"
-      [endDate]="'16.02.2005.'"
-      [startTime]="'23:40'"
-      [endTime]="'00:05'"
-      [departure]="'Petra Drapsina 25, Novi Sad'"
-      [destination]="'Žarka Zrenjanina 4, Novi Sad'">
-    </app-row>
+  <div #scrollContainer class="overflow-y-auto bg-[rgb(255,254,248)]">
+    <div #topSentinel class="h-1"></div>
+
+    @if (loadingDirection() === 'newer') {
+      <div class="flex justify-center py-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#283618]"></div>
+      </div>
+    }
+
+    @for (ride of rides(); track ride.rideId) {
+      <app-row 
+        [rideId]="ride.rideId"
+        [startDate]="parseDateTime(ride.startDate.toString()).date"
+        [endDate]="parseDateTime(ride.endDate.toString()).date"
+        [startTime]="parseDateTime(ride.startDate.toString()).time"
+        [endTime]="parseDateTime(ride.endDate.toString()).time"
+        [departure]="ride.startAddress"
+        [destination]="ride.endAddress">
+      </app-row>
+    }
+
+    @if (loadingDirection() === 'older') {
+      <div class="flex justify-center py-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#283618]"></div>
+      </div>
+    }
+
+    <div #bottomSentinel class="h-1"></div>
+
+    @if (!hasMoreOlder() && rides().length > 0) {
+      <div class="text-center py-4 text-[#283618] opacity-60">
+        You reached the end
+      </div>
+    }
   </div>
 </div>

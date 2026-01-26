@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { PassengerModel } from '@app/shared/models/user/passenger';
+import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-passenger',
@@ -7,5 +9,6 @@ import { Component } from '@angular/core';
   styleUrl: './passenger.css',
 })
 export class Passenger {
-  passengerName:string = "Pera Zdera";
+  backendUrl = environment.BACKEND_URL;
+  passenger = input<PassengerModel>();
 }

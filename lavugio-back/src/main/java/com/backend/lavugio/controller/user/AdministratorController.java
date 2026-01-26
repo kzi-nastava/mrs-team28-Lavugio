@@ -171,17 +171,17 @@ public class AdministratorController {
             passengers.add(new PassengerTableRowDTO(
                     1L,
                     "Marko Marković",
-                    new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "image/png")
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             ));
             passengers.add(new PassengerTableRowDTO(
                     2L,
                     "Ana Anić",
-                    new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==", "image/png")
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg=="
             ));
             passengers.add(new PassengerTableRowDTO(
                     3L,
                     "Petar Petrović",
-                    new ImageDTO("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA+G6D9wAAAABJRU5ErkJggg==", "image/png")
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA+G6D9wAAAABJRU5ErkJggg=="
             ));
 
             DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(
@@ -190,11 +190,11 @@ public class AdministratorController {
                     "Kneza Miloša 15, Beograd",
                     "Bulevar kralja Aleksandra 73, Beograd",
                     1250.50,
-                    false,
-                    false,
+                    true,
+                    true,
                     passengers,
-                    new CoordinatesDTO(44.8125, 20.4612),
-                    new CoordinatesDTO(44.8023, 20.4856)
+                    new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),
+                    new CoordinatesDTO(44.8023, 20.4856)}
             );
 
             return new ResponseEntity<>(dto, HttpStatus.OK);

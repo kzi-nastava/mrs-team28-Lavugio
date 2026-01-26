@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
+import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { Ride } from './ride/ride';
 import { Coordinates } from '@app/shared/models/coordinates';
 

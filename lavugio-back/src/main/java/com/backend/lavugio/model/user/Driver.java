@@ -23,4 +23,7 @@ public class Driver extends BlockableAccount {
 
 	@Column
 	private boolean isActive;
+
+	@Column
+	private Boolean pendingStatusChange;
 }

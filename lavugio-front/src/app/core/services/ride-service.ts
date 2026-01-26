@@ -1,21 +1,24 @@
 import { Injectable } from '@angular/core';
 import { inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { RideOverviewModel } from '@app/shared/models/rideOverview';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { Observable, of } from 'rxjs';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
-import { RideOverviewUpdate } from '@app/shared/models/rideOverviewUpdate';
+import { RideOverviewUpdate } from '@app/shared/models/ride/rideOverviewUpdate';
 import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { environment } from 'environments/environment';
-import { RideReport } from '@app/shared/models/rideReport';
-import { RideReview } from '@app/shared/models/rideReview';
-import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
+import { RideReport } from '@app/shared/models/ride/rideReport';
+import { RideReview } from '@app/shared/models/ride/rideReview';
+import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
 import { FinishRide } from '@app/shared/models/finishRide';
 import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
+import { FinishRide } from '@app/shared/models/ride/finishRide';
+import { RideHistoryDriverModel } from '@app/shared/models/ride/rideHistoryDriver';
+import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistoryDriverPagingModel';
 @Injectable({
   providedIn: 'root',
 })

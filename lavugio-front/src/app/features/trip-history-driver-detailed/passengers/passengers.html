@@ -3,21 +3,8 @@
         Passengers
     </header>
     <div class="bg-[rgb(255,254,248)] flex flex-col flex-1 overflow-y-auto">
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
-        <app-passenger></app-passenger>
+        @for (passengerItem of passengers(); track passengerItem.id){
+            <app-passenger [passenger]="passengerItem"></app-passenger>
+        }
     </div>
 </div>

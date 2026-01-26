@@ -10,7 +10,7 @@ import { RideService } from '@app/core/services/ride-service';
 import { DriverService } from '@app/core/services/driver-service';
 import { ReportForm } from "./report-form/report-form";
 import { ReviewForm } from '@app/shared/components/review-form/review-form';
-import { RideOverviewModel } from '@app/shared/models/rideOverview';
+import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
 import { LocationService } from '@app/core/services/location-service';
 

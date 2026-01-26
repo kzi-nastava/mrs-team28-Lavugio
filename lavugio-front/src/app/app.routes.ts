@@ -6,9 +6,9 @@ import { ResetPassword } from './features/reset-password/reset-password';
 import { Register } from './features/register/register';
 import { VerifyEmail } from './features/verify-email/verify-email';
 import { VerificationSuccess } from './features/verification-success/verification-success';
-import { TripHistoryDriver } from '@app/features/trip-history-driver/trip-history-driver';
+import { RideHistoryDriver as RideHistoryDriver } from '@app/features/trip-history-driver/trip-history-driver';
 import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
-import { TripHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
+import { RideHistoryDriverDetailed as RideHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
 import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
@@ -19,11 +19,13 @@ import { DriverScheduledRides } from './features/driver-scheduled-rides/driver-s
 import { AdminPanel } from './features/admin-panel/admin-panel';
 import { DriverUpdateRequests } from './features/driver-update-requests/driver-update-requests';
 import { BlockUser } from './features/block-user/block-user';
+import { authGuardFn } from '@app/core/guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path: 'trip-history-driver',
-    component: TripHistoryDriver,
+    path: 'ride-history-driver',
+    component: RideHistoryDriver,
+    canActivate: [authGuardFn],
   },
   {
     path: '',
@@ -32,14 +34,16 @@ export const routes: Routes = [
   {
     path: 'profile',
     title: "View Profile",
-    component: ProfileView
+    component: ProfileView,
+    canActivate: [authGuardFn],
   },
   {
-    path: 'trip-history-driver-detailed',
-    component: TripHistoryDriverDetailed,
+    path: 'ride-history-driver/:rideId',
+    component: RideHistoryDriverDetailed,
+    canActivate: [authGuardFn],
   },
   {
-        path: 'find-trip', title: "Find Trip ", component: FindTrip
+        path: 'find-trip', title: "Find Trip ", component: FindTrip, canActivate: [authGuardFn]
   },
   {
     path: 'login',
@@ -54,11 +58,12 @@ export const routes: Routes = [
   {
     path: 'register-driver',
     title: 'Register-driver',
-    component: RegisterDriver
+    component: RegisterDriver,
+    canActivate: [authGuardFn],
   },
   {
     path: 'activate-account',
-    component: DriverActivation
+    component: DriverActivation,
   },
   {
     path: 'verify-email',
@@ -88,32 +93,38 @@ export const routes: Routes = [
   {
     path: ':rideId/ride-overview',
     title: 'Ride Overview',
-    component: RideOverview
+    component: RideOverview,
+    canActivate: [authGuardFn],
   }
   ,
   {
     path: 'cancel-ride/:rideId',
     title: 'Otkazivanje vožnje',
-    component: CancelRide
+    component: CancelRide,
+    canActivate: [authGuardFn],
   },
   {
     path:'driver-scheduled-rides',
     title: 'Scheduled rides',
-    component: DriverScheduledRides
+    component: DriverScheduledRides,
+    canActivate: [authGuardFn],
   },
   {
     path: 'admin-panel',
     title: 'Admin Panel',
-    component: AdminPanel
+    component: AdminPanel,
+    canActivate: [authGuardFn],
   },
   {
     path: 'driver-update-requests',
     title: 'Driver Update Requests',
-    component: DriverUpdateRequests
+    component: DriverUpdateRequests,
+    canActivate: [authGuardFn],
   },
   {
     path: 'block-user',
     title: 'Block User',
-    component: BlockUser
+    component: BlockUser,
+    canActivate: [authGuardFn],
   }
 ];

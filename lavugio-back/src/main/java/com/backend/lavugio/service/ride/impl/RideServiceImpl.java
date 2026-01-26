@@ -1,7 +1,12 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.dto.user.DriverLocationDTO;
+import com.backend.lavugio.dto.user.DriverHistoryDTO;
+import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
+import com.backend.lavugio.dto.user.DriverHistoryPagingDTO;
+import com.backend.lavugio.dto.user.PassengerTableRowDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
@@ -24,6 +29,10 @@ import com.backend.lavugio.service.user.DriverService;
 import com.backend.lavugio.service.utils.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +41,10 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -563,6 +576,37 @@ public class RideServiceImpl implements RideService {
         Double kilometerPrice = pricingService.getKilometerPricing();
         Double vehicleTypePrice = pricingService.getVehiclePricingByVehicleType(vehicleType);
         return vehicleTypePrice + kilometerPrice * distance;
+    }
+
+    @Override
+    public DriverHistoryPagingDTO getDriverHistory(Long driverId, LocalDateTime startDate,
+                                                   LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.unsorted());
+
+        Page<Ride> rides = rideRepository.findRidesForDriver(driverId, startDate, endDate, sortBy, sorting, pageable);
+        DriverHistoryPagingDTO dto = new DriverHistoryPagingDTO();
+        dto.setReachedEnd(!rides.hasNext());
+        dto.setTotalElements(rides.getTotalElements());
+
+        List<DriverHistoryDTO> driverHistoryDTOs = rides.getContent().stream()
+                .map(DriverHistoryDTO::new)
+                .toList();
+
+        dto.setDriverHistory(driverHistoryDTOs.toArray(new DriverHistoryDTO[0]));
+        return dto;
+    }
+
+    @Override
+    public DriverHistoryDetailedDTO getDriverHistoryDetailed(Long rideId) {
+        Ride ride = this.getRideById(rideId);
+        DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(ride);
+        List<PassengerTableRowDTO> passengers = new ArrayList<>();
+        for (RegularUser regularUser : ride.getPassengers()){
+            passengers.add(new PassengerTableRowDTO(regularUser));
+        }
+        dto.setPassengers(passengers);
+        return dto;
     }
 
 }

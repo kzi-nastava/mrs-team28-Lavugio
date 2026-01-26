@@ -58,6 +58,13 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         ride.setRideStatus(RideStatus.FINISHED);
         ride.setEndDateTime(LocalDateTime.now());
         ride.getDriver().setDriving(false);
+        
+        // Apply pending status change if it exists
+        if (ride.getDriver().getPendingStatusChange() != null) {
+            ride.getDriver().setActive(ride.getDriver().getPendingStatusChange());
+            ride.getDriver().setPendingStatusChange(null);
+        }
+        
         sendEmailsToPassengers(ride.getPassengers(), ride.getId());
         sendNotificationsToPassengers(ride.getPassengers(), ride.getId());
         this.rideOverviewService.sendRideOverviewUpdateDTO(rideDTO.getRideId(), route.getLast().getAddress().toString(),

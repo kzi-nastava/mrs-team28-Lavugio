@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, output, signal, WritableSignal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RideService } from '@app/core/services/ride-service';
-import { RideReview } from '@app/shared/models/rideReview';
+import { RideReview } from '@app/shared/models/ride/rideReview';
 
 @Component({
   selector: 'app-review-form',

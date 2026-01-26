@@ -1,4 +1,4 @@
-import { Coordinates } from "./coordinates";
+import { Coordinates } from "../coordinates";
 
 export interface FinishRide {
     rideId: number,
