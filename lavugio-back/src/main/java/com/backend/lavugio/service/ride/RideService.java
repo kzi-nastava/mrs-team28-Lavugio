@@ -39,7 +39,7 @@ public interface RideService {
     Ride updateRide(Long id, Ride ride);
     Ride updateRideStatus(Long id, RideStatus newStatus);
     Ride addPassengerToRide(Long rideId, Long passengerId);
-    Ride addPassengerToRide(Ride ride, List<String> passengerEmails);
+    Ride addPassengersToRide(Ride ride, List<String> passengerEmails);
     Ride removePassengerFromRide(Long rideId, Long passengerId);
 
     // Delete operations
@@ -57,5 +57,6 @@ public interface RideService {
     DriverHistoryPagingDTO getDriverHistory(Long driverId, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
     DriverHistoryDetailedDTO getDriverHistoryDetailed(Long rideId);
     // Instant Ride Creation
-    RideResponseDTO createInstantRide(String userEmail, RideRequestDTO request);
+    RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);
+    RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request);
 }

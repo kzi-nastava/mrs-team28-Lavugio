@@ -13,6 +13,9 @@ import { RideReview } from '@app/shared/models/ride/rideReview';
 import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
+import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
+import { FinishRide } from '@app/shared/models/finishRide';
+import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
 import { FinishRide } from '@app/shared/models/ride/finishRide';
 import { RideHistoryDriverModel } from '@app/shared/models/ride/rideHistoryDriver';
 import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistoryDriverPagingModel';
@@ -79,4 +82,12 @@ export class RideService {
   getPriceForRide(routeInfo: RideEstimateRequest): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/estimate-price`, routeInfo);
   }
-}
+
+  scheduleRide(scheduleRideRequest: ScheduleRideRequest): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/schedule`, scheduleRideRequest);
+  }
+
+  findRide(request: RideRequestDTO): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/find-ride`, request);
+  }
+ }

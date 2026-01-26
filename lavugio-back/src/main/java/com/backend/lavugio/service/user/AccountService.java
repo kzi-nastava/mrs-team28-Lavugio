@@ -2,6 +2,8 @@ package com.backend.lavugio.service.user;
 
 import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.BlockUserDTO;
+import com.backend.lavugio.dto.user.CanOrderRideDTO;
+import com.backend.lavugio.dto.user.IsAccountBlockedDTO;
 import com.backend.lavugio.model.user.Account;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,4 +25,6 @@ public interface AccountService {
     Account authenticate(String email, String password);
     List<String> findTop5EmailsByPrefix(String prefix, Pageable pageable);
     void blockUser(BlockUserDTO blockUserDTO);
+    IsAccountBlockedDTO isBlocked(Long userId);
+    CanOrderRideDTO canOrderRide(Long userId);
 }

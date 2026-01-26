@@ -4,7 +4,7 @@ import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.DriverLocation;
-import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +21,12 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
     private final HashMap<Long, DriverLocation> activeDriverLocations = new HashMap<>();
 
-    private final RideService rideService;
+    private final RideQueryService rideQueryService;
     private final DriverService driverService;
 
     @Autowired
-    public DriverAvailabilityServiceImpl(RideService rideService, DriverService driverService) {
-        this.rideService = rideService;
+    public DriverAvailabilityServiceImpl(RideQueryService rideQueryService, DriverService driverService) {
+        this.rideQueryService = rideQueryService;
         this.driverService = driverService;
     }
 
@@ -66,7 +66,7 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
     @Override
     public DriverStatusEnum getDriverStatus(Long driverId) {
-        List<Ride> driverRides = rideService.getRidesByDriverId(driverId);
+        List<Ride> driverRides = rideQueryService.getRidesByDriverId(driverId);
         if (driverRides == null) {
             throw new NoSuchElementException("No rides found for driver with id " + driverId);
         }

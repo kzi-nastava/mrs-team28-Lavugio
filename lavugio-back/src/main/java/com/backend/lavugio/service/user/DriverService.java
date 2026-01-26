@@ -46,6 +46,7 @@ public interface DriverService {
 
 
     Driver activateDriver(Long driverId);
+    Driver deactivateDriver(Long driverId);
     void updateDriverDriving(Long driverId, boolean isDriving);
     
     void setDriverStatus(Long driverId, Boolean active);

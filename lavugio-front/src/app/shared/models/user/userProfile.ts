@@ -16,6 +16,7 @@ export class UserProfile {
   vehicleBabyFriendly?: boolean;
   vehicleType?: string;
   activeTime?: string;
+  isActive?: boolean;
 
   getRoleString(): string {
     switch (this.role) {

@@ -29,8 +29,7 @@ export class BlockUser {
   dialogService = inject(DialogService);
 
   blockUser() {
-    this.dialogService.openBlocked("Your account has been blocked due to suspicious activity.");
-    /*this.dialogService.openConfirm("Confirm Block", "Are you sure you want to block this user?")
+    this.dialogService.openConfirm("Confirm Block", "Are you sure you want to block this user?")
     .subscribe((confirmed) => {
       if (confirmed) {
         this.userService.blockUser(this.selectedEmail(), this.blockReason()).subscribe({
@@ -47,6 +46,6 @@ export class BlockUser {
       } else {
         console.log('User block cancelled');
       }
-    });*/
+    });
   }
 }

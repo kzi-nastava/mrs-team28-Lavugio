@@ -87,7 +87,34 @@ export class ProfileInfoSection {
 
   onActivateClick() {
     console.log('Activate clicked');
-    // Implementiraj aktivaciju
+    this.driverService.activateDriver().subscribe({
+      next: () => {
+        this.dialogService.open('Success', 'Driver activated successfully!', false);
+        this.profile.isActive = true;
+        window.location.reload();
+      },
+      error: (error) => {
+        console.error('Activation error:', error);
+        const errorMessage = error.error?.message || 'Failed to activate driver!';
+        this.dialogService.open('Error', errorMessage, true);
+      }
+    });
+  }
+
+  onDeactivateClick() {
+    console.log('Deactivate clicked');
+    this.driverService.deactivateDriver().subscribe({
+      next: () => {
+        this.dialogService.open('Success', 'Driver deactivated successfully!', false);
+        this.profile.isActive = false;
+        window.location.reload();
+      },
+      error: (error) => {
+        console.error('Deactivation error:', error);
+        const errorMessage = error.error?.message || 'Failed to deactivate driver!';
+        this.dialogService.open('Error', errorMessage, true);
+      }
+    });
   }
 
   onChangePasswordClick() {

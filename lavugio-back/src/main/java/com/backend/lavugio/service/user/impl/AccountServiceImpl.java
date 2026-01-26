@@ -2,11 +2,14 @@ package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.BlockUserDTO;
+import com.backend.lavugio.dto.user.CanOrderRideDTO;
+import com.backend.lavugio.dto.user.IsAccountBlockedDTO;
 import com.backend.lavugio.exception.InvalidCredentialsException;
 import com.backend.lavugio.exception.UserNotFoundException;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.Administrator;
 import com.backend.lavugio.model.user.BlockableAccount;
+import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.user.AccountRepository;
 import com.backend.lavugio.service.user.AccountService;
 import org.slf4j.Logger;
@@ -248,6 +251,40 @@ public class AccountServiceImpl implements AccountService {
         } else {
             blockableAccount.setBlockReason(blockUserDTO.getReason());
         }
+
         accountRepository.save(blockableAccount);
+    }
+
+    @Override
+    public IsAccountBlockedDTO isBlocked(Long accountId) {
+        Account account = this.accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account with this email doesn't exist"));
+
+        if (!(account instanceof BlockableAccount blockableAccount)) {
+            return new IsAccountBlockedDTO(false, "");
+        } else {
+            if (blockableAccount.isBlocked()) {
+                return new IsAccountBlockedDTO(true, blockableAccount.getBlockReason());
+            } else {
+                return new IsAccountBlockedDTO(false, "");
+            }
+        }
+    }
+
+    @Override
+    public CanOrderRideDTO canOrderRide(Long accountId) {
+        CanOrderRideDTO canOrderRideDTO = new CanOrderRideDTO();
+
+        IsAccountBlockedDTO block = isBlocked(accountId);
+        canOrderRideDTO.setBlock(block);
+
+        Account account = this.accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account with this email doesn't exist"));
+
+        if (account instanceof RegularUser regularUser) {
+            canOrderRideDTO.setInRide(regularUser.isCanOrder());
+        }
+
+        return canOrderRideDTO;
     }
 }
