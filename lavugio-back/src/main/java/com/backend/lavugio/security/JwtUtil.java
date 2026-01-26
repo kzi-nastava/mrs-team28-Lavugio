@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -144,5 +145,35 @@ public class JwtUtil {
         } catch (Exception e) {
             return true;
         }
+    }
+
+    /**
+     * Helper method to extract account ID from authentication principal
+     * Handles both String and Long types
+     */
+    public static Long extractAccountId(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return null;
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        // Check for anonymous user
+        if (principal instanceof String && "anonymousUser".equals(principal)) {
+            return null;
+        }
+
+        if (principal instanceof Long) {
+            return (Long) principal;
+        } else if (principal instanceof String) {
+            try {
+                return Long.valueOf((String) principal);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else if (principal instanceof Integer) {
+            return ((Integer) principal).longValue();
+        }
+        return null;
     }
 }

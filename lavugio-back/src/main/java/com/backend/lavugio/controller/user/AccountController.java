@@ -6,6 +6,7 @@ import com.backend.lavugio.model.user.Administrator;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
+import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.AdministratorService;
 import com.backend.lavugio.service.user.DriverService;
@@ -42,41 +43,13 @@ public class AccountController {
     @Autowired
     private DriverService driverService;
 
-    /**
-     * Helper method to extract account ID from authentication principal
-     * Handles both String and Long types
-     */
-    private Long extractAccountId(Authentication authentication) {
-        if (authentication == null || authentication.getPrincipal() == null) {
-            return null;
-        }
-        
-        Object principal = authentication.getPrincipal();
-        
-        // Check for anonymous user
-        if (principal instanceof String && "anonymousUser".equals(principal)) {
-            return null;
-        }
-        
-        if (principal instanceof Long) {
-            return (Long) principal;
-        } else if (principal instanceof String) {
-            try {
-                return Long.valueOf((String) principal);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        } else if (principal instanceof Integer) {
-            return ((Integer) principal).longValue();
-        }
-        return null;
-    }
+
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long accountId = extractAccountId(authentication);
+        Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -125,7 +98,7 @@ public class AccountController {
     public ResponseEntity<?> updateCurrentUserProfile(@RequestBody AccountUpdateDTO updatedProfile) {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long accountId = extractAccountId(authentication);
+        Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -143,7 +116,7 @@ public class AccountController {
     public ResponseEntity<?> uploadProfilePhoto(@RequestParam("file") MultipartFile file) {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long accountId = extractAccountId(authentication);
+        Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -161,7 +134,7 @@ public class AccountController {
     public ResponseEntity<Resource> getProfilePhoto() {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long accountId = extractAccountId(authentication);
+        Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -192,7 +165,7 @@ public class AccountController {
     public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordDTO passwordUpdate) {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long accountId = extractAccountId(authentication);
+        Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
