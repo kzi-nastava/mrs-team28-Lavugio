@@ -4,31 +4,31 @@
         <!-- Begin -->
         <div class="flex items-center justify-between">
             <span class="text-[#606C38] font-medium">Begin:</span>
-            <span class="text-[#BC6C25] italic">{{begin}}</span>
+            <span class="text-[#BC6C25]">{{info()?.start}}</span>
         </div>
         
         <!-- End -->
         <div class="flex items-center justify-between">
             <span class="text-[#606C38] font-medium">End:</span>
-            <span class="text-[#BC6C25] italic">{{end}}</span>
+            <span class="text-[#BC6C25]">{{info()?.end}}</span>
         </div>
         
         <!-- Departure -->
         <div class="flex items-center justify-between">
             <span class="text-[#606C38] font-medium">Departure:</span>
-            <span class="text-[#BC6C25] italic">{{departure}}</span>
+            <span class="text-[#BC6C25]">{{info()?.departure}}</span>
         </div>
         
         <!-- Destination -->
         <div class="flex items-center justify-between">
             <span class="text-[#606C38] font-medium">Destination:</span>
-            <span class="text-[#BC6C25] italic">{{destination}}</span>
+            <span class="text-[#BC6C25]">{{info()?.destination}}</span>
         </div>
         
         <!-- Price -->
         <div class="flex items-center justify-between">
             <span class="text-[#606C38] font-medium">Price:</span>
-            <span class="text-[#BC6C25] italic">{{price}} RSD</span>
+            <span class="text-[#BC6C25]">{{info()?.price}} RSD</span>
         </div>
     </div>
     
@@ -37,21 +37,67 @@
         <!-- Cancelled -->
         <div class="flex items-center justify-between">
             <span class="text-white font-normal">Cancelled:</span>
-            <div class="w-6 h-6 border-2 border-red-700 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-red-700">
+
+            <div class="w-6 h-6 border-2 flex items-center justify-center"
+                [class.border-green-700]="info()?.cancelled"
+                [class.border-red-700]="!info()?.cancelled">
+
+                @if (info()?.cancelled) {
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    class="w-4 h-4 text-green-700">
+                    <path d="M5 13l4 4L19 7" />
+                </svg>
+                } @else {
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    class="w-4 h-4 text-red-700">
                     <path d="M6 18L18 6M6 6L18 18" />
                 </svg>
+                }
+
             </div>
-        </div>
+            </div>
+
         
         <!-- PANIC -->
         <div class="flex items-center justify-between">
-            <span class="text-white font-normal">PANIC:</span>
-            <div class="w-6 h-6 border-2 border-red-700 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-red-700">
-                    <path d="M6 18L18 6M6 6L18 18" />
-                </svg>
-            </div>
+            <span class="text-white font-normal">Panic:</span>
+
+                <div class="w-6 h-6 border-2 flex items-center justify-center"
+                    [class.border-green-700]="info()?.panic"
+                    [class.border-red-700]="!info()?.panic">
+
+                    @if (info()?.panic) {
+                    <!-- ✓ TRUE -->
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        class="w-4 h-4 text-green-700">
+                        <path d="M5 13l4 4L19 7" />
+                    </svg>
+                    } @else {
+                    <!-- ✕ FALSE -->
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        class="w-4 h-4 text-red-700">
+                        <path d="M6 18L18 6M6 6L18 18" />
+                    </svg>
+                    }
+
+                </div>
         </div>
+
     </div>
 </div>

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import {input} from '@angular/core';
+import { Component, input } from '@angular/core';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-row',
   imports: [],
@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   styleUrl: './row.css',
 })
 export class Row {
-  route = input<string>('/');
+  rideId = input<number>(0);
   startDate = input<string>('');
   endDate = input<string>('');
   startTime = input<string>('');
@@ -19,8 +19,11 @@ export class Row {
   constructor(private router: Router) {}
 
   navigate() {
-    if (this.route) {
-      this.router.navigate([this.route()]);
+    const id = this.rideId();
+    if (id != null) {
+      this.router.navigate([`ride-history-driver/${id}`]); 
+    } else{
+      console.log(id);
     }
   }
 }

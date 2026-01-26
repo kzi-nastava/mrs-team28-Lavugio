@@ -2,14 +2,14 @@ import { AfterViewInit, Component, effect, inject, Injector, OnDestroy, signal, 
 import { Navbar } from "@app/shared/components/navbar/navbar";
 import { BaseInfoPage } from "../base-info-page/base-info-page";
 import { Ride } from "./scheduled-rides/ride/ride";
-import { ScheduledRideDTO } from '@app/shared/models/scheduledRide';
+import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { ScheduledRides } from "./scheduled-rides/scheduled-rides";
 import { MapComponent } from '@app/shared/components/map/map';
 import { RideService } from '@app/core/services/ride-service';
 import { catchError, EMPTY, Subscription, timeout } from 'rxjs';
 import { DriverService } from '@app/core/services/driver-service';
-import { FinishRide } from '@app/shared/models/finishRide';
+import { FinishRide } from '@app/shared/models/ride/finishRide';
 
 @Component({
   selector: 'app-driver-scheduled-rides',

@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, output, Signal, signal, WritableSignal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RideService } from '@app/core/services/ride-service';
-import { RideReport } from '@app/shared/models/rideReport';
+import { RideReport } from '@app/shared/models/ride/rideReport';
 
 @Component({
   selector: 'app-report-form',
