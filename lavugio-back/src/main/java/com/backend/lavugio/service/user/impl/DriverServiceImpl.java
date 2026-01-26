@@ -10,6 +10,8 @@ import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.repository.user.DriverUpdateRequestRepository;
 import com.backend.lavugio.repository.vehicle.VehicleRepository;
 
+import com.backend.lavugio.service.user.DriverActivityService;
+import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class DriverServiceImpl implements DriverService {
 
     @Autowired
     private DriverUpdateRequestRepository driverUpdateRequestRepository;
+
+    @Autowired
+    private DriverActivityService driverActivityService;
 
     @Override
     @Transactional
@@ -96,17 +101,37 @@ public class DriverServiceImpl implements DriverService {
     public Driver activateDriver(Long driverId) {
         Driver driver = getDriverById(driverId);
         
-        // if (driver.isActive()) {
-        //     throw new RuntimeException("Driver is already active");
-        // }
+        if (driver.isActive()) {
+             throw new RuntimeException("Driver is already active");
+        }
         
         if (driver.isBlocked()) {
             throw new RuntimeException("Driver is blocked. Cannot activate.");
         }
         
-        // driver.setActive(true);
+        driver.setActive(true);
+
+        driverActivityService.startActivity(driverId);
+
         return driverRepository.save(driver);
     }
+
+    @Override
+    public Driver deactivateDriver(Long driverId) {
+        Driver driver = getDriverById(driverId);
+
+        if (!driver.isActive()) {
+            throw new RuntimeException("Driver is already inactive");
+        }
+
+        driver.setActive(false);
+
+        driverActivityService.endActivity(driverId);
+
+        return driverRepository.save(driver);
+    }
+
+
 
     @Override
     public void updateDriverDriving(Long driverId, boolean isDriving) throws RuntimeException{

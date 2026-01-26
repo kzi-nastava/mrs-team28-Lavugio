@@ -13,6 +13,7 @@ import com.backend.lavugio.dto.ride.ScheduledRideDTO;
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
+import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
@@ -247,7 +248,33 @@ public class DriverController {
     }
 
     // ACTIVATION ENDPOINT
-    
+
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateCurrentDriver() {
+    	// @AuthenticationPrincipal UserDetails userDetails
+        try {
+            Long accountId = 5L; // Placeholder for current user's account ID
+            Driver driver = driverService.activateDriver(accountId);
+            System.out.println("Driver ID:" + accountId + " activated in controller");
+            return ResponseEntity.ok().body("Driver activated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/deactivate")
+    public ResponseEntity<?> deactivateCurrentDriver() {
+        // @AuthenticationPrincipal UserDetails userDetails
+        try {
+            Long accountId = 5L; // Placeholder for current user's account ID
+            Driver driver = driverService.deactivateDriver(accountId);
+            System.out.println("Driver ID:" + accountId + " deactivated in controller");
+            return ResponseEntity.ok().body("Driver deactivated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/{id}/activate")
     public ResponseEntity<?> activateDriver(
             @PathVariable Long id) {

@@ -30,4 +30,13 @@ export class DriverService {
   rejectEditRequest(requestId: number) {
     return this.http.post<void>(`${this.apiUrl}/edit-requests/${requestId}/reject`, {});
   }
+
+  activateDriver() {
+    return this.http.post<void>(`${this.apiUrl}/activate`, {});
+  }
+
+  deactivateDriver() {
+    return this.http.post<void>(`${this.apiUrl}/deactivate`, {});
+  } 
+
 }
