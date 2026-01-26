@@ -3,6 +3,8 @@ package com.backend.lavugio.service.utils.impl;
 import com.backend.lavugio.service.utils.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
@@ -15,8 +17,13 @@ import java.io.File;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
+    
     @Autowired
     private JavaMailSender mailSender;
+    
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.from}")
+    private String fromEmail;
 
     /**
      * Šalje običan email sa body tekstom
@@ -27,12 +34,20 @@ public class EmailServiceImpl implements EmailService {
      */
     @Async
     public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
+        try {
+            logger.info("Sending email to: {}, subject: {}", to, subject);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(body);
 
-        mailSender.send(message);
+            mailSender.send(message);
+            logger.info("Email sent successfully to: {}", to);
+        } catch (Exception e) {
+            logger.error("Failed to send email to: {}, error: {}", to, e.getMessage(), e);
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
 
     /**

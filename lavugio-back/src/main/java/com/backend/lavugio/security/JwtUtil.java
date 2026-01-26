@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -30,12 +31,14 @@ public class JwtUtil {
      * Generate JWT token for a user
      * @param email User's email (will be used as subject/identifier)
      * @param userId User's ID
+     * @param role User's role (DRIVER, REGULAR_USER, ADMIN)
      * @return JWT token string
      */
-    public String generateToken(String email, Long userId) {
+    public String generateToken(String email, Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("email", email);
+        claims.put("role", role);
         return createToken(claims, email);
     }
 
@@ -89,6 +92,19 @@ public class JwtUtil {
     }
 
     /**
+     * Extract role from token
+     * @param token JWT token
+     * @return User role (DRIVER, REGULAR_USER, ADMIN)
+     */
+    public String extractRole(String token) {
+        try {
+            return getClaims(token).get("role", String.class);
+        } catch (Exception e) {
+            throw new InvalidTokenException("Invalid token: " + e.getMessage());
+        }
+    }
+
+    /**
      * Get all claims from token
      * @param token JWT token
      * @return Claims object
@@ -129,5 +145,35 @@ public class JwtUtil {
         } catch (Exception e) {
             return true;
         }
+    }
+
+    /**
+     * Helper method to extract account ID from authentication principal
+     * Handles both String and Long types
+     */
+    public static Long extractAccountId(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return null;
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        // Check for anonymous user
+        if (principal instanceof String && "anonymousUser".equals(principal)) {
+            return null;
+        }
+
+        if (principal instanceof Long) {
+            return (Long) principal;
+        } else if (principal instanceof String) {
+            try {
+                return Long.valueOf((String) principal);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else if (principal instanceof Integer) {
+            return ((Integer) principal).longValue();
+        }
+        return null;
     }
 }

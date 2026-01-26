@@ -1,19 +1,37 @@
 <div class="hidden sm:flex text-[#FEFAE0] gap-4 items-center">
-  <app-link>Trips</app-link>
-  <app-link [route]="'/ride-history-driver'">History</app-link>
-  <app-link>Reports</app-link>
-  
-  <app-link [route]="'/profile'">Profile</app-link>
+  @if (isAuthenticated()) {
+    <app-link>Trips</app-link>
+    <app-link [route]="'/trip-history-driver'">History</app-link>
+    <app-link>Reports</app-link>
+    <app-link [route]="'/profile'">Profile</app-link>
+    @if (isAdmin()) {
+      <app-link [route]="'/admin-panel'">Admin Panel</app-link>
+    }
+    @if (isDriver()) {
+      <button 
+        (click)="onToggleStatus()" 
+        [disabled]="statusLoading()"
+        class="rounded-md cursor-pointer transition duration-300 px-4 py-2 text-sm"
+        [ngClass]="driverActive() ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'"
+        [class.opacity-50]="statusLoading()">
+        {{ statusLoading() ? 'Updating...' : (driverActive() ? 'Online' : 'Offline') }}
+      </button>
+    }
+    <button (click)="onLogout()" 
+            class="bg-[#283618] rounded-md cursor-pointer hover:bg-[#606C38] transition duration-300 px-4 py-2">
+      Logout
+    </button>
+  } @else {
+    <a [routerLink]="['/login']"
+       class="border-2 border-[#FEFAE0] rounded-md cursor-pointer hover:bg-[#FEFAE0] hover:text-[#BC6C25] hover:border-[#BC6C25] transition duration-300 px-4 py-2">
+      Log in
+    </a>
 
-  <a [routerLink]="['/login']"
-     class="border-2 border-[#FEFAE0] rounded-md cursor-pointer hover:bg-[#FEFAE0] hover:text-[#BC6C25] hover:border-[#BC6C25] transition duration-300 px-4 py-2">
-    Log in
-  </a>
-
-  <a [routerLink]="['/register']"
-     class="bg-[#283618] rounded-md cursor-pointer hover:bg-[#606C38] transition duration-300 px-4 py-2">
-    Register
-  </a>
+    <a [routerLink]="['/register']"
+       class="bg-[#283618] rounded-md cursor-pointer hover:bg-[#606C38] transition duration-300 px-4 py-2">
+      Register
+    </a>
+  }
 </div>
 
 <button (click)="toggleMenu()" class="sm:hidden focus:outline-none text-[#FEFAE0] w-10 h-10 cursor-pointer">

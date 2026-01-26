@@ -122,6 +122,40 @@ public class DriverController {
         }
     }
     
+    @PostMapping("/{driverId}/status")
+    public ResponseEntity<?> changeDriverStatus(
+            @PathVariable Long driverId,
+            @RequestBody Map<String, Boolean> request) {
+        try {
+            Boolean active = request.get("active");
+            if (active == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Active status is required"));
+            }
+            
+            driverService.setDriverStatus(driverId, active);
+            
+            return ResponseEntity.ok(Map.of(
+                "message", "Driver status updated successfully",
+                "active", active
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/{driverId}/can-logout")
+    public ResponseEntity<?> canDriverLogout(@PathVariable Long driverId) {
+        try {
+            boolean canLogout = driverService.canDriverLogout(driverId);
+            return ResponseEntity.ok(Map.of(
+                "canLogout", canLogout,
+                "message", canLogout ? "Driver can logout" : "Driver has an active ride"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+    
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateDriver(
             @PathVariable Long id,

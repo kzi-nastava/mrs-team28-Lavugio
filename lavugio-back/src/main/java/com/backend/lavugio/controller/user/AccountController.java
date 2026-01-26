@@ -6,6 +6,7 @@ import com.backend.lavugio.model.user.Administrator;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
+import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.AdministratorService;
 import com.backend.lavugio.service.user.DriverService;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
@@ -40,10 +43,16 @@ public class AccountController {
     @Autowired
     private DriverService driverService;
 
-    private static Long accountId = 5L;
+
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         Account account = accountService.getAccountById(accountId);
 
         if (account == null) {
@@ -57,8 +66,7 @@ public class AccountController {
         dto.setName(account.getName());
         dto.setSurname(account.getLastName());
         dto.setPhoneNumber(account.getPhoneNumber());
-        // TODO: Popuni adresu iz odgovarajućeg izvora
-        dto.setAddress("Neka adresa");
+        dto.setAddress(account.getAddress());
         dto.setProfilePhotoPath(account.getProfilePhotoPath());
 
         if (account instanceof Driver) {
@@ -88,7 +96,12 @@ public class AccountController {
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateCurrentUserProfile(@RequestBody AccountUpdateDTO updatedProfile) {
-        // Authentication auth
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvan update profila");
         try {
             accountService.updateAccount(accountId, updatedProfile);
@@ -101,7 +114,12 @@ public class AccountController {
 
     @PostMapping("/profile-photo")
     public ResponseEntity<?> uploadProfilePhoto(@RequestParam("file") MultipartFile file) {
-        // Authentication auth
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvan upload profilne");
         try {
             Account updatedAccount = accountService.updateProfilePhoto(accountId, file);
@@ -114,6 +132,12 @@ public class AccountController {
 
     @GetMapping("/profile-photo")
     public ResponseEntity<Resource> getProfilePhoto() {
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvano dobavljanje profilne");
 
         try {
@@ -139,7 +163,12 @@ public class AccountController {
 
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordDTO passwordUpdate) {
-        // Authentication auth
+        // Get authenticated user ID from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         System.out.println("Pozvana promena lozinke");
         try {
             accountService.changePassword(accountId, passwordUpdate.getOldPassword(), passwordUpdate.getNewPassword());

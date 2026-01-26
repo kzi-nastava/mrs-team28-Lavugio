@@ -22,6 +22,7 @@ export interface LoginResponse {
   userId: number;
   email: string;
   name: string;
+  role: string;
   message: string;
 }
 
@@ -42,6 +43,10 @@ export class AuthService {
 
   register(data: RegistrationRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data);
+  }
+
+  registerWithFile(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, formData);
   }
 
   login(data: LoginRequest): Observable<LoginResponse> {
@@ -68,7 +73,34 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
-  logout(): void {
+  logout(): Observable<void> {
+    const user = this.getStoredUser();
+    if (user?.userId) {
+      return new Observable(observer => {
+        this.http.post(`${this.apiUrl}/logout/${user.userId}`, {}).subscribe({
+          next: () => {
+            this.clearAuthData();
+            observer.next();
+            observer.complete();
+          },
+          error: (error) => {
+            // Still clear local auth data even if backend call fails
+            this.clearAuthData();
+            observer.error(error);
+            observer.complete();
+          }
+        });
+      });
+    } else {
+      this.clearAuthData();
+      return new Observable(observer => {
+        observer.next();
+        observer.complete();
+      });
+    }
+  }
+
+  private clearAuthData(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     this.isAuthenticatedSubject.next(false);
@@ -81,5 +113,22 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.hasToken();
+  }
+
+  getUserRole(): string | null {
+    const user = this.getStoredUser();
+    return user?.role || null;
+  }
+
+  isDriver(): boolean {
+    return this.getUserRole() === 'DRIVER';
+  }
+
+  isRegularUser(): boolean {
+    return this.getUserRole() === 'REGULAR_USER';
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'ADMIN';
   }
 }

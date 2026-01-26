@@ -27,11 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        System.out.println("JWT Filter - Authorization header: " + (authHeader != null ? "Present" : "Missing"));
+        
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7); // ukloni "Bearer "
 
             if (jwtUtil.isTokenValid(token)) {
                 Long userId = jwtUtil.extractUserId(token);
+                System.out.println("JWT Filter - Authenticated user ID: " + userId);
 
                 // Postavi Authentication u SecurityContext
                 UsernamePasswordAuthenticationToken auth =
@@ -39,6 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
+            } else {
+                System.out.println("JWT Filter - Token invalid");
             }
         }
 
