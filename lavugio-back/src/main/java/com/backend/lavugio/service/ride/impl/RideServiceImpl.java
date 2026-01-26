@@ -333,6 +333,27 @@ public class RideServiceImpl implements RideService {
         throw new RuntimeException("There are no available drivers at the moment");
     }
 
+    public RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request) {
+        RegularUser creator = regularUserRepository.findById(creatorID)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
+
+        List<Driver> allDrivers = this.driverService.getAllDrivers();
+        if (allDrivers.isEmpty()) {
+            throw new RuntimeException("There are no registered drivers at the moment");
+        }
+
+        for (Driver driver : allDrivers) {
+            boolean isVehicleSuitable = this.isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
+            boolean isDriverUnderDailyLimitScheduled = this.isDriverUnderDailyLimitScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());
+            boolean driverHasScheduledRideSoonScheduled = this.driverHasScheduledRideSoonScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());
+            if (isVehicleSuitable && isDriverUnderDailyLimitScheduled && !driverHasScheduledRideSoonScheduled) {
+                Ride ride = createScheduledRide(driver, creator, request);
+                return mapToRideResponseDTO(ride);
+            }
+        }
+        throw new RuntimeException("There are no available drivers for the scheduled ride at the moment");
+    }
+
     private boolean isVehicleSuitable(Vehicle vehicle, boolean requestBabyFriendly, boolean requestPetFriendly, int passangersNum, VehicleType vehicleType) {
         boolean petSuitable = !requestPetFriendly || vehicle.isPetFriendly();
         boolean babySuitable = !requestBabyFriendly || vehicle.isBabyFriendly();
@@ -351,6 +372,20 @@ public class RideServiceImpl implements RideService {
         return totalActiveTimeAfterRide.compareTo(maxAllowed) <= 0;
     }
 
+    private boolean isDriverUnderDailyLimitScheduled(Long driverId, int estimatedDurationSeconds, LocalDateTime scheduledTime) {
+        Duration currentActiveTime = this.driverActivityService.getActiveTimeIn24Hours(driverId);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime scheduledEnd = scheduledTime.plusSeconds(estimatedDurationSeconds);
+
+        Duration additionalActiveIfAlwaysActive = Duration.between(now, scheduledEnd);
+
+        Duration totalActiveTimeAfterRide = currentActiveTime.plus(additionalActiveIfAlwaysActive);
+
+        Duration maxAllowed = Duration.ofHours(8).plus(Duration.ofMinutes(15)); // 8 hours + 15 minutes buffer
+
+        return totalActiveTimeAfterRide.compareTo(maxAllowed) <= 0;
+    }
+
     private boolean driverHasScheduledRideSoon(Long driverId, int estimatedRideDurationSeconds) {
         List<Ride> rides = this.getScheduledRidesForDriver(driverId);
         if (rides.isEmpty()) {
@@ -362,6 +397,32 @@ public class RideServiceImpl implements RideService {
                 return true;
             }
         }
+        return false;
+    }
+
+    private boolean driverHasScheduledRideSoonScheduled(Long driverId, int estimatedRideDurationSeconds, LocalDateTime scheduledTime) {
+        List<Ride> scheduledRides = this.getScheduledRidesForDriver(driverId);
+
+        if (scheduledRides.isEmpty()) {
+            return false;
+        }
+
+        // Calculate the estimated end time of the new scheduled ride
+        LocalDateTime scheduledRideEstimatedEnd = scheduledTime.plusSeconds(estimatedRideDurationSeconds).plusMinutes(15);
+
+        // Check for overlaps with existing scheduled rides
+        for (Ride existingRide : scheduledRides) {
+            LocalDateTime existingRideStart = existingRide.getStartDateTime();
+            LocalDateTime existingRideEnd = existingRideStart
+                    .plusSeconds(existingRide.getEstimatedDurationSeconds())
+                    .plusMinutes(15);
+
+            // Check for overlap
+            if (scheduledTime.isBefore(existingRideEnd) && existingRideStart.isBefore(scheduledRideEstimatedEnd)) {
+                return true;
+            }
+        }
+
         return false;
     }
 

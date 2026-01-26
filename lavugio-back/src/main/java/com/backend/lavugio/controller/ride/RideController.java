@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -65,12 +68,12 @@ public class RideController {
     @PostMapping("/find-ride")
     public ResponseEntity<?> findRide(
             @RequestBody RideRequestDTO request) {
-        // @AuthenticationPrincipal UserDetails userDetails,
         Long creatorId = 1L;
+        Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
         try {
             RideResponseDTO ride;
             if (request.isScheduled()) {
-                ride = new RideResponseDTO();
+                ride = rideService.createScheduledRide(creatorId, request);
             } else {
                 ride = rideService.createInstantRide(creatorId, request);
             }

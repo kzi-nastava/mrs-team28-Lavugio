@@ -52,6 +52,9 @@ public class Ride {
     private LocalDateTime endDateTime;
 
 	@Column(nullable = false)
+	private int estimatedDurationSeconds;
+
+	@Column(nullable = false)
 	private float price;
 
 	@Column(nullable = false)
