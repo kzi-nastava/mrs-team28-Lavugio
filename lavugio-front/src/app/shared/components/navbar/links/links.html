@@ -1,9 +1,13 @@
 <div class="hidden sm:flex text-[#FEFAE0] gap-4 items-center">
   @if (isAuthenticated()) {
-    <app-link>Trips</app-link>
-    <app-link [route]="'/trip-history-driver'">History</app-link>
-    <app-link>Reports</app-link>
-    <app-link [route]="'/profile'">Profile</app-link>
+    @if (isRegularUser()){
+      @if (hasLatestRide()){
+        <app-link [route]="'/' + latestRideId() + '/ride-overview'">Latest ride</app-link>
+      }
+      @if (latestRideStatus() != "ACTIVE" || latestRideStatus() != "SCHEDULED"){
+        <app-link [route]="'/find-trip'">Order ride</app-link>
+      }
+    }
     @if (isAdmin()) {
       <app-link [route]="'/admin-panel'">Admin Panel</app-link>
     }
@@ -16,11 +20,17 @@
         [class.opacity-50]="statusLoading()">
         {{ statusLoading() ? 'Updating...' : (driverActive() ? 'Online' : 'Offline') }}
       </button>
+      <app-link [route]="'/ride-history-driver'">History</app-link>
     }
+
+    <app-link>Reports</app-link>
+    <app-link [route]="'/profile'">Profile</app-link>
+
     <button (click)="onLogout()" 
             class="bg-[#283618] rounded-md cursor-pointer hover:bg-[#606C38] transition duration-300 px-4 py-2">
       Logout
     </button>
+   
   } @else {
     <a [routerLink]="['/login']"
        class="border-2 border-[#FEFAE0] rounded-md cursor-pointer hover:bg-[#FEFAE0] hover:text-[#BC6C25] hover:border-[#BC6C25] transition duration-300 px-4 py-2">

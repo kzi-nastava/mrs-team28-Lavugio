@@ -20,6 +20,7 @@ export class Navbar implements OnInit {
   currentUser: LoginResponse | null = null;
   isAdmin: boolean = false;
   isDriver: boolean = false;
+  isRegularUser: boolean = false;
   driverActive: boolean = false;
   statusLoading: boolean = false;
 
@@ -36,6 +37,7 @@ export class Navbar implements OnInit {
     this.currentUser = this.authService.getStoredUser();
     this.isAdmin = this.authService.isAdmin();
     this.isDriver = this.authService.isDriver();
+    this.isRegularUser = this.authService.isRegularUser();
     
     // Load driver status if user is a driver
     if (this.isDriver && this.currentUser?.userId) {

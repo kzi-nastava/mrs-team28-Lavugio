@@ -43,10 +43,7 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
   }
 
   loadRides(){
-    const userId = this.authService.getStoredUser()?.userId;
-    if (!userId) return;
-    
-    this.subscription = this.driverService.getScheduledRides(userId).pipe(
+    this.subscription = this.driverService.getScheduledRides().pipe(
       timeout(5000),
       catchError(err => {
         console.error('Error fetching ride overview:', err);
@@ -166,7 +163,7 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
       finishedEarly: false,
       distance: 1,
     }
-    this.rideService.postRideFinish(finish).subscribe({
+    this.rideService.putRideFinish(finish).subscribe({
       next: () => console.log("Ride finished successfully:", rideId),
       error: () => console.log("Error finishing")
     })

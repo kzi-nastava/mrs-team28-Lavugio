@@ -9,6 +9,7 @@
       [userName]="currentUser?.name || ''"
       [isAdmin]="isAdmin"
       [isDriver]="isDriver"
+      [isRegularUser]="isRegularUser"
       [driverActive]="driverActive"
       [statusLoading]="statusLoading">
     </app-links>
@@ -29,9 +30,10 @@
               {{ statusLoading ? 'Updating...' : (driverActive ? 'Online' : 'Offline') }}
             </button>
           </div>
+          <app-link class="border-t border-[#DDA15E]" [route]="'/ride-history-driver'">History</app-link>
         }
         <app-link class="border-t border-[#DDA15E]">Trips</app-link>
-        <app-link class="border-t border-[#DDA15E]" [route]="'/trip-history-driver'">History</app-link>
+        
         <app-link class="border-t border-[#DDA15E]">Reports</app-link>
         <app-link class="border-t border-[#DDA15E]" [route]="'/profile'">Profile</app-link>
         @if (isAdmin) {
