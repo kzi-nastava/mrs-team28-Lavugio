@@ -116,6 +116,8 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
         this.removeRideFromList(rideId);
         break;
       case 'FINISH_EARLY':
+        this.finishRideEarly(rideId);
+        break;
       case 'DENY':
         this.removeRideFromList(rideId);
         break;
@@ -234,5 +236,75 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
       next: () => console.log("Ride finished successfully:", rideId),
       error: () => console.log("Error finishing")
     })
+  }
+
+  finishRideEarly(rideId: number) {
+    // Show confirmation dialog
+    this.dialogService.openConfirm(
+      'End Ride Early',
+      'Are you sure you want to end this ride early? The destination will be updated to your current location and the price will be recalculated based on the distance traveled.'
+    ).subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      
+      this.executeFinishEarly(rideId);
+    });
+  }
+
+  private executeFinishEarly(rideId: number): void {
+    // Get current location
+    this.locationService.getLocation()
+      .then(position => {
+        const currentLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+        
+        // Get the ride to calculate actual distance
+        const currentRide = this.rides()?.find(ride => ride.rideId === rideId);
+        if (!currentRide) {
+          alert('❌ Could not find ride information');
+          return;
+        }
+        
+        // Calculate approximate distance traveled (you may want to use a more accurate method)
+        // For now, we'll use the ride's stored distance
+        const distanceTraveled = currentRide.distance || 1.0;
+        
+        const finishEarlyData: FinishRide = {
+          rideId: rideId,
+          finalDestination: currentLocation,
+          finishedEarly: true,
+          distance: distanceTraveled
+        };
+        
+        // Send finish early request to backend
+        this.rideService.postRideFinish(finishEarlyData).subscribe({
+          next: () => {
+            console.log('✅ Ride finished early successfully:', rideId);
+            alert('✅ Ride ended successfully. The price has been recalculated based on the distance traveled.');
+            
+            // Remove from list and reload
+            this.removeRideFromList(rideId);
+            window.location.reload();
+          },
+          error: (err) => {
+            console.error('❌ Failed to finish ride early:', err);
+            alert('❌ Failed to end ride early.\n\nError: ' + (err.error?.error || err.message || 'Unknown error'));
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Location error:', error);
+        alert(
+          '❌ Location Required\n\n' +
+          'Unable to get your location. Ending a ride early requires location data to update the destination.\n\n' +
+          'Error: ' + (error.message || error) + '\n\n' +
+          'To enable location:\n' +
+          '1. Click the lock icon (🔒) in the address bar\n' +
+          '2. Find "Location" permission\n' +
+          '3. Change it to "Allow"\n' +
+          '4. Refresh the page and try again'
+        );
+      });
   }
 }
