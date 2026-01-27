@@ -72,6 +72,8 @@ export class RegisterDriver {
       vehicleColor: this.vehicleData.color,
       vehicleType: this.vehicleData.vehicleType,
 
+      passangerSeats: this.vehicleData.seats,
+
       petFriendly: this.vehicleData.petFriendly,
       babyFriendly: this.vehicleData.babyFriendly,
     };

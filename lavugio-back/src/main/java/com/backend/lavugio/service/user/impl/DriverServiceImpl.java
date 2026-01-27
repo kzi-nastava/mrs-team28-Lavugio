@@ -254,7 +254,7 @@ public class DriverServiceImpl implements DriverService {
         vehicle.setMake(request.getVehicleMake());
         vehicle.setModel(request.getVehicleModel());
         vehicle.setColor(request.getVehicleColor());
-
+        vehicle.setPassengerSeats(request.getPassangerSeats());
         try {
             vehicle.setType(VehicleType.valueOf(request.getVehicleType().name()));
         } catch (IllegalArgumentException e) {

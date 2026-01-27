@@ -23,9 +23,14 @@ public class DriverRegistrationDTO extends UserRegistrationDTO {
     @NotEmpty
     private String licensePlate;
 
+    @NotEmpty
     private String vehicleColor;
 
+    @NotEmpty
     private VehicleType vehicleType;
+
+    @NotEmpty
+    private int passangerSeats;
 
     private boolean babyFriendly = false;
 

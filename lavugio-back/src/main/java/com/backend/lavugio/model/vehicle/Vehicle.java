@@ -25,7 +25,7 @@ public class Vehicle {
     @Column(nullable = false)
     private String licensePlate;
     @Column(nullable = false)
-    private int seatsNumber;
+    private int passengerSeats;
     @Column(nullable = false)
     private boolean petFriendly;
     @Column(nullable = false)

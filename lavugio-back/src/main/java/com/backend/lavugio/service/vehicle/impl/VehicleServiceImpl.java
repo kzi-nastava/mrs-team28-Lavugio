@@ -53,7 +53,7 @@ public class VehicleServiceImpl implements VehicleService {
         existing.setMake(vehicle.getMake());
         existing.setModel(vehicle.getModel());
         existing.setLicensePlate(vehicle.getLicensePlate());
-        existing.setSeatsNumber(vehicle.getSeatsNumber());
+        existing.setPassengerSeats(vehicle.getPassengerSeats());
         existing.setPetFriendly(vehicle.isPetFriendly());
         existing.setBabyFriendly(vehicle.isBabyFriendly());
         existing.setColor(vehicle.getColor());
@@ -108,7 +108,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public List<Vehicle> getVehiclesBySeats(int minSeats) {
-        return vehicleRepository.findBySeatsNumberGreaterThanEqual(minSeats);
+        return vehicleRepository.findByPassengerSeatsGreaterThanEqual(minSeats);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     private void validateVehicle(Vehicle vehicle) {
-        if (vehicle.getSeatsNumber() <= 0) {
+        if (vehicle.getPassengerSeats() <= 0) {
             throw new RuntimeException("Seats number must be greater than 0");
         }
 

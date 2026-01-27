@@ -84,7 +84,7 @@ public class AccountController {
                 dto.setVehicleColor(vehicle.getColor());
                 dto.setVehicleBabyFriendly(vehicle.isBabyFriendly());
                 dto.setVehiclePetFriendly(vehicle.isPetFriendly());
-                dto.setVehicleSeats(vehicle.getSeatsNumber());
+                dto.setVehicleSeats(vehicle.getPassengerSeats());
             }
 
         } else if (account instanceof RegularUser) {
