@@ -282,6 +282,18 @@ public class DriverController {
 
     // ACTIVATION ENDPOINT
 
+    @PostMapping("/activate-account")
+    public ResponseEntity<?> activateDriverAccount(
+            @RequestBody DriverActivationRequestDTO request) {
+        try {
+            System.out.println("Activating driver activated");
+            driverRegistrationTokenService.activateDriver(request.getToken(), request.getPassword());
+            return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PostMapping("/activate")
     public ResponseEntity<?> activateCurrentDriver() {
     	// @AuthenticationPrincipal UserDetails userDetails

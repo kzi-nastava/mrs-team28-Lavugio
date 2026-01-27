@@ -49,7 +49,7 @@ export class UserService {
   }
 
   activateAccount(token: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/drivers/activate`, {
+    return this.http.post<any>(`${this.apiUrl}/drivers/activate-account`, {
       token: token,
       password: password,
     });
