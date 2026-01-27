@@ -14,7 +14,6 @@ import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { RouteEstimateInfo } from '@app/shared/models/route/routeEstimateInfo';
 import { RideEstimateRequest } from '@app/shared/models/ride/rideEstimateRequest';
 import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest';
-import { FinishRide } from '@app/shared/models/finishRide';
 import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
 import { FinishRide } from '@app/shared/models/ride/finishRide';
 import { RideHistoryDriverModel } from '@app/shared/models/ride/rideHistoryDriver';
