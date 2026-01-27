@@ -16,4 +16,7 @@ public class LoginRequestDTO {
 
     @NotEmpty(message = "Password is required")
     private String password;
+
+    private Double latitude;
+    private Double longitude;
 }

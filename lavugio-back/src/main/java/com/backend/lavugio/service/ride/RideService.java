@@ -59,4 +59,6 @@ public interface RideService {
     // Instant Ride Creation
     RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);
     RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request);
+
+    void startRide(Long rideId);
 }

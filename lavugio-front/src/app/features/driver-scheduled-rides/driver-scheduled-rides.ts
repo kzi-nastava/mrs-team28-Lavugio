@@ -55,7 +55,7 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
       })
     ).subscribe(rides => {
       console.log('Ride Overview fetched:', rides);
-      this.sortRidesByScheduledTime(rides);
+      this.sortRidesByStatusAndTime(rides);
       this.checkIfAnyActiveRides(rides);
       this.rides.set(rides);
     });
@@ -73,14 +73,20 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
     this.hasActiveRide.set(false);
     for (let ride of rides){
       if (ride.status == "ACTIVE"){
+        console.log("Active ride found:", ride.rideId);
         this.hasActiveRide.set(true);
         break;
       }
     }
   }
 
-  sortRidesByScheduledTime(rides: ScheduledRideDTO[]){
+  sortRidesByStatusAndTime(rides: ScheduledRideDTO[]){
     rides.sort((a, b) => {
+      // ACTIVE rides come first
+      if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1;
+      if (a.status !== 'ACTIVE' && b.status === 'ACTIVE') return 1;
+      
+      // For same status, sort by scheduled time
       const dateA = new Date(a.scheduledTime).getTime();
       const dateB = new Date(b.scheduledTime).getTime();
       return dateA - dateB;
@@ -95,6 +101,7 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
     
     switch(action) {
       case 'START':
+        this.startRide(rideId);
         this.updateRideStatus(rideId, 'ACTIVE');
         break;
       case 'PANIC':
@@ -143,6 +150,13 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
     
     this.checkIfAnyActiveRides(updatedRides);
     this.rides.set(updatedRides);
+  }
+
+  startRide(rideId: number){
+    this.rideService.postStartRide(rideId).subscribe({
+      next: () => console.log("Ride started successfully:", rideId),
+      error: () => console.log("Error starting ride")
+    });
   }
 
   finishRide(rideId: number){

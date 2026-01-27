@@ -273,6 +273,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setName(request.getName());
         driver.setLastName(request.getLastName());
         driver.setPhoneNumber(request.getPhoneNumber());
+        driver.setAddress(request.getAddress());
         driver.setProfilePhotoPath(request.getProfilePhotoPath());
         driver.setBlocked(false);
         driver.setBlockReason(null);
@@ -320,6 +321,7 @@ public class DriverServiceImpl implements DriverService {
             oldAccount.setName(driver.getName());
             oldAccount.setSurname(driver.getLastName());
             oldAccount.setPhoneNumber(driver.getPhoneNumber());
+            oldAccount.setAddress(driver.getAddress());
             oldData.setProfile(oldAccount);
             oldData.setVehicleModel(driver.getVehicle().getModel());
             oldData.setVehicleMake(driver.getVehicle().getMake());
@@ -335,6 +337,7 @@ public class DriverServiceImpl implements DriverService {
             newAccount.setName(request.getName());
             newAccount.setSurname(request.getLastName());
             newAccount.setPhoneNumber(request.getPhoneNumber());
+            newAccount.setAddress(request.getAddress());
             newData.setProfile(newAccount);
             newData.setVehicleModel(request.getModel());
             newData.setVehicleMake(request.getMake());
@@ -375,6 +378,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setName(request.getName());
         driver.setLastName(request.getLastName());
         driver.setPhoneNumber(request.getPhoneNumber());
+        driver.setAddress(request.getAddress());
         driverRepository.save(driver);
         
         request.setValidated(true);
