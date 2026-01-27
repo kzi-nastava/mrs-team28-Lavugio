@@ -8,4 +8,5 @@ public interface RideOverviewService {
     RideOverviewDTO getRideOverviewDTO(Long rideId, Long userId);
     void sendRideOverviewUpdateDTO(Long rideId, String endAddress, CoordinatesDTO coordinates);
     void sendRideOverviewUpdateDTO(RideOverviewUpdateDTO rideOverviewUpdateDTO, Long rideId);
+    boolean canAccessRideOverview(Long userId,  Long rideId);
 }

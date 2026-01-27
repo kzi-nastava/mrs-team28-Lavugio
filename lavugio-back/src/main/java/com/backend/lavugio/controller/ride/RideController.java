@@ -323,4 +323,18 @@ public class RideController {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
+    @GetMapping(value = "/{rideId}/access")
+    public ResponseEntity<Boolean> accessRide(@PathVariable Long rideId) {
+        try{
+            Long userId =  SecurityUtils.getCurrentUserId();
+            return ResponseEntity.ok(rideOverviewService.canAccessRideOverview(userId, rideId));
+        } catch (NoSuchElementException e){
+            return ResponseEntity.notFound().build();
+        } catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }
 }

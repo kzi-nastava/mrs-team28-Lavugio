@@ -170,5 +170,5 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             Pageable pageable
     );
 
-
+    Ride findFirstByPassengers_IdOrderByStartDateTimeDesc(Long userId);
 }

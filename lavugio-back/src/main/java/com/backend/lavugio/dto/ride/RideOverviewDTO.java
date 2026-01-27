@@ -43,7 +43,7 @@ public class RideOverviewDTO {
     public RideOverviewDTO(Ride ride, List<CoordinatesDTO> coordinates, String start, String end, boolean isReviewed, boolean isReported) {
         this.rideId = ride.getId();
         this.driverId = ride.getDriver().getId();
-        this.price = ride.getPrice();
+        this.price = Math.round(ride.getPrice() * 100.0) / 100.0;
         this.checkpoints = coordinates.toArray(new CoordinatesDTO[0]);
         this.status = ride.getRideStatus();
         this.driverName = ride.getDriver().getName();

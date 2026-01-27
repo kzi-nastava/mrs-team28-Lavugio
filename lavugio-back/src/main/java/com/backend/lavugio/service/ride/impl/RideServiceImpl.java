@@ -458,7 +458,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Transactional
-    private Ride createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
+    protected Ride createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
         ride.setDriver(driver);
@@ -509,7 +509,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Transactional
-    private Ride createScheduledRide(Driver driver, RegularUser creator, RideRequestDTO request) {
+    protected Ride createScheduledRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
         ride.setDriver(driver);
@@ -640,6 +640,15 @@ public class RideServiceImpl implements RideService {
         rideCreator.setCanOrder(false);
         regularUserRepository.save(rideCreator);
         driverService.updateDriverDriving(ride.getDriver().getId(), true);
+    }
+
+    @Override
+    public LatestRideDTO getLatestRide(Long userId){
+        Ride ride = this.rideRepository.findFirstByPassengers_IdOrderByStartDateTimeDesc(userId);
+        if (ride == null){
+            throw new NoSuchElementException(String.format("Cannot find ride for user id %d", userId));
+        }
+        return new LatestRideDTO(ride.getId(), ride.getRideStatus());
     }
 
 }
