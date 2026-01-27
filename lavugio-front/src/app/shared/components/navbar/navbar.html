@@ -11,13 +11,24 @@
       [isDriver]="isDriver"
       [isRegularUser]="isRegularUser"
       [driverActive]="driverActive"
-      [statusLoading]="statusLoading">
+      [statusLoading]="statusLoading"
+      [hasLatestRide]="hasLatestRide()"
+      [latestRideId]="latestRideId()"
+      [latestRideStatus]="latestRideStatus()">
     </app-links>
   </div>
   
   @if (isMenuOpen) {
     <div class="w-screen flex flex-col bg-[#BC6C25] sm:hidden sm:drop-shadow-sm [&>*]:py-2 [&>*]:px-4">
       @if (isAuthenticated) {
+        @if (isRegularUser){
+          @if (hasLatestRide()){
+            <app-link [route]="'/' + latestRideId() + '/ride-overview'">Latest ride</app-link>
+          }
+          @if (latestRideStatus() != "ACTIVE" || latestRideStatus() != "SCHEDULED"){
+            <app-link [route]="'/find-trip'">Order ride</app-link>
+          }
+        }
         @if (isDriver) {
           <div class="border-t border-[#DDA15E] py-2 flex items-center justify-between">
             <span class="text-[#FEFAE0]">Status:</span>
@@ -32,8 +43,6 @@
           </div>
           <app-link class="border-t border-[#DDA15E]" [route]="'/ride-history-driver'">History</app-link>
         }
-        <app-link class="border-t border-[#DDA15E]">Trips</app-link>
-        
         <app-link class="border-t border-[#DDA15E]">Reports</app-link>
         <app-link class="border-t border-[#DDA15E]" [route]="'/profile'">Profile</app-link>
         @if (isAdmin) {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Links } from './links/links';
 import { Logo } from './links/logo/logo';
 import { Link } from './links/link/link';
@@ -7,6 +7,8 @@ import { NotificationService } from '@app/core/services/notification-service';
 import { DriverStatusService } from '@app/core/services/driver-status.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { UserService } from '@app/core/services/user/user-service';
+import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -23,13 +25,37 @@ export class Navbar implements OnInit {
   isRegularUser: boolean = false;
   driverActive: boolean = false;
   statusLoading: boolean = false;
+  hasLatestRide = signal(false);
+  latestRideId = signal(0);
+  latestRideStatus = signal("");
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private driverStatusService: DriverStatusService
-  ) {}
+    private driverStatusService: DriverStatusService,
+    private regularUserService: UserService
+  ) {
+    this.regularUserService.getLatestRideId()
+      .pipe(
+          timeout(5000) // 5000ms = 5 sekundi
+        )
+        .subscribe({
+          next: ride => {
+            this.latestRideId?.set(ride.rideId);
+            this.latestRideStatus.set(ride.status)
+            this.hasLatestRide.set(true);
+            console.log(ride);
+          },
+          error: err => {
+            if (err.name === 'TimeoutError') {
+              console.error('Request timed out');
+            } else {
+              console.error(err);
+            }
+          },
+      });
+  }
 
   ngOnInit() {
     // Check current authentication state

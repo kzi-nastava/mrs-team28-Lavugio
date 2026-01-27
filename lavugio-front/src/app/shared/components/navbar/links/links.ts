@@ -17,9 +17,9 @@ export class Links {
   logoutOutput = output<void>();
   toggleStatusOutput = output<void>();
   isMenuOpen: boolean = false;
-  hasLatestRide = signal(false);
-  latestRideId = signal(0);
-  latestRideStatus = signal("");
+  hasLatestRide = input(false);
+  latestRideId = input(0);
+  latestRideStatus = input("");
   
   isAuthenticated = input<boolean>(false);
   userName = input<string>('');
@@ -30,25 +30,6 @@ export class Links {
   statusLoading = input<boolean>(false);
 
   constructor(){
-    this.regularUserService.getLatestRideId()
-    .pipe(
-      timeout(5000) // 5000ms = 5 sekundi
-    )
-    .subscribe({
-      next: ride => {
-        this.latestRideId?.set(ride.rideId);
-        this.latestRideStatus.set(ride.status)
-        this.hasLatestRide.set(true);
-        console.log(ride);
-      },
-      error: err => {
-        if (err.name === 'TimeoutError') {
-          console.error('Request timed out');
-        } else {
-          console.error(err);
-        }
-      },
-    });
   }
 
   toggleMenu(): void {
