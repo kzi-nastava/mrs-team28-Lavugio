@@ -26,6 +26,7 @@ import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.user.DriverActivityService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
+import com.backend.lavugio.service.utils.EmailService;
 import com.backend.lavugio.service.utils.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,7 @@ public class RideServiceImpl implements RideService {
     private final DriverActivityService driverActivityService;
     private final com.backend.lavugio.service.route.AddressService addressService;
     private final RideQueryService rideQueryService;
+    private final EmailService emailService;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -70,7 +72,8 @@ public class RideServiceImpl implements RideService {
                            DriverAvailabilityService driverAvailabilityService,
                            DriverActivityService driverActivityService,
                            com.backend.lavugio.service.route.AddressService addressService,
-                           RideQueryService rideQueryService) {
+                           RideQueryService rideQueryService,
+                           EmailService emailService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -80,6 +83,7 @@ public class RideServiceImpl implements RideService {
         this.driverActivityService = driverActivityService;
         this.addressService = addressService;
         this.rideQueryService = rideQueryService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -236,6 +240,7 @@ public class RideServiceImpl implements RideService {
             } else {
                 // TODO: LOGIKA SLANJA MEJLOVA NEREGISTROVANIM PUTNICIMA
             }
+            emailService.sendFoundRideEmail(passengerEmails, ride);
         }
         ride.setPassengers(registeredPassengers);
         return rideRepository.save(ride);
@@ -625,6 +630,9 @@ public class RideServiceImpl implements RideService {
             passenger.setCanOrder(false);
             regularUserRepository.save(passenger);
         }
+        RegularUser rideCreator = ride.getCreator();
+        rideCreator.setCanOrder(false);
+        regularUserRepository.save(rideCreator);
         driverService.updateDriverDriving(ride.getDriver().getId(), true);
     }
 

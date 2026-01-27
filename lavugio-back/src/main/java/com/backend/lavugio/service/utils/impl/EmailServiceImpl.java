@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.utils.impl;
 
+import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.service.utils.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -14,6 +15,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -74,6 +77,20 @@ public class EmailServiceImpl implements EmailService {
         helper.addAttachment(file.getFilename(), file);
 
         mailSender.send(message);
+    }
+
+    @Override
+    public void sendFoundRideEmail(List<String> passengerEmails, Ride ride) {
+        String subject = "New Ride Assigned!";
+        String body = "A new ride has been assigned to you. Ride details:\n" +
+                      "Pickup Location: " + ride.getStartAddress() + "\n" +
+                      "Dropoff Location: " + ride.getEndAddress() + "\n" +
+                      "Scheduled Time: " + ride.getStartDateTime().format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy.")) + "\n" +
+                      "Please be ready on time.";
+
+        for (String email : passengerEmails) {
+            sendEmail(email, subject, body);
+        }
     }
 }
 
