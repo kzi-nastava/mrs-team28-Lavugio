@@ -43,7 +43,7 @@ public class RideOverviewServiceImpl implements RideOverviewService {
             throw new NoSuchElementException("Ride not found");
         }
         if (ride.getPassengers().stream().noneMatch(p -> p.getId().equals(userId))) {
-            throw new IllegalStateException("User access is forbidden");
+            throw new IllegalStateException("User is not participating in this ride");
         }
         List<RideDestination> checkpoints = rideDestinationService.getOrderedDestinationsByRideId(rideId);
         List<CoordinatesDTO> coordinates = checkpoints.stream()

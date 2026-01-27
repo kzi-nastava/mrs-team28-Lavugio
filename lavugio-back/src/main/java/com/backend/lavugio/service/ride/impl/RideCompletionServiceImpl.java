@@ -43,7 +43,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         this.rideOverviewService = rideOverviewService;
     }
 
-    public void finishRide(FinishRideDTO rideDTO){
+    public void finishRide(Long driverId, FinishRideDTO rideDTO){
         List<RideDestination> route = rideDestinationService.getOrderedDestinationsByRideId(rideDTO.getRideId());
         if (route.isEmpty()){
             throw new NoSuchElementException("Cannot find route for ride "+rideDTO.getRideId());
@@ -54,6 +54,9 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         }
         if (rideDTO.isFinishedEarly()){
             throw new UnsupportedOperationException("Ride is finished early - not implemented yet");
+        }
+        if (!ride.getDriver().getId().equals(driverId)){
+            throw new IllegalStateException("Driver isn't driving this ride");
         }
         ride.setRideStatus(RideStatus.FINISHED);
         ride.setEndDateTime(LocalDateTime.now());

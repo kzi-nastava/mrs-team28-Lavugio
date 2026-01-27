@@ -61,15 +61,15 @@ SELECT setval('addresses_id_seq', 15, true);
 -- ====================================
 -- 2. VEHICLES
 -- ====================================
-INSERT INTO vehicles (id, make, model, license_plate, seats_number, pet_friendly, baby_friendly, color, type) VALUES
-                                                                                                                  (1, 'Volkswagen', 'Golf 7', 'BG-123-AB', 5, true, true, 'Siva', 'STANDARD'),
-                                                                                                                  (2, 'Mercedes', 'E-Class', 'BG-456-CD', 5, false, true, 'Crna', 'LUXURY'),
-                                                                                                                  (3, 'Škoda', 'Octavia Combi', 'NS-789-EF', 5, true, true, 'Bela', 'COMBI'),
-                                                                                                                  (4, 'BMW', '5 Series', 'BG-111-GH', 5, false, true, 'Plava', 'LUXURY'),
-                                                                                                                  (5, 'Toyota', 'Corolla', 'NI-222-IJ', 5, true, false, 'Crvena', 'STANDARD'),
-                                                                                                                  (6, 'Audi', 'A6 Avant', 'BG-333-KL', 5, true, true, 'Siva', 'COMBI'),
-                                                                                                                  (7, 'Volkswagen', 'Passat', 'KG-444-MN', 5, false, true, 'Crna', 'STANDARD'),
-                                                                                                                  (8, 'Mercedes', 'S-Class', 'BG-555-OP', 5, false, true, 'Bela', 'LUXURY');
+INSERT INTO vehicles (id, make, model, license_plate,passenger_seats, pet_friendly, baby_friendly, color, type) VALUES
+                                                                                                                    (1, 'Volkswagen', 'Golf 7', 'BG-123-AB', 5, true, true, 'Siva', 'STANDARD'),
+                                                                                                                    (2, 'Mercedes', 'E-Class', 'BG-456-CD', 5, false, true, 'Crna', 'LUXURY'),
+                                                                                                                    (3, 'Škoda', 'Octavia Combi', 'NS-789-EF', 5, true, true, 'Bela', 'COMBI'),
+                                                                                                                    (4, 'BMW', '5 Series', 'BG-111-GH', 5, false, true, 'Plava', 'LUXURY'),
+                                                                                                                    (5, 'Toyota', 'Corolla', 'NI-222-IJ', 5, true, false, 'Crvena', 'STANDARD'),
+                                                                                                                    (6, 'Audi', 'A6 Avant', 'BG-333-KL', 5, true, true, 'Siva', 'COMBI'),
+                                                                                                                    (7, 'Volkswagen', 'Passat', 'KG-444-MN', 5, false, true, 'Crna', 'STANDARD'),
+                                                                                                                    (8, 'Mercedes', 'S-Class', 'BG-555-OP', 5, false, true, 'Bela', 'LUXURY');
 
 SELECT setval('vehicles_id_seq', 8, true);
 
@@ -146,7 +146,7 @@ SELECT setval('driver_registration_token_id_seq', 3, true);
 -- ====================================
 
 -- Vožnje za vozača 5 (120 vožnji)
-INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, price, distance, ride_status, has_panic)
+INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, estimated_duration_seconds, price, distance, ride_status, has_panic)
 SELECT
     id,
     5 as driver_id,
@@ -156,6 +156,7 @@ SELECT
         WHEN id <= 80 THEN timestamp '2024-10-01 08:00:00' + (id || ' days')::interval + (mod(id::integer, 12) + 1 || ' hours')::interval
         ELSE NULL
         END as end_date_time,
+    (1800 + random() * 1800)::integer as estimated_duration_seconds,
     300.0 + (random() * 700)::numeric(10,2) as price,
     2.0 + (random() * 18)::numeric(10,2) as distance,
     CASE
@@ -168,13 +169,13 @@ SELECT
 FROM generate_series(1, 120) as id;
 
 -- Dodatne vožnje za ostale vozače
-INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, price, distance, ride_status, has_panic) VALUES
-                                                                                                                        (121, 7, 2, '2024-11-16 14:00:00', '2024-11-16 14:45:00', 820.00, 12.5, 'FINISHED', false),
-                                                                                                                        (122, 8, 3, '2024-12-17 10:15:00', '2024-12-17 11:00:00', 650.00, 8.3, 'FINISHED', false),
-                                                                                                                        (123, 7, 1, '2025-01-19 09:00:00', '2025-01-19 09:40:00', 720.00, 10.2, 'FINISHED', false),
-                                                                                                                        (124, 8, 2, '2025-01-20 12:00:00', '2025-01-20 12:50:00', 980.00, 15.7, 'FINISHED', true),
-                                                                                                                        (125, 7, 10, '2025-01-23 10:00:00', NULL, 500.00, 6.0, 'SCHEDULED', false),
-                                                                                                                        (126, NULL, 3, '2025-01-24 14:00:00', NULL, 700.00, 9.0, 'SCHEDULED', false);
+INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, estimated_duration_seconds, price, distance, ride_status, has_panic) VALUES
+                                                                                                                                                    (121, 7, 2, '2024-11-16 14:00:00', '2024-11-16 14:45:00', 2700, 820.00, 12.5, 'FINISHED', false),
+                                                                                                                                                    (122, 8, 3, '2024-12-17 10:15:00', '2024-12-17 11:00:00', 2700, 650.00, 8.3, 'FINISHED', false),
+                                                                                                                                                    (123, 7, 1, '2025-01-19 09:00:00', '2025-01-19 09:40:00', 2400, 720.00, 10.2, 'FINISHED', false),
+                                                                                                                                                    (124, 8, 2, '2025-01-20 12:00:00', '2025-01-20 12:50:00', 3000, 980.00, 15.7, 'FINISHED', true),
+                                                                                                                                                    (125, 7, 10, '2025-01-23 10:00:00', NULL, 1800, 500.00, 6.0, 'SCHEDULED', false),
+                                                                                                                                                    (126, NULL, 3, '2025-01-24 14:00:00', NULL, 2100, 700.00, 9.0, 'SCHEDULED', false);
 
 SELECT setval('rides_id_seq', 126, true);
 

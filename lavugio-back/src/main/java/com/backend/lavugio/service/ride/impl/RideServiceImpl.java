@@ -605,8 +605,14 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public DriverHistoryDetailedDTO getDriverHistoryDetailed(Long rideId) {
+    public DriverHistoryDetailedDTO getDriverHistoryDetailed(Long driverId, Long rideId) {
         Ride ride = this.getRideById(rideId);
+        if (ride == null) {
+            throw new NoSuchElementException(String.format("Cannot find ride with id %d", rideId));
+        }
+        if (!ride.getDriver().getId().equals(driverId)) {
+            throw new IllegalStateException(String.format("Driver didn't drive this ride %d", ride.getDriver().getId()));
+        }
         DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(ride);
         List<PassengerTableRowDTO> passengers = new ArrayList<>();
         for (RegularUser regularUser : ride.getPassengers()){

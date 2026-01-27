@@ -55,7 +55,7 @@ public interface RideService {
     double estimateRidePrice(RideEstimateRequestDTO request);
     Double calculatePrice(VehicleType vehicleType, Double distance);
     DriverHistoryPagingDTO getDriverHistory(Long driverId, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
-    DriverHistoryDetailedDTO getDriverHistoryDetailed(Long rideId);
+    DriverHistoryDetailedDTO getDriverHistoryDetailed(Long driverId, Long rideId);
     // Instant Ride Creation
     RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);
     RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request);

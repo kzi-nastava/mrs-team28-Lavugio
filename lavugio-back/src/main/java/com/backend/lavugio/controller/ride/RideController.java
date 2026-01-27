@@ -6,6 +6,7 @@ import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.RideReport;
 import com.backend.lavugio.security.JwtUtil;
+import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.service.ride.ReviewService;
 import com.backend.lavugio.service.ride.RideCompletionService;
 import com.backend.lavugio.service.ride.RideOverviewService;
@@ -16,8 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +38,7 @@ public class RideController {
     private final RideReportService rideReportService;
 
     private final ReviewService reviewService;
+
     private final RideOverviewService rideOverviewService;
 
     private final RideCompletionService  rideCompletionService;
@@ -127,10 +131,10 @@ public class RideController {
         }
     }
 
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getRideStatus(@PathVariable Long rideId) {
-
-        Long userId = 1L; //placeholder
 //        RideOverviewDTO status =  new RideOverviewDTO(
 //                1L,
 //                1L,
@@ -145,10 +149,8 @@ public class RideController {
 //                LocalDateTime.of(2026, 1, 8, 18, 40),
 //                false,
 //                false);
-        if (userId == null){
-            return new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         try{
+            Long userId = SecurityUtils.getCurrentUserId();
             RideOverviewDTO overviewDTO = rideOverviewService.getRideOverviewDTO(rideId, userId);
             return new ResponseEntity<>(overviewDTO, HttpStatus.OK);
         } catch (NoSuchElementException e){
@@ -270,10 +272,12 @@ public class RideController {
         }
     }
 
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> postRideReport(@RequestBody RideReportDTO reportDTO){
         try {
-            RideReport report = rideReportService.createReport(reportDTO);
+            Long userId = SecurityUtils.getCurrentUserId();
+            RideReport report = rideReportService.createReport(userId, reportDTO);
             return new ResponseEntity<>(new RideReportedDTO(report), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -281,34 +285,40 @@ public class RideController {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+        } catch (IllegalCallerException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("error", "Unexpected error occurred"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping("/{rideId}/review")
     public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
-        Long userId = 1L; //placeholder
         try{
+            Long userId = SecurityUtils.getCurrentUserId();
             reviewService.createReview(rideId, userId, rideReviewDTO);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (IllegalCallerException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
         } catch (Exception e){
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping("/finish")
+    @PreAuthorize("hasRole('DRIVER')")
+    @PutMapping("/finish")
     public ResponseEntity<?> finishRide(@RequestBody FinishRideDTO finishRideDTO) {
         try{
-            rideCompletionService.finishRide(finishRideDTO);
+            Long driverId = SecurityUtils.getCurrentUserId();
+            rideCompletionService.finishRide(driverId, finishRideDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(NoSuchElementException e){
             return new  ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (IllegalStateException e){
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
         }  catch (Exception e){
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
