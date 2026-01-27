@@ -73,7 +73,7 @@ public class AccountServiceImpl implements AccountService {
         existing.setName(accountUpdate.getName());
         existing.setLastName(accountUpdate.getSurname());
         existing.setPhoneNumber(accountUpdate.getPhoneNumber());
-        //existing.setAddress(accountUpdate.getAddress()); ??
+        existing.setAddress(accountUpdate.getAddress());
 
         Account updatedAccount = accountRepository.save(existing);
         logger.info("Account updated successfully with id: {}", id);

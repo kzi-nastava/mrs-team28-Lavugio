@@ -183,6 +183,7 @@ public class DriverController {
     }
 
     @PostMapping("/edit-requests/{requestId}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> approveEditRequest(@PathVariable Long requestId) {
         try {
             this.driverService.approveEditRequest(requestId);
@@ -193,6 +194,7 @@ public class DriverController {
     }
 
     @PostMapping("/edit-requests/{requestId}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> rejectEditRequest(@PathVariable Long requestId) {
         try {
             this.driverService.rejectEditRequest(requestId);
