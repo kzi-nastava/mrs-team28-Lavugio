@@ -20,6 +20,7 @@ export class DriverStatusService {
   public driverStatus$ = this.driverStatusSubject.asObservable();
 
   setDriverStatus(driverId: number, active: boolean): Observable<DriverStatusResponse> {
+    
     return this.http.post<DriverStatusResponse>(
       `${this.apiUrl}/${driverId}/status`,
       { active }

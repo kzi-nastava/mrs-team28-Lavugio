@@ -25,6 +25,7 @@ export class ProfileInfoSection {
   updatedProfile!: UserProfile;
   showPasswordDialog = false;
   vehicleTypeOptions = ['Standard', 'Luxury', 'Combi'];
+  timeActive = signal<string>('');
 
   private userService = inject(UserService);
   private dialogService = inject(DialogService);
@@ -40,6 +41,11 @@ export class ProfileInfoSection {
     }
     console.log('Initialized profile editing with profile:', this.profile);
     console.log('Updated profile with booleans:', this.updatedProfile);
+    
+    // Fetch active time if driver
+    if (this.profile.role === 'DRIVER') {
+      this.fetchActiveTime();
+    }
   }
 
   editButtonText = computed(() => {
@@ -232,4 +238,41 @@ export class ProfileInfoSection {
     }
   }
 
+  getTimeActive(): string {
+    return this.timeActive();
+  }
+
+  private fetchActiveTime() {
+    console.log('Fetching active time for driver...');
+    this.driverService.getDriverActiveLast24Hours().subscribe({
+      next: (response) => {
+        console.log('Active time response:', response);
+        this.timeActive.set(this.formatDuration(response.timeActive));
+      },
+      error: (error) => {
+        console.error('Error fetching active time:', error);
+        this.timeActive.set('N/A');
+      }
+    });
+  }
+
+  private formatDuration(duration: string): string {
+    // Duration format from Java is like "PT2H30M15S" (ISO 8601)
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/;
+    const match = duration.match(regex);
+    
+    if (!match) return '0h 0m';
+    
+    const hours = parseInt(match[1] || '0');
+    const minutes = parseInt(match[2] || '0');
+    const seconds = Math.floor(parseFloat(match[3] || '0'));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  }
 }

@@ -55,4 +55,8 @@ export class DriverService {
   activateDriver(coordinates: Coordinates): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/activate`, coordinates);
   }
+
+  getDriverActiveLast24Hours(): Observable<{ timeActive: string }> {
+    return this.http.get<{ timeActive: string }>(`${this.mainPortUrl}/active-24h`);
+  }
 }

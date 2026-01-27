@@ -98,7 +98,7 @@
   
   <app-profile-info-row
     [label]="'Active in last 24h'"
-    [value]="profile.activeTime!"
+    [value]="getTimeActive()"
     [editable]="false"
     [singleLineLabel]="true"
   >

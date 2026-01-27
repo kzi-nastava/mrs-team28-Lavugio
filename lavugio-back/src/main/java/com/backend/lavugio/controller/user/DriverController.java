@@ -1,5 +1,6 @@
 package com.backend.lavugio.controller.user;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
+import com.backend.lavugio.service.user.DriverActivityService;
 import com.backend.lavugio.service.user.DriverRegistrationTokenService;
 import com.backend.lavugio.service.utils.DateTimeParserService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
@@ -49,7 +51,8 @@ public class DriverController {
     private DriverAvailabilityService driverAvailabilityService;
     @Autowired
     private ScheduledRideService  scheduledRideService;
-
+    @Autowired
+    private DriverActivityService driverActivityService;
     @Autowired
     private DateTimeParserService dateTimeParserService;
 
@@ -308,6 +311,18 @@ public class DriverController {
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/active-24h")
+    public ResponseEntity<?> getDriverActiveLast24Hours() {
+        Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
+        try {
+            Duration activeInLast24h = driverActivityService.getActiveTimeIn24Hours(accountId);
+            return ResponseEntity.ok(Map.of("timeActive", activeInLast24h));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 

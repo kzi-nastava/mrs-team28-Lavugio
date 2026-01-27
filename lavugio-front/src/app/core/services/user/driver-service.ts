@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DriverRegistration } from '@app/shared/models/user/driverRegistration';
 import { DriverUpdateRequestDiffDTO, EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -38,5 +39,9 @@ export class DriverService {
   deactivateDriver() {
     return this.http.post<void>(`${this.apiUrl}/deactivate`, {});
   } 
+
+    getDriverActiveLast24Hours(): Observable<{ timeActive: string }> {
+      return this.http.get<{ timeActive: string }>(`${this.apiUrl}/active-24h`);
+    }
 
 }
