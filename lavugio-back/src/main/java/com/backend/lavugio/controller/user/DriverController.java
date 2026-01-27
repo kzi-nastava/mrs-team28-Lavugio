@@ -284,11 +284,12 @@ public class DriverController {
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<?> activateCurrentDriver() {
+    public ResponseEntity<?> activateCurrentDriver(@RequestBody CoordinatesDTO coordinates) {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
             Driver driver = driverService.activateDriver(accountId);
+            driverAvailabilityService.activateDriver(accountId, coordinates.getLongitude(), coordinates.getLatitude());
             System.out.println("Driver ID:" + accountId + " activated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {
@@ -302,6 +303,7 @@ public class DriverController {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
             Driver driver = driverService.deactivateDriver(accountId);
+            driverAvailabilityService.deactivateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {

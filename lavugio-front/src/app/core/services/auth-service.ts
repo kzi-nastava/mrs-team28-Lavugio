@@ -15,6 +15,8 @@ export interface RegistrationRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+  longitude?: number;
+  latitude?: number;
 }
 
 export interface LoginResponse {
