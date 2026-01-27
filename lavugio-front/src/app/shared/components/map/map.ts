@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, signal, EventEmitter, Output } from '@angular/core';
+import { Component, AfterViewInit, signal, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { environment } from 'environments/environment';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
@@ -11,7 +11,7 @@ import { MarkerIcons } from './marker-icons';
   templateUrl: './map.html',
   styleUrl: './map.css',
 })
-export class MapComponent implements AfterViewInit {
+export class MapComponent implements AfterViewInit, OnDestroy {
   private DefaultIcon: L.DivIcon = MarkerIcons.driverReserved;
   private routeControl: any;
   map: any;
@@ -19,6 +19,7 @@ export class MapComponent implements AfterViewInit {
   clickedLocation = signal<Coordinates | null>(null);
   @Output() locationPicked = new EventEmitter<Coordinates>();
   routeDuration = signal(0);
+  private mapInitialized = false;
 
 
   ngAfterViewInit(): void {
@@ -27,6 +28,19 @@ export class MapComponent implements AfterViewInit {
   }
 
   private initMap(): void {
+    // Clean up existing map if already initialized
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+      this.routeControl = null;
+      this.clickedLocation.set(null);
+    }
+
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      mapElement.innerHTML = '';
+    }
+
     this.map = L.map('map', {
       center: [45.2396, 19.8227],
       zoom: 13,
@@ -50,6 +64,8 @@ export class MapComponent implements AfterViewInit {
     if (this.clickable) {
       this.registerOnClick();
     }
+
+    this.mapInitialized = true;
   }
 
   private registerOnClick(): void {
@@ -134,8 +150,22 @@ export class MapComponent implements AfterViewInit {
 
   ngOnDestroy(): void {
     if (this.map) {
-      this.map.remove();
+      try {
+        this.map.remove();
+      } catch (e) {
+        console.warn('Error removing map:', e);
+      }
+      this.map = null;
     }
+    if (this.routeControl) {
+      try {
+        this.map?.removeControl(this.routeControl);
+      } catch (e) {
+        console.warn('Error removing route control:', e);
+      }
+      this.routeControl = null;
+    }
+    this.mapInitialized = false;
   }
 
   removeRoute(): void {
