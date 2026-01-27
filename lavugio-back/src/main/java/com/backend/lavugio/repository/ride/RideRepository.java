@@ -74,6 +74,19 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
                                                 @Param("startDate") LocalDateTime startDate,
                                                 @Param("endDate") LocalDateTime endDate);
 
+
+    @Query("""
+        SELECT DISTINCT r
+        FROM Ride r
+        LEFT JOIN FETCH r.driver
+        WHERE r.driver.id = :driverId
+        AND r.rideStatus = :status
+    """)
+    List<Ride> findByDriverIdAndRideStatusWithDriver(
+            @Param("driverId") Long driverId,
+            @Param("status") RideStatus status
+    );
+
     // Aggregation queries
     @Query("SELECT SUM(r.price) FROM Ride r " +
             "WHERE r.driver.id = :driverId " +

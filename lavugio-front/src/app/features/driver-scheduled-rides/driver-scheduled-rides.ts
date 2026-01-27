@@ -10,6 +10,7 @@ import { RideService } from '@app/core/services/ride-service';
 import { catchError, EMPTY, Subscription, timeout } from 'rxjs';
 import { DriverService } from '@app/core/services/driver-service';
 import { FinishRide } from '@app/shared/models/ride/finishRide';
+import { AuthService } from '@app/core/services/auth-service';
 
 @Component({
   selector: 'app-driver-scheduled-rides',
@@ -18,11 +19,11 @@ import { FinishRide } from '@app/shared/models/ride/finishRide';
   styleUrl: './driver-scheduled-rides.css',
 })
 export class DriverScheduledRides implements AfterViewInit, OnDestroy{
+  private authService = inject(AuthService);
   private driverService = inject(DriverService);
   private rideService = inject(RideService);
   private subscription : Subscription | null = null;
   private injector = inject(Injector);
-  driverId = 1;
   rides = signal<ScheduledRideDTO[] | null>(null);
   coordinates = signal<Coordinates[] | null>(null);
   @ViewChild("map") map! : MapComponent;
@@ -42,7 +43,10 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
   }
 
   loadRides(){
-    this.subscription = this.driverService.getScheduledRides(this.driverId).pipe(
+    const userId = this.authService.getStoredUser()?.userId;
+    if (!userId) return;
+    
+    this.subscription = this.driverService.getScheduledRides(userId).pipe(
       timeout(5000),
       catchError(err => {
         console.error('Error fetching ride overview:', err);

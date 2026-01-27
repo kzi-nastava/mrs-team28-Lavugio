@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
  */
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class RideQueryServiceImpl implements RideQueryService {
 
     private final RideRepository rideRepository;
@@ -51,7 +51,10 @@ public class RideQueryServiceImpl implements RideQueryService {
 
     @Override
     public List<Ride> getScheduledRidesForDriver(Long driverId) {
-        return rideRepository.findByDriverIdAndRideStatus(driverId, RideStatus.SCHEDULED);
+        System.out.println("Fetching scheduled rides for driver: " + driverId);
+        List<Ride> rides = rideRepository.findByDriverIdAndRideStatusWithDriver(driverId, RideStatus.SCHEDULED);
+        System.out.println("Scheduled rides for driver " + driverId + ": " + rides.size());
+        return rides;
     }
 
     @Override
