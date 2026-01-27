@@ -94,9 +94,14 @@ export class FindTrip implements OnInit, OnDestroy {
   ngOnInit() {
     this.totalSteps = this.wizardState.getTotalSteps();
 
+    // Reset to first step when component is initialized
+    this.wizardState.reset();
+
     this.wizardState.currentStepIndex$.pipe(takeUntil(this.destroy$)).subscribe((index) => {
       this.currentStep = index;
       this.currentTitle = this.wizardState.getStepInfo(index).title;
+      // Trigger change detection to ensure map renders properly
+      this.cdr.detectChanges();
     });
 
     const savedDestinations = this.wizardState.getStepData('destinations');
