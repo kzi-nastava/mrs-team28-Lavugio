@@ -11,6 +11,8 @@ import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.Account;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +35,7 @@ public class Ride {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "driver_id")
+	@JsonIgnore
 	private Driver driver;
 
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -41,6 +44,7 @@ public class Ride {
 			joinColumns = @JoinColumn(name = "ride_id"),
 			inverseJoinColumns = @JoinColumn(name = "user_id")
 	)
+	@JsonIgnore
 	private Set<RegularUser> passengers = new HashSet<>();
 
 	// PROVERITI KASNIJE DA LI JE POTREBNO I KAKO RADI
@@ -49,6 +53,7 @@ public class Ride {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private RegularUser creator;
 
     @Column(nullable = false)
@@ -74,7 +79,18 @@ public class Ride {
     private boolean hasPanic;
 
     @OneToMany(mappedBy = "ride", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<RideDestination> checkpoints;
+
+    @JsonProperty("startLocation")
+    public String getStartLocation() {
+        return getStartAddress();
+    }
+
+    @JsonProperty("endLocation")
+    public String getEndLocation() {
+        return getEndAddress();
+    }
 
     @Transient
     public String getStartAddress() {

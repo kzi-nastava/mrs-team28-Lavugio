@@ -153,13 +153,26 @@ public class DriverServiceImpl implements DriverService {
         if (driver.isDriving() && !active) {
             driver.setPendingStatusChange(false); // false = wants to be inactive
             driverRepository.save(driver);
-            throw new RuntimeException("Status change saved. Will apply after ride completes.");
+            // Don't throw exception, return normally - controller will handle the response
+            return;
         }
         
         // If driver wants to go active or is not driving, apply immediately
         driver.setActive(active);
         driver.setPendingStatusChange(null); // Clear any pending change
         driverRepository.save(driver);
+    }
+    
+    @Override
+    public boolean hasActiveRide(Long driverId) {
+        Driver driver = getDriverById(driverId);
+        return driver.isDriving();
+    }
+    
+    @Override
+    public Boolean getPendingStatusChange(Long driverId) {
+        Driver driver = getDriverById(driverId);
+        return driver.getPendingStatusChange();
     }
     
     @Override

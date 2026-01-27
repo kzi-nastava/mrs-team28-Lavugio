@@ -5,6 +5,7 @@ import { Link } from './links/link/link';
 import { AuthService, LoginResponse } from '@app/core/services/auth-service';
 import { NotificationService } from '@app/core/services/notification-service';
 import { DriverStatusService } from '@app/core/services/driver-status.service';
+import { RideService } from '@app/core/services/ride-service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -27,7 +28,8 @@ export class Navbar implements OnInit {
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private driverStatusService: DriverStatusService
+    private driverStatusService: DriverStatusService,
+    private rideService: RideService
   ) {}
 
   ngOnInit() {
@@ -96,24 +98,37 @@ export class Navbar implements OnInit {
     
     this.driverStatusService.setDriverStatus(this.currentUser.userId, newStatus).subscribe({
       next: (response) => {
-        this.statusLoading = false;
-        if (response.active !== undefined) {
-          this.driverActive = response.active;
-          this.notificationService.showNotification(
-            `Status updated: ${this.driverActive ? 'Available' : 'Unavailable'}`,
-            'success'
-          );
-        } else {
-          this.notificationService.showNotification(
-            response.message || 'Status change pending',
-            'info'
-          );
-        }
+        setTimeout(() => {
+          this.statusLoading = false;
+          
+          // Check if the status change is pending
+          if (response.pending) {
+            this.notificationService.showNotification(
+              response.message || 'Status change will be applied after your ride completes',
+              'info'
+            );
+            // Don't update the local status yet, keep it as active
+          } else if (response.active !== undefined) {
+            this.driverActive = response.active;
+            this.driverStatusService.updateLocalStatus(this.driverActive);
+            this.notificationService.showNotification(
+              `Status updated: ${this.driverActive ? 'Available' : 'Unavailable'}`,
+              'success'
+            );
+          } else {
+            this.notificationService.showNotification(
+              response.message || 'Status change processed',
+              'info'
+            );
+          }
+        });
       },
       error: (error) => {
-        this.statusLoading = false;
-        const message = error.error?.message || 'Failed to update status';
-        this.notificationService.showNotification(message, 'warning');
+        setTimeout(() => {
+          this.statusLoading = false;
+          const message = error.error?.message || 'Failed to update status';
+          this.notificationService.showNotification(message, 'error');
+        });
       }
     });
   }
@@ -125,9 +140,10 @@ export class Navbar implements OnInit {
       },
       error: (error) => {
         if (error.status === 403) {
-          const message = error.error?.message || 'Cannot logout at this time';
+          const message = error.error?.message || 'Cannot logout during an active ride';
           this.notificationService.showNotification(message, 'error');
         } else {
+          // For other errors, navigate to home
           this.router.navigate(['/home-page']);
         }
       }

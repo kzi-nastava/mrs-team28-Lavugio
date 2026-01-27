@@ -30,7 +30,11 @@
             </button>
           </div>
         }
-        <app-link class="border-t border-[#DDA15E]">Trips</app-link>
+        @if (isDriver) {
+          <app-link class="border-t border-[#DDA15E]" [route]="'/driver-scheduled-rides'">Trips</app-link>
+        } @else {
+          <app-link class="border-t border-[#DDA15E]" [route]="'/active-rides'">Trips</app-link>
+        }
         <app-link class="border-t border-[#DDA15E]" [route]="'/trip-history-driver'">History</app-link>
         <app-link class="border-t border-[#DDA15E]">Reports</app-link>
         <app-link class="border-t border-[#DDA15E]" [route]="'/profile'">Profile</app-link>

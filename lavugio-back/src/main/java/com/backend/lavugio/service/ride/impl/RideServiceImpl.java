@@ -127,6 +127,11 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    public List<Ride> getRidesByCreatorAndStatus(Long creatorId, RideStatus status) {
+        return rideRepository.findByCreatorIdAndStatus(creatorId, status);
+    }
+
+    @Override
     public List<Ride> getRidesByDate(LocalDateTime date) {
         return rideRepository.findByStartDateTime(date);
     }
@@ -187,6 +192,14 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(newStatus);
 
         return rideRepository.save(ride);
+    }
+
+    @Override
+    @Transactional
+    public void markRideWithPanic(Long rideId) {
+        Ride ride = getRideById(rideId);
+        ride.setHasPanic(true);
+        rideRepository.save(ride);
     }
 
     @Override

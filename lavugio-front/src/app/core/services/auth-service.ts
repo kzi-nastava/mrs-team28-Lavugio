@@ -84,8 +84,11 @@ export class AuthService {
             observer.complete();
           },
           error: (error) => {
-            // Still clear local auth data even if backend call fails
-            this.clearAuthData();
+            // Only clear auth data if it's not a 403 (active ride) error
+            // 403 means driver has an active ride and cannot logout
+            if (error.status !== 403) {
+              this.clearAuthData();
+            }
             observer.error(error);
             observer.complete();
           }

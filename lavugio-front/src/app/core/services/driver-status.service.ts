@@ -7,6 +7,7 @@ import { environment } from '@environments/environment';
 export interface DriverStatusResponse {
   message: string;
   active?: boolean;
+  pending?: boolean;
 }
 
 @Injectable({

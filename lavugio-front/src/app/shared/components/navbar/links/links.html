@@ -1,6 +1,10 @@
 <div class="hidden sm:flex text-[#FEFAE0] gap-4 items-center">
   @if (isAuthenticated()) {
-    <app-link>Trips</app-link>
+    @if (isDriver()) {
+      <app-link [route]="'/driver-scheduled-rides'">Trips</app-link>
+    } @else {
+      <app-link [route]="'/active-rides'">Trips</app-link>
+    }
     <app-link [route]="'/trip-history-driver'">History</app-link>
     <app-link>Reports</app-link>
     <app-link [route]="'/profile'">Profile</app-link>
