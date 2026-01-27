@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input, signal } from '@angular/core';
+import { Component, computed, inject, Input, signal, OnDestroy } from '@angular/core';
 import { ProfileInfoRow } from '../profile-info-row/profile-info-row';
 import { Button } from './../../../../shared/components/button/button';
 import { ProfileEdit } from '../../services/profile-edit';
@@ -9,6 +9,9 @@ import { ChangePasswordDialog } from '../change-password-dialog/change-password-
 import { DriverService } from '@app/core/services/user/driver-service';
 import { EditProfileDTO, MapProfileToEditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
 import { EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
+import { Coordinates } from '@app/shared/models/coordinates';
+import { DriverStatusService } from '@app/core/services/driver-status.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile-info-section',
@@ -18,7 +21,7 @@ import { EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfile
   styleUrl: './profile-info-section.css',
 })
 
-export class ProfileInfoSection {
+export class ProfileInfoSection implements OnDestroy {
   editService = inject(ProfileEdit);
   
   @Input() profile!: UserProfile;
@@ -26,10 +29,13 @@ export class ProfileInfoSection {
   showPasswordDialog = false;
   vehicleTypeOptions = ['Standard', 'Luxury', 'Combi'];
   timeActive = signal<string>('');
+  isDriverActive = signal<boolean>(false);
 
   private userService = inject(UserService);
   private dialogService = inject(DialogService);
   private driverService = inject(DriverService);
+  private driverStatusService = inject(DriverStatusService);
+  private driverStatusSubscription: Subscription | null = null;
 
   ngOnInit() {
     this.updatedProfile = structuredClone(this.profile);
@@ -42,9 +48,19 @@ export class ProfileInfoSection {
     console.log('Initialized profile editing with profile:', this.profile);
     console.log('Updated profile with booleans:', this.updatedProfile);
     
-    // Fetch active time if driver
+    // Set initial active status if driver
     if (this.profile.role === 'DRIVER') {
+      this.isDriverActive.set(this.profile.isActive || false);
       this.fetchActiveTime();
+      
+      // Subscribe to driver status changes from navbar
+      this.driverStatusSubscription = this.driverStatusService.driverStatus$.subscribe(
+        status => {
+          if (status !== null) {
+            this.isDriverActive.set(status);
+          }
+        }
+      );
     }
   }
 
@@ -93,18 +109,35 @@ export class ProfileInfoSection {
 
   onActivateClick() {
     console.log('Activate clicked');
-    this.driverService.activateDriver().subscribe({
-      next: () => {
-        this.dialogService.open('Success', 'Driver activated successfully!', false);
-        this.profile.isActive = true;
-        window.location.reload();
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coordinates: Coordinates = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+        this.driverService.activateDriver(coordinates).subscribe({
+          next: () => {
+            this.dialogService.open('Success', 'Driver activated successfully!', false);
+            this.isDriverActive.set(true);
+            this.profile.isActive = true;
+            setTimeout(() => window.location.reload(), 1000);
+          },
+          error: (error) => {
+            console.error('Activation error:', error);
+            const errorMessage = error.error?.message || 'Failed to activate driver!';
+            this.dialogService.open('Error', errorMessage, true);
+          }
+        });
       },
-      error: (error) => {
-        console.error('Activation error:', error);
-        const errorMessage = error.error?.message || 'Failed to activate driver!';
-        this.dialogService.open('Error', errorMessage, true);
+      (error) => {
+        console.warn('Geolocation error:', error);
+        this.dialogService.open('Error', 'Unable to get your location. Please enable geolocation.', true);
+      },
+      {
+        timeout: 5000,
+        enableHighAccuracy: false
       }
-    });
+    );
   }
 
   onDeactivateClick() {
@@ -112,8 +145,9 @@ export class ProfileInfoSection {
     this.driverService.deactivateDriver().subscribe({
       next: () => {
         this.dialogService.open('Success', 'Driver deactivated successfully!', false);
+        this.isDriverActive.set(false);
         this.profile.isActive = false;
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 1000);
       },
       error: (error) => {
         console.error('Deactivation error:', error);
@@ -145,6 +179,10 @@ export class ProfileInfoSection {
         this.dialogService.open('Error!', errorMessage, true);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.driverStatusSubscription?.unsubscribe();
   }
 
   private updateProfile() {

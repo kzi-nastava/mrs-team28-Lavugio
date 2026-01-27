@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { DriverRegistration } from '@app/shared/models/user/driverRegistration';
 import { DriverUpdateRequestDiffDTO, EditDriverProfileRequestDTO } from '@app/shared/models/user/editProfileDTO';
 import { Observable } from 'rxjs';
+import { Coordinates } from '@app/shared/models/coordinates';
 
 @Injectable({
   providedIn: 'root',
@@ -32,12 +33,12 @@ export class DriverService {
     return this.http.post<void>(`${this.apiUrl}/edit-requests/${requestId}/reject`, {});
   }
 
-  activateDriver() {
-    return this.http.post<void>(`${this.apiUrl}/activate`, {});
+  activateDriver(coordinates: Coordinates): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/activate`, coordinates);
   }
 
-  deactivateDriver() {
-    return this.http.post<void>(`${this.apiUrl}/deactivate`, {});
+  deactivateDriver(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/deactivate`, {});
   } 
 
     getDriverActiveLast24Hours(): Observable<{ timeActive: string }> {
