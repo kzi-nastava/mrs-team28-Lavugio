@@ -166,7 +166,6 @@ public class AccountController {
 
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordDTO passwordUpdate) {
-        // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
@@ -210,7 +209,8 @@ public class AccountController {
     @GetMapping("/is-blocked")
     public ResponseEntity<?> isBlocked() {
         try {
-            Long accountId = 1L;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long accountId = JwtUtil.extractAccountId(authentication);
             IsAccountBlockedDTO isAccountBlockedDTO = accountService.isBlocked(accountId);
             return ResponseEntity.ok(isAccountBlockedDTO);
         } catch (Exception e) {
