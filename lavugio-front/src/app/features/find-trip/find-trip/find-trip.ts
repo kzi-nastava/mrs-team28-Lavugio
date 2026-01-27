@@ -336,6 +336,7 @@ export class FindTrip implements OnInit, OnDestroy {
     this.geocodingService.getRouteInfo(coordinates).subscribe({
       next: (routeInfo) => {
         if (!routeInfo) {
+          console.log(routeInfo);
           console.error('Failed to get route info');
           return;
         }
