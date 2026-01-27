@@ -52,9 +52,10 @@ public class RideQueryServiceImpl implements RideQueryService {
     @Override
     public List<Ride> getScheduledRidesForDriver(Long driverId) {
         System.out.println("Fetching scheduled rides for driver: " + driverId);
-        List<Ride> rides = rideRepository.findByDriverIdAndRideStatusWithDriver(driverId, RideStatus.SCHEDULED);
-        System.out.println("Scheduled rides for driver " + driverId + ": " + rides.size());
-        return rides;
+        List<Ride> activeRides = rideRepository.findByDriverIdAndRideStatusWithDriver(driverId, RideStatus.ACTIVE);
+        List<Ride> scheduledRides = rideRepository.findByDriverIdAndRideStatusWithDriver(driverId, RideStatus.SCHEDULED);
+        scheduledRides.addAll(activeRides);
+        return scheduledRides;
     }
 
     @Override
