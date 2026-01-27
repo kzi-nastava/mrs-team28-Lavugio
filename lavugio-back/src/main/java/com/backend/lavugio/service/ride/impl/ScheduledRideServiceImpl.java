@@ -42,6 +42,7 @@ public class ScheduledRideServiceImpl implements ScheduledRideService {
     @Override
     public List<ScheduledRideDTO> getScheduledRidesForDriver(Long driverId) {
         List<Ride> rides = rideService.getScheduledRidesForDriver(driverId);
+        System.out.println("Scheduled rides for driver " + driverId + ": " + rides.size());
         rides = rides.stream()
                 .sorted(Comparator.comparing(Ride::getStartDateTime))
                 .toList();

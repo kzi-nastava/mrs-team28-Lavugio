@@ -38,6 +38,9 @@
     [class.shadow-red-500/50]="(!licensePlate() || !isLicensePlateValid()) && submitted()"
   />
 
+  <div class="justify-start text-sm">
+    Number of passenger seats
+  </div>
   <input
     type="number"
     [ngModel]="seats()"

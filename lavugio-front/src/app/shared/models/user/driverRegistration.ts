@@ -13,6 +13,8 @@ export interface DriverRegistration {
     vehicleColor: string;
     vehicleType: string;
 
+    passangerSeats: number;
+
     petFriendly: boolean;
     babyFriendly: boolean;
 }

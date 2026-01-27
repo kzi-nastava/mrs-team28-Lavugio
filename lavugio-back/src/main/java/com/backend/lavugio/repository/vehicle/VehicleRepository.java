@@ -21,9 +21,9 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     List<Vehicle> findByType(VehicleType type);
 
-    List<Vehicle> findBySeatsNumberGreaterThanEqual(int minSeats);
+    List<Vehicle> findByPassengerSeatsGreaterThanEqual(int minSeats);
 
-    List<Vehicle> findBySeatsNumber(int seatsNumber);
+    List<Vehicle> findByPassengerSeats(int seatsNumber);
 
     List<Vehicle> findByPetFriendlyTrue();
 
@@ -49,7 +49,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             "(:make IS NULL OR v.make = :make) AND " +
             "(:model IS NULL OR v.model = :model) AND " +
             "(:type IS NULL OR v.type = :type) AND " +
-            "(:minSeats IS NULL OR v.seatsNumber >= :minSeats) AND " +
+            "(:minSeats IS NULL OR v.passengerSeats >= :minSeats) AND " +
             "(:petFriendly IS NULL OR v.petFriendly = :petFriendly) AND " +
             "(:babyFriendly IS NULL OR v.babyFriendly = :babyFriendly)")
     List<Vehicle> searchVehicles(String make, String model, VehicleType type,

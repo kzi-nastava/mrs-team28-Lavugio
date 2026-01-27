@@ -148,6 +148,7 @@ public class RideServiceImpl implements RideService {
     }
 
     public List<Ride> getScheduledRidesForDriver(Long driverId){
+        System.out.println("Pozvalo se");
         return rideQueryService.getScheduledRidesForDriver(driverId);
     }
 
@@ -381,8 +382,9 @@ public class RideServiceImpl implements RideService {
     private boolean isVehicleSuitable(Vehicle vehicle, boolean requestBabyFriendly, boolean requestPetFriendly, int passangersNum, VehicleType vehicleType) {
         boolean petSuitable = !requestPetFriendly || vehicle.isPetFriendly();
         boolean babySuitable = !requestBabyFriendly || vehicle.isBabyFriendly();
-        boolean passangersSuitable = vehicle.getSeatsNumber()-1 >=  passangersNum;
+        boolean passangersSuitable = vehicle.getPassengerSeats() >=  passangersNum;
         boolean vehicleTypeSuitable = vehicleType == vehicle.getType();
+        System.out.println("Number of seats: " + vehicle.getPassengerSeats() + ", Passangers num: " + passangersNum);
         return petSuitable && babySuitable && passangersSuitable && vehicleTypeSuitable;
     }
 

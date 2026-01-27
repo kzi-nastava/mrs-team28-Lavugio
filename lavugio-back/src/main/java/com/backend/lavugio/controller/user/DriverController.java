@@ -282,6 +282,18 @@ public class DriverController {
 
     // ACTIVATION ENDPOINT
 
+    @PostMapping("/activate-account")
+    public ResponseEntity<?> activateDriverAccount(
+            @RequestBody DriverActivationRequestDTO request) {
+        try {
+            System.out.println("Activating driver activated");
+            driverRegistrationTokenService.activateDriver(request.getToken(), request.getPassword());
+            return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PostMapping("/activate")
     public ResponseEntity<?> activateCurrentDriver() {
     	// @AuthenticationPrincipal UserDetails userDetails
@@ -484,68 +496,10 @@ public class DriverController {
     public ResponseEntity<Collection<ScheduledRideDTO>> getAllScheduledRides(
             @PathVariable Long driverId
     ) {
-
-//        List<ScheduledRideDTO> scheduledRides = new ArrayList<>();
-//
-//        CoordinatesDTO[] checkpoints1 = {
-//                new CoordinatesDTO(44.7866, 20.4489),
-//                new CoordinatesDTO(44.8000, 20.4600)
-//        };
-//
-//        CoordinatesDTO[] checkpoints2 = {
-//                new CoordinatesDTO(45.2671, 19.8335),
-//                new CoordinatesDTO(45.2500, 19.8200)
-//        };
-//
-//        CoordinatesDTO[] checkpoints3 = {
-//                new CoordinatesDTO(43.3209, 21.8958),
-//                new CoordinatesDTO(43.3100, 21.9000)
-//        };
-//
-//        scheduledRides.add(
-//                new ScheduledRideDTO(
-//                        1L,
-//                        "Location A",
-//                        "Location B",
-//                        LocalDateTime.of(2025, 2, 21, 10, 50),
-//                        checkpoints1,
-//                        500F,
-//                        RideStatus.ACTIVE,
-//                        true
-//                )
-//        );
-//
-//        scheduledRides.add(
-//                new ScheduledRideDTO(
-//                        2L,
-//                        "Location C",
-//                        "Location D",
-//                        LocalDateTime.of(2025, 2, 22, 14, 30),
-//                        checkpoints2,
-//                        400F,
-//                        RideStatus.SCHEDULED,
-//                        false
-//                )
-//        );
-//
-//        scheduledRides.add(
-//                new ScheduledRideDTO(
-//                        3L,
-//                        "Location E",
-//                        "Location F",
-//                        LocalDateTime.of(2025, 2, 23, 9, 15),
-//                        checkpoints3,
-//                        600F,
-//                        RideStatus.SCHEDULED,
-//                        false
-//                )
-//        );
-
+        System.out.println("Getting scheduled rides for driver ID: " + driverId);
         List<ScheduledRideDTO> scheduledRides = scheduledRideService.getScheduledRidesForDriver(driverId);
         return ResponseEntity.ok(scheduledRides);
     }
-
-
 
     @GetMapping(value = "/locations", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations() {

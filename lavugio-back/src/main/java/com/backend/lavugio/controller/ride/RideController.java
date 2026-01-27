@@ -5,6 +5,7 @@ import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.RideReport;
+import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.ride.ReviewService;
 import com.backend.lavugio.service.ride.RideCompletionService;
 import com.backend.lavugio.service.ride.RideOverviewService;
@@ -25,7 +26,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/rides")
-@CrossOrigin(origins = "http://localhost:4200")
 public class RideController {
 
     private final RideService rideService;
@@ -68,8 +68,9 @@ public class RideController {
     @PostMapping("/find-ride")
     public ResponseEntity<?> findRide(
             @RequestBody RideRequestDTO request) {
-        Long creatorId = 1L;
         Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        Long creatorId = JwtUtil.extractAccountId(authentication);
+        System.out.println("Trying to find ride for account with id: " + creatorId);
         try {
             RideResponseDTO ride;
             if (request.isScheduled()) {

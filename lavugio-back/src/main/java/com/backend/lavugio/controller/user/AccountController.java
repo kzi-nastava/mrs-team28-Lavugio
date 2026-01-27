@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AccountController {
 
     @Autowired
@@ -85,7 +84,7 @@ public class AccountController {
                 dto.setVehicleColor(vehicle.getColor());
                 dto.setVehicleBabyFriendly(vehicle.isBabyFriendly());
                 dto.setVehiclePetFriendly(vehicle.isPetFriendly());
-                dto.setVehicleSeats(vehicle.getSeatsNumber());
+                dto.setVehicleSeats(vehicle.getPassengerSeats());
             }
 
         } else if (account instanceof RegularUser) {
