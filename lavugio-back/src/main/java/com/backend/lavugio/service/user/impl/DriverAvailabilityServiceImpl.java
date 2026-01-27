@@ -47,6 +47,7 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
         ArrayList<DriverLocationDTO> locationDTOs = new ArrayList<>();
         for (DriverLocation location : locations.values()) {
+            System.out.println("Processing location for driver ID: " + location.getDriverId());
             DriverStatusEnum status = getDriverStatus(location.getDriverId());
             locationDTOs.add(new DriverLocationDTO(location, status));
         }

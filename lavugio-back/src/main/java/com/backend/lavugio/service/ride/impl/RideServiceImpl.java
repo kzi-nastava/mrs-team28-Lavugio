@@ -324,6 +324,7 @@ public class RideServiceImpl implements RideService {
         // Find an available driver
         List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
         if (availableDrivers.isEmpty()) {
+            System.out.println("No available drivers found");
             throw new RuntimeException("There are no available drivers at the moment");
         }
         System.out.println("Found available drivers: " + availableDrivers.size());
