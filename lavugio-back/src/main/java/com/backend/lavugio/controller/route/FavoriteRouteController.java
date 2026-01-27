@@ -2,10 +2,14 @@ package com.backend.lavugio.controller.route;
 
 import com.backend.lavugio.dto.route.NewFavoriteRouteDTO;
 import com.backend.lavugio.dto.route.UpdateFavoriteRouteDTO;
+import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.route.FavoriteRouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,15 +22,14 @@ public class FavoriteRouteController {
     @Autowired
     private FavoriteRouteService favoriteRouteService;
 
-    // FOR TESTING
-    final private Long accountID = 2L;
 
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping("/add")
     public ResponseEntity<?> createFavoriteRoute(@RequestBody NewFavoriteRouteDTO request) {
-        // Authentication auth
-        System.out.println("Adding favorite route");
+        Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
         try {
-            NewFavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(accountID, request);
+            NewFavoriteRouteDTO favorite = favoriteRouteService.createFavoriteRoute(accountId, request);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -36,12 +39,13 @@ public class FavoriteRouteController {
 
     // ========== READ ==========
 
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @GetMapping("")
     public ResponseEntity<?> getFavoriteRoutes() {
-        // Authentication auth
-        System.out.println("Getting favorite routes for user: " + accountID);
+        Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
         try {
-            List<NewFavoriteRouteDTO> response = favoriteRouteService.getFavoriteRoutesDTOByUser(accountID);
+            List<NewFavoriteRouteDTO> response = favoriteRouteService.getFavoriteRoutesDTOByUser(accountId);
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             System.out.println(e.getMessage());
