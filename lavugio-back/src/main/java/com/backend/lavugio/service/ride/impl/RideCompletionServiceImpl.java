@@ -59,6 +59,11 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         ride.setEndDateTime(LocalDateTime.now());
         ride.getDriver().setDriving(false);
         
+        // Reset can_order flag for the creator (passenger)
+        if (ride.getCreator() != null) {
+            ride.getCreator().setCanOrder(true);
+        }
+        
         // Apply pending status change if it exists
         if (ride.getDriver().getPendingStatusChange() != null) {
             ride.getDriver().setActive(ride.getDriver().getPendingStatusChange());

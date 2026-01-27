@@ -122,12 +122,27 @@ public class DriverController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Active status is required"));
             }
             
+            // Check if driver has active ride before attempting change
+            boolean hasActiveRide = driverService.hasActiveRide(driverId);
+            
             driverService.setDriverStatus(driverId, active);
             
-            return ResponseEntity.ok(Map.of(
-                "message", "Driver status updated successfully",
-                "active", active
-            ));
+            // Check if the change was applied or is pending
+            Boolean pendingChange = driverService.getPendingStatusChange(driverId);
+            
+            if (pendingChange != null && !active) {
+                // Status change is pending (driver has active ride)
+                return ResponseEntity.ok(Map.of(
+                    "message", "You have an active ride. Status will change to inactive after the ride completes.",
+                    "pending", true
+                ));
+            } else {
+                // Status change was applied immediately
+                return ResponseEntity.ok(Map.of(
+                    "message", "Driver status updated successfully",
+                    "active", active
+                ));
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -296,7 +311,9 @@ public class DriverController {
             System.out.println("Driver ID:" + accountId + " activated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            System.err.println("Error activating driver: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
@@ -310,7 +327,8 @@ public class DriverController {
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            System.err.println("Error deactivating driver: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 

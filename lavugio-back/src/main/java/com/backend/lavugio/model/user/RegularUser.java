@@ -1,6 +1,7 @@
 package com.backend.lavugio.model.user;
 
 import com.backend.lavugio.model.ride.Ride;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
@@ -22,6 +23,7 @@ import java.util.Set;
 public class RegularUser extends BlockableAccount {
 
     @ManyToMany(mappedBy = "passengers")
+    @JsonIgnore
     private Set<Ride> rides = new HashSet<>();
 
     @Column

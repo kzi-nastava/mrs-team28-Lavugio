@@ -3,10 +3,12 @@ import { Component, computed, signal, inject, OnInit, OnDestroy, output, input }
 import { DialogService } from '@app/core/services/dialog-service';
 import { DriverService } from '@app/core/services/driver-service';
 import { MapService } from '@app/core/services/map-service';
+import { LocationService } from '@app/core/services/location-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { catchError, EMPTY, timeout } from 'rxjs';
 import { RideService } from '@app/core/services/ride-service';
+import { AuthService } from '@app/core/services/auth-service';
 
 @Component({
   selector: 'app-ride-info',
@@ -16,7 +18,7 @@ import { RideService } from '@app/core/services/ride-service';
 export class RideInfo implements OnInit, OnDestroy {
   private router = inject(Router);
   navigateToCancelRide() {
-    this.router.navigate([`/cancel-ride/${this.rideId}`]);
+    this.router.navigate([`/cancel-ride/${this.rideId()}`]);
   }
   // Dummy: Replace with real user/driver check
   isDriver(): boolean {
@@ -33,32 +35,158 @@ export class RideInfo implements OnInit, OnDestroy {
     // On confirmation, call RideService.stopRide(this.rideId, this.driverLocation())
   }
   
-  rideId = 1;
+  // Inputs from parent
+  rideId = input.required<number>();
+  rideOverview = input<RideOverviewModel | null>(null);
+  isReported = input<boolean>(false);
+  isReviewed = input<boolean>(false);
+  
   private rideService = inject(RideService);
+  private authService = inject(AuthService);
   private nowIntervalId: any;
   private now = signal(new Date());
   private driverService = inject(DriverService);
   private mapService = inject(MapService);
   private dialogService = inject(DialogService);
+  private locationService = inject(LocationService);
+  
+  isPanicLoading = signal(false);
+  hasPanicBeenTriggered = signal(false);
   
   Math = Math;
-  
-  // Inputs from parent
-  rideOverview = input<RideOverviewModel | null>(null);
-  isReported = input<boolean>(false);
-  isReviewed = input<boolean>(false);
 
   rideCancelled = output();
   
   // Outputs
   reportClicked = output();
   onPanicClick() {
-    this.dialogService.open(
+    // Don't allow panic if already triggered
+    if (this.hasPanicBeenTriggered()) {
+      alert('Panic alert has already been sent for this ride.');
+      return;
+    }
+    
+    this.dialogService.openConfirm(
       'Panic confirmation',
-      'Are you sure you want to send a panic alert? This will notify the administrators and mark your vehicle as in danger.',
-      true
-    );
-    // On real confirm, call backend and update map marker
+      'Are you sure you want to send a panic alert? This will notify the administrators and mark your vehicle as in danger.'
+    ).subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.triggerPanic();
+      }
+    });
+  }
+
+  private triggerPanic(): void {
+    this.isPanicLoading.set(true);
+    
+    // Try to get current location first (request it fresh)
+    this.locationService.getLocation()
+      .then(position => {
+        const currentLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+        
+        const rideOverview = this.rideOverview();
+        
+        if (!rideOverview) {
+          alert('Unable to get ride information. Please try again.');
+          this.isPanicLoading.set(false);
+          return;
+        }
+
+        // Send panic with the fresh location
+        this.sendPanicAlert(currentLocation, rideOverview);
+      })
+      .catch(error => {
+        this.isPanicLoading.set(false);
+        console.error('Location error:', error);
+        alert(
+          '❌ Location Required\n\n' +
+          'Unable to get your location. Panic alerts require location data.\n\n' +
+          'Error: ' + (error.message || error) + '\n\n' +
+          'To enable location:\n' +
+          '1. Click the lock icon (🔒) in the address bar\n' +
+          '2. Find "Location" permission\n' +
+          '3. Change it to "Allow"\n' +
+          '4. Refresh the page and try again'
+        );
+      });
+  }
+
+  private sendPanicAlert(currentLocation: any, rideOverview: any): void {
+    const currentUser = this.authService.getStoredUser();
+    
+    // Create panic notification payload
+    const panicAlert = {
+      rideId: this.rideId(),
+      passengerId: currentUser?.userId || 0,
+      passengerName: currentUser?.name || 'Passenger',
+      location: {
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude
+      },
+      message: 'EMERGENCY: Passenger triggered panic button during active ride',
+      timestamp: new Date(),
+      vehicleType: 'Vehicle',
+      vehicleLicensePlate: 'N/A',
+      driverName: rideOverview.driverName || 'Driver'
+    };
+
+    // Call backend panic endpoint
+    this.rideService.triggerPanic(this.rideId(), panicAlert).subscribe({
+      next: (response: any) => {
+        this.isPanicLoading.set(false);
+        this.hasPanicBeenTriggered.set(true); // Mark as triggered
+        // Play alert sound
+        this.playPanicSound();
+        // Show success message
+        alert('PANIC ALERT SENT! Administrators have been notified. The ride has been stopped.');
+        console.log('Panic activated successfully:', response);
+        
+        // Navigate back to active rides and force reload
+        this.router.navigate(['/active-rides']).then(() => {
+          window.location.reload();
+        });
+      },
+      error: (error: any) => {
+        this.isPanicLoading.set(false);
+        console.error('Error triggering panic:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.error);
+        
+        if (error.status === 400 && error.error?.includes?.('Panic can only be triggered on active rides')) {
+          alert('This ride is no longer active. Panic cannot be triggered.');
+        } else {
+          alert('Failed to send panic alert. Please try again.');
+        }
+      }
+    });
+  }
+
+  private playPanicSound(): void {
+    // Play alert sound - using Web Audio API or HTML5 audio
+    try {
+      const audioContext = new (window as any).AudioContext || (window as any).webkitAudioContext();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Alarm frequency pattern: alternating high and low tones
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (e) {
+      console.warn('Could not play panic sound:', e);
+    }
   }
   reviewClicked = output();
   
@@ -121,6 +249,12 @@ export class RideInfo implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.createOneMinuteInterval();
+    
+    // Initialize panic state from ride overview
+    const overview = this.rideOverview();
+    if (overview && (overview as any).hasPanic) {
+      this.hasPanicBeenTriggered.set(true);
+    }
   }
 
   createOneMinuteInterval() {

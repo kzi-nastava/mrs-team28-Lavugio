@@ -19,6 +19,7 @@ import { DriverScheduledRides } from './features/driver-scheduled-rides/driver-s
 import { AdminPanel } from './features/admin-panel/admin-panel';
 import { DriverUpdateRequests } from './features/driver-update-requests/driver-update-requests';
 import { BlockUser } from './features/block-user/block-user';
+import { ActiveRides } from './features/active-rides/active-rides';
 import { authGuardFn } from '@app/core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -44,6 +45,12 @@ export const routes: Routes = [
   },
   {
         path: 'find-trip', title: "Find Trip ", component: FindTrip, canActivate: [authGuardFn]
+  },
+  {
+    path: 'active-rides',
+    title: 'My Active Rides',
+    component: ActiveRides,
+    canActivate: [authGuardFn]
   },
   {
     path: 'login',

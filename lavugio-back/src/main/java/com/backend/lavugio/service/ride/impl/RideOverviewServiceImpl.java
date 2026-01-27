@@ -14,6 +14,7 @@ import com.backend.lavugio.service.route.RideDestinationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -37,15 +38,25 @@ public class RideOverviewServiceImpl implements RideOverviewService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RideOverviewDTO getRideOverviewDTO(Long rideId, Long userId) {
         Ride ride = rideService.getRideById(rideId);
         if (ride == null) {
             throw new NoSuchElementException("Ride not found");
         }
-        if (ride.getPassengers().stream().noneMatch(p -> p.getId().equals(userId))) {
+        // Check if user is the creator OR a passenger
+        boolean isCreator = ride.getCreator() != null && ride.getCreator().getId().equals(userId);
+        boolean isPassenger = ride.getPassengers().stream().anyMatch(p -> p.getId().equals(userId));
+        
+        if (!isCreator && !isPassenger) {
             throw new IllegalStateException("User access is forbidden");
         }
+        
         List<RideDestination> checkpoints = rideDestinationService.getOrderedDestinationsByRideId(rideId);
+        if (checkpoints == null || checkpoints.isEmpty()) {
+            throw new NoSuchElementException("Ride has no destinations");
+        }
+        
         List<CoordinatesDTO> coordinates = checkpoints.stream()
                 .map(checkpoint ->
                         new CoordinatesDTO(checkpoint.getAddress().getLatitude(), checkpoint.getAddress().getLongitude())
