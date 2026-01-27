@@ -260,6 +260,16 @@ public class RideController {
         return ResponseEntity.ok("Ride panic activated successfully");
     }
 
+    @PostMapping("/{rideId}/start")
+    public ResponseEntity<?> startRide(@PathVariable Long rideId) {
+        try {
+            rideService.startRide(rideId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> postRideReport(@RequestBody RideReportDTO reportDTO){
         try {

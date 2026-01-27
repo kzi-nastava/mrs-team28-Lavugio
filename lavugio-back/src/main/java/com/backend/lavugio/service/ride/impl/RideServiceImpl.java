@@ -611,4 +611,21 @@ public class RideServiceImpl implements RideService {
         return dto;
     }
 
+    @Override
+    @Transactional
+    public void startRide(Long rideId) {
+        Ride ride = getRideById(rideId);
+        if (ride.getRideStatus() != RideStatus.SCHEDULED) {
+            throw new IllegalStateException("Only scheduled rides can be started.");
+        }
+        ride.setRideStatus(RideStatus.ACTIVE);
+        ride.setStartDateTime(LocalDateTime.now());
+        rideRepository.save(ride);
+        for (RegularUser passenger : ride.getPassengers()) {
+            passenger.setCanOrder(false);
+            regularUserRepository.save(passenger);
+        }
+        driverService.updateDriverDriving(ride.getDriver().getId(), true);
+    }
+
 }

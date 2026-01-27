@@ -60,6 +60,10 @@ export class RideService {
     });
   }
 
+  postStartRide(rideId: number): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/${rideId}/start`, {});
+  }
+
   postRideReport(rideId: number, report: RideReport): Observable<RideReport> {
     return this.http.post<RideReport>(`${this.mainPortUrl}/report`, report);
   }
