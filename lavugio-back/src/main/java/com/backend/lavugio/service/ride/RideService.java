@@ -46,6 +46,8 @@ public interface RideService {
 
     // Delete operations
     void cancelRide(Long id);
+    void cancelRideByDriver(Long rideId, String reason);
+    void cancelRideByPassenger(Long rideId);
     void deleteRide(Long id);
 
     // Business logic operations

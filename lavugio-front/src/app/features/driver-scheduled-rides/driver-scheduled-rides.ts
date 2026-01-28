@@ -119,7 +119,7 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
         this.finishRideEarly(rideId);
         break;
       case 'DENY':
-        this.removeRideFromList(rideId);
+        this.denyRide(rideId);
         break;
     }
   }
@@ -306,5 +306,33 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
           '4. Refresh the page and try again'
         );
       });
+  }
+
+  denyRide(rideId: number) {
+    // Show prompt dialog for cancellation reason
+    this.dialogService.openPrompt(
+      'Cancel Ride',
+      'Please provide a reason for canceling this ride:',
+      'e.g., Passenger not at pickup location, health emergency, etc.',
+      true
+    ).subscribe((reason: string | null) => {
+      if (!reason) return; // User canceled
+      
+      this.executeDenyRide(rideId, reason);
+    });
+  }
+
+  private executeDenyRide(rideId: number, reason: string): void {
+    this.rideService.cancelRideByDriver(rideId, reason).subscribe({
+      next: () => {
+        console.log('✅ Ride canceled successfully:', rideId);
+        alert('✅ Ride canceled successfully.');
+        this.removeRideFromList(rideId);
+      },
+      error: (err: any) => {
+        console.error('❌ Failed to cancel ride:', err);
+        alert('❌ Failed to cancel ride.\n\nError: ' + (err.error?.error || err.message || 'Unknown error'));
+      }
+    });
   }
 }

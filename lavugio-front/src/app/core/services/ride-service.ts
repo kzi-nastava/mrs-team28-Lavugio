@@ -110,4 +110,12 @@ export class RideService {
       map(rides => rides && rides.length > 0)
     );
   }
+
+  cancelRideByDriver(rideId: number, reason: string): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/${rideId}/cancel-by-driver`, { reason });
+  }
+
+  cancelRideByPassenger(rideId: number): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/${rideId}/cancel-by-passenger`, {});
+  }
 }

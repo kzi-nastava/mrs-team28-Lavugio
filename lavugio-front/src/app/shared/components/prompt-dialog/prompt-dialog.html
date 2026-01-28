@@ -1,0 +1,47 @@
+<!-- Overlay -->
+<div
+  class="fixed inset-0 flex items-center justify-center z-[9999]"
+  style="background: rgba(0, 0, 0, 0.45);"
+>
+
+  <!-- Dialog -->
+  <div class="bg-white rounded-lg shadow-lg w-[400px] p-6 border-4 border-[#606C38]">
+
+    <h2 class="text-[#606C38] font-bold text-lg mb-3 text-center">
+      {{ title }}
+    </h2>
+
+    <p class="text-[#606C38] text-sm mb-4 text-center">
+      {{ message }}
+    </p>
+
+    <textarea
+      [(ngModel)]="inputValue"
+      [placeholder]="placeholder"
+      rows="4"
+      class="w-full border-2 border-[#DDA15E] rounded-lg px-3 py-2 mb-4
+             text-[#283618] focus:outline-none focus:border-[#606C38] resize-none">
+    </textarea>
+
+    <div class="flex gap-4 justify-center">
+      <button
+        (click)="cancel()"
+        class="border border-[#606C38] px-6 py-1.5 rounded
+               text-[#606C38] hover:bg-[#606C38] hover:text-white transition">
+        Cancel
+      </button>
+
+      <button
+        (click)="confirm()"
+        [disabled]="required && !inputValue.trim()"
+        [class.opacity-50]="required && !inputValue.trim()"
+        [class.cursor-not-allowed]="required && !inputValue.trim()"
+        class="border border-[#606C38] px-6 py-1.5 rounded
+               text-[#606C38] hover:bg-[#606C38] hover:text-white transition
+               disabled:hover:bg-white disabled:hover:text-[#606C38]">
+        Confirm
+      </button>
+    </div>
+
+  </div>
+</div>

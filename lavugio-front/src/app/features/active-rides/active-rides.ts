@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { RideService } from '@app/core/services/ride-service';
 import { Navbar } from '@app/shared/components/navbar/navbar';
+import { DialogService } from '@app/core/services/dialog-service';
 
 interface Ride {
   id: number;
@@ -27,7 +28,8 @@ export class ActiveRides implements OnInit {
   constructor(
     private rideService: RideService,
     public router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialogService: DialogService
   ) {}
 
   ngOnInit() {
@@ -78,5 +80,40 @@ export class ActiveRides implements OnInit {
         return 'bg-gray-100 text-gray-800';
     }
   }
-}
 
+  canCancelRide(ride: Ride): boolean {
+    if (!ride.startDateTime) return false;
+    
+    const now = new Date();
+    const startTime = new Date(ride.startDateTime);
+    const minutesUntilStart = (startTime.getTime() - now.getTime()) / (1000 * 60);
+    
+    return minutesUntilStart >= 10;
+  }
+
+  cancelRide(rideId: number) {
+    this.dialogService.openConfirm(
+      'Cancel Ride',
+      'Are you sure you want to cancel this ride? This action cannot be undone.'
+    ).subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      
+      this.executeCancelRide(rideId);
+    });
+  }
+
+  private executeCancelRide(rideId: number): void {
+    this.rideService.cancelRideByPassenger(rideId).subscribe({
+      next: () => {
+        console.log('✅ Ride canceled successfully:', rideId);
+        alert('✅ Ride canceled successfully.');
+        this.loadActiveRides(); // Reload the list
+      },
+      error: (err) => {
+        console.error('❌ Failed to cancel ride:', err);
+        const errorMessage = err.error?.error || err.message || 'Unknown error';
+        alert('❌ Failed to cancel ride.\n\nError: ' + errorMessage);
+      }
+    });
+  }
+}
