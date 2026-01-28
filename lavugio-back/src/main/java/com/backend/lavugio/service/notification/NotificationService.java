@@ -29,6 +29,8 @@ public interface NotificationService {
     void sendRegularNotification(Long userId, String title, String message);
     void sendLinkedNotification(Long userId, String title, String message, String rideLink);
     void notifyPassengersAboutFinishedRide(Ride ride);
+    void notifyPassengersAboutCancellation(Ride ride, String reason, boolean byDriver);
+    void notifyDriverAboutPassengerCancellation(Ride ride);
     long countNotificationsByUser(Long userId);
     long countNotificationsByType(NotificationType type);
     void deleteOldNotifications(LocalDate cutoffDate);

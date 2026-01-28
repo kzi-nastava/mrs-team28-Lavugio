@@ -130,10 +130,17 @@ public class RideController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
+            // Get both ACTIVE and SCHEDULED rides
             List<Ride> activeRides = rideService.getRidesByCreatorAndStatus(userId, RideStatus.ACTIVE);
+            List<Ride> scheduledRides = rideService.getRidesByCreatorAndStatus(userId, RideStatus.SCHEDULED);
+            
+            // Combine both lists
+            List<Ride> allRides = new ArrayList<>();
+            allRides.addAll(activeRides);
+            allRides.addAll(scheduledRides);
             
             List<Map<String, Object>> rideMaps = new ArrayList<>();
-            for (Ride ride : activeRides) {
+            for (Ride ride : allRides) {
                 Map<String, Object> rideMap = new HashMap<>();
                 rideMap.put("id", ride.getId());
                 rideMap.put("rideStatus", ride.getRideStatus().toString());
@@ -346,7 +353,6 @@ public class RideController {
                 return ResponseEntity.badRequest().body("Panic can only be triggered on active rides");
             }
             
-            // Enhance panic alert with complete ride information
             // Get passenger names
             StringBuilder passengerNames = new StringBuilder();
             if (ride.getCreator() != null) {
@@ -479,6 +485,37 @@ public class RideController {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
         }  catch (Exception e){
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{rideId}/cancel-by-driver")
+    public ResponseEntity<?> cancelRideByDriver(@PathVariable Long rideId, @RequestBody Map<String, String> request) {
+        try {
+            String reason = request.get("reason");
+            if (reason == null || reason.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Cancellation reason is required"));
+            }
+            
+            rideService.cancelRideByDriver(rideId, reason);
+            return ResponseEntity.ok(Map.of("message", "Ride cancelled successfully"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to cancel ride: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{rideId}/cancel-by-passenger")
+    public ResponseEntity<?> cancelRideByPassenger(@PathVariable Long rideId) {
+        try {
+            rideService.cancelRideByPassenger(rideId);
+            return ResponseEntity.ok(Map.of("message", "Ride cancelled successfully"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to cancel ride: " + e.getMessage()));
         }
     }
 }

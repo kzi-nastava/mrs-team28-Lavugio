@@ -10,6 +10,7 @@ import { ErrorDialog } from '@app/shared/components/error-dialog/error-dialog';
 import { SuccessDialog } from '@app/shared/components/success-dialog/success-dialog';
 import { ConfirmDialog } from '@app/shared/components/confirm-dialog/confirm-dialog';
 import { BlockedDialog } from '@app/shared/components/blocked-dialog/blocked-dialog';
+import { PromptDialog } from '@app/shared/components/prompt-dialog/prompt-dialog';
 import { Observable, Subject } from 'rxjs';
 
 export class DialogRef {
@@ -28,6 +29,7 @@ export class DialogService {
   private confirmDialogRef?: ComponentRef<ConfirmDialog>;
   private scheduleDialogRef?: ComponentRef<ScheduleRideDialog>;
   private blockedDialogRef?: ComponentRef<BlockedDialog>;
+  private promptDialogRef?: ComponentRef<PromptDialog>;
   private closeSubject?: Subject<void>;
 
   constructor(
@@ -168,5 +170,42 @@ export class DialogService {
     this.appRef.detachView(this.blockedDialogRef.hostView);
     this.blockedDialogRef.destroy();
     this.blockedDialogRef = undefined;
+  }
+
+  openPrompt(title: string, message: string, placeholder: string = '', required: boolean = true): Subject<string | null> {
+    const resultSubject = new Subject<string | null>();
+
+    if (this.promptDialogRef) {
+      return resultSubject;
+    }
+
+    this.promptDialogRef = createComponent(PromptDialog, {
+      environmentInjector: this.injector,
+    });
+
+    this.promptDialogRef.instance.title = title;
+    this.promptDialogRef.instance.message = message;
+    this.promptDialogRef.instance.placeholder = placeholder;
+    this.promptDialogRef.instance.required = required;
+
+    this.promptDialogRef.instance.result.subscribe((value: string | null) => {
+      resultSubject.next(value);
+      resultSubject.complete();
+      this.closePrompt();
+    });
+
+    this.appRef.attachView(this.promptDialogRef.hostView);
+
+    document.body.appendChild(this.promptDialogRef.location.nativeElement);
+
+    return resultSubject;
+  }
+
+  closePrompt() {
+    if (!this.promptDialogRef) return;
+
+    this.appRef.detachView(this.promptDialogRef.hostView);
+    this.promptDialogRef.destroy();
+    this.promptDialogRef = undefined;
   }
 }

@@ -299,8 +299,50 @@ export class RideInfo implements OnInit, OnDestroy {
     return `${hours}:${minutes} ${day}.${month}.${year}`;
   }
 
-  cancelRide(){
-    this.rideCancelled.emit();
+  cancelRide() {
+    const overview = this.rideOverview();
+    if (!overview || !overview.departureTime) {
+      alert('Unable to cancel ride: missing ride information');
+      return;
+    }
+    
+    // Check if cancellation is allowed (10 minutes before start)
+    const now = new Date();
+    const startTime = new Date(overview.departureTime);
+    const minutesUntilStart = (startTime.getTime() - now.getTime()) / (1000 * 60);
+    
+    if (minutesUntilStart < 10) {
+      alert('Cannot cancel ride less than 10 minutes before start time.');
+      return;
+    }
+    
+    // Confirm cancellation
+    this.dialogService.openConfirm(
+      'Cancel Ride',
+      'Are you sure you want to cancel this ride? This action cannot be undone.'
+    ).subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      
+      this.executeCancelRide();
+    });
+  }
+
+  private executeCancelRide(): void {
+    const rideIdValue = this.rideId();
+    this.rideService.cancelRideByPassenger(rideIdValue).subscribe({
+      next: () => {
+        console.log('✅ Ride canceled successfully:', rideIdValue);
+        alert('✅ Ride canceled successfully.');
+        this.rideCancelled.emit();
+        // Navigate back to active rides
+        this.router.navigate(['/active-rides']);
+      },
+      error: (err) => {
+        console.error('❌ Failed to cancel ride:', err);
+        const errorMessage = err.error?.error || err.message || 'Unknown error';
+        alert('❌ Failed to cancel ride.\n\nError: ' + errorMessage);
+      }
+    });
   }
 
   ngOnDestroy() {
