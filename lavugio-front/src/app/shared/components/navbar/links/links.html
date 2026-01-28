@@ -4,9 +4,7 @@
       @if (hasLatestRide()){
         <app-link [route]="'/' + latestRideId() + '/ride-overview'">Latest ride</app-link>
       }
-      @if (latestRideStatus() != "ACTIVE" || latestRideStatus() != "SCHEDULED"){
-        <app-link [route]="'/find-trip'">Order ride</app-link>
-      }
+      <app-link [route]="'/find-trip'">Order ride</app-link>
     }
     @if (isAdmin()) {
       <app-link [route]="'/admin-panel'">Admin Panel</app-link>

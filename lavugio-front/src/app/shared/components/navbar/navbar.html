@@ -25,9 +25,7 @@
           @if (hasLatestRide()){
             <app-link [route]="'/' + latestRideId() + '/ride-overview'">Latest ride</app-link>
           }
-          @if (latestRideStatus() != "ACTIVE" || latestRideStatus() != "SCHEDULED"){
-            <app-link [route]="'/find-trip'">Order ride</app-link>
-          }
+          <app-link [route]="'/find-trip'">Order ride</app-link>
         }
         @if (isDriver) {
           <div class="border-t border-[#DDA15E] py-2 flex items-center justify-between">
