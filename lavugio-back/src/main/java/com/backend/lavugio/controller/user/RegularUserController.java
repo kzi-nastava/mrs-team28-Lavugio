@@ -71,6 +71,41 @@ public class RegularUserController {
         try {
             logger.info("Registration attempt for email: {}", email);
             
+            // Manual validation
+            if (email == null || email.trim().isEmpty()) {
+                throw new IllegalArgumentException("Email is required");
+            }
+            if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                throw new IllegalArgumentException("Email should be valid");
+            }
+            if (password == null || password.length() < 8) {
+                throw new IllegalArgumentException("Password must be at least 8 characters");
+            }
+            if (name == null || name.trim().isEmpty()) {
+                throw new IllegalArgumentException("Name is required");
+            }
+            if (name.length() < 2 || name.length() > 50) {
+                throw new IllegalArgumentException("Name must be between 2 and 50 characters");
+            }
+            if (lastName == null || lastName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Last name is required");
+            }
+            if (lastName.length() < 2 || lastName.length() > 50) {
+                throw new IllegalArgumentException("Last name must be between 2 and 50 characters");
+            }
+            if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+                throw new IllegalArgumentException("Phone number is required");
+            }
+            if (!phoneNumber.matches("^(\\+381|0)[0-9\\s\\-()]{6,14}$")) {
+                throw new IllegalArgumentException("Phone number must be valid Serbian format (+381 or 0)");
+            }
+            if (address == null || address.trim().isEmpty()) {
+                throw new IllegalArgumentException("Address is required");
+            }
+            if (address.length() < 5 || address.length() > 200) {
+                throw new IllegalArgumentException("Address must be between 5 and 200 characters");
+            }
+            
             // Create DTO from request parameters
             UserRegistrationDTO request = new UserRegistrationDTO();
             request.setEmail(email);
