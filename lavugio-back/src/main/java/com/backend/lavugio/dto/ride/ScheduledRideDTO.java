@@ -22,6 +22,7 @@ public class ScheduledRideDTO {
     private LocalDateTime scheduledTime;
     private CoordinatesDTO[] checkpoints;
     private Float price;
+    private Float distance;
     private RideStatus status;
     private boolean isPanicked;
 
@@ -32,6 +33,7 @@ public class ScheduledRideDTO {
         this.scheduledTime = ride.getStartDateTime();
         this.checkpoints = checkpoints.toArray(new CoordinatesDTO[0]);
         this.price = ride.getPrice();
+        this.distance = ride.getDistance();
         this.status = ride.getRideStatus();
         this.isPanicked = ride.isHasPanic();
     }

@@ -17,12 +17,14 @@
         <app-ride-info
           #rideInfo
           class="w-full h-full flex flex-col"
+          [rideId]="rideId"
           [rideOverview]="rideOverview()"
           [isReported]="isReported()"
           [isReviewed]="isRated()"
           (reportClicked)="showReport.set(true)"
           (reviewClicked)="showReview.set(true)"
-          (rideCancelled)="cancelRide()">
+          (rideCancelled)="cancelRide()"
+          [canRateRide]="canRateRide()">
         </app-ride-info>
       </div>
     }
@@ -48,12 +50,14 @@
           <app-ride-info
             #rideInfo
             class="w-full h-full"
+            [rideId]="rideId"
             [rideOverview]="rideOverview()"
             [isReported]="isReported()"
             [isReviewed]="isRated()"
             (reportClicked)="showReport.set(true)"
             (reviewClicked)="showReview.set(true)"
-            (rideCancelled)="cancelRide()">
+            (rideCancelled)="cancelRide()"
+            [canRateRide]="canRateRide()">
           </app-ride-info>
         </div>
       </div>

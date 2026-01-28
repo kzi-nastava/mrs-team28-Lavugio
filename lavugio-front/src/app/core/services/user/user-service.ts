@@ -7,6 +7,7 @@ import {
   EditDriverProfileRequestDTO,
   EditProfileDTO,
 } from '@app/shared/models/user/editProfileDTO';
+import { LatestRideModel } from '@app/shared/models/ride/latestRide';
 
 @Injectable({
   providedIn: 'root',
@@ -103,9 +104,13 @@ export class UserService {
     );
   }
 
-  canUserOrderRide(): Observable<{ inRide: boolean, block: {blocked: boolean; reason: string } }> {
-    return this.http.get<{ inRide: boolean, block: {blocked: boolean; reason: string } }>(
+  canUserOrderRide(): Observable<{ isInRide: boolean, block: {blocked: boolean; reason: string } }> {
+    return this.http.get<{ isInRide: boolean, block: {blocked: boolean; reason: string } }>(
       `${this.apiUrl}/users/can-order-ride`,
     );
+  }
+
+  getLatestRideId(){
+    return this.http.get<LatestRideModel>(`${this.apiUrl}/regularUsers/latest-ride`)
   }
 }

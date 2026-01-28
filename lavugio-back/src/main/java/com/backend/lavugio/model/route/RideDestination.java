@@ -1,6 +1,7 @@
 package com.backend.lavugio.model.route;
 
 import com.backend.lavugio.model.ride.Ride;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class RideDestination {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ride_id", nullable = false)
+    @JsonIgnore
 	private Ride ride;
 
     @ManyToOne(fetch = FetchType.EAGER)

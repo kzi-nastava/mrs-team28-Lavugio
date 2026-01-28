@@ -210,7 +210,8 @@ public class AccountController {
     @GetMapping("/is-blocked")
     public ResponseEntity<?> isBlocked() {
         try {
-            Long accountId = 1L;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long accountId = JwtUtil.extractAccountId(authentication);
             IsAccountBlockedDTO isAccountBlockedDTO = accountService.isBlocked(accountId);
             return ResponseEntity.ok(isAccountBlockedDTO);
         } catch (Exception e) {
@@ -221,7 +222,11 @@ public class AccountController {
     @GetMapping("/can-order-ride")
     public ResponseEntity<?> canOrder() {
         try {
-            Long accountId = 1L;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long accountId = JwtUtil.extractAccountId(authentication);
+            if (accountId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             CanOrderRideDTO canOrderRideDTO = accountService.canOrderRide(accountId);
             return ResponseEntity.ok(canOrderRideDTO);
         } catch (Exception e) {

@@ -1,12 +1,15 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, signal, NgZone, ChangeDetectorRef } from '@angular/core';
 import { Links } from './links/links';
 import { Logo } from './links/logo/logo';
 import { Link } from './links/link/link';
 import { AuthService, LoginResponse } from '@app/core/services/auth-service';
 import { NotificationService } from '@app/core/services/notification-service';
 import { DriverStatusService } from '@app/core/services/driver-status.service';
+import { RideService } from '@app/core/services/ride-service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { UserService } from '@app/core/services/user/user-service';
+import { timeout } from 'rxjs';
 import { DriverService } from '@app/core/services/user/driver-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 
@@ -22,8 +25,12 @@ export class Navbar implements OnInit {
   currentUser: LoginResponse | null = null;
   isAdmin: boolean = false;
   isDriver: boolean = false;
+  isRegularUser: boolean = false;
   driverActive: boolean = false;
   statusLoading: boolean = false;
+  hasLatestRide = signal(false);
+  latestRideId = signal(0);
+  latestRideStatus = signal("");
 
   constructor(
     private authService: AuthService,
@@ -31,8 +38,15 @@ export class Navbar implements OnInit {
     private notificationService: NotificationService,
     private driverStatusService: DriverStatusService,
     private driverService: DriverService,
-    private ngZone: NgZone
-  ) {}
+    private rideService: RideService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
+    private regularUserService: UserService
+  ) {
+    if (authService.isRegularUser()){
+      this.getLatestRide();
+    }
+  }
 
   ngOnInit() {
     // Check current authentication state
@@ -40,12 +54,13 @@ export class Navbar implements OnInit {
     this.currentUser = this.authService.getStoredUser();
     this.isAdmin = this.authService.isAdmin();
     this.isDriver = this.authService.isDriver();
-    
+    this.isRegularUser = this.authService.isRegularUser();
+
     // Load driver status if user is a driver
     if (this.isDriver && this.currentUser?.userId) {
       this.loadDriverStatus();
     }
-    
+
     // Subscribe to future changes
     this.authService.isAuthenticated$.subscribe(
       isAuth => {
@@ -56,13 +71,13 @@ export class Navbar implements OnInit {
         }
       }
     );
-    
+
     this.authService.currentUser$.subscribe(
       user => {
         this.currentUser = user;
         this.isAdmin = this.authService.isAdmin();
         this.isDriver = this.authService.isDriver();
-        
+
         if (this.isDriver && user?.userId) {
           this.loadDriverStatus();
         }
@@ -80,7 +95,7 @@ export class Navbar implements OnInit {
 
   loadDriverStatus(): void {
     if (!this.currentUser?.userId) return;
-    
+
     this.driverStatusService.getDriverStatus(this.currentUser.userId).subscribe({
       next: (driver) => {
         this.driverActive = driver.active || false;
@@ -94,10 +109,11 @@ export class Navbar implements OnInit {
 
   toggleDriverStatus(): void {
     if (!this.currentUser?.userId || this.statusLoading) return;
-    
+
     this.statusLoading = true;
+    this.cdr.detectChanges();
     const newStatus = !this.driverActive;
-    
+
     if (newStatus) {
       // Activate driver - need to get coordinates
       navigator.geolocation.getCurrentPosition(
@@ -108,28 +124,25 @@ export class Navbar implements OnInit {
           };
           this.driverService.activateDriver(coordinates).subscribe({
             next: () => {
-              this.ngZone.run(() => {
-                this.statusLoading = false;
-                this.driverActive = true;
-                this.driverStatusService.updateLocalStatus(true);
-                this.notificationService.showNotification('Driver activated successfully', 'success');
-              });
+              this.statusLoading = false;
+              this.driverActive = true;
+              this.driverStatusService.updateLocalStatus(true);
+              this.notificationService.showNotification('Driver activated successfully', 'success');
+              this.cdr.detectChanges();
             },
             error: (error) => {
-              this.ngZone.run(() => {
-                this.statusLoading = false;
-                const message = error.error?.message || 'Failed to activate driver';
-                this.notificationService.showNotification(message, 'error');
-              });
+              this.statusLoading = false;
+              const message = error.error?.message || 'Failed to activate driver';
+              this.notificationService.showNotification(message, 'error');
+              this.cdr.detectChanges();
             }
           });
         },
         (error) => {
-          this.ngZone.run(() => {
-            this.statusLoading = false;
-            console.warn('Geolocation error:', error);
-            this.notificationService.showNotification('Unable to get your location. Please enable geolocation.', 'error');
-          });
+          this.statusLoading = false;
+          console.warn('Geolocation error:', error);
+          this.notificationService.showNotification('Unable to get your location. Please enable geolocation.', 'error');
+          this.cdr.detectChanges();
         },
         {
           timeout: 5000,
@@ -137,22 +150,38 @@ export class Navbar implements OnInit {
         }
       );
     } else {
-      // Deactivate driver
-      this.driverService.deactivateDriver().subscribe({
-        next: () => {
-          this.ngZone.run(() => {
-            this.statusLoading = false;
-            this.driverActive = false;
-            this.driverStatusService.updateLocalStatus(false);
-            this.notificationService.showNotification('Driver deactivated successfully', 'success');
-          });
+      // Deactivate driver - using the driverStatusService which handles pending status
+      this.driverStatusService.setDriverStatus(this.currentUser.userId, newStatus).subscribe({
+        next: (response) => {
+          this.statusLoading = false;
+
+          // Check if the status change is pending
+          if (response.pending) {
+            this.notificationService.showNotification(
+              response.message || 'Status change will be applied after your ride completes',
+              'info'
+            );
+            // Don't update the local status yet, keep it as active
+          } else if (response.active !== undefined) {
+            this.driverActive = response.active;
+            this.driverStatusService.updateLocalStatus(this.driverActive);
+            this.notificationService.showNotification(
+              `Status updated: ${this.driverActive ? 'Available' : 'Unavailable'}`,
+              'success'
+            );
+          } else {
+            this.notificationService.showNotification(
+              response.message || 'Status change processed',
+              'info'
+            );
+          }
+          this.cdr.detectChanges();
         },
         error: (error) => {
-          this.ngZone.run(() => {
-            this.statusLoading = false;
-            const message = error.error?.message || 'Failed to deactivate driver';
-            this.notificationService.showNotification(message, 'error');
-          });
+          this.statusLoading = false;
+          const message = error.error?.message || 'Failed to update status';
+          this.notificationService.showNotification(message, 'error');
+          this.cdr.detectChanges();
         }
       });
     }
@@ -165,12 +194,35 @@ export class Navbar implements OnInit {
       },
       error: (error) => {
         if (error.status === 403) {
-          const message = error.error?.message || 'Cannot logout at this time';
+          const message = error.error?.message || 'Cannot logout during an active ride';
           this.notificationService.showNotification(message, 'error');
         } else {
+          // For other errors, navigate to home
           this.router.navigate(['/home-page']);
         }
       }
     });
+  }
+
+  getLatestRide(){
+    this.regularUserService.getLatestRideId()
+      .pipe(
+          timeout(5000) // 5000ms = 5 sekundi
+        )
+        .subscribe({
+          next: ride => {
+            this.latestRideId?.set(ride.rideId);
+            this.latestRideStatus.set(ride.status)
+            this.hasLatestRide.set(true);
+            console.log(ride);
+          },
+          error: err => {
+            if (err.name === 'TimeoutError') {
+              console.error('Request timed out');
+            } else {
+              console.error(err);
+            }
+          },
+      });
   }
 }

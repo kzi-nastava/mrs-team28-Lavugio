@@ -1,7 +1,7 @@
 <div class="w-full">
   <div class="flex items-center justify-between bg-[#BC6C25] px-8 h-16 sm:drop-shadow-sm">
     <app-logo></app-logo>
-    <app-links 
+    <app-links
       (isMenuOpenOutput)="isMenuOpen = $event"
       (logoutOutput)="logout()"
       (toggleStatusOutput)="toggleDriverStatus()"
@@ -9,19 +9,30 @@
       [userName]="currentUser?.name || ''"
       [isAdmin]="isAdmin"
       [isDriver]="isDriver"
+      [isRegularUser]="isRegularUser"
       [driverActive]="driverActive"
-      [statusLoading]="statusLoading">
+      [statusLoading]="statusLoading"
+      [hasLatestRide]="hasLatestRide()"
+      [latestRideId]="latestRideId()"
+      [latestRideStatus]="latestRideStatus()">
     </app-links>
   </div>
-  
+
   @if (isMenuOpen) {
     <div class="w-screen flex flex-col bg-[#BC6C25] sm:hidden sm:drop-shadow-sm [&>*]:py-2 [&>*]:px-4">
       @if (isAuthenticated) {
+        @if (isRegularUser){
+          @if (hasLatestRide()){
+            <app-link [route]="'/' + latestRideId() + '/ride-overview'">Latest ride</app-link>
+          }
+          <app-link [route]="'/find-trip'">Order ride</app-link>
+          <app-link class="border-t border-[#DDA15E]" [route]="'/active-rides'">Rides</app-link>
+        }
         @if (isDriver) {
           <div class="border-t border-[#DDA15E] py-2 flex items-center justify-between">
             <span class="text-[#FEFAE0]">Status:</span>
-            <button 
-              (click)="toggleDriverStatus()" 
+            <button
+              (click)="toggleDriverStatus()"
               [disabled]="statusLoading"
               class="px-4 py-2 rounded-md text-sm transition duration-300"
               [ngClass]="driverActive ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'"
@@ -29,9 +40,9 @@
               {{ statusLoading ? 'Updating...' : (driverActive ? 'Online' : 'Offline') }}
             </button>
           </div>
+          <app-link class="border-t border-[#DDA15E]" [route]="'/ride-history-driver'">History</app-link>
+          <app-link class="border-t border-[#DDA15E]" [route]="'/driver-scheduled-rides'">Rides</app-link>
         }
-        <app-link class="border-t border-[#DDA15E]">Trips</app-link>
-        <app-link class="border-t border-[#DDA15E]" [route]="'/trip-history-driver'">History</app-link>
         <app-link class="border-t border-[#DDA15E]">Reports</app-link>
         <app-link class="border-t border-[#DDA15E]" [route]="'/profile'">Profile</app-link>
         @if (isAdmin) {

@@ -1,5 +1,74 @@
 <app-navbar></app-navbar>
 
+<!-- Panic Alerts Banner -->
+@if (hasUnreadPanic()) {
+  <div class="fixed top-20 left-4 right-4 z-50 animate-pulse">
+    <div class="bg-red-600 text-white p-4 rounded-lg shadow-xl border-2 border-red-700 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🚨</span>
+        <span class="font-bold text-lg">PANIC ALERT RECEIVED!</span>
+        <span class="text-sm">{{ panicAlerts().length }} active alert(s)</span>
+      </div>
+      <button 
+        (click)="openPanicAlerts()"
+        class="bg-white text-red-600 px-4 py-2 rounded font-bold hover:bg-red-50 transition">
+        VIEW
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Panic Alerts Panel -->
+@if (showPanicPanel()) {
+  <div class="fixed inset-0 z-40 bg-black/50" (click)="showPanicPanel.set(false)"></div>
+  
+  <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl z-50 bg-white rounded-lg shadow-2xl max-h-[80vh] overflow-y-auto mx-4">
+    <div class="sticky top-0 bg-red-600 text-white p-4 flex justify-between items-center">
+      <h2 class="text-xl font-bold">🚨 PANIC ALERTS ({{ panicAlerts().length }})</h2>
+      <button 
+        (click)="showPanicPanel.set(false)"
+        class="text-2xl hover:bg-red-700 w-8 h-8 rounded flex items-center justify-center">
+        ×
+      </button>
+    </div>
+
+    @if (panicAlerts().length === 0) {
+      <div class="p-8 text-center text-gray-500">
+        <p class="text-lg">No active panic alerts</p>
+      </div>
+    } @else {
+      <div class="divide-y">
+        @for (alert of panicAlerts(); let i = $index; track alert.rideId) {
+          <div class="p-4 bg-red-50 border-l-4 border-red-600">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="font-bold text-red-700 text-lg">Ride #{{ alert.rideId }}</h3>
+              <button 
+                (click)="removePanicAlert(i)"
+                class="text-red-600 hover:text-red-800 text-xl">
+                ×
+              </button>
+            </div>
+            <p class="text-sm text-gray-700 mb-2"><strong>Passenger:</strong> {{ alert.passengerName }}</p>
+            <p class="text-sm text-gray-700 mb-2"><strong>Driver:</strong> {{ alert.driverName }}</p>
+            <p class="text-sm text-gray-700 mb-2"><strong>Location:</strong> {{ alert.location?.latitude }}, {{ alert.location?.longitude }}</p>
+            <p class="text-sm text-gray-700 mb-2"><strong>Vehicle:</strong> {{ alert.vehicleType }} ({{ alert.vehicleLicensePlate }})</p>
+            <p class="text-sm text-gray-700 mb-2"><strong>Message:</strong> {{ alert.message }}</p>
+            <p class="text-xs text-gray-500">{{ alert.timestamp | date: 'short' }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="p-4 bg-gray-100 border-t sticky bottom-0">
+        <button 
+          (click)="clearAllPanicAlerts()"
+          class="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition font-bold">
+          Clear All Alerts
+        </button>
+      </div>
+    }
+  </div>
+}
+
 <app-white-sheet-background title="Administrator Panel" spacing="center" width="sm">
     <!-- Buttons - uvek dole -->
         <div class="flex flex-col gap-3 pt-6 w-full max-w-md mx-auto">
@@ -22,6 +91,16 @@
             <button (click)="openReportsView()"
                 class="px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors">
                 See Reports
+            </button>
+
+            <button (click)="openPanicAlerts()"
+                [class]="panicAlerts().length > 0 
+                  ? 'px-6 py-3 border-red-600 border-2 bg-red-600 text-white rounded-sm font-bold flex-1 hover:bg-red-700 hover:border-red-700 transition-colors animate-pulse'
+                  : 'px-6 py-3 border-[#606C38] border-2 bg-[#606C38] text-white rounded-sm font-bold flex-1 hover:bg-[#283618] hover:border-[#283618] transition-colors'">
+                🚨 Panic Alerts
+                @if (panicAlerts().length > 0) {
+                  <span class="ml-2 bg-white text-red-600 px-2 py-1 rounded-full text-sm font-bold">{{ panicAlerts().length }}</span>
+                }
             </button>
 
         </div>

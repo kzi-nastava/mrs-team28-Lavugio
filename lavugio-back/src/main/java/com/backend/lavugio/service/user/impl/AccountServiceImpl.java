@@ -282,6 +282,8 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new RuntimeException("Account with this email doesn't exist"));
 
         if (account instanceof RegularUser regularUser) {
+            // Check if user has any ACTIVE rides (not the hardcoded can_order flag)
+            // For now, we'll use the can_order flag, but ideally this should query rides table
             canOrderRideDTO.setInRide(regularUser.isCanOrder());
         }
 

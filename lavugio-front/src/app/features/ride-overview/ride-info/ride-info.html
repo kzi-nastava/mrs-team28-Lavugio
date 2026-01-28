@@ -157,22 +157,30 @@
                 bg-red-600 text-white font-bold
                 text-sm sm:text-base
                 hover:bg-red-700 transition shadow-lg
-                hover:cursor-pointer"
-        (click) = "onPanicClick()">
-        PANIC
+                hover:cursor-pointer animate-pulse
+                disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="isPanicLoading() || hasPanicBeenTriggered()"
+        (click)="onPanicClick()">
+        {{ 
+          isPanicLoading() ? 'SENDING ALERT...' : 
+          hasPanicBeenTriggered() ? '✓ ALERT SENT' : 
+          '🚨 PANIC' 
+        }}
       </button>
     }
     @else if (rideStatus() === 'FINISHED') {
       @if (!isReviewed()){
-        <button
-          class="w-full py-2 sm:py-3 rounded-lg
-                bg-[#606C38] text-white font-bold
-                text-sm sm:text-base
-                hover:bg-[#4a5429] transition shadow-md
-                hover:cursor-pointer"
-                (click)="reviewClicked.emit()">
-          Rate Ride
-        </button>
+        @if (canRateRide()) {
+          <button
+            class="w-full py-2 sm:py-3 rounded-lg
+                  bg-[#606C38] text-white font-bold
+                  text-sm sm:text-base
+                  hover:bg-[#4a5429] transition shadow-md
+                  hover:cursor-pointer"
+                  (click)="reviewClicked.emit()">
+            Rate Ride
+          </button>
+        }
       } @else {
         <button
           class="w-full py-2 sm:py-3 rounded-lg

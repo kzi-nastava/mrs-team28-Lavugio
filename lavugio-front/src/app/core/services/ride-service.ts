@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 import { RideOverviewUpdate } from '@app/shared/models/ride/rideOverviewUpdate';
 import { Client, Stomp } from '@stomp/stompjs';
@@ -72,8 +73,8 @@ export class RideService {
     return this.http.post<RideReview>(`${this.mainPortUrl}/${rideId}/review`, review);
   }
 
-  postRideFinish(finish: FinishRide): Observable<FinishRide>{
-    return this.http.post<FinishRide>(`${this.mainPortUrl}/finish`, finish);
+  putRideFinish(finish: FinishRide): Observable<FinishRide>{
+    return this.http.put<FinishRide>(`${this.mainPortUrl}/finish`, finish);
   }
 
   closeConnection(){
@@ -93,4 +94,32 @@ export class RideService {
   findRide(request: RideRequestDTO): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/find-ride`, request);
   }
- }
+
+  canAccess(rideId: number){
+    return this.http.get<boolean>(`${this.mainPortUrl}/${rideId}/access`)
+  }
+
+  triggerPanic(rideId: number, panicAlert: any): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/${rideId}/panic`, panicAlert);
+  }
+
+  getUserActiveRides(): Observable<any[]> {
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
+    return this.http.get<any[]>(`${this.mainPortUrl}/user/active?t=${timestamp}`);
+  }
+
+  hasDriverActiveRides(driverId: number): Observable<boolean> {
+    return this.getUserActiveRides().pipe(
+      map(rides => rides && rides.length > 0)
+    );
+  }
+
+  cancelRideByDriver(rideId: number, reason: string): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/${rideId}/cancel-by-driver`, { reason });
+  }
+
+  cancelRideByPassenger(rideId: number): Observable<any> {
+    return this.http.post<any>(`${this.mainPortUrl}/${rideId}/cancel-by-passenger`, {});
+  }
+}

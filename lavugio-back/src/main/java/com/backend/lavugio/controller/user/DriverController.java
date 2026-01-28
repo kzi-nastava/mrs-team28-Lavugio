@@ -17,6 +17,7 @@ import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverUpdateRequest;
+import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.service.ride.RideService;
@@ -130,12 +131,27 @@ public class DriverController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Active status is required"));
             }
             
+            // Check if driver has active ride before attempting change
+            boolean hasActiveRide = driverService.hasActiveRide(driverId);
+
             driverService.setDriverStatus(driverId, active);
             
-            return ResponseEntity.ok(Map.of(
-                "message", "Driver status updated successfully",
-                "active", active
-            ));
+            // Check if the change was applied or is pending
+            Boolean pendingChange = driverService.getPendingStatusChange(driverId);
+
+            if (pendingChange != null && !active) {
+                // Status change is pending (driver has active ride)
+                return ResponseEntity.ok(Map.of(
+                    "message", "You have an active ride. Status will change to inactive after the ride completes.",
+                    "pending", true
+                ));
+            } else {
+                // Status change was applied immediately
+                return ResponseEntity.ok(Map.of(
+                    "message", "Driver status updated successfully",
+                    "active", active
+                ));
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -306,7 +322,9 @@ public class DriverController {
             System.out.println("Driver ID:" + accountId + " activated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            System.err.println("Error activating driver: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
@@ -321,7 +339,8 @@ public class DriverController {
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            System.err.println("Error deactivating driver: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
@@ -382,9 +401,9 @@ public class DriverController {
         }
     }
 
-    @GetMapping(value = "/{driverId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('DRIVER')")
+    @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverHistoryPagingDTO> getAllDriverHistory(
-            @PathVariable Long driverId,
             @RequestParam int page,
             @RequestParam int pageSize,
             @RequestParam(defaultValue = "DESC") String sorting,
@@ -411,6 +430,7 @@ public class DriverController {
     }
 
 
+    @PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverHistoryDetailedDTO> getDriverHistoryByRideId(@PathVariable Long rideId) {
         try{
@@ -444,13 +464,14 @@ public class DriverController {
         return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('DRIVER')")
     @GetMapping(
-            value = "/{driverId}/scheduled-rides",
+            value = "/scheduled-rides",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Collection<ScheduledRideDTO>> getAllScheduledRides(
-            @PathVariable Long driverId
     ) {
+        Long driverId = SecurityUtils.getCurrentUserId();
         System.out.println("Getting scheduled rides for driver ID: " + driverId);
         List<ScheduledRideDTO> scheduledRides = scheduledRideService.getScheduledRidesForDriver(driverId);
         return ResponseEntity.ok(scheduledRides);

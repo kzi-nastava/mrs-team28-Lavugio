@@ -13,6 +13,8 @@ import { ReviewForm } from '@app/shared/components/review-form/review-form';
 import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
 import { LocationService } from '@app/core/services/location-service';
+import { computed } from '@angular/core';
+
 
 @Component({
   selector: 'app-ride-overview',
@@ -33,6 +35,21 @@ export class RideOverview implements AfterViewInit {
   showReview = signal(false);
   isRated = signal(false);
   isReported = signal(false);
+  canRateRide = computed(() => {
+    const overview = this.rideOverview();
+    if (!overview) return false;
+
+    if (overview.status !== 'FINISHED') return false;
+    if (!overview.arrivalTime) return false;
+    if (this.isRated()) return false;
+
+    const arrival = new Date(overview.arrivalTime).getTime();
+    const now = Date.now();
+
+    const diffInDays = (now - arrival) / (1000 * 60 * 60 * 24);
+
+    return diffInDays <= 3;
+  });
 
   rideOverview = signal<RideOverviewModel | null>(null);
   rideId!: number;
@@ -100,12 +117,24 @@ export class RideOverview implements AfterViewInit {
       catchError(err => {
         console.error('Error fetching ride overview:', err);
         this.rideOverview.set(null);
+        
+        // If ride not found or access forbidden, redirect to active rides
+        if (err.status === 404 || err.status === 403) {
+          alert('This ride is not available. Redirecting to active rides...');
+          this.router.navigate(['/active-rides']);
+        }
+        
         return EMPTY;
       })
     ).subscribe(overview => {
       this.rideOverview.set(overview);
       this.isReported.set(overview.reported ? true : false);
       this.isRated.set(overview.reviewed ? true : false);
+      
+      // Warn if ride is not ACTIVE
+      if (overview.status && overview.status !== 'ACTIVE') {
+        console.warn(`Viewing ride with status: ${overview.status}`);
+      }
     });
   }
 
@@ -209,7 +238,16 @@ export class RideOverview implements AfterViewInit {
             MarkerIcons.driverAvailable
           );
         })
-        .catch(err => console.error('Location error:', err))
+        .catch(err => {
+          console.error('Location error:', err);
+          // Show user-friendly error message with instructions
+          if (err.code === 1) { // PERMISSION_DENIED
+            console.warn(
+              '⚠️ Location permission denied. ' +
+              'Click the lock icon in the address bar and allow location access.'
+            );
+          }
+        })
   }
 
   stopTrackingClientLocation(): void {

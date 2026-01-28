@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,6 +46,9 @@ public class ReviewServiceImpl implements ReviewService {
         }
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
+        }
+        if (!ride.getPassengers().contains(user)) {
+            throw new IllegalCallerException("User is not passenger of this ride");
         }
         if (hasReviewed(userId,  rideId)) {
             throw new IllegalStateException("User has already reviewed this ride");

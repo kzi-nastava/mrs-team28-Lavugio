@@ -4,6 +4,7 @@ import com.backend.lavugio.model.notification.Notification;
 import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
+import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.notification.NotificationRepository;
 import com.backend.lavugio.repository.user.AccountRepository;
 import com.backend.lavugio.service.notification.NotificationService;
@@ -191,7 +192,85 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void notifyPassengersAboutFinishedRide(Ride ride) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (RegularUser passenger : ride.getPassengers()) {
+            Notification notification = new Notification();
+            notification.setNotificationType(NotificationType.REGULAR);
+            notification.setTitle("Ride Completed");
+            notification.setText("Your ride #" + ride.getId() + " has been completed.");
+            notification.setLinkToRide("http://localhost:4200/" + ride.getId() + "/ride-overview");
+            notification.setSentTo(passenger);
+            notification.setRead(false);
+            notification.setSentTime(LocalTime.now());
+            notification.setSentDate(LocalDate.now());
+            createNotification(notification);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void notifyPassengersAboutCancellation(Ride ride, String reason, boolean byDriver) {
+        String title = byDriver ? "Ride Cancelled by Driver" : "Ride Cancelled";
+        String message = byDriver 
+            ? "Your ride #" + ride.getId() + " has been cancelled by the driver. Reason: " + reason
+            : "Ride #" + ride.getId() + " has been cancelled.";
+        
+        System.out.println("=== NOTIFICATION SERVICE: Creating cancellation notifications ===");
+        System.out.println("Ride ID: " + ride.getId());
+        System.out.println("Number of passengers: " + ride.getPassengers().size());
+        System.out.println("By Driver: " + byDriver);
+        System.out.println("Reason: " + reason);
+            
+        for (RegularUser passenger : ride.getPassengers()) {
+            System.out.println("Processing passenger: " + passenger.getId() + " - " + passenger.getEmail());
+            Notification notification = new Notification();
+            notification.setNotificationType(NotificationType.REGULAR);
+            notification.setTitle(title);
+            notification.setText(message);
+            notification.setLinkToRide("http://localhost:4200/" + ride.getId() + "/ride-overview");
+            notification.setSentTo(passenger);
+            notification.setRead(false);
+            notification.setSentTime(LocalTime.now());
+            notification.setSentDate(LocalDate.now());
+            
+            try {
+                Notification saved = createNotification(notification);
+                System.out.println("✓ Notification ID " + saved.getId() + " created for passenger: " + passenger.getId());
+            } catch (Exception e) {
+                System.err.println("✗ Failed to create notification for passenger " + passenger.getId() + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        System.out.println("=== NOTIFICATION SERVICE: Finished processing ===");
+    }
+
+    @Override
+    @Transactional
+    public void notifyDriverAboutPassengerCancellation(Ride ride) {
+        System.out.println("=== NOTIFICATION SERVICE: Notifying driver about cancellation ===");
+        if (ride.getDriver() != null) {
+            System.out.println("Driver ID: " + ride.getDriver().getId());
+            
+            Notification notification = new Notification();
+            notification.setNotificationType(NotificationType.REGULAR);
+            notification.setTitle("Ride Cancelled by Passenger");
+            notification.setText("Ride #" + ride.getId() + " has been cancelled by the passenger.");
+            notification.setLinkToRide("http://localhost:4200/" + ride.getId() + "/ride-overview");
+            notification.setSentTo(ride.getDriver());
+            notification.setRead(false);
+            notification.setSentTime(LocalTime.now());
+            notification.setSentDate(LocalDate.now());
+            
+            try {
+                Notification saved = createNotification(notification);
+                System.out.println("✓ Notification ID " + saved.getId() + " created for driver: " + ride.getDriver().getId());
+            } catch (Exception e) {
+                System.err.println("✗ Failed to create notification for driver: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No driver assigned to ride");
+        }
+        System.out.println("=== NOTIFICATION SERVICE: Finished processing ===");
     }
 
     @Override

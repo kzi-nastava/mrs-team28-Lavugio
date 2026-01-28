@@ -6,7 +6,7 @@ import com.backend.lavugio.model.ride.RideReport;
 import java.util.List;
 
 public interface RideReportService {
-    RideReport createReport(RideReportDTO report);
+    RideReport createReport(Long reporterId, RideReportDTO report);
     RideReport getReportById(Long id);
     RideReportedDTO getReportDTOById(Long id);
     List<RideReport> getAllReports();

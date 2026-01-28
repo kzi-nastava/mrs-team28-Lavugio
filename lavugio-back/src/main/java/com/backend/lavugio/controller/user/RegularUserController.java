@@ -1,24 +1,33 @@
 package com.backend.lavugio.controller.user;
 
+import com.backend.lavugio.dto.ride.LatestRideDTO;
 import com.backend.lavugio.dto.user.LoginRequestDTO;
 import com.backend.lavugio.dto.user.LoginResponseDTO;
 import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.dto.user.EmailVerificationDTO;
+import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.security.JwtUtil;
+import com.backend.lavugio.security.SecurityUtils;
+import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.user.AccountService;
+import com.backend.lavugio.service.user.RegularUserService;
+import com.backend.lavugio.service.user.UserRegistrationTokenService;
 import com.backend.lavugio.service.user.*;
 import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.repository.user.AdministratorRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -56,7 +65,10 @@ public class RegularUserController {
     private DriverActivityService driverActivityService;
     @Autowired
     private DriverAvailabilityService driverAvailabilityService;
-    
+
+    @Autowired
+    private RideService rideService;
+
     // REGISTRATION & AUTHENTICATION
 
     @PostMapping("/register")
@@ -70,6 +82,41 @@ public class RegularUserController {
             @RequestParam(required = false) MultipartFile profilePicture) {
         try {
             logger.info("Registration attempt for email: {}", email);
+            
+            // Manual validation
+            if (email == null || email.trim().isEmpty()) {
+                throw new IllegalArgumentException("Email is required");
+            }
+            if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                throw new IllegalArgumentException("Email should be valid");
+            }
+            if (password == null || password.length() < 8) {
+                throw new IllegalArgumentException("Password must be at least 8 characters");
+            }
+            if (name == null || name.trim().isEmpty()) {
+                throw new IllegalArgumentException("Name is required");
+            }
+            if (name.length() < 2 || name.length() > 50) {
+                throw new IllegalArgumentException("Name must be between 2 and 50 characters");
+            }
+            if (lastName == null || lastName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Last name is required");
+            }
+            if (lastName.length() < 2 || lastName.length() > 50) {
+                throw new IllegalArgumentException("Last name must be between 2 and 50 characters");
+            }
+            if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+                throw new IllegalArgumentException("Phone number is required");
+            }
+            if (!phoneNumber.matches("^(\\+381|0)[0-9\\s\\-()]{6,14}$")) {
+                throw new IllegalArgumentException("Phone number must be valid Serbian format (+381 or 0)");
+            }
+            if (address == null || address.trim().isEmpty()) {
+                throw new IllegalArgumentException("Address is required");
+            }
+            if (address.length() < 5 || address.length() > 200) {
+                throw new IllegalArgumentException("Address must be between 5 and 200 characters");
+            }
             
             // Create DTO from request parameters
             UserRegistrationDTO request = new UserRegistrationDTO();
@@ -497,6 +544,20 @@ public class RegularUserController {
             logger.error("Error in reset password: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(java.util.Map.of("error", "An error occurred while resetting password"));
+        }
+    }
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
+    @GetMapping(value = "/latest-ride")
+    public ResponseEntity<LatestRideDTO> getLatestRideId() {
+        try{
+            Long userId = SecurityUtils.getCurrentUserId();
+            LatestRideDTO ride = rideService.getLatestRide(userId);
+            return ResponseEntity.ok(ride);
+        } catch (NoSuchElementException e){
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

@@ -62,6 +62,7 @@ public class RideServiceImpl implements RideService {
     private final com.backend.lavugio.service.route.AddressService addressService;
     private final RideQueryService rideQueryService;
     private final EmailService emailService;
+    private final com.backend.lavugio.service.notification.NotificationService notificationService;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -73,7 +74,8 @@ public class RideServiceImpl implements RideService {
                            DriverActivityService driverActivityService,
                            com.backend.lavugio.service.route.AddressService addressService,
                            RideQueryService rideQueryService,
-                           EmailService emailService) {
+                           EmailService emailService,
+                           com.backend.lavugio.service.notification.NotificationService notificationService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -84,6 +86,7 @@ public class RideServiceImpl implements RideService {
         this.addressService = addressService;
         this.rideQueryService = rideQueryService;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -124,6 +127,11 @@ public class RideServiceImpl implements RideService {
     @Override
     public List<Ride> getRidesByPassengerId(Long passengerId) {
         return rideQueryService.getRidesByPassengerId(passengerId);
+    }
+
+    @Override
+    public List<Ride> getRidesByCreatorAndStatus(Long creatorId, RideStatus status) {
+        return rideRepository.findByCreatorIdAndStatus(creatorId, status);
     }
 
     @Override
@@ -187,6 +195,14 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(newStatus);
 
         return rideRepository.save(ride);
+    }
+
+    @Override
+    @Transactional
+    public void markRideWithPanic(Long rideId) {
+        Ride ride = getRideById(rideId);
+        ride.setHasPanic(true);
+        rideRepository.save(ride);
     }
 
     @Override
@@ -272,6 +288,88 @@ public class RideServiceImpl implements RideService {
 
         ride.setRideStatus(RideStatus.CANCELLED);
         rideRepository.save(ride);
+    }
+
+    @Override
+    @Transactional
+    public void cancelRideByDriver(Long rideId, String reason) {
+        Ride ride = getRideById(rideId);
+        
+        if (ride.getRideStatus() == RideStatus.FINISHED) {
+            throw new IllegalStateException("Cannot cancel finished ride");
+        }
+        
+        if (ride.getRideStatus() == RideStatus.ACTIVE) {
+            throw new IllegalStateException("Cannot cancel active ride. Finish it early instead.");
+        }
+        
+        // Set ride status to cancelled
+        ride.setRideStatus(RideStatus.CANCELLED);
+        
+        // Mark driver as not driving
+        if (ride.getDriver() != null) {
+            ride.getDriver().setDriving(false);
+        }
+        
+        // Reset creator's canOrder flag
+        if (ride.getCreator() != null) {
+            ride.getCreator().setCanOrder(true);
+        }
+        
+        rideRepository.save(ride);
+        
+        // Load passengers eagerly before sending notifications
+        Set<RegularUser> passengers = ride.getPassengers();
+        System.out.println("Number of passengers on ride: " + passengers.size());
+        
+        // Send notifications to passengers with cancellation reason
+        notificationService.notifyPassengersAboutCancellation(ride, reason, true);
+    }
+
+    @Override
+    @Transactional
+    public void cancelRideByPassenger(Long rideId) {
+        Ride ride = getRideById(rideId);
+        
+        if (ride.getRideStatus() == RideStatus.FINISHED) {
+            throw new IllegalStateException("Cannot cancel finished ride");
+        }
+        
+        if (ride.getRideStatus() == RideStatus.ACTIVE) {
+            throw new IllegalStateException("Cannot cancel active ride");
+        }
+        
+        // Check if cancellation is within 10 minutes of start time
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = ride.getStartDateTime();
+        long minutesUntilStart = java.time.Duration.between(now, startTime).toMinutes();
+        
+        if (minutesUntilStart < 10) {
+            throw new IllegalStateException("Cannot cancel ride less than 10 minutes before start time");
+        }
+        
+        // Set ride status to cancelled
+        ride.setRideStatus(RideStatus.CANCELLED);
+        
+        // Mark driver as not driving
+        if (ride.getDriver() != null) {
+            ride.getDriver().setDriving(false);
+        }
+        
+        // Reset creator's canOrder flag
+        if (ride.getCreator() != null) {
+            ride.getCreator().setCanOrder(true);
+        }
+        
+        rideRepository.save(ride);
+        
+        // Load driver eagerly before sending notification
+        if (ride.getDriver() != null) {
+            System.out.println("Notifying driver: " + ride.getDriver().getId());
+        }
+        
+        // Notify driver about cancellation
+        notificationService.notifyDriverAboutPassengerCancellation(ride);
     }
 
     @Override
@@ -459,7 +557,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Transactional
-    private Ride createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
+    protected Ride createInstantRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
         ride.setDriver(driver);
@@ -511,7 +609,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Transactional
-    private Ride createScheduledRide(Driver driver, RegularUser creator, RideRequestDTO request) {
+    protected Ride createScheduledRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
         ride.setDriver(driver);
@@ -608,8 +706,14 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public DriverHistoryDetailedDTO getDriverHistoryDetailed(Long rideId) {
+    public DriverHistoryDetailedDTO getDriverHistoryDetailed(Long driverId, Long rideId) {
         Ride ride = this.getRideById(rideId);
+        if (ride == null) {
+            throw new NoSuchElementException(String.format("Cannot find ride with id %d", rideId));
+        }
+        if (!ride.getDriver().getId().equals(driverId)) {
+            throw new IllegalStateException(String.format("Driver didn't drive this ride %d", ride.getDriver().getId()));
+        }
         DriverHistoryDetailedDTO dto = new DriverHistoryDetailedDTO(ride);
         List<PassengerTableRowDTO> passengers = new ArrayList<>();
         for (RegularUser regularUser : ride.getPassengers()){
@@ -637,6 +741,15 @@ public class RideServiceImpl implements RideService {
         rideCreator.setCanOrder(false);
         regularUserRepository.save(rideCreator);
         driverService.updateDriverDriving(ride.getDriver().getId(), true);
+    }
+
+    @Override
+    public LatestRideDTO getLatestRide(Long userId){
+        Ride ride = this.rideRepository.findFirstByPassengers_IdOrderByStartDateTimeDesc(userId);
+        if (ride == null){
+            throw new NoSuchElementException(String.format("Cannot find ride for user id %d", userId));
+        }
+        return new LatestRideDTO(ride.getId(), ride.getRideStatus());
     }
 
 }

@@ -18,9 +18,15 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RideRequestDTO {
+    @NotNull(message = "Destinations are required")
+    @Size(min = 2, message = "At least start and end destinations are required")
+    @Valid
     private List<RideDestinationDTO> destinations;
 
+    @NotEmpty(message = "At least one passenger email is required")
     private List<String> passengerEmails;
+    
+    @NotNull(message = "Vehicle type is required")
     private VehicleType vehicleType;
 
     private boolean babyFriendly;
