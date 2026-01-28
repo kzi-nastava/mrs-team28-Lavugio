@@ -275,7 +275,7 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
         };
         
         // Send finish early request to backend
-        this.rideService.postRideFinish(finishEarlyData).subscribe({
+        this.rideService.putRideFinish(finishEarlyData).subscribe({
           next: () => {
             console.log('✅ Ride finished early successfully:', rideId);
             alert('✅ Ride ended successfully. The price has been recalculated based on the distance traveled.');

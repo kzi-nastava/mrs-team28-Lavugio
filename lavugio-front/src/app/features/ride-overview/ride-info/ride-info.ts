@@ -40,6 +40,7 @@ export class RideInfo implements OnInit, OnDestroy {
   rideOverview = input<RideOverviewModel | null>(null);
   isReported = input<boolean>(false);
   isReviewed = input<boolean>(false);
+  canRateRide = input<boolean>(true);
   
   private rideService = inject(RideService);
   private authService = inject(AuthService);

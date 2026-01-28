@@ -13,6 +13,8 @@ import { ReviewForm } from '@app/shared/components/review-form/review-form';
 import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
 import { LocationService } from '@app/core/services/location-service';
+import { computed } from '@angular/core';
+
 
 @Component({
   selector: 'app-ride-overview',
@@ -33,6 +35,21 @@ export class RideOverview implements AfterViewInit {
   showReview = signal(false);
   isRated = signal(false);
   isReported = signal(false);
+  canRateRide = computed(() => {
+    const overview = this.rideOverview();
+    if (!overview) return false;
+
+    if (overview.status !== 'FINISHED') return false;
+    if (!overview.arrivalTime) return false;
+    if (this.isRated()) return false;
+
+    const arrival = new Date(overview.arrivalTime).getTime();
+    const now = Date.now();
+
+    const diffInDays = (now - arrival) / (1000 * 60 * 60 * 24);
+
+    return diffInDays <= 3;
+  });
 
   rideOverview = signal<RideOverviewModel | null>(null);
   rideId!: number;
