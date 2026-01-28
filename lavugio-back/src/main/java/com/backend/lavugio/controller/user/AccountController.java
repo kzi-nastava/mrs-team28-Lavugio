@@ -97,6 +97,7 @@ public class AccountController {
     }
 
     @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateCurrentUserProfile(@RequestBody AccountUpdateDTO updatedProfile) {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -165,7 +166,6 @@ public class AccountController {
 
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordDTO passwordUpdate) {
-        // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
@@ -209,7 +209,8 @@ public class AccountController {
     @GetMapping("/is-blocked")
     public ResponseEntity<?> isBlocked() {
         try {
-            Long accountId = 1L;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long accountId = JwtUtil.extractAccountId(authentication);
             IsAccountBlockedDTO isAccountBlockedDTO = accountService.isBlocked(accountId);
             return ResponseEntity.ok(isAccountBlockedDTO);
         } catch (Exception e) {
@@ -220,7 +221,11 @@ public class AccountController {
     @GetMapping("/can-order-ride")
     public ResponseEntity<?> canOrder() {
         try {
-            Long accountId = 1L;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long accountId = JwtUtil.extractAccountId(authentication);
+            if (accountId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             CanOrderRideDTO canOrderRideDTO = accountService.canOrderRide(accountId);
             return ResponseEntity.ok(canOrderRideDTO);
         } catch (Exception e) {

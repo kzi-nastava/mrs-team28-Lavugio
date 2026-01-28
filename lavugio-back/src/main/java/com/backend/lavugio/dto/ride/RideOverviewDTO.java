@@ -39,6 +39,8 @@ public class RideOverviewDTO {
     private boolean isReviewed;
 
     private boolean isReported;
+    
+    private boolean hasPanic;
 
     public RideOverviewDTO(Ride ride, List<CoordinatesDTO> coordinates, String start, String end, boolean isReviewed, boolean isReported) {
         this.rideId = ride.getId();
@@ -53,5 +55,6 @@ public class RideOverviewDTO {
         this.arrivalTime = ride.getEndDateTime();
         this.isReviewed = isReviewed;
         this.isReported = isReported;
+        this.hasPanic = ride.isHasPanic();
     }
 }

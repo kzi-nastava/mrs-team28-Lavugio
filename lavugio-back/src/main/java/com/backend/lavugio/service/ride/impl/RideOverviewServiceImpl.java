@@ -15,6 +15,7 @@ import com.backend.lavugio.service.user.RegularUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -45,6 +46,7 @@ public class RideOverviewServiceImpl implements RideOverviewService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RideOverviewDTO getRideOverviewDTO(Long rideId, Long userId) {
         Ride ride = rideService.getRideById(rideId);
         if (ride == null) {
@@ -53,7 +55,12 @@ public class RideOverviewServiceImpl implements RideOverviewService {
         if (ride.getPassengers().stream().noneMatch(p -> p.getId().equals(userId))) {
             throw new IllegalStateException("User is not participating in this ride");
         }
+
         List<RideDestination> checkpoints = rideDestinationService.getOrderedDestinationsByRideId(rideId);
+        if (checkpoints == null || checkpoints.isEmpty()) {
+            throw new NoSuchElementException("Ride has no destinations");
+        }
+
         List<CoordinatesDTO> coordinates = checkpoints.stream()
                 .map(checkpoint ->
                         new CoordinatesDTO(checkpoint.getAddress().getLatitude(), checkpoint.getAddress().getLongitude())

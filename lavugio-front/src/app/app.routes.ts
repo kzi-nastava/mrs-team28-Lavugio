@@ -22,6 +22,7 @@ import { BlockUser } from './features/block-user/block-user';
 import { guestOnlyauthGuardFn } from '@app/core/guards/guestOnlyAuthGuard';
 import {AuthGuard} from '@app/core/guards/authGuard';
 import {RideOverviewAccessGuard} from '@app/core/guards/rideOverviewAccessGuard'
+import { ActiveRides } from './features/active-rides/active-rides';
 
 export const routes: Routes = [
   {
@@ -50,11 +51,18 @@ export const routes: Routes = [
     data:{role:['DRIVER']}
   },
   {
-    path: 'find-trip', 
-    title: "Find Trip ", 
+    path: 'find-trip',
+    title: "Find Trip ",
     component: FindTrip,
     canActivate: [AuthGuard],
     data: {role:['REGULAR_USER']}
+  },
+  {
+    path: 'active-rides',
+    title: 'My Active Rides',
+    component: ActiveRides,
+    canActivate: [AuthGuard],
+    data: {role: ['REGULAR_USER']}
   },
   {
     path: 'login',

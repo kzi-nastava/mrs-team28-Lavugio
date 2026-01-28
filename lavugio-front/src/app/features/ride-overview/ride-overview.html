@@ -17,6 +17,7 @@
         <app-ride-info
           #rideInfo
           class="w-full h-full flex flex-col"
+          [rideId]="rideId"
           [rideOverview]="rideOverview()"
           [isReported]="isReported()"
           [isReviewed]="isRated()"
@@ -48,6 +49,7 @@
           <app-ride-info
             #rideInfo
             class="w-full h-full"
+            [rideId]="rideId"
             [rideOverview]="rideOverview()"
             [isReported]="isReported()"
             [isReviewed]="isRated()"

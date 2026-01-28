@@ -171,4 +171,10 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     );
 
     Ride findFirstByPassengers_IdOrderByStartDateTimeDesc(Long userId);
+    @Query("SELECT r FROM Ride r WHERE r.creator.id = :creatorId")
+    List<Ride> findByCreatorId(@Param("creatorId") Long creatorId);
+
+    @Query("SELECT DISTINCT r FROM Ride r WHERE (r.creator.id = :userId OR EXISTS (SELECT p FROM r.passengers p WHERE p.id = :userId)) AND r.rideStatus = :status")
+    List<Ride> findByCreatorIdAndStatus(@Param("userId") Long userId, @Param("status") RideStatus status);
+
 }

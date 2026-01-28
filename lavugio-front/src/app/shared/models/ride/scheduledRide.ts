@@ -7,6 +7,7 @@ export interface ScheduledRideDTO {
     scheduledTime : Date;
     checkpoints : Coordinates[];
     price: number;
+    distance: number;
     status: "ACTIVE" | "SCHEDULED";
     panicked: boolean;
 }

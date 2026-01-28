@@ -45,3 +45,4 @@ environment.ts
 .DS_Store
 Thumbs.db
 lavugio-back/uploads/
+package-lock.json

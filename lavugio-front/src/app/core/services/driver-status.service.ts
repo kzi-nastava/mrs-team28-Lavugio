@@ -7,6 +7,7 @@ import { environment } from '@environments/environment';
 export interface DriverStatusResponse {
   message: string;
   active?: boolean;
+  pending?: boolean;
 }
 
 @Injectable({
@@ -20,6 +21,7 @@ export class DriverStatusService {
   public driverStatus$ = this.driverStatusSubject.asObservable();
 
   setDriverStatus(driverId: number, active: boolean): Observable<DriverStatusResponse> {
+    
     return this.http.post<DriverStatusResponse>(
       `${this.apiUrl}/${driverId}/status`,
       { active }

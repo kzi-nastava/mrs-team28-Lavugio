@@ -1,5 +1,6 @@
 package com.backend.lavugio.controller.user;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,9 +18,11 @@ import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.security.SecurityUtils;
+import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
+import com.backend.lavugio.service.user.DriverActivityService;
 import com.backend.lavugio.service.user.DriverRegistrationTokenService;
 import com.backend.lavugio.service.utils.DateTimeParserService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
@@ -27,6 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,9 +53,8 @@ public class DriverController {
     private DriverAvailabilityService driverAvailabilityService;
     @Autowired
     private ScheduledRideService  scheduledRideService;
-
-    private Long accountId = 5L;
-
+    @Autowired
+    private DriverActivityService driverActivityService;
     @Autowired
     private DateTimeParserService dateTimeParserService;
 
@@ -66,22 +71,6 @@ public class DriverController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
-
-    /*@PostMapping("/activate")
-    public ResponseEntity<?> activateDriver(@RequestBody DriverActivationRequestDTO request) {
-        try {
-            System.out.println("Activating driver activated");
-            driverRegistrationTokenService.activateDriver(request.getToken(), request.getPassword());
-            return ResponseEntity.ok().body(Map.of("Message", "Driver activated successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
-    }*/
-
-    /*@PostMapping("/validate-token")
-    public ResponseEntity<?> validateToken() {
-        //
-    }*/
 
     // ========== CRUD OPERATIONS ==========
     
@@ -135,12 +124,27 @@ public class DriverController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Active status is required"));
             }
             
+            // Check if driver has active ride before attempting change
+            boolean hasActiveRide = driverService.hasActiveRide(driverId);
+
             driverService.setDriverStatus(driverId, active);
             
-            return ResponseEntity.ok(Map.of(
-                "message", "Driver status updated successfully",
-                "active", active
-            ));
+            // Check if the change was applied or is pending
+            Boolean pendingChange = driverService.getPendingStatusChange(driverId);
+
+            if (pendingChange != null && !active) {
+                // Status change is pending (driver has active ride)
+                return ResponseEntity.ok(Map.of(
+                    "message", "You have an active ride. Status will change to inactive after the ride completes.",
+                    "pending", true
+                ));
+            } else {
+                // Status change was applied immediately
+                return ResponseEntity.ok(Map.of(
+                    "message", "Driver status updated successfully",
+                    "active", active
+                ));
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -175,12 +179,13 @@ public class DriverController {
     }
 
     @PostMapping("/edit-request")
+    @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<?> createDriverEditRequest(
             @RequestBody DriverUpdateRequestDTO request) {
-    	// @AuthenticationPrincipal UserDetails userDetails
-        System.out.println("Request for driver edit received");
+        Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        Long creatorId = JwtUtil.extractAccountId(authentication);
         try {
-            driverService.createDriverEditRequest(request, accountId);
+            driverService.createDriverEditRequest(request, creatorId);
             return ResponseEntity.ok().body(Map.of("message","Driver edit request created successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -198,6 +203,7 @@ public class DriverController {
     }
 
     @PostMapping("/edit-requests/{requestId}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> approveEditRequest(@PathVariable Long requestId) {
         try {
             this.driverService.approveEditRequest(requestId);
@@ -208,6 +214,7 @@ public class DriverController {
     }
 
     @PostMapping("/edit-requests/{requestId}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> rejectEditRequest(@PathVariable Long requestId) {
         try {
             this.driverService.rejectEditRequest(requestId);
@@ -297,28 +304,45 @@ public class DriverController {
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<?> activateCurrentDriver() {
-    	// @AuthenticationPrincipal UserDetails userDetails
+    public ResponseEntity<?> activateCurrentDriver(@RequestBody CoordinatesDTO coordinates) {
         try {
-            Long accountId = 5L; // Placeholder for current user's account ID
+            Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+            Long accountId = JwtUtil.extractAccountId(authentication);
             Driver driver = driverService.activateDriver(accountId);
+            driverAvailabilityService.activateDriver(accountId, coordinates.getLongitude(), coordinates.getLatitude());
             System.out.println("Driver ID:" + accountId + " activated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            System.err.println("Error activating driver: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
     @PostMapping("/deactivate")
     public ResponseEntity<?> deactivateCurrentDriver() {
-        // @AuthenticationPrincipal UserDetails userDetails
         try {
-            Long accountId = 5L; // Placeholder for current user's account ID
+            Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+            Long accountId = JwtUtil.extractAccountId(authentication);
             Driver driver = driverService.deactivateDriver(accountId);
+            driverAvailabilityService.deactivateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            System.err.println("Error deactivating driver: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/active-24h")
+    public ResponseEntity<?> getDriverActiveLast24Hours() {
+        Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        Long accountId = JwtUtil.extractAccountId(authentication);
+        try {
+            Duration activeInLast24h = driverActivityService.getActiveTimeIn24Hours(accountId);
+            return ResponseEntity.ok(Map.of("timeActive", activeInLast24h));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 

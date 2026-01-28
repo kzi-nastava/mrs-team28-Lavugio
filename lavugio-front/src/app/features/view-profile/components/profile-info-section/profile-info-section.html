@@ -98,7 +98,7 @@
   
   <app-profile-info-row
     [label]="'Active in last 24h'"
-    [value]="profile.activeTime!"
+    [value]="getTimeActive()"
     [editable]="false"
     [singleLineLabel]="true"
   >
@@ -117,7 +117,7 @@
     </div>
     @if (profile.role === 'DRIVER' && !editService.isEditMode()) {
     <div class="justify-self-end">
-      @if (profile.isActive) {
+      @if (isDriverActive()) {
         <app-button variant="dark-brown" (click)="onDeactivateClick()"> Deactivate </app-button>
       } @else {
         <app-button variant="dark-brown" (click)="onActivateClick()"> Activate </app-button>

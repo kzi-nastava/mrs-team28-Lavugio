@@ -44,10 +44,15 @@
             @if (!ride()?.panicked) {
                 <button 
                     class="flex-1 h-12 md:h-3/4 bg-red-600 text-white rounded-md p-2 shadow
-                           hover:bg-red-700 hover:cursor-pointer text-xs md:text-sm"
+                           hover:bg-red-700 hover:cursor-pointer text-xs md:text-sm animate-pulse font-bold"
                     (click)="onPanic($event)">
-                    PANIC
+                    🚨 PANIC
                 </button>
+            } @else {
+                <div class="flex-1 h-12 md:h-3/4 bg-red-800 text-white rounded-md p-2 shadow
+                            text-xs md:text-sm flex items-center justify-center font-bold">
+                    ✓ ALERT SENT
+                </div>
             }
             <button 
                 class="flex-1 h-12 md:h-3/4 bg-[#DDA15E] text-[#283618] rounded-md p-2 shadow

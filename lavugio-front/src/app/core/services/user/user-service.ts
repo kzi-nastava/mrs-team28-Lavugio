@@ -104,8 +104,8 @@ export class UserService {
     );
   }
 
-  canUserOrderRide(): Observable<{ inRide: boolean, block: {blocked: boolean; reason: string } }> {
-    return this.http.get<{ inRide: boolean, block: {blocked: boolean; reason: string } }>(
+  canUserOrderRide(): Observable<{ isInRide: boolean, block: {blocked: boolean; reason: string } }> {
+    return this.http.get<{ isInRide: boolean, block: {blocked: boolean; reason: string } }>(
       `${this.apiUrl}/users/can-order-ride`,
     );
   }

@@ -100,12 +100,24 @@ export class RideOverview implements AfterViewInit {
       catchError(err => {
         console.error('Error fetching ride overview:', err);
         this.rideOverview.set(null);
+        
+        // If ride not found or access forbidden, redirect to active rides
+        if (err.status === 404 || err.status === 403) {
+          alert('This ride is not available. Redirecting to active rides...');
+          this.router.navigate(['/active-rides']);
+        }
+        
         return EMPTY;
       })
     ).subscribe(overview => {
       this.rideOverview.set(overview);
       this.isReported.set(overview.reported ? true : false);
       this.isRated.set(overview.reviewed ? true : false);
+      
+      // Warn if ride is not ACTIVE
+      if (overview.status && overview.status !== 'ACTIVE') {
+        console.warn(`Viewing ride with status: ${overview.status}`);
+      }
     });
   }
 
@@ -209,7 +221,16 @@ export class RideOverview implements AfterViewInit {
             MarkerIcons.driverAvailable
           );
         })
-        .catch(err => console.error('Location error:', err))
+        .catch(err => {
+          console.error('Location error:', err);
+          // Show user-friendly error message with instructions
+          if (err.code === 1) { // PERMISSION_DENIED
+            console.warn(
+              '⚠️ Location permission denied. ' +
+              'Click the lock icon in the address bar and allow location access.'
+            );
+          }
+        })
   }
 
   stopTrackingClientLocation(): void {

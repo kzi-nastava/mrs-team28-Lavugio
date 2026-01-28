@@ -24,7 +24,11 @@ export class ErrorInterceptor implements HttpInterceptor {
         const authEndpoints = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password'];
         const isAuthEndpoint = authEndpoints.some(endpoint => url.includes(endpoint));
         
-        if (isAuthEndpoint) {
+        // Don't redirect for auth endpoints, logout endpoint, or driver status endpoint
+        const isLogoutEndpoint = url.includes('/logout');
+        const isStatusEndpoint = url.includes('/status');
+        
+        if (isAuthEndpoint || isLogoutEndpoint || isStatusEndpoint) {
           return throwError(() => error);
         }
         

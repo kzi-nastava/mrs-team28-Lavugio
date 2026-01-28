@@ -153,13 +153,26 @@ public class DriverServiceImpl implements DriverService {
         if (driver.isDriving() && !active) {
             driver.setPendingStatusChange(false); // false = wants to be inactive
             driverRepository.save(driver);
-            throw new RuntimeException("Status change saved. Will apply after ride completes.");
+            // Don't throw exception, return normally - controller will handle the response
+            return;
         }
         
         // If driver wants to go active or is not driving, apply immediately
         driver.setActive(active);
         driver.setPendingStatusChange(null); // Clear any pending change
         driverRepository.save(driver);
+    }
+    
+    @Override
+    public boolean hasActiveRide(Long driverId) {
+        Driver driver = getDriverById(driverId);
+        return driver.isDriving();
+    }
+    
+    @Override
+    public Boolean getPendingStatusChange(Long driverId) {
+        Driver driver = getDriverById(driverId);
+        return driver.getPendingStatusChange();
     }
     
     @Override
@@ -273,6 +286,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setName(request.getName());
         driver.setLastName(request.getLastName());
         driver.setPhoneNumber(request.getPhoneNumber());
+        driver.setAddress(request.getAddress());
         driver.setProfilePhotoPath(request.getProfilePhotoPath());
         driver.setBlocked(false);
         driver.setBlockReason(null);
@@ -320,6 +334,7 @@ public class DriverServiceImpl implements DriverService {
             oldAccount.setName(driver.getName());
             oldAccount.setSurname(driver.getLastName());
             oldAccount.setPhoneNumber(driver.getPhoneNumber());
+            oldAccount.setAddress(driver.getAddress());
             oldData.setProfile(oldAccount);
             oldData.setVehicleModel(driver.getVehicle().getModel());
             oldData.setVehicleMake(driver.getVehicle().getMake());
@@ -335,6 +350,7 @@ public class DriverServiceImpl implements DriverService {
             newAccount.setName(request.getName());
             newAccount.setSurname(request.getLastName());
             newAccount.setPhoneNumber(request.getPhoneNumber());
+            newAccount.setAddress(request.getAddress());
             newData.setProfile(newAccount);
             newData.setVehicleModel(request.getModel());
             newData.setVehicleMake(request.getMake());
@@ -375,6 +391,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setName(request.getName());
         driver.setLastName(request.getLastName());
         driver.setPhoneNumber(request.getPhoneNumber());
+        driver.setAddress(request.getAddress());
         driverRepository.save(driver);
         
         request.setValidated(true);

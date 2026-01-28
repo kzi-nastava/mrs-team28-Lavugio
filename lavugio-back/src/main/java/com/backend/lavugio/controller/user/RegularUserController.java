@@ -17,6 +17,7 @@ import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.RegularUserService;
 import com.backend.lavugio.service.user.UserRegistrationTokenService;
+import com.backend.lavugio.service.user.*;
 import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.repository.user.AdministratorRepository;
 
@@ -60,6 +61,11 @@ public class RegularUserController {
     private com.backend.lavugio.repository.user.AccountRepository accountRepository;
     @Autowired
     private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    @Autowired
+    private DriverActivityService driverActivityService;
+    @Autowired
+    private DriverAvailabilityService driverAvailabilityService;
+
     @Autowired
     private RideService rideService;
 
@@ -175,8 +181,6 @@ public class RegularUserController {
             // If account is a driver, set them as available
             Driver driver = driverRepository.findById(account.getId()).orElse(null);
             if (driver != null) {
-                driver.setActive(true);
-                driverRepository.save(driver);
                 role = "DRIVER";
                 logger.info("Driver set to active on login: {}", account.getId());
             } else if (administratorRepository.existsById(account.getId())) {

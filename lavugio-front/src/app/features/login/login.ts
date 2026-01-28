@@ -4,6 +4,8 @@ import { Navbar } from '@app/shared/components/navbar/navbar';
 import { AuthService, LoginRequest } from '@app/core/services/auth-service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { DriverService } from '@app/core/services/driver-service';
+import { Coordinates } from '@app/shared/models/coordinates';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +16,7 @@ import { CommonModule } from '@angular/common';
 export class Login {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private driverService = inject(DriverService);
 
   email = signal('');
   password = signal('');
@@ -63,6 +66,26 @@ export class Login {
       password: this.password(),
     };
 
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        loginData.latitude = position.coords.latitude;
+        loginData.longitude = position.coords.longitude;
+        console.log('Geolocation obtained:', loginData);
+        this.performLogin(loginData);
+      },
+      (error) => {
+        console.warn('Geolocation error:', error);
+        // Proceed with login without coordinates
+        this.performLogin(loginData);
+      },
+      {
+        timeout: 5000,
+        enableHighAccuracy: false
+      }
+    );
+  }
+
+  performLogin(loginData: LoginRequest) {
     this.authService.login(loginData).subscribe({
       next: (response) => {
         this.loading.set(false);
@@ -70,10 +93,25 @@ export class Login {
         this.authService.storeToken(response.token, response);
         this.successMessage.set('Login successful! Redirecting...');
         
-        // Redirect based on user role
-        setTimeout(() => {
-          this.redirectBasedOnRole(response.role);
-        }, 1000);
+        // If driver, activate the driver
+        if (response.role === 'DRIVER') {
+          const coordinates: Coordinates = {
+            latitude: loginData.latitude || 0,
+            longitude: loginData.longitude || 0
+          }
+          this.driverService.activateDriver(coordinates).subscribe({
+            next: () => {
+              console.log('Driver activated successfully');
+              this.redirectAfterLogin(response.role);
+            },
+            error: (error) => {
+              console.error('Error activating driver:', error);
+              this.redirectAfterLogin(response.role);
+            }
+          });
+        } else {
+          this.redirectAfterLogin(response.role);
+        }
       },
       error: (error) => {
         this.loading.set(false);
@@ -94,6 +132,12 @@ export class Login {
         console.error('Login error:', error);
       },
     });
+  }
+
+  redirectAfterLogin(role: string) {
+    setTimeout(() => {
+      this.redirectBasedOnRole(role);
+    }, 1000);
   }
 }
 

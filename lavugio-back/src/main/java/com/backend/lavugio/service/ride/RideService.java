@@ -23,6 +23,7 @@ public interface RideService {
     List<Ride> getAllRides();
     List<Ride> getRidesByDriverId(Long driverId);
     List<Ride> getRidesByPassengerId(Long passengerId);
+    List<Ride> getRidesByCreatorAndStatus(Long creatorId, RideStatus status);
     List<Ride> getRidesByDate(LocalDateTime date);
     List<Ride> getRidesByStatus(RideStatus status);
     List<Ride> getUpcomingRidesForDriver(Long driverId);
@@ -34,12 +35,15 @@ public interface RideService {
     // Update operations
     Ride updateRide(Long id, Ride ride);
     Ride updateRideStatus(Long id, RideStatus newStatus);
+    void markRideWithPanic(Long rideId);
     Ride addPassengerToRide(Long rideId, Long passengerId);
     Ride addPassengersToRide(Ride ride, List<String> passengerEmails);
     Ride removePassengerFromRide(Long rideId, Long passengerId);
 
     // Delete operations
     void cancelRide(Long id);
+    void cancelRideByDriver(Long rideId, String reason);
+    void cancelRideByPassenger(Long rideId);
     void deleteRide(Long id);
 
     // Business logic operations

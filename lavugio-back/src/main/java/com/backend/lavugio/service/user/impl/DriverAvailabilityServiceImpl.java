@@ -47,6 +47,7 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
         ArrayList<DriverLocationDTO> locationDTOs = new ArrayList<>();
         for (DriverLocation location : locations.values()) {
+            System.out.println("Processing location for driver ID: " + location.getDriverId());
             DriverStatusEnum status = getDriverStatus(location.getDriverId());
             locationDTOs.add(new DriverLocationDTO(location, status));
         }
@@ -90,8 +91,10 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
             throw new NoSuchElementException("Cannot activate driver: Driver not found with id " + driverId);
         }
 
+        // If driver is already active, update their location instead of throwing error
         if (activeDriverLocations.containsKey(driverId)) {
-            throw new IllegalStateException("Driver with id " + driverId + " is already active.");
+            System.out.println("Driver with id " + driverId + " is already active. Updating location.");
+            deleteDriverLocation(driverId);
         }
 
         return addActiveDriverLocation(driverId, longitude, latitude);

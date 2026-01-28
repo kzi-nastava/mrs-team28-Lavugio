@@ -41,18 +41,23 @@ public class AuthVerificationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
+        logger.info("AuthVerificationFilter - Processing: {} {}", method, path);
+
         // Check if this is an advanced feature endpoint
         boolean isAdvancedFeature = isAdvancedFeatureEndpoint(path);
 
         if (isAdvancedFeature) {
+            logger.info("AuthVerificationFilter - Advanced feature detected: {}", path);
             String token = extractToken(request);
 
             if (token != null) {
                 try {
                     Long userId = jwtUtil.extractUserId(token);
+                    logger.info("AuthVerificationFilter - Checking verification for user: {}", userId);
 
                     // Check if user is email verified
                     RegularUser regularUser = regularUserRepository.findById(userId).orElse(null);
+                    logger.info("AuthVerificationFilter - RegularUser loaded: {}", regularUser != null);
                     if (regularUser != null && !regularUser.isEmailVerified()) {
                         logger.warn("Unverified user attempting to access advanced feature: {}", userId);
                         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -62,6 +67,7 @@ public class AuthVerificationFilter extends OncePerRequestFilter {
                     }
 
                     Driver driver = driverRepository.findById(userId).orElse(null);
+                    logger.info("AuthVerificationFilter - Driver loaded: {}", driver != null);
                     if (driver != null && !driver.isEmailVerified()) {
                         logger.warn("Unverified driver attempting to access advanced feature: {}", userId);
                         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -69,6 +75,7 @@ public class AuthVerificationFilter extends OncePerRequestFilter {
                         response.getWriter().write("{\"message\": \"Please verify your email to access this feature\", \"status\": \"email_not_verified\"}");
                         return;
                     }
+                    logger.info("AuthVerificationFilter - Verification passed for user: {}", userId);
                 } catch (Exception e) {
                     logger.error("Error validating token: {}", e.getMessage());
                 }
@@ -82,7 +89,9 @@ public class AuthVerificationFilter extends OncePerRequestFilter {
             }
         }
 
+        logger.info("AuthVerificationFilter - About to call filterChain.doFilter()");
         filterChain.doFilter(request, response);
+        logger.info("AuthVerificationFilter - Returned from filterChain.doFilter()");
     }
 
     private boolean isAdvancedFeatureEndpoint(String path) {

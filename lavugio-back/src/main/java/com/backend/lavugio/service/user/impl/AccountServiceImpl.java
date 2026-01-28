@@ -73,7 +73,7 @@ public class AccountServiceImpl implements AccountService {
         existing.setName(accountUpdate.getName());
         existing.setLastName(accountUpdate.getSurname());
         existing.setPhoneNumber(accountUpdate.getPhoneNumber());
-        //existing.setAddress(accountUpdate.getAddress()); ??
+        existing.setAddress(accountUpdate.getAddress());
 
         Account updatedAccount = accountRepository.save(existing);
         logger.info("Account updated successfully with id: {}", id);
@@ -282,6 +282,8 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new RuntimeException("Account with this email doesn't exist"));
 
         if (account instanceof RegularUser regularUser) {
+            // Check if user has any ACTIVE rides (not the hardcoded can_order flag)
+            // For now, we'll use the can_order flag, but ideally this should query rides table
             canOrderRideDTO.setInRide(regularUser.isCanOrder());
         }
 
