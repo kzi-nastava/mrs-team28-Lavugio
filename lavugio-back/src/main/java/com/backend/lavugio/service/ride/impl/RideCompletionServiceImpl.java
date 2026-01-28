@@ -46,7 +46,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
     }
 
     @Transactional
-    public void finishRide(FinishRideDTO rideDTO){
+    public void finishRide(Long driverId, FinishRideDTO rideDTO){
         List<RideDestination> route = rideDestinationService.getOrderedDestinationsByRideId(rideDTO.getRideId());
         if (route.isEmpty()){
             throw new NoSuchElementException("Cannot find route for ride "+rideDTO.getRideId());
@@ -55,45 +55,47 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         if (ride==null){
             throw new NoSuchElementException("Cannot find ride for ride "+rideDTO.getRideId());
         }
-        
+
         CoordinatesDTO finalDestinationCoords;
         String finalDestinationAddress;
-        
+
         if (rideDTO.isFinishedEarly()){
             if (rideDTO.getFinalDestination() == null) {
                 throw new IllegalArgumentException("Final destination coordinates required for early finish");
             }
-            
+
             RideDestination lastDestination = route.getLast();
             Address stoppingAddress = lastDestination.getAddress();
-            
+
             stoppingAddress.setLatitude(rideDTO.getFinalDestination().getLatitude());
             stoppingAddress.setLongitude(rideDTO.getFinalDestination().getLongitude());
 
             stoppingAddress.setStreetName("Early Stop Location");
             stoppingAddress.setStreetNumber("");
-            
+
             if (rideDTO.getDistance() != null && rideDTO.getDistance() > 0) {
                 double newPrice = calculatePriceForDistance(rideDTO.getDistance(), ride.getDriver().getVehicle().getType().name());
                 ride.setPrice((float) newPrice);
                 ride.setDistance(rideDTO.getDistance().floatValue());
             }
-            
+
             finalDestinationCoords = rideDTO.getFinalDestination();
             finalDestinationAddress = stoppingAddress.toString();
-            
+
             sendNotificationsToPassengersAboutEarlyFinish(ride.getPassengers(), ride.getId());
         } else {
             finalDestinationCoords = new CoordinatesDTO(
-                route.getLast().getAddress().getLatitude(), 
+                route.getLast().getAddress().getLatitude(),
                 route.getLast().getAddress().getLongitude()
             );
             finalDestinationAddress = route.getLast().getAddress().toString();
-            
+
             sendEmailsToPassengers(ride.getPassengers(), ride.getId());
             sendNotificationsToPassengers(ride.getPassengers(), ride.getId());
         }
-        
+        if (!ride.getDriver().getId().equals(driverId)){
+            throw new IllegalStateException("Driver isn't driving this ride");
+        }
         ride.setRideStatus(RideStatus.FINISHED);
         ride.setEndDateTime(LocalDateTime.now());
         ride.getDriver().setDriving(false);
@@ -102,7 +104,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         if (ride.getCreator() != null) {
             ride.getCreator().setCanOrder(true);
         }
-        
+
         // Apply pending status change if it exists
         if (ride.getDriver().getPendingStatusChange() != null) {
             ride.getDriver().setActive(ride.getDriver().getPendingStatusChange());
@@ -110,15 +112,15 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         }
         
         this.rideOverviewService.sendRideOverviewUpdateDTO(
-            rideDTO.getRideId(), 
+            rideDTO.getRideId(),
             finalDestinationAddress,
             finalDestinationCoords
         );
     }
-    
+
     private double calculatePriceForDistance(Double distanceKm, String vehicleType) {
         double basePrice = 200 * distanceKm;
-        
+
         switch (vehicleType.toUpperCase()) {
             case "STANDARD":
                 return basePrice;
@@ -130,7 +132,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
                 return basePrice;
         }
     }
-    
+
     private void sendNotificationsToPassengersAboutEarlyFinish(Collection<RegularUser> passengers, Long rideId){
         for (RegularUser passenger : passengers) {
             Notification notification = new Notification();

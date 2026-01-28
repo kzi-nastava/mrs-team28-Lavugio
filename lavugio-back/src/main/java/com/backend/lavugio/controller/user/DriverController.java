@@ -17,6 +17,7 @@ import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverUpdateRequest;
+import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
@@ -32,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.backend.lavugio.service.user.DriverService;
@@ -124,12 +126,12 @@ public class DriverController {
             
             // Check if driver has active ride before attempting change
             boolean hasActiveRide = driverService.hasActiveRide(driverId);
-            
+
             driverService.setDriverStatus(driverId, active);
             
             // Check if the change was applied or is pending
             Boolean pendingChange = driverService.getPendingStatusChange(driverId);
-            
+
             if (pendingChange != null && !active) {
                 // Status change is pending (driver has active ride)
                 return ResponseEntity.ok(Map.of(
@@ -388,9 +390,9 @@ public class DriverController {
         }
     }
 
-    @GetMapping(value = "/{driverId}/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('DRIVER')")
+    @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverHistoryPagingDTO> getAllDriverHistory(
-            @PathVariable Long driverId,
             @RequestParam int page,
             @RequestParam int pageSize,
             @RequestParam(defaultValue = "DESC") String sorting,
@@ -428,7 +430,7 @@ public class DriverController {
 //        pagingDTO.setDriverHistory(pageContent.toArray(new DriverHistoryDTO[0]));
 //        pagingDTO.setTotalElements((long) totalElements);
 //        pagingDTO.setReachedEnd(reachedEnd);
-
+        Long driverId = SecurityUtils.getCurrentUserId();
         LocalDateTime start = dateTimeParserService.parseStartOfDay(startDate);
         LocalDateTime end = dateTimeParserService.parseEndOfDay(endDate);
 
@@ -446,6 +448,7 @@ public class DriverController {
     }
 
 
+    @PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverHistoryDetailedDTO> getDriverHistoryByRideId(@PathVariable Long rideId){
 //        Ride ride = rideService.getRideById(rideId);
@@ -491,11 +494,20 @@ public class DriverController {
 //                new CoordinatesDTO[]{new CoordinatesDTO(44.8125, 20.4612),
 //                                    new CoordinatesDTO(44.8023, 20.4856)}
 //        );
-
-        DriverHistoryDetailedDTO dto = rideService.getDriverHistoryDetailed(rideId);
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+        try{
+            Long driverId = SecurityUtils.getCurrentUserId();
+            DriverHistoryDetailedDTO dto = rideService.getDriverHistoryDetailed(driverId, rideId);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } catch(NoSuchElementException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch(IllegalStateException e){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     @GetMapping(value = "/{driverId}/reports", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RideReportedDTO>> getDriverReports(@PathVariable Long driverId){
 //        Collection<RideReport> reports = rideReportService.getReportsForDriver(driverId);
@@ -513,13 +525,14 @@ public class DriverController {
         return new ResponseEntity<>(reportDTOs, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('DRIVER')")
     @GetMapping(
-            value = "/{driverId}/scheduled-rides",
+            value = "/scheduled-rides",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Collection<ScheduledRideDTO>> getAllScheduledRides(
-            @PathVariable Long driverId
     ) {
+        Long driverId = SecurityUtils.getCurrentUserId();
         System.out.println("Getting scheduled rides for driver ID: " + driverId);
         List<ScheduledRideDTO> scheduledRides = scheduledRideService.getScheduledRidesForDriver(driverId);
         return ResponseEntity.ok(scheduledRides);

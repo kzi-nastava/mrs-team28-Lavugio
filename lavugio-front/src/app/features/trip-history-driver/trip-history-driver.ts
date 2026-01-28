@@ -46,7 +46,6 @@ export class RideHistoryDriver {
 
     this.driverService
       .getDriverRideHistory(
-        this.driverId,
         0,
         this.pageSize,
         this.sorting,
@@ -82,7 +81,6 @@ export class RideHistoryDriver {
 
     this.driverService
       .getDriverRideHistory(
-        this.driverId,
         nextPage,
         this.pageSize,
         this.sorting,
@@ -121,7 +119,6 @@ export class RideHistoryDriver {
 
     this.driverService
       .getDriverRideHistory(
-        this.driverId,
         nextPage,
         this.pageSize,
         this.sorting,

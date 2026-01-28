@@ -12,11 +12,10 @@ import { TripDestination } from '@app/shared/models/tripDestination';
 import { GeocodeResult } from '../find-trip/geocoding-service/geocoding-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { TripStatsDisplay } from "../find-trip/trip-stats-display/trip-stats-display";
-import { Navbar } from '@app/shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-guest-home-page',
-  imports: [MapComponent, Button, FormBackgroundSheet, DestinationSelector, DestinationsDisplay, TripStatsDisplay, Navbar],
+  imports: [MapComponent, Button, FormBackgroundSheet, DestinationSelector, DestinationsDisplay, TripStatsDisplay],
   templateUrl: './guest-home-page.html',
   styleUrl: './guest-home-page.css',
 })

@@ -27,11 +27,11 @@ export class DriverService {
     return this.http.post<any>(`${this.mainPortUrl}/register`, data);
   }
   
-  getScheduledRides(driverId: number) {
-    return this.http.get<ScheduledRideDTO[]>(`${this.mainPortUrl}/${driverId}/scheduled-rides`);
+  getScheduledRides() {
+    return this.http.get<ScheduledRideDTO[]>(`${this.mainPortUrl}/scheduled-rides`);
   }
 
-  getDriverRideHistory(driverId: number,
+  getDriverRideHistory(
       page: number, 
       pageSize: number, 
       sorting: 'ASC' | 'DESC', 
@@ -45,7 +45,7 @@ export class DriverService {
       .set('sortBy', sortBy)
       .set('startDate', startDate)
       .set('endDate', endDate);
-    return this.http.get<RideHistoryDriverPagingModel>(`${this.mainPortUrl}/${driverId}/history`, {params}) 
+    return this.http.get<RideHistoryDriverPagingModel>(`${this.mainPortUrl}/history`, {params}) 
   }
 
   getDriverRideHistoryDetailed(rideId: number){

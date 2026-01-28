@@ -8,6 +8,7 @@ import com.backend.lavugio.model.ride.RideReport;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.security.JwtUtil;
+import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.service.notification.PanicNotificationWebSocketService;
 import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.ride.ReviewService;
@@ -20,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +46,7 @@ public class RideController {
     private final RideReportService rideReportService;
 
     private final ReviewService reviewService;
+
     private final RideOverviewService rideOverviewService;
 
     private final RideCompletionService  rideCompletionService;
@@ -133,12 +137,12 @@ public class RideController {
             // Get both ACTIVE and SCHEDULED rides
             List<Ride> activeRides = rideService.getRidesByCreatorAndStatus(userId, RideStatus.ACTIVE);
             List<Ride> scheduledRides = rideService.getRidesByCreatorAndStatus(userId, RideStatus.SCHEDULED);
-            
+
             // Combine both lists
             List<Ride> allRides = new ArrayList<>();
             allRides.addAll(activeRides);
             allRides.addAll(scheduledRides);
-            
+
             List<Map<String, Object>> rideMaps = new ArrayList<>();
             for (Ride ride : allRides) {
                 Map<String, Object> rideMap = new HashMap<>();
@@ -153,7 +157,7 @@ public class RideController {
                 rideMap.put("endLocation", ride.getEndAddress());
                 rideMaps.add(rideMap);
             }
-            
+
             return ResponseEntity.ok(rideMaps);
         } catch (Exception e) {
             e.printStackTrace();
@@ -176,7 +180,7 @@ public class RideController {
             System.out.println("Fetching rides from service...");
             List<Ride> activeRides = rideService.getRidesByCreatorAndStatus(userId, RideStatus.ACTIVE);
             System.out.println("Found " + activeRides.size() + " active rides");
-            
+
             // Convert to Maps to avoid any serialization issues
             System.out.println("Starting map conversion...");
             List<Map<String, Object>> rideMaps = new ArrayList<>();
@@ -203,7 +207,7 @@ public class RideController {
                 rideMaps.add(rideMap);
             }
             System.out.println("All maps created. Returning response...");
-            
+
             ResponseEntity<?> response = ResponseEntity.ok(rideMaps);
             System.out.println("Response entity created. About to return...");
             return response;
@@ -226,17 +230,26 @@ public class RideController {
         }
     }
 
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getRideStatus(@PathVariable Long rideId) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Long userId = JwtUtil.extractAccountId(authentication);
-            
-            if (userId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "User not authenticated"));
-            }
-            
+//        RideOverviewDTO status =  new RideOverviewDTO(
+//                1L,
+//                1L,
+//                500,
+//                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
+//                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
+//                RideStatus.ACTIVE,
+//                "Petar Petrović",
+//                "Nemanjina 4",
+//                "Knez Mihailova 12",
+//                LocalDateTime.of(2026, 1, 8, 18, 30),
+//                LocalDateTime.of(2026, 1, 8, 18, 40),
+//                false,
+//                false);
+        try{
+            Long userId = SecurityUtils.getCurrentUserId();
             RideOverviewDTO overviewDTO = rideOverviewService.getRideOverviewDTO(rideId, userId);
             return new ResponseEntity<>(overviewDTO, HttpStatus.OK);
         } catch (NoSuchElementException e) {
@@ -347,12 +360,12 @@ public class RideController {
         try {
             // Get ride details
             Ride ride = rideService.getRideById(id);
-            
+
             // Validate ride is ACTIVE
             if (ride.getRideStatus() != RideStatus.ACTIVE) {
                 return ResponseEntity.badRequest().body("Panic can only be triggered on active rides");
             }
-            
+
             // Get passenger names
             StringBuilder passengerNames = new StringBuilder();
             if (ride.getCreator() != null) {
@@ -370,57 +383,57 @@ public class RideController {
                 passengerNames.append("Unknown Passenger(s)");
             }
             panicAlert.setPassengerName(passengerNames.toString());
-            
+
             // Get driver and vehicle information
             if (ride.getDriver() != null) {
                 panicAlert.setDriverName(ride.getDriver().getName());
-                
+
                 if (ride.getDriver().getVehicle() != null) {
                     Vehicle vehicle = ride.getDriver().getVehicle();
                     panicAlert.setVehicleType(vehicle.getType() != null ? vehicle.getType().toString() : "Standard");
                     panicAlert.setVehicleLicensePlate(vehicle.getLicensePlate() != null ? vehicle.getLicensePlate() : "N/A");
                 }
             }
-            
+
             // Change status to STOPPED
             rideService.updateRideStatus(id, RideStatus.STOPPED);
-            
+
             // Set driver to not driving since ride is stopped
             if (ride.getDriver() != null) {
                 ride.getDriver().setDriving(false);
-                
+
                 // Apply pending status change if it exists
                 if (ride.getDriver().getPendingStatusChange() != null) {
                     ride.getDriver().setActive(ride.getDriver().getPendingStatusChange());
                     ride.getDriver().setPendingStatusChange(null);
                 }
             }
-            
+
             // Reset can_order flag for the creator (passenger)
             if (ride.getCreator() != null) {
                 ride.getCreator().setCanOrder(true);
             }
-            
+
             // Mark ride with panic flag
             rideService.markRideWithPanic(id);
-            
+
             // Set additional panic information
             panicAlert.setRideId(id);
             panicAlert.setTimestamp(LocalDateTime.now());
-            
+
             // Broadcast panic alert to all admins via WebSocket
             panicWebSocketService.broadcastPanicAlert(panicAlert);
-            
+
             // Send notification to admins in database
-            String message = "PANIC ALERT: " + panicAlert.getPassengerName() + 
-                           " triggered panic. Location: " + panicAlert.getLocation() + 
+            String message = "PANIC ALERT: " + panicAlert.getPassengerName() +
+                           " triggered panic. Location: " + panicAlert.getLocation() +
                            ". Message: " + panicAlert.getMessage();
-            notificationService.sendPanicNotification(panicAlert.getPassengerId(), 
-                                                     panicAlert.getLocation().toString(), 
+            notificationService.sendPanicNotification(panicAlert.getPassengerId(),
+                                                     panicAlert.getLocation().toString(),
                                                      message);
-            
+
             System.out.println("PANIC ACTIVATED - Ride: " + id + " | Passengers: " + panicAlert.getPassengerName() + " | Driver: " + panicAlert.getDriverName());
-            
+
             return ResponseEntity.ok(Map.of(
                 "status", "Panic activated successfully",
                 "rideId", id,
@@ -444,10 +457,12 @@ public class RideController {
         }
     }
 
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> postRideReport(@RequestBody RideReportDTO reportDTO){
         try {
-            RideReport report = rideReportService.createReport(reportDTO);
+            Long userId = SecurityUtils.getCurrentUserId();
+            RideReport report = rideReportService.createReport(userId, reportDTO);
             return new ResponseEntity<>(new RideReportedDTO(report), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -455,37 +470,57 @@ public class RideController {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+        } catch (IllegalCallerException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("error", "Unexpected error occurred"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping("/{rideId}/review")
     public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
-        Long userId = 1L; //placeholder
         try{
+            Long userId = SecurityUtils.getCurrentUserId();
             reviewService.createReview(rideId, userId, rideReviewDTO);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (IllegalCallerException e){
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
         } catch (Exception e){
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping("/finish")
+    @PreAuthorize("hasRole('DRIVER')")
+    @PutMapping("/finish")
     public ResponseEntity<?> finishRide(@RequestBody FinishRideDTO finishRideDTO) {
         try{
-            rideCompletionService.finishRide(finishRideDTO);
+            Long driverId = SecurityUtils.getCurrentUserId();
+            rideCompletionService.finishRide(driverId, finishRideDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(NoSuchElementException e){
             return new  ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (IllegalStateException e){
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
         }  catch (Exception e){
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
+    @GetMapping(value = "/{rideId}/access")
+    public ResponseEntity<Boolean> accessRide(@PathVariable Long rideId) {
+        try{
+            Long userId =  SecurityUtils.getCurrentUserId();
+            return ResponseEntity.ok(rideOverviewService.canAccessRideOverview(userId, rideId));
+        } catch (NoSuchElementException e){
+            return ResponseEntity.notFound().build();
+        } catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+
     }
 
     @PostMapping("/{rideId}/cancel-by-driver")
@@ -495,7 +530,7 @@ public class RideController {
             if (reason == null || reason.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Cancellation reason is required"));
             }
-            
+
             rideService.cancelRideByDriver(rideId, reason);
             return ResponseEntity.ok(Map.of("message", "Ride cancelled successfully"));
         } catch (IllegalStateException e) {

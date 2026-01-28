@@ -170,6 +170,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             Pageable pageable
     );
 
+    Ride findFirstByPassengers_IdOrderByStartDateTimeDesc(Long userId);
     @Query("SELECT r FROM Ride r WHERE r.creator.id = :creatorId")
     List<Ride> findByCreatorId(@Param("creatorId") Long creatorId);
 

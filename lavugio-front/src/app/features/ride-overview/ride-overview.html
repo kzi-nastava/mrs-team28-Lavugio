@@ -23,7 +23,8 @@
           [isReviewed]="isRated()"
           (reportClicked)="showReport.set(true)"
           (reviewClicked)="showReview.set(true)"
-          (rideCancelled)="cancelRide()">
+          (rideCancelled)="cancelRide()"
+          [canRateRide]="canRateRide()">
         </app-ride-info>
       </div>
     }
@@ -55,7 +56,8 @@
             [isReviewed]="isRated()"
             (reportClicked)="showReport.set(true)"
             (reviewClicked)="showReview.set(true)"
-            (rideCancelled)="cancelRide()">
+            (rideCancelled)="cancelRide()"
+            [canRateRide]="canRateRide()">
           </app-ride-info>
         </div>
       </div>

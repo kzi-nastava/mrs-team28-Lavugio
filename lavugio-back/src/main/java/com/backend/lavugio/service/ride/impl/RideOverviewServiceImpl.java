@@ -11,6 +11,7 @@ import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideReportService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
+import com.backend.lavugio.service.user.RegularUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,21 @@ public class RideOverviewServiceImpl implements RideOverviewService {
     private final RideDestinationService rideDestinationService;
     private final ReviewService reviewService;
     private final RideReportService rideReportService;
+    private final RegularUserService regularUserService;
 
     @Autowired
-    public RideOverviewServiceImpl(RideService rideService, RideDestinationService rideDestinationService, ReviewService reviewService, RideReportService rideReportService,  SimpMessagingTemplate simpMessagingTemplate) {
+    public RideOverviewServiceImpl(RideService rideService,
+                                   RideDestinationService rideDestinationService,
+                                   ReviewService reviewService,
+                                   RideReportService rideReportService,
+                                   SimpMessagingTemplate simpMessagingTemplate,
+                                   RegularUserService regularUserService) {
         this.rideService = rideService;
         this.rideDestinationService = rideDestinationService;
         this.reviewService = reviewService;
         this.rideReportService = rideReportService;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.regularUserService = regularUserService;
     }
 
     @Override
@@ -44,19 +52,15 @@ public class RideOverviewServiceImpl implements RideOverviewService {
         if (ride == null) {
             throw new NoSuchElementException("Ride not found");
         }
-        // Check if user is the creator OR a passenger
-        boolean isCreator = ride.getCreator() != null && ride.getCreator().getId().equals(userId);
-        boolean isPassenger = ride.getPassengers().stream().anyMatch(p -> p.getId().equals(userId));
-        
-        if (!isCreator && !isPassenger) {
-            throw new IllegalStateException("User access is forbidden");
+        if (ride.getPassengers().stream().noneMatch(p -> p.getId().equals(userId))) {
+            throw new IllegalStateException("User is not participating in this ride");
         }
-        
+
         List<RideDestination> checkpoints = rideDestinationService.getOrderedDestinationsByRideId(rideId);
         if (checkpoints == null || checkpoints.isEmpty()) {
             throw new NoSuchElementException("Ride has no destinations");
         }
-        
+
         List<CoordinatesDTO> coordinates = checkpoints.stream()
                 .map(checkpoint ->
                         new CoordinatesDTO(checkpoint.getAddress().getLatitude(), checkpoint.getAddress().getLongitude())
@@ -80,6 +84,19 @@ public class RideOverviewServiceImpl implements RideOverviewService {
     @Override
     public void sendRideOverviewUpdateDTO(RideOverviewUpdateDTO rideOverviewUpdateDTO, Long rideId) {
         simpMessagingTemplate.convertAndSend("socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
+    }
+
+    @Override
+    public boolean canAccessRideOverview(Long userId, Long rideId) {
+        RegularUser user =  regularUserService.getRegularUserById(userId);
+        Ride ride =  rideService.getRideById(rideId);
+        if (ride == null) {
+            throw new NoSuchElementException("Ride not found");
+        }
+        if (user == null){
+            throw new  NoSuchElementException("User not found");
+        }
+        return ride.getPassengers().stream().anyMatch(p -> p.getId().equals(userId));
     }
 
 }

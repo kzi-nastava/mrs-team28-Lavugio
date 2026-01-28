@@ -1,24 +1,33 @@
 package com.backend.lavugio.controller.user;
 
+import com.backend.lavugio.dto.ride.LatestRideDTO;
 import com.backend.lavugio.dto.user.LoginRequestDTO;
 import com.backend.lavugio.dto.user.LoginResponseDTO;
 import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.dto.user.EmailVerificationDTO;
+import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.security.JwtUtil;
+import com.backend.lavugio.security.SecurityUtils;
+import com.backend.lavugio.service.ride.RideService;
+import com.backend.lavugio.service.user.AccountService;
+import com.backend.lavugio.service.user.RegularUserService;
+import com.backend.lavugio.service.user.UserRegistrationTokenService;
 import com.backend.lavugio.service.user.*;
 import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.repository.user.AdministratorRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -56,7 +65,10 @@ public class RegularUserController {
     private DriverActivityService driverActivityService;
     @Autowired
     private DriverAvailabilityService driverAvailabilityService;
-    
+
+    @Autowired
+    private RideService rideService;
+
     // REGISTRATION & AUTHENTICATION
 
     @PostMapping("/register")
@@ -497,6 +509,20 @@ public class RegularUserController {
             logger.error("Error in reset password: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(java.util.Map.of("error", "An error occurred while resetting password"));
+        }
+    }
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
+    @GetMapping(value = "/latest-ride")
+    public ResponseEntity<LatestRideDTO> getLatestRideId() {
+        try{
+            Long userId = SecurityUtils.getCurrentUserId();
+            LatestRideDTO ride = rideService.getLatestRide(userId);
+            return ResponseEntity.ok(ride);
+        } catch (NoSuchElementException e){
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

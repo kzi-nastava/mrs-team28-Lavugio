@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, NgZone, ChangeDetectorRef } from '@angular/core';
 import { Links } from './links/links';
 import { Logo } from './links/logo/logo';
 import { Link } from './links/link/link';
@@ -8,6 +8,8 @@ import { DriverStatusService } from '@app/core/services/driver-status.service';
 import { RideService } from '@app/core/services/ride-service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { UserService } from '@app/core/services/user/user-service';
+import { timeout } from 'rxjs';
 import { DriverService } from '@app/core/services/user/driver-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 
@@ -23,8 +25,12 @@ export class Navbar implements OnInit {
   currentUser: LoginResponse | null = null;
   isAdmin: boolean = false;
   isDriver: boolean = false;
+  isRegularUser: boolean = false;
   driverActive: boolean = false;
   statusLoading: boolean = false;
+  hasLatestRide = signal(false);
+  latestRideId = signal(0);
+  latestRideStatus = signal("");
 
   constructor(
     private authService: AuthService,
@@ -34,8 +40,13 @@ export class Navbar implements OnInit {
     private driverService: DriverService,
     private rideService: RideService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private regularUserService: UserService
+  ) {
+    if (authService.isRegularUser()){
+      this.getLatestRide();
+    }
+  }
 
   ngOnInit() {
     // Check current authentication state
@@ -43,12 +54,13 @@ export class Navbar implements OnInit {
     this.currentUser = this.authService.getStoredUser();
     this.isAdmin = this.authService.isAdmin();
     this.isDriver = this.authService.isDriver();
-    
+    this.isRegularUser = this.authService.isRegularUser();
+
     // Load driver status if user is a driver
     if (this.isDriver && this.currentUser?.userId) {
       this.loadDriverStatus();
     }
-    
+
     // Subscribe to future changes
     this.authService.isAuthenticated$.subscribe(
       isAuth => {
@@ -59,13 +71,13 @@ export class Navbar implements OnInit {
         }
       }
     );
-    
+
     this.authService.currentUser$.subscribe(
       user => {
         this.currentUser = user;
         this.isAdmin = this.authService.isAdmin();
         this.isDriver = this.authService.isDriver();
-        
+
         if (this.isDriver && user?.userId) {
           this.loadDriverStatus();
         }
@@ -83,7 +95,7 @@ export class Navbar implements OnInit {
 
   loadDriverStatus(): void {
     if (!this.currentUser?.userId) return;
-    
+
     this.driverStatusService.getDriverStatus(this.currentUser.userId).subscribe({
       next: (driver) => {
         this.driverActive = driver.active || false;
@@ -97,11 +109,11 @@ export class Navbar implements OnInit {
 
   toggleDriverStatus(): void {
     if (!this.currentUser?.userId || this.statusLoading) return;
-    
+
     this.statusLoading = true;
     this.cdr.detectChanges();
     const newStatus = !this.driverActive;
-    
+
     if (newStatus) {
       // Activate driver - need to get coordinates
       navigator.geolocation.getCurrentPosition(
@@ -142,7 +154,7 @@ export class Navbar implements OnInit {
       this.driverStatusService.setDriverStatus(this.currentUser.userId, newStatus).subscribe({
         next: (response) => {
           this.statusLoading = false;
-          
+
           // Check if the status change is pending
           if (response.pending) {
             this.notificationService.showNotification(
@@ -190,5 +202,27 @@ export class Navbar implements OnInit {
         }
       }
     });
+  }
+
+  getLatestRide(){
+    this.regularUserService.getLatestRideId()
+      .pipe(
+          timeout(5000) // 5000ms = 5 sekundi
+        )
+        .subscribe({
+          next: ride => {
+            this.latestRideId?.set(ride.rideId);
+            this.latestRideStatus.set(ride.status)
+            this.hasLatestRide.set(true);
+            console.log(ride);
+          },
+          error: err => {
+            if (err.name === 'TimeoutError') {
+              console.error('Request timed out');
+            } else {
+              console.error(err);
+            }
+          },
+      });
   }
 }

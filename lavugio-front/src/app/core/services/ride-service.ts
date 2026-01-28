@@ -73,8 +73,8 @@ export class RideService {
     return this.http.post<RideReview>(`${this.mainPortUrl}/${rideId}/review`, review);
   }
 
-  postRideFinish(finish: FinishRide): Observable<FinishRide>{
-    return this.http.post<FinishRide>(`${this.mainPortUrl}/finish`, finish);
+  putRideFinish(finish: FinishRide): Observable<FinishRide>{
+    return this.http.put<FinishRide>(`${this.mainPortUrl}/finish`, finish);
   }
 
   closeConnection(){
@@ -93,6 +93,10 @@ export class RideService {
 
   findRide(request: RideRequestDTO): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/find-ride`, request);
+  }
+
+  canAccess(rideId: number){
+    return this.http.get<boolean>(`${this.mainPortUrl}/${rideId}/access`)
   }
 
   triggerPanic(rideId: number, panicAlert: any): Observable<any> {

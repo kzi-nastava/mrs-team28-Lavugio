@@ -122,6 +122,7 @@ export class AuthService {
 
   getUserRole(): string | null {
     const user = this.getStoredUser();
+    console.log(user?.role);
     return user?.role || null;
   }
 
