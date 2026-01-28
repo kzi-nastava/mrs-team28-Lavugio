@@ -1,6 +1,11 @@
 package com.backend.lavugio.dto.ride;
 
 import com.backend.lavugio.model.enums.VehicleType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,9 +17,15 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RideRequestDTO {
+    @NotNull(message = "Destinations are required")
+    @Size(min = 2, message = "At least start and end destinations are required")
+    @Valid
     private List<RideDestinationDTO> destinations;
 
+    @NotEmpty(message = "At least one passenger email is required")
     private List<String> passengerEmails;
+    
+    @NotNull(message = "Vehicle type is required")
     private VehicleType vehicleType;
 
     private boolean babyFriendly;

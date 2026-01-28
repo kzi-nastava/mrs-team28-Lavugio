@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
@@ -75,19 +76,19 @@ public class RideController {
     }
 
     @PostMapping("/estimate-price")
-    public ResponseEntity<?> estimateRidePrice(@RequestBody RideEstimateRequestDTO request) {
+    public ResponseEntity<?> estimateRidePrice(@Valid @RequestBody RideEstimateRequestDTO request) {
         try {
             double price = rideService.estimateRidePrice(request);
             return ResponseEntity.ok(price);
         } catch (Exception e) {
-            return ResponseEntity.badRequest( ).body(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     // 3. Create scheduled ride (for future)
     @PostMapping("/find-ride")
     public ResponseEntity<?> findRide(
-            @RequestBody RideRequestDTO request) {
+            @Valid @RequestBody RideRequestDTO request) {
         Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
         Long creatorId = JwtUtil.extractAccountId(authentication);
         System.out.println("Trying to find ride for account with id: " + creatorId);
