@@ -36,25 +36,9 @@ export class Navbar implements OnInit {
     private driverStatusService: DriverStatusService,
     private regularUserService: UserService
   ) {
-    this.regularUserService.getLatestRideId()
-      .pipe(
-          timeout(5000) // 5000ms = 5 sekundi
-        )
-        .subscribe({
-          next: ride => {
-            this.latestRideId?.set(ride.rideId);
-            this.latestRideStatus.set(ride.status)
-            this.hasLatestRide.set(true);
-            console.log(ride);
-          },
-          error: err => {
-            if (err.name === 'TimeoutError') {
-              console.error('Request timed out');
-            } else {
-              console.error(err);
-            }
-          },
-      });
+    if (authService.isRegularUser()){
+      this.getLatestRide();
+    }
   }
 
   ngOnInit() {
@@ -160,5 +144,27 @@ export class Navbar implements OnInit {
         }
       }
     });
+  }
+
+  getLatestRide(){
+    this.regularUserService.getLatestRideId()
+      .pipe(
+          timeout(5000) // 5000ms = 5 sekundi
+        )
+        .subscribe({
+          next: ride => {
+            this.latestRideId?.set(ride.rideId);
+            this.latestRideStatus.set(ride.status)
+            this.hasLatestRide.set(true);
+            console.log(ride);
+          },
+          error: err => {
+            if (err.name === 'TimeoutError') {
+              console.error('Request timed out');
+            } else {
+              console.error(err);
+            }
+          },
+      });
   }
 }

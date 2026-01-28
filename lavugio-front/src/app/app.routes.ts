@@ -41,7 +41,7 @@ export const routes: Routes = [
     title: "View Profile",
     component: ProfileView,
     canActivate: [AuthGuard],
-    data:{role:['DRIVER', 'REGULAR_USER', 'ADMINISTRATOR']}
+    data:{role:['DRIVER', 'REGULAR_USER', 'ADMIN']}
   },
   {
     path: 'ride-history-driver/:rideId',
@@ -73,7 +73,7 @@ export const routes: Routes = [
     title: 'Register-driver',
     component: RegisterDriver,
     canActivate: [AuthGuard],
-    data: {role:['ADMINISTRATOR']}
+    data: {role:['ADMIN']}
   },
   {
     path: 'activate-account',
@@ -94,14 +94,14 @@ export const routes: Routes = [
     title: 'Forgot Password',
     component: ForgotPassword,
     canActivate: [AuthGuard],
-    data: {role: ['REGULAR_USER', 'DRIVER', 'ADMINISTRATOR']}
+    data: {role: ['REGULAR_USER', 'DRIVER', 'ADMIN']}
   },
   {
     path: 'reset-password',
     title: 'Reset Password',
     component: ResetPassword,
     canActivate: [AuthGuard],
-    data: {role: ['REGULAR_USER', 'DRIVER', 'ADMINISTRATOR']}
+    data: {role: ['REGULAR_USER', 'DRIVER', 'ADMIN']}
   },
   {
     path: 'home-page',
@@ -136,20 +136,20 @@ export const routes: Routes = [
     title: 'Admin Panel',
     component: AdminPanel,
     canActivate: [AuthGuard],
-    data: {role: ['ADMINISTRATOR']}
+    data: {role: ['ADMIN']}
   },
   {
     path: 'driver-update-requests',
     title: 'Driver Update Requests',
     component: DriverUpdateRequests,
     canActivate: [AuthGuard],
-    data: {role: ['ADMINISTRATOR']}
+    data: {role: ['ADMIN']}
   },
   {
     path: 'block-user',
     title: 'Block User',
     component: BlockUser,
     canActivate: [AuthGuard],
-    data: {role: ['ADMINISTRATOR']}
+    data: {role: ['ADMIN']}
   }
 ];
