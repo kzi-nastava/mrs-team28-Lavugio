@@ -23,7 +23,6 @@ public class RideRequestDTO {
     @Valid
     private List<RideDestinationDTO> destinations;
 
-    @NotEmpty(message = "At least one passenger email is required")
     private List<String> passengerEmails;
     
     @NotNull(message = "Vehicle type is required")

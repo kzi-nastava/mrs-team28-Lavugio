@@ -26,7 +26,6 @@ public class DriverRegistrationDTO extends UserRegistrationDTO {
     @NotEmpty(message = "Vehicle color cannot be empty")
     private String vehicleColor;
 
-    @NotEmpty(message = "Vehicle type cannot be empty")
     private VehicleType vehicleType;
 
     @Positive(message = "Passanger seats must be positive")

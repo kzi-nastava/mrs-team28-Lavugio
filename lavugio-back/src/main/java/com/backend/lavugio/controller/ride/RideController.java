@@ -467,7 +467,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping("/{rideId}/review")
-    public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
+    public ResponseEntity<?> reviewRide(@PathVariable Long rideId, @RequestBody RideReviewDTO rideReviewDTO){
         try{
             Long userId = SecurityUtils.getCurrentUserId();
             reviewService.createReview(rideId, userId, rideReviewDTO);
