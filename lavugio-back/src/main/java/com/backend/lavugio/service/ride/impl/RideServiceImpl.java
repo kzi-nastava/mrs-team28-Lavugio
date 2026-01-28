@@ -506,6 +506,7 @@ public class RideServiceImpl implements RideService {
 
         // Add passengers to ride
         this.addPassengersToRide(ride, request.getPassengerEmails());
+        this.addPassengerToRide(ride.getId(), creator.getId());
         return ride;
     }
 
@@ -557,6 +558,7 @@ public class RideServiceImpl implements RideService {
 
         // Add passengers to ride
         this.addPassengersToRide(ride, request.getPassengerEmails());
+        this.addPassengerToRide(ride.getId(), creator.getId());
         return ride;
     }
 

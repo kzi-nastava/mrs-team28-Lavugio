@@ -130,21 +130,7 @@ public class RideController {
     @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getRideStatus(@PathVariable Long rideId) {
 
-        Long userId = 1L; //placeholder
-//        RideOverviewDTO status =  new RideOverviewDTO(
-//                1L,
-//                1L,
-//                500,
-//                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
-//                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
-//                RideStatus.ACTIVE,
-//                "Petar Petrović",
-//                "Nemanjina 4",
-//                "Knez Mihailova 12",
-//                LocalDateTime.of(2026, 1, 8, 18, 30),
-//                LocalDateTime.of(2026, 1, 8, 18, 40),
-//                false,
-//                false);
+        Long userId = 1L;
         if (userId == null){
             return new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
