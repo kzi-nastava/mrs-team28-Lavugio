@@ -1,7 +1,10 @@
 package com.backend.lavugio.dto.user;
 
 import com.backend.lavugio.model.enums.VehicleType;
+
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Data
@@ -11,25 +14,22 @@ import lombok.*;
 @AllArgsConstructor
 public class DriverRegistrationDTO extends UserRegistrationDTO {
 
-    @NotEmpty
+    @NotEmpty(message = "Vehicle make cannot be empty")
     private String vehicleMake;
 
-    @NotEmpty
+    @NotEmpty(message = "Vehicle model cannot be empty")
     private String vehicleModel;
 
-    @NotEmpty
-    private String licenseNumber;
-
-    @NotEmpty
+    @NotEmpty(message = "License plate cannot be empty")
     private String licensePlate;
 
-    @NotEmpty
+    @NotEmpty(message = "Vehicle color cannot be empty")
     private String vehicleColor;
 
-    @NotEmpty
     private VehicleType vehicleType;
 
-    @NotEmpty
+    @Positive(message = "Passanger seats must be positive")
+    @Max(value = 30, message = "Passanger seats cannot exceed 30")
     private int passangerSeats;
 
     private boolean babyFriendly = false;

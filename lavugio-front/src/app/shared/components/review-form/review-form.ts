@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, output, signal, WritableSignal } from '@angular/core';
+import { Component, inject, input, OnDestroy, output, signal, WritableSignal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RideService } from '@app/core/services/ride-service';
 import { RideReview } from '@app/shared/models/ride/rideReview';
@@ -22,7 +22,7 @@ export class ReviewForm implements OnDestroy {
   driverRating: WritableSignal<number> = signal(0);
   vehicleRating: WritableSignal<number> = signal(0);
   
-  rideId: number = 0;
+  rideId = input<number>(0);
 
   hideReviewOutput = output();
   isSuccessfulOutput = output();
@@ -59,13 +59,13 @@ export class ReviewForm implements OnDestroy {
     this.isFailed.set(false);
 
     let review: RideReview = {
-      rideId: this.rideId,
+      rideId: this.rideId(),
       driverRating: this.driverRating(),
       vehicleRating: this.vehicleRating(),
       comment: this.commentControl.value
     };
 
-    this.rideService.postRideReview(this.rideId, review).subscribe({
+    this.rideService.postRideReview(this.rideId(), review).subscribe({
       next: () => {
         console.log("Review successful");
         this.isSuccessfulOutput.emit();

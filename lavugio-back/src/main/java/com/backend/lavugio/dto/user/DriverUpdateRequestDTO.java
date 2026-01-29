@@ -4,6 +4,10 @@ import com.backend.lavugio.model.enums.VehicleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,25 +18,25 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DriverUpdateRequestDTO {
-    @Column
+    @Valid
     private AccountUpdateDTO profile;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Vehicle make cannot be empty")
     private String vehicleMake;
-    @Column(nullable = false)
+    @NotBlank(message = "Vehicle model cannot be empty")
     private String vehicleModel;
-    @Column(nullable = false)
+    @NotBlank(message = "Vehicle license plate cannot be empty")
     private String vehicleLicensePlate;
-    @Column(nullable = false)
+    @Positive(message = "Vehicle seats must be positive number")
+    @Max(value = 30, message = "Vehicle seats cannot exceed 30")
     private int vehicleSeats;
-    @Column(nullable = false)
+    
     private boolean vehiclePetFriendly;
-    @Column(nullable = false)
     private boolean vehicleBabyFriendly;
-    @Column(nullable = false)
+
+    @NotBlank(message = "Vehicle color cannot be empty")
     private String vehicleColor;
 
     @Enumerated(EnumType.STRING)
-    @Column
     private VehicleType vehicleType;
 }

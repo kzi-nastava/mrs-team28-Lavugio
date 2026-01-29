@@ -12,7 +12,6 @@ export class VehicleForm {
     if (data) {
       this.make.set(data.make || '');
       this.model.set(data.model || '');
-      this.licenseNumber.set(data.licenseNumber || '');
       this.licensePlate.set(data.licensePlate || '');
       this.seats.set(data.seats || 4);
       this.color.set(data.color || '');
@@ -26,7 +25,6 @@ export class VehicleForm {
 
   make = signal('');
   model = signal('');
-  licenseNumber = signal('');
   licensePlate = signal('');
   seats = signal(4);
   color = signal('');
@@ -48,7 +46,6 @@ export class VehicleForm {
     effect(() => {
       this.make();
       this.model();
-      this.licenseNumber();
       this.licensePlate();
       this.seats();
       this.color();
@@ -63,7 +60,6 @@ export class VehicleForm {
     this.dataChange.emit({
       make: this.make(),
       model: this.model(),
-      licenseNumber: this.licenseNumber(),
       licensePlate: this.licensePlate(),
       seats: this.seats(),
       color: this.color(),

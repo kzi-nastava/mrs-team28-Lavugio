@@ -2,6 +2,7 @@ package com.backend.lavugio.dto.ride;
 
 import com.backend.lavugio.model.enums.VehicleType;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -22,7 +23,6 @@ public class RideRequestDTO {
     @Valid
     private List<RideDestinationDTO> destinations;
 
-    @NotEmpty(message = "At least one passenger email is required")
     private List<String> passengerEmails;
     
     @NotNull(message = "Vehicle type is required")
@@ -31,6 +31,7 @@ public class RideRequestDTO {
     private boolean babyFriendly;
     private boolean petFriendly;
 
+    @FutureOrPresent(message = "Scheduled time must be in the future or present")
     private LocalDateTime scheduledTime;
     private boolean scheduled;
 

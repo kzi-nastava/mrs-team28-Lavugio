@@ -9,6 +9,7 @@ import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.ride.RideCompletionService;
 import com.backend.lavugio.service.ride.RideOverviewService;
@@ -34,15 +35,16 @@ public class RideCompletionServiceImpl implements RideCompletionService {
     private final RideService rideService;
     private final EmailService emailService;
     private final NotificationService notificationService;
-
+    private final DriverRepository driverRepository;
 
     @Autowired
-    public RideCompletionServiceImpl(NotificationService notificationService, RideDestinationService rideDestinationService,  RideService rideService, EmailService emailService, RideOverviewService rideOverviewService) {
+    public RideCompletionServiceImpl(NotificationService notificationService, RideDestinationService rideDestinationService, RideService rideService, EmailService emailService, RideOverviewService rideOverviewService, DriverRepository driverRepository) {
         this.rideDestinationService = rideDestinationService;
         this.rideService = rideService;
         this.emailService = emailService;
         this.notificationService = notificationService;
         this.rideOverviewService = rideOverviewService;
+        this.driverRepository = driverRepository;
     }
 
     @Transactional
@@ -99,7 +101,8 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         ride.setRideStatus(RideStatus.FINISHED);
         ride.setEndDateTime(LocalDateTime.now());
         ride.getDriver().setDriving(false);
-        
+        driverRepository.save(ride.getDriver());
+
         // Reset can_order flag for the creator (passenger)
         if (ride.getCreator() != null) {
             ride.getCreator().setCanOrder(true);

@@ -68,7 +68,7 @@ public class RideOverviewServiceImpl implements RideOverviewService {
         boolean hasReported = rideReportService.hasReported(userId, rideId);
         boolean hasReviewed = reviewService.hasReviewed(userId, rideId);
         return new RideOverviewDTO(ride, coordinates, checkpoints.getFirst().getAddress().toString(),
-                checkpoints.getLast().getAddress().toString(), hasReported, hasReviewed);
+                checkpoints.getLast().getAddress().toString(), hasReviewed, hasReported);
     }
 
     @Override

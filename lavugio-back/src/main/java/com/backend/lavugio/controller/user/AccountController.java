@@ -12,6 +12,9 @@ import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.AdministratorService;
 import com.backend.lavugio.service.user.DriverService;
 import com.backend.lavugio.service.user.RegularUserService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -49,9 +52,7 @@ public class AccountController {
     @GetMapping("/profile")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserProfileDTO> getCurrentUserProfile() {
-        // Get authenticated user ID from SecurityContext
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long accountId = JwtUtil.extractAccountId(authentication);
+        Long accountId = SecurityUtils.getCurrentUserId();
         if (accountId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -98,7 +99,7 @@ public class AccountController {
 
     @PutMapping("/profile")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> updateCurrentUserProfile(@RequestBody AccountUpdateDTO updatedProfile) {
+    public ResponseEntity<?> updateCurrentUserProfile(@Valid @RequestBody AccountUpdateDTO updatedProfile) {
         // Get authenticated user ID from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long accountId = JwtUtil.extractAccountId(authentication);
@@ -165,7 +166,7 @@ public class AccountController {
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordDTO passwordUpdate) {
+    public ResponseEntity<?> changePassword(@Valid @RequestBody UpdatePasswordDTO passwordUpdate) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long accountId = JwtUtil.extractAccountId(authentication);
         if (accountId == null) {
@@ -197,7 +198,7 @@ public class AccountController {
     }
 
     @PostMapping("/block")
-    public ResponseEntity<?> blockUser(@RequestBody BlockUserDTO blockUserDTO) {
+    public ResponseEntity<?> blockUser(@Valid @RequestBody BlockUserDTO blockUserDTO) {
         try {
             accountService.blockUser(blockUserDTO);
             return ResponseEntity.ok().body(Map.of("message", "User blocked successfully"));

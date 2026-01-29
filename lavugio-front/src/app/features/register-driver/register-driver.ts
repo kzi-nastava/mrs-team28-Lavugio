@@ -67,7 +67,6 @@ export class RegisterDriver {
 
       vehicleMake: this.vehicleData.make,
       vehicleModel: this.vehicleData.model,
-      licenseNumber: this.vehicleData.licenseNumber,
       licensePlate: this.vehicleData.licensePlate,
       vehicleColor: this.vehicleData.color,
       vehicleType: this.vehicleData.vehicleType,

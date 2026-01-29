@@ -1,6 +1,8 @@
 package com.backend.lavugio.dto.route;
 
 import com.backend.lavugio.dto.CoordinatesDTO;
+
+import jakarta.validation.Valid;
 import lombok.*;
 
 @Data
@@ -13,5 +15,6 @@ public class FavoriteRouteDestinationDTO {
     private String houseNumber;
     private String city;
     private String country;
+    @Valid
     private CoordinatesDTO coordinates;
 }
