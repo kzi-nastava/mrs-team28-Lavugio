@@ -1,7 +1,8 @@
 package com.backend.lavugio.dto;
 
 import com.backend.lavugio.model.route.Address;
-import com.backend.lavugio.model.route.RideDestination;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

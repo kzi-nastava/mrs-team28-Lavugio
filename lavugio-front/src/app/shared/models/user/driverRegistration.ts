@@ -8,7 +8,6 @@ export interface DriverRegistration {
 
     vehicleMake: string;
     vehicleModel: string;
-    licenseNumber: string;
     licensePlate: string;
     vehicleColor: string;
     vehicleType: string;

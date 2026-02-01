@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, output, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, inject, input, Input, OnDestroy, output, Signal, signal, WritableSignal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RideService } from '@app/core/services/ride-service';
 import { RideReport } from '@app/shared/models/ride/rideReport';
@@ -18,8 +18,8 @@ export class ReportForm implements OnDestroy{
   isHidden: WritableSignal<Boolean> = signal(false);
   isFailed: WritableSignal<Boolean> = signal(false);
   isLoading: WritableSignal<Boolean> = signal(false);
-  rideId: number = 0;
-  reporterId: number = 0;
+  rideId = input<number>(0);
+  reporterId = input<number>(0);
   isSuccessful = output();
 
   hideReportOutput = output();
@@ -43,11 +43,11 @@ export class ReportForm implements OnDestroy{
   sendReport(){
     this.isLoading.set(true);
     let report: RideReport = {
-      rideId: this.rideId,
+      rideId: this.rideId(),
       comment:this.reportControl.value,
-      reporterId: this.reporterId
+      reporterId: this.reporterId()
     }
-    this.rideService.postRideReport(this.rideId, report).subscribe({
+    this.rideService.postRideReport(this.rideId(), report).subscribe({
       next: () =>{
         console.log("Report successful")
         this.isSuccessful.emit();

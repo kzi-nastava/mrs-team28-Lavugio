@@ -4,6 +4,9 @@ import com.backend.lavugio.dto.route.NewFavoriteRouteDTO;
 import com.backend.lavugio.dto.route.UpdateFavoriteRouteDTO;
 import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.service.route.FavoriteRouteService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +28,7 @@ public class FavoriteRouteController {
 
     @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping("/add")
-    public ResponseEntity<?> createFavoriteRoute(@RequestBody NewFavoriteRouteDTO request) {
+    public ResponseEntity<?> createFavoriteRoute(@Valid @RequestBody NewFavoriteRouteDTO request) {
         Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
         Long accountId = JwtUtil.extractAccountId(authentication);
         try {
