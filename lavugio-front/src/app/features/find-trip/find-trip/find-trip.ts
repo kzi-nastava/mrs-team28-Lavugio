@@ -1,7 +1,9 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   effect,
+  inject,
   OnDestroy,
   OnInit,
   signal,
@@ -34,6 +36,9 @@ import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest
 import { UserService } from '@app/core/services/user/user-service';
 import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
 import { VehicleType } from '@app/shared/models/vehicleType';
+import { DriverService } from '@app/core/services/driver-service';
+import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
+
 
 @Component({
   selector: 'app-find-trip',
@@ -50,7 +55,7 @@ import { VehicleType } from '@app/shared/models/vehicleType';
   templateUrl: './find-trip.html',
   styleUrl: './find-trip.css',
 })
-export class FindTrip implements OnInit, OnDestroy {
+export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
   isPanelOpen: boolean = false;
 
   togglePanel() {
@@ -60,6 +65,10 @@ export class FindTrip implements OnInit, OnDestroy {
   @ViewChild('map') map!: MapComponent;
   @ViewChild('destinationSelector') destinationSelector!: DestinationSelector;
   isMapPickMode = false;
+  private intervalId: any;
+  private driverService = inject(DriverService);
+
+
 
   destinations: TripDestination[] = [];
 
@@ -120,6 +129,7 @@ export class FindTrip implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    clearInterval(this.intervalId);
   }
 
   onDestinationAdded(geocodeResult: GeocodeResult) {
@@ -574,4 +584,38 @@ export class FindTrip implements OnInit, OnDestroy {
   getPreviousButtonText(): string {
     return 'Previous';
   }
+
+  private loadDriverMarkers() {
+    this.driverService.getDriverLocations().subscribe({
+      next: (locations: DriverMarkerLocation[]) => {
+        locations.forEach(loc => {
+          this.map.addMarker(
+            { latitude: loc.location.latitude, longitude: loc.location.longitude },
+            this.getMarkerIconByStatus(loc.status)
+          );
+        });
+      },
+      error: (err) => console.error('Error loading driver locations:', err)
+    });
+  }
+
+  private getMarkerIconByStatus(status: string) {
+    switch (status) {
+      case 'AVAILABLE':
+        return MarkerIcons.driverAvailable;
+      case 'BUSY':
+        return MarkerIcons.driverBusy;
+      case 'RESERVED':
+        return MarkerIcons.driverReserved;
+      default:
+        return MarkerIcons.default;
+    }
+  }
+
+  ngAfterViewInit() {
+    this.loadDriverMarkers();
+    this.intervalId = setInterval(() => this.loadDriverMarkers(), 10_000);
+  }
+
+  
 }

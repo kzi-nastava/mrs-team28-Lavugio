@@ -38,7 +38,7 @@ export class GuestHomePage implements AfterViewInit{
   ngAfterViewInit() {
       this.loadDriverMarkers();
 
-      this.intervalId = setInterval(() => this.loadDriverMarkers(), 120_000);
+      this.intervalId = setInterval(() => this.loadDriverMarkers(), 10_000);
   }
 
   sendToRegistrationPage() {
