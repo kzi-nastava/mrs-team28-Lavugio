@@ -4,6 +4,10 @@ import lombok.*;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 @Data
 @Getter
 @Setter
@@ -11,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class NewFavoriteRouteDTO {
     private Long id;
+    @NotBlank(message = "Name is mandatory")
     private String name;;
-    private List<FavoriteRouteDestinationDTO> destinations;
+    @Size(min = 2, message = "At least two destinations are required")  
+    private List<@Valid FavoriteRouteDestinationDTO> destinations;
 }

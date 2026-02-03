@@ -75,7 +75,8 @@
                z-50 w-[90%] max-w-md">
         <app-report-form
           (isSuccessful)="isReported.set(true)"
-          (hideReportOutput)="showReport.set(false)">
+          (hideReportOutput)="showReport.set(false)"
+          [rideId]="rideId">
         </app-report-form>
       </div>
     }
@@ -92,7 +93,8 @@
                z-50 w-[90%] max-w-md">
         <app-review-form
           (isSuccessfulOutput)="isRated.set(true)"
-          (hideReviewOutput)="showReview.set(false)">
+          (hideReviewOutput)="showReview.set(false)"
+          [rideId]="rideId">
         </app-review-form>
       </div>
     }

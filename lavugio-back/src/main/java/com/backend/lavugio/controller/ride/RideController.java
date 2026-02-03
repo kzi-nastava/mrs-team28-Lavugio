@@ -235,20 +235,7 @@ public class RideController {
     @PreAuthorize("hasRole('REGULAR_USER')")
     @GetMapping(value = "/{rideId}/overview", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getRideStatus(@PathVariable Long rideId) {
-//        RideOverviewDTO status =  new RideOverviewDTO(
-//                1L,
-//                1L,
-//                500,
-//                new CoordinatesDTO[]{new CoordinatesDTO(45.26430042229796, 19.830107688903812),
-//                new CoordinatesDTO(45.23657222655474, 19.835062717102122)},
-//                RideStatus.ACTIVE,
-//                "Petar Petrović",
-//                "Nemanjina 4",
-//                "Knez Mihailova 12",
-//                LocalDateTime.of(2026, 1, 8, 18, 30),
-//                LocalDateTime.of(2026, 1, 8, 18, 40),
-//                false,
-//                false);
+
         try{
             Long userId = SecurityUtils.getCurrentUserId();
             RideOverviewDTO overviewDTO = rideOverviewService.getRideOverviewDTO(rideId, userId);
@@ -480,7 +467,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping("/{rideId}/review")
-    public ResponseEntity<?> reviewRide(@PathVariable Long rideId, RideReviewDTO rideReviewDTO){
+    public ResponseEntity<?> reviewRide(@PathVariable Long rideId, @RequestBody RideReviewDTO rideReviewDTO){
         try{
             Long userId = SecurityUtils.getCurrentUserId();
             reviewService.createReview(rideId, userId, rideReviewDTO);

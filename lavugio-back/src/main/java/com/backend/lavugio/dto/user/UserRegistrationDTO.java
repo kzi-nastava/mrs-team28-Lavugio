@@ -16,8 +16,6 @@ public class UserRegistrationDTO {
     @NotEmpty(message = "Email is required")
     private String email;
 
-    @Size(min = 8, message = "Password must be at least 8 characters")
-    @NotEmpty(message = "Password is required")
     private String password;
 
     @NotEmpty(message = "Name is required")
