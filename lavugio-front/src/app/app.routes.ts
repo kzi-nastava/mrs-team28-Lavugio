@@ -101,15 +101,13 @@ export const routes: Routes = [
     path: 'forgot-password',
     title: 'Forgot Password',
     component: ForgotPassword,
-    canActivate: [AuthGuard],
-    data: {role: ['REGULAR_USER', 'DRIVER', 'ADMIN']}
+    canActivate: [guestOnlyauthGuardFn]
   },
   {
     path: 'reset-password',
     title: 'Reset Password',
     component: ResetPassword,
-    canActivate: [AuthGuard],
-    data: {role: ['REGULAR_USER', 'DRIVER', 'ADMIN']}
+    canActivate: [guestOnlyauthGuardFn]
   },
   {
     path: 'home-page',
