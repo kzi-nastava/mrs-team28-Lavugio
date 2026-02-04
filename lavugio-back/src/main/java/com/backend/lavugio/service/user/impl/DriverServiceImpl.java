@@ -102,7 +102,8 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = getDriverById(driverId);
         
         if (driver.isActive()) {
-             throw new RuntimeException("Driver is already active");
+             System.out.println("Driver is already active");
+             return driver;
         }
         
         if (driver.isBlocked()) {
