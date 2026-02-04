@@ -32,7 +32,7 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
     public DriverLocation updateDriverLocation(Long id, CoordinatesDTO driverCoords) {
         DriverLocation location = activeDriverLocations.get(id);
         if (location == null) {
-            throw new NoSuchElementException("Cannot update location: Driver with id " + driverCoords.getId() + " is not active.");
+            throw new NoSuchElementException("Cannot update location: Driver with id " + id + " is not active.");
         }
         location.setLongitude(driverCoords.getLongitude());
         location.setLatitude(driverCoords.getLatitude());

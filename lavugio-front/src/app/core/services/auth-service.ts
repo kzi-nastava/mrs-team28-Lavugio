@@ -75,6 +75,11 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
+  getUserId(): number | null {
+    const user = this.getStoredUser();
+    return user ? user.userId : null;
+  }
+
   logout(): Observable<void> {
     const user = this.getStoredUser();
     if (user?.userId) {

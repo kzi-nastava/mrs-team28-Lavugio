@@ -115,76 +115,38 @@ export class Navbar implements OnInit {
     const newStatus = !this.driverActive;
 
     if (newStatus) {
-      // Activate driver - need to get coordinates
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coordinates: Coordinates = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          };
-          this.driverService.activateDriver(coordinates).subscribe({
-            next: () => {
-              this.statusLoading = false;
-              this.driverActive = true;
-              this.driverStatusService.updateLocalStatus(true);
-              this.notificationService.showNotification('Driver activated successfully', 'success');
-              this.cdr.detectChanges();
-            },
-            error: (error) => {
-              this.statusLoading = false;
-              const message = error.error?.message || 'Failed to activate driver';
-              this.notificationService.showNotification(message, 'error');
-              this.cdr.detectChanges();
-            }
-          });
-        },
-        (error) => {
+      this.driverService.activateDriver().subscribe({
+        next: () => {
           this.statusLoading = false;
-          console.warn('Geolocation error:', error);
-          this.notificationService.showNotification('Unable to get your location. Please enable geolocation.', 'error');
-          this.cdr.detectChanges();
-        },
-        {
-          timeout: 5000,
-          enableHighAccuracy: false
-        }
-      );
-    } else {
-      // Deactivate driver - using the driverStatusService which handles pending status
-      this.driverStatusService.setDriverStatus(this.currentUser.userId, newStatus).subscribe({
-        next: (response) => {
-          this.statusLoading = false;
-
-          // Check if the status change is pending
-          if (response.pending) {
-            this.notificationService.showNotification(
-              response.message || 'Status change will be applied after your ride completes',
-              'info'
-            );
-            // Don't update the local status yet, keep it as active
-          } else if (response.active !== undefined) {
-            this.driverActive = response.active;
-            this.driverStatusService.updateLocalStatus(this.driverActive);
-            this.notificationService.showNotification(
-              `Status updated: ${this.driverActive ? 'Available' : 'Unavailable'}`,
-              'success'
-            );
-          } else {
-            this.notificationService.showNotification(
-              response.message || 'Status change processed',
-              'info'
-            );
-          }
+          this.driverActive = true;
+          this.driverStatusService.updateLocalStatus(true);
+          this.notificationService.showNotification('Driver activated successfully', 'success');
           this.cdr.detectChanges();
         },
         error: (error) => {
           this.statusLoading = false;
-          const message = error.error?.message || 'Failed to update status';
+          const message = error.error?.message || 'Failed to activate driver';
           this.notificationService.showNotification(message, 'error');
           this.cdr.detectChanges();
         }
       });
-    }
+    } else {
+        this.driverService.deactivateDriver().subscribe({
+          next: () => {
+            this.statusLoading = false;
+            this.driverActive = false;
+            this.driverStatusService.updateLocalStatus(false);
+            this.notificationService.showNotification('Driver deactivated successfully', 'success');
+            this.cdr.detectChanges();
+          },
+          error: (error) => {
+            this.statusLoading = false;
+            const message = error.error?.message || 'Failed to deactivate driver';
+            this.notificationService.showNotification(message, 'error');
+            this.cdr.detectChanges();
+          }
+        });
+      }
   }
 
   logout() {

@@ -95,11 +95,7 @@ export class Login {
         
         // If driver, activate the driver
         if (response.role === 'DRIVER') {
-          const coordinates: Coordinates = {
-            latitude: loginData.latitude || 0,
-            longitude: loginData.longitude || 0
-          }
-          this.driverService.activateDriver(coordinates).subscribe({
+          this.driverService.activateDriver().subscribe({
             next: () => {
               console.log('Driver activated successfully');
               this.redirectAfterLogin(response.role);

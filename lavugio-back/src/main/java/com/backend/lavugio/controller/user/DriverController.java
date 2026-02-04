@@ -356,28 +356,6 @@ public class DriverController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
-
-    @PostMapping("/activate")
-    public ResponseEntity<?> activateDriver() {
-        try {
-            Long id = SecurityUtils.getCurrentUserId();
-            DriverStatusDTO status = driverService.activateDriverDTO(id);
-            return ResponseEntity.ok(status);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-    
-    @PostMapping("/deactivate")
-    public ResponseEntity<?> deactivateDriver() {
-        try {
-            Long id = SecurityUtils.getCurrentUserId();
-            DriverStatusDTO status = driverService.deactivateDriverDTO(id);
-            return ResponseEntity.ok(status);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
     
     @GetMapping("/{id}/status")
     public ResponseEntity<?> getDriverStatus(@PathVariable Long id) {
@@ -508,19 +486,6 @@ public class DriverController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @PostMapping(value = "/{driverId}/activate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DriverLocationDTO> activateDriver(@PathVariable Long driverId,
-                                                            @RequestBody CoordinatesDTO coordinates) {
-//        DriverLocation status;
-//        try{
-//            status = driverService.activateDriver(driverId, longitude, latitude);
-//        }catch (RuntimeException e){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-        DriverLocationDTO activatedStatus = new DriverLocationDTO(driverId, coordinates, DriverStatusEnum.AVAILABLE);
-        return new ResponseEntity<>(activatedStatus, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/{driverId}/status", produces = MediaType.APPLICATION_JSON_VALUE)

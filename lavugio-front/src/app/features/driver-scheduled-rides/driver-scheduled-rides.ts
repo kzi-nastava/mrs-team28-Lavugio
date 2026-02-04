@@ -8,7 +8,7 @@ import { ScheduledRides } from "./scheduled-rides/scheduled-rides";
 import { MapComponent } from '@app/shared/components/map/map';
 import { RideService } from '@app/core/services/ride-service';
 import { catchError, EMPTY, Subscription, timeout } from 'rxjs';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { FinishRide } from '@app/shared/models/ride/finishRide';
 import { AuthService } from '@app/core/services/auth-service';
 import { LocationService } from '@app/core/services/location-service';

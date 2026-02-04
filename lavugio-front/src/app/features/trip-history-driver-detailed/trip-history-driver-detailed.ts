@@ -5,7 +5,7 @@ import { TripInfo } from './trip-info/trip-info';
 import { MapComponent } from "@app/shared/components/map/map";
 import { RideHistoryDriverDetailedModel } from '@app/shared/models/ride/rideHistoryDriverDetailed';
 import { catchError, EMPTY, Subscription, timeout } from 'rxjs';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({

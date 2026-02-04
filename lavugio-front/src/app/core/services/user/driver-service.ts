@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
-import { interval, Observable, Subscription } from 'rxjs';
+import { from, interval, Observable, Subscription, switchMap, tap } from 'rxjs';
 import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 import { environment } from 'environments/environment';
 import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistoryDriverPagingModel';
@@ -79,9 +79,19 @@ export class DriverService {
     return this.http.get<RideHistoryDriverDetailedModel>(`${this.mainPortUrl}/history/${rideId}`);
   }
 
-  activateDriver(coordinates: Coordinates): Observable<any> {
-    this.startTracking();
-    return this.http.post<any>(`${this.mainPortUrl}/activate`, coordinates);
+  activateDriver(): Observable<any> {
+    return from(this.locationService.getLocation()).pipe(
+      switchMap((position) => {
+        const coords: Coordinates = {
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude
+        };
+        return this.http.post<any>(`${this.mainPortUrl}/activate`, coords);
+      }),
+      tap(() => {
+        this.startTracking();
+      })
+    );
   }
 
   deactivateDriver(): Observable<any> {
