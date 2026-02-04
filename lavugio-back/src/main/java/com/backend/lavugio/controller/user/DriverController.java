@@ -317,8 +317,8 @@ public class DriverController {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
-            Driver driver = driverService.activateDriver(accountId);
             driverAvailabilityService.activateDriver(accountId, coordinates.getLongitude(), coordinates.getLatitude());
+            Driver driver = driverService.activateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " activated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {
@@ -334,8 +334,8 @@ public class DriverController {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
-            Driver driver = driverService.deactivateDriver(accountId);
             driverAvailabilityService.deactivateDriver(accountId);
+            Driver driver = driverService.deactivateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {
