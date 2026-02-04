@@ -131,13 +131,16 @@ public class RegularUserController {
             String profilePhotoPath = null;
             if (profilePicture != null && !profilePicture.isEmpty()) {
                 profilePhotoPath = saveProfilePicture(profilePicture);
+                logger.info("Profile picture saved at: {}", profilePhotoPath);
             } else {
                 // Assign default profile picture
                 profilePhotoPath = getDefaultProfilePicture();
+                logger.info("Using default profile picture at: {}", profilePhotoPath);
             }
             request.setProfilePhotoPath(profilePhotoPath);
             
             UserDTO user = regularUserService.createRegularUser(request);
+            logger.info("User created with profile photo path: {}", user.getProfilePhotoPath());
             
             // Send verification email
             userRegistrationTokenService.sendVerificationEmail(user.getId(), user.getEmail(), user.getName());
@@ -168,25 +171,31 @@ public class RegularUserController {
     }
 
     private String saveProfilePicture(MultipartFile file) throws Exception {
-        if (!file.getContentType().startsWith("image/")) {
-            throw new IllegalArgumentException("File must be an image");
+        String contentType = file.getContentType();
+        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+            throw new IllegalArgumentException("Only JPG and PNG images are allowed");
         }
 
         // Use absolute path in user's project directory
         String projectRoot = System.getProperty("user.dir");
-        String uploadsDir = projectRoot + "/uploads/profile-photos/";
-        java.nio.file.Files.createDirectories(java.nio.file.Paths.get(uploadsDir));
+        java.nio.file.Path uploadsPath = java.nio.file.Paths.get(projectRoot, "uploads", "profile-photos");
+        java.nio.file.Files.createDirectories(uploadsPath);
 
-        String filename = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-        String filepath = uploadsDir + filename;
+        String originalFilename = file.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String filename = "user_" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString() + extension;
+        java.nio.file.Path fullpath = uploadsPath.resolve(filename);
         
-        file.transferTo(new java.io.File(filepath));
+        file.transferTo(fullpath.toFile());
         
-        return "/uploads/profile-photos/" + filename;
+        // Return absolute path like the profile update does
+        return fullpath.toString();
     }
 
     private String getDefaultProfilePicture() {
-        return "/uploads/profile-photos/default-profile.png";
+        String projectRoot = System.getProperty("user.dir");
+        java.nio.file.Path defaultPath = java.nio.file.Paths.get(projectRoot, "uploads", "profile-photos", "default-profile.png");
+        return defaultPath.toString();
     }
 
     @PostMapping("/login")

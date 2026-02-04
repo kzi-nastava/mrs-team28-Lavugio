@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, OnInit, AfterViewInit, signal } from '@angular/core';
 import { MapComponent } from "@app/shared/components/map/map";
 import { Button } from "@app/shared/components/button/button";
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { TripDestination } from '@app/shared/models/tripDestination';
 import { GeocodeResult } from '../find-trip/geocoding-service/geocoding-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { TripStatsDisplay } from "../find-trip/trip-stats-display/trip-stats-display";
+import { GeocodingService } from '../find-trip/geocoding-service/geocoding-service';
 
 @Component({
   selector: 'app-guest-home-page',
@@ -25,10 +26,15 @@ export class GuestHomePage implements AfterViewInit{
   private intervalId: any;
   destinations: TripDestination[] = [];
   isMapPickMode = false;
+  
+  // Trip stats
+  distance = signal<string>('0km');
+  estimatedTime = signal<string>('0min');
 
   constructor(
     private router: Router,
-    private driverService: DriverService
+    private driverService: DriverService,
+    private geocodingService: GeocodingService
   ) {}
 
   navigateToRegister() {
@@ -124,10 +130,37 @@ export class GuestHomePage implements AfterViewInit{
   }
 
   private updateRoute() {
-    if (this.destinations.length < 2) return;
+    if (this.destinations.length < 2) {
+      this.distance.set('0km');
+      this.estimatedTime.set('0min');
+      return;
+    }
 
     const coords = this.destinations.map((d) => d.coordinates);
     this.mapComponent.setRoute(coords);
+    
+    // Calculate route statistics
+    this.geocodingService.getRouteInfo(coords).subscribe({
+      next: (routeInfo) => {
+        if (!routeInfo) {
+          console.error('Failed to get route info');
+          return;
+        }
+        
+        // Convert distance from meters to km
+        const distanceKm = (routeInfo.distanceMeters / 1000).toFixed(1);
+        this.distance.set(`${distanceKm}km`);
+        
+        // Convert duration from seconds to minutes
+        const durationMinutes = Math.round(routeInfo.durationSeconds / 60);
+        this.estimatedTime.set(`${durationMinutes}min`);
+      },
+      error: (error) => {
+        console.error('Failed to get route info:', error);
+        this.distance.set('0km');
+        this.estimatedTime.set('0min');
+      },
+    });
   }
 
   enableMapPickMode() {
