@@ -2,6 +2,7 @@ package com.backend.lavugio.service.user.impl;
 
 import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
+import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.service.ride.RideQueryService;
@@ -10,11 +11,7 @@ import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class DriverAvailabilityServiceImpl implements DriverAvailabilityService {
@@ -68,22 +65,26 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
     @Override
     public DriverStatusEnum getDriverStatus(Long driverId) {
         List<Ride> driverRides = rideQueryService.getRidesByDriverId(driverId);
-        if (driverRides == null) {
-            throw new NoSuchElementException("No rides found for driver with id " + driverId);
-        }
+
+        boolean hasScheduled = false;
 
         for (Ride ride : driverRides) {
-            switch (ride.getRideStatus()) {
-                case ACTIVE:
-                    return DriverStatusEnum.BUSY;
-                case SCHEDULED:
-                    return DriverStatusEnum.RESERVED;
-                default:
-                    break;
+            if (ride.getRideStatus() == RideStatus.ACTIVE) {
+                return DriverStatusEnum.BUSY;
+            }
+
+            if (ride.getRideStatus() == RideStatus.SCHEDULED) {
+                hasScheduled = true;
             }
         }
+
+        if (hasScheduled) {
+            return DriverStatusEnum.RESERVED;
+        }
+
         return DriverStatusEnum.AVAILABLE;
     }
+
 
     @Override
     public DriverLocation activateDriver(Long driverId, double longitude, double latitude) {
