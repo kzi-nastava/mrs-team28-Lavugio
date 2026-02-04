@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, NgZone, ChangeDetectorRef, computed } from '@angular/core';
 import { Links } from './links/links';
 import { Logo } from './links/logo/logo';
 import { Link } from './links/link/link';
@@ -31,6 +31,8 @@ export class Navbar implements OnInit {
   hasLatestRide = signal(false);
   latestRideId = signal(0);
   latestRideStatus = signal("");
+  timeActiveDuration = signal<number>(0);
+  hasExceeded8Hours = computed(() => this.timeActiveDuration() >= 480);
 
   constructor(
     private authService: AuthService,
@@ -100,6 +102,7 @@ export class Navbar implements OnInit {
       next: (driver) => {
         this.driverActive = driver.active || false;
         this.driverStatusService.updateLocalStatus(this.driverActive);
+        this.fetchActiveTime();
       },
       error: (error) => {
         console.error('Failed to load driver status', error);
@@ -115,6 +118,17 @@ export class Navbar implements OnInit {
     const newStatus = !this.driverActive;
 
     if (newStatus) {
+      // Check if driver has exceeded 8 hours
+      if (this.hasExceeded8Hours()) {
+        this.statusLoading = false;
+        this.notificationService.showNotification(
+          'You have reached the maximum 8 hours of active time in the last 24 hours',
+          'error'
+        );
+        this.cdr.detectChanges();
+        return;
+      }
+      
       this.driverService.activateDriver().subscribe({
         next: () => {
           this.statusLoading = false;
@@ -186,5 +200,32 @@ export class Navbar implements OnInit {
             }
           },
       });
+  }
+
+  private fetchActiveTime(): void {
+    this.driverService.getDriverActiveLast24Hours().subscribe({
+      next: (response) => {
+        this.formatAndStoreDuration(response.timeActive);
+      },
+      error: (error) => {
+        console.error('Error fetching active time:', error);
+        this.timeActiveDuration.set(0);
+      }
+    });
+  }
+
+  private formatAndStoreDuration(duration: string): void {
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/;
+    const match = duration.match(regex);
+    
+    if (!match) {
+      this.timeActiveDuration.set(0);
+      return;
+    }
+    
+    const hours = parseInt(match[1] || '0');
+    const minutes = parseInt(match[2] || '0');
+    
+    this.timeActiveDuration.set(hours * 60 + minutes);
   }
 }
