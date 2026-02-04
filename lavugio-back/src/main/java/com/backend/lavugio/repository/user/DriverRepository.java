@@ -18,4 +18,5 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     List<Driver> findByVehicleIsNull();
     long countByIsDrivingTrue();
     boolean existsByVehicle(Vehicle vehicle);
+    List<Driver> findByIsActiveTrue();
 }

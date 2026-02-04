@@ -29,7 +29,11 @@ export class ProfileInfoSection implements OnDestroy {
   showPasswordDialog = false;
   vehicleTypeOptions = ['Standard', 'Luxury', 'Combi'];
   timeActive = signal<string>('');
+  timeActiveDuration = signal<number>(0); // Duration in minutes
   isDriverActive = signal<boolean>(false);
+  
+  // Check if driver has exceeded 8 hours (480 minutes)
+  hasExceeded8Hours = computed(() => this.timeActiveDuration() >= 480);
 
   private userService = inject(UserService);
   private dialogService = inject(DialogService);
@@ -109,6 +113,17 @@ export class ProfileInfoSection implements OnDestroy {
 
   onActivateClick() {
     console.log('Activate clicked');
+    
+    // Check if driver has exceeded 8 hours
+    if (this.hasExceeded8Hours()) {
+      this.dialogService.open(
+        'Cannot Activate', 
+        'You have reached the maximum 8 hours of active time in the last 24 hours. Please try again later.',
+        true
+      );
+      return;
+    }
+    
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const coordinates: Coordinates = {
@@ -299,11 +314,17 @@ export class ProfileInfoSection implements OnDestroy {
     const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/;
     const match = duration.match(regex);
     
-    if (!match) return '0h 0m';
+    if (!match) {
+      this.timeActiveDuration.set(0);
+      return '0h 0m';
+    }
     
     const hours = parseInt(match[1] || '0');
     const minutes = parseInt(match[2] || '0');
     const seconds = Math.floor(parseFloat(match[3] || '0'));
+    
+    // Set total duration in minutes for the 8-hour check
+    this.timeActiveDuration.set(hours * 60 + minutes);
     
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
