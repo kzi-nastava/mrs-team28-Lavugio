@@ -586,6 +586,7 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
   }
 
   private loadDriverMarkers() {
+    this.map.resetMarkers();
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
         locations.forEach(loc => {

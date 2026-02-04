@@ -51,6 +51,7 @@ export class GuestHomePage implements AfterViewInit{
   }
 
   private loadDriverMarkers() {
+    this.mapComponent.resetMarkers();
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
         console.log('Got locations from backend:', locations);

@@ -10,9 +10,11 @@ import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class DriverAvailabilityServiceImpl implements DriverAvailabilityService {
@@ -126,6 +128,12 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
     private void deleteDriverLocation(Long driverId) {
         activeDriverLocations.remove(driverId);
+    }
+
+    @Async
+    public CompletableFuture<List<DriverLocationDTO>> getDriverLocationsDTOAsync() {
+        List<DriverLocationDTO> locationsDTO = getDriverLocationsDTO();
+        return CompletableFuture.completedFuture(locationsDTO);
     }
 
 }

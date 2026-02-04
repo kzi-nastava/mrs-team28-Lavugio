@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 import com.backend.lavugio.dto.*;
@@ -16,10 +17,8 @@ import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.security.JwtUtil;
-import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -38,8 +37,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.backend.lavugio.service.user.DriverService;
@@ -454,14 +451,13 @@ public class DriverController {
     }
 
     @GetMapping(value = "/locations", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations() {
-        try {
-            List<DriverLocationDTO> locationsDTO = driverAvailabilityService.getDriverLocationsDTO();
-            return new ResponseEntity<>(locationsDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public CompletableFuture<ResponseEntity<List<DriverLocationDTO>>> getDriverLocations() {
+        return driverAvailabilityService.getDriverLocationsDTOAsync()
+                .thenApply(ResponseEntity::ok)
+                .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Collections.emptyList()));
     }
+
 
     @GetMapping(value = "/{driverId}/location", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverLocationDTO> getDriverLocation(@PathVariable Long driverId) {

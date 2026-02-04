@@ -7,6 +7,7 @@ import com.backend.lavugio.model.user.DriverLocation;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public interface DriverAvailabilityService {
     DriverLocation updateDriverLocation(Long id, CoordinatesDTO driverCoords);
@@ -15,4 +16,5 @@ public interface DriverAvailabilityService {
     DriverLocation activateDriver(Long driverId, double longitude, double latitude);
     void deactivateDriver(Long driverId);
     DriverStatusEnum getDriverStatus(Long driverId);
+    CompletableFuture<List<DriverLocationDTO>> getDriverLocationsDTOAsync();
 }
