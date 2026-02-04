@@ -4,7 +4,7 @@ import { Navbar } from '@app/shared/components/navbar/navbar';
 import { AuthService, LoginRequest } from '@app/core/services/auth-service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 
 @Component({

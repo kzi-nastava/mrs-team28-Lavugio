@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.user.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.enums.RideStatus;
@@ -28,13 +29,13 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
     }
 
     @Override
-    public DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude) {
-        DriverLocation location = activeDriverLocations.get(driverId);
+    public DriverLocation updateDriverLocation(Long id, CoordinatesDTO driverCoords) {
+        DriverLocation location = activeDriverLocations.get(id);
         if (location == null) {
-            throw new NoSuchElementException("Cannot update location: Driver with id " + driverId + " is not active.");
+            throw new NoSuchElementException("Cannot update location: Driver with id " + driverCoords.getId() + " is not active.");
         }
-        location.setLongitude(longitude);
-        location.setLatitude(latitude);
+        location.setLongitude(driverCoords.getLongitude());
+        location.setLatitude(driverCoords.getLatitude());
         return location;
     }
 

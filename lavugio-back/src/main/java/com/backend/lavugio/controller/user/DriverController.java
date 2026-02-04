@@ -357,11 +357,10 @@ public class DriverController {
         }
     }
 
-    @PostMapping("/{id}/activate")
-    public ResponseEntity<?> activateDriver(
-            @PathVariable Long id) {
-    	// @AuthenticationPrincipal UserDetails userDetails
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateDriver() {
         try {
+            Long id = SecurityUtils.getCurrentUserId();
             DriverStatusDTO status = driverService.activateDriverDTO(id);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
@@ -369,11 +368,10 @@ public class DriverController {
         }
     }
     
-    @PostMapping("/{id}/deactivate")
-    public ResponseEntity<?> deactivateDriver(
-            @PathVariable Long id) {
-    	// @AuthenticationPrincipal UserDetails userDetails
+    @PostMapping("/deactivate")
+    public ResponseEntity<?> deactivateDriver() {
         try {
+            Long id = SecurityUtils.getCurrentUserId();
             DriverStatusDTO status = driverService.deactivateDriverDTO(id);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
@@ -499,6 +497,18 @@ public class DriverController {
         }
     }
 
+    @PutMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> putDriverLocation(@RequestBody CoordinatesDTO driverCoords) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            driverAvailabilityService.updateDriverLocation(userId, driverCoords);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping(value = "/{driverId}/activate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverLocationDTO> activateDriver(@PathVariable Long driverId,
