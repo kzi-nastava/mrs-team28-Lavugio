@@ -57,7 +57,11 @@
           ></app-destinations-display>
         </div>
         <div class="shrink-0 mt-4">
-          <app-trip-stats-display [showPrice]="false"> </app-trip-stats-display>
+          <app-trip-stats-display 
+            [showPrice]="false"
+            [distance]="distance()"
+            [estimatedTime]="estimatedTime()"> 
+          </app-trip-stats-display>
           <app-button
             variant="dark-brown"
             size="medium"

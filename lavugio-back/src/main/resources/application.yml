@@ -1,6 +1,0 @@
-app:
-  storage:
-    root: uploads
-spring:
-  mail:
-    from: no-reply@lavugio.com
