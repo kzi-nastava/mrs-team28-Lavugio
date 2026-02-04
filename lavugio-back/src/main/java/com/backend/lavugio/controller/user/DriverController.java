@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 import com.backend.lavugio.dto.*;
@@ -16,10 +17,8 @@ import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverUpdateRequest;
 import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.security.JwtUtil;
-import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.ScheduledRideService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -41,8 +40,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.backend.lavugio.service.user.DriverService;
@@ -320,8 +317,8 @@ public class DriverController {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
-            Driver driver = driverService.activateDriver(accountId);
             driverAvailabilityService.activateDriver(accountId, coordinates.getLongitude(), coordinates.getLatitude());
+            Driver driver = driverService.activateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " activated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {
@@ -337,8 +334,8 @@ public class DriverController {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
-            Driver driver = driverService.deactivateDriver(accountId);
             driverAvailabilityService.deactivateDriver(accountId);
+            Driver driver = driverService.deactivateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {
@@ -357,30 +354,6 @@ public class DriverController {
             return ResponseEntity.ok(Map.of("timeActive", activeInLast24h));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
-    }
-
-    @PostMapping("/{id}/activate")
-    public ResponseEntity<?> activateDriver(
-            @PathVariable Long id) {
-    	// @AuthenticationPrincipal UserDetails userDetails
-        try {
-            DriverStatusDTO status = driverService.activateDriverDTO(id);
-            return ResponseEntity.ok(status);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-    
-    @PostMapping("/{id}/deactivate")
-    public ResponseEntity<?> deactivateDriver(
-            @PathVariable Long id) {
-    	// @AuthenticationPrincipal UserDetails userDetails
-        try {
-            DriverStatusDTO status = driverService.deactivateDriverDTO(id);
-            return ResponseEntity.ok(status);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     
@@ -481,14 +454,13 @@ public class DriverController {
     }
 
     @GetMapping(value = "/locations", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<DriverLocationDTO>> getDriverLocations() {
-        try {
-            List<DriverLocationDTO> locationsDTO = driverAvailabilityService.getDriverLocationsDTO();
-            return new ResponseEntity<>(locationsDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public CompletableFuture<ResponseEntity<List<DriverLocationDTO>>> getDriverLocations() {
+        return driverAvailabilityService.getDriverLocationsDTOAsync()
+                .thenApply(ResponseEntity::ok)
+                .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Collections.emptyList()));
     }
+
 
     @GetMapping(value = "/{driverId}/location", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DriverLocationDTO> getDriverLocation(@PathVariable Long driverId) {
@@ -502,18 +474,17 @@ public class DriverController {
         }
     }
 
-
-    @PostMapping(value = "/{driverId}/activate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DriverLocationDTO> activateDriver(@PathVariable Long driverId,
-                                                            @RequestBody CoordinatesDTO coordinates) {
-//        DriverLocation status;
-//        try{
-//            status = driverService.activateDriver(driverId, longitude, latitude);
-//        }catch (RuntimeException e){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-        DriverLocationDTO activatedStatus = new DriverLocationDTO(driverId, coordinates, DriverStatusEnum.AVAILABLE);
-        return new ResponseEntity<>(activatedStatus, HttpStatus.CREATED);
+    @PutMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> putDriverLocation(@RequestBody CoordinatesDTO driverCoords) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            driverAvailabilityService.updateDriverLocation(userId, driverCoords);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping(value = "/{driverId}/status", produces = MediaType.APPLICATION_JSON_VALUE)

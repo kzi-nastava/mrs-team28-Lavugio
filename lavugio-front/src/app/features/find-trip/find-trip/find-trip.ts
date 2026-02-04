@@ -36,7 +36,7 @@ import { ScheduleRideRequest } from '@app/shared/models/ride/scheduleRideRequest
 import { UserService } from '@app/core/services/user/user-service';
 import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
 import { VehicleType } from '@app/shared/models/vehicleType';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
 
 
@@ -586,6 +586,7 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
   }
 
   private loadDriverMarkers() {
+    this.map.resetMarkers();
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
         locations.forEach(loc => {

@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, AfterViewInit, signal } from '@angular/co
 import { MapComponent } from "@app/shared/components/map/map";
 import { Button } from "@app/shared/components/button/button";
 import { Router } from '@angular/router';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { DriverMarkerLocation } from '@app/shared/models/driverMarkerLocation';
 import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 import { FormBackgroundSheet } from "../form-background-sheet/form-background-sheet";
@@ -50,7 +50,7 @@ export class GuestHomePage implements AfterViewInit{
 
       this.intervalId = setInterval(() => this.loadDriverMarkers(), 10_000);
   }
-
+  
   sendToRegistrationPage() {
     this.router.navigate(['/register']);
   }
@@ -61,6 +61,7 @@ export class GuestHomePage implements AfterViewInit{
   }
 
   private loadDriverMarkers() {
+    this.mapComponent.resetMarkers();
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
         console.log('Got locations from backend:', locations);

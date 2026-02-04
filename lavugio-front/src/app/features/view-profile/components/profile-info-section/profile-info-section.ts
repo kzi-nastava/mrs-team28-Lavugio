@@ -124,35 +124,19 @@ export class ProfileInfoSection implements OnDestroy {
       return;
     }
     
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coordinates: Coordinates = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        };
-        this.driverService.activateDriver(coordinates).subscribe({
-          next: () => {
-            this.dialogService.open('Success', 'Driver activated successfully!', false);
-            this.isDriverActive.set(true);
-            this.profile.isActive = true;
-            setTimeout(() => window.location.reload(), 1000);
-          },
-          error: (error) => {
-            console.error('Activation error:', error);
-            const errorMessage = error.error?.message || 'Failed to activate driver!';
-            this.dialogService.open('Error', errorMessage, true);
-          }
-        });
-      },
-      (error) => {
-        console.warn('Geolocation error:', error);
-        this.dialogService.open('Error', 'Unable to get your location. Please enable geolocation.', true);
-      },
-      {
-        timeout: 5000,
-        enableHighAccuracy: false
-      }
-    );
+    this.driverService.activateDriver().subscribe({
+        next: () => {
+          this.dialogService.open('Success', 'Driver activated successfully!', false);
+          this.isDriverActive.set(true);
+          this.profile.isActive = true;
+          setTimeout(() => window.location.reload(), 1000);
+        },
+        error: (error) => {
+          console.error('Activation error:', error);
+          const errorMessage = error.error?.message || 'Failed to activate driver!';
+          this.dialogService.open('Error', errorMessage, true);
+        }
+      });
   }
 
   onDeactivateClick() {

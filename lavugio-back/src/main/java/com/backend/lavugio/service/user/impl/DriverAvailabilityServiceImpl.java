@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.user.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.enums.RideStatus;
@@ -9,9 +10,11 @@ import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class DriverAvailabilityServiceImpl implements DriverAvailabilityService {
@@ -28,13 +31,13 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
     }
 
     @Override
-    public DriverLocation updateDriverLocation(Long driverId, double longitude, double latitude) {
-        DriverLocation location = activeDriverLocations.get(driverId);
+    public DriverLocation updateDriverLocation(Long id, CoordinatesDTO driverCoords) {
+        DriverLocation location = activeDriverLocations.get(id);
         if (location == null) {
-            throw new NoSuchElementException("Cannot update location: Driver with id " + driverId + " is not active.");
+            throw new NoSuchElementException("Cannot update location: Driver with id " + id + " is not active.");
         }
-        location.setLongitude(longitude);
-        location.setLatitude(latitude);
+        location.setLongitude(driverCoords.getLongitude());
+        location.setLatitude(driverCoords.getLatitude());
         return location;
     }
 
@@ -125,6 +128,12 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
     private void deleteDriverLocation(Long driverId) {
         activeDriverLocations.remove(driverId);
+    }
+
+    @Async
+    public CompletableFuture<List<DriverLocationDTO>> getDriverLocationsDTOAsync() {
+        List<DriverLocationDTO> locationsDTO = getDriverLocationsDTO();
+        return CompletableFuture.completedFuture(locationsDTO);
     }
 
 }

@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { Component, computed, signal, inject, OnInit, OnDestroy, output, input } from '@angular/core';
 import { DialogService } from '@app/core/services/dialog-service';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { MapService } from '@app/core/services/map-service';
 import { LocationService } from '@app/core/services/location-service';
 import { Coordinates } from '@app/shared/models/coordinates';

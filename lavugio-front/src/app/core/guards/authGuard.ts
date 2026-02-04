@@ -5,6 +5,8 @@ import {
   Router,
 } from '@angular/router';
 import { AuthService } from '@app/core/services/auth-service';
+import { DriverStatusService } from '../services/driver-status.service';
+import { DriverService } from '../services/user/driver-service';
 
 
 @Injectable({
@@ -13,7 +15,9 @@ import { AuthService } from '@app/core/services/auth-service';
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private driverStatusService: DriverStatusService,
+    private driverService: DriverService
   ) {}
 
   canActivate(

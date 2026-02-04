@@ -4,7 +4,7 @@ import { DateFilter } from './date-filter/date-filter';
 import { Table } from './table/table';
 import { RideService } from '@app/core/services/ride-service';
 import { RideHistoryDriverModel } from '@app/shared/models/ride/rideHistoryDriver';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistoryDriverPagingModel';
 
 @Component({

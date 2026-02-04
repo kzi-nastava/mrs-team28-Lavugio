@@ -7,7 +7,7 @@ import { MarkerIcons } from '@app/shared/components/map/marker-icons';
 import { Coordinates } from '@app/shared/models/coordinates';
 import { Marker } from 'leaflet';
 import { RideService } from '@app/core/services/ride-service';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { ReportForm } from "./report-form/report-form";
 import { ReviewForm } from '@app/shared/components/review-form/review-form';
 import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';

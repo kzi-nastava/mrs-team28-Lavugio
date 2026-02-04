@@ -4,7 +4,7 @@ import { Navbar } from '@app/shared/components/navbar/navbar';
 import { AuthService, LoginRequest } from '@app/core/services/auth-service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { DriverService } from '@app/core/services/driver-service';
+import { DriverService } from '@app/core/services/user/driver-service';
 import { Coordinates } from '@app/shared/models/coordinates';
 
 @Component({
@@ -95,11 +95,7 @@ export class Login {
         
         // If driver, activate the driver
         if (response.role === 'DRIVER') {
-          const coordinates: Coordinates = {
-            latitude: loginData.latitude || 0,
-            longitude: loginData.longitude || 0
-          }
-          this.driverService.activateDriver(coordinates).subscribe({
+          this.driverService.activateDriver().subscribe({
             next: () => {
               console.log('Driver activated successfully');
               this.redirectAfterLogin(response.role);

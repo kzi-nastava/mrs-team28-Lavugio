@@ -1,5 +1,7 @@
 package com.backend.lavugio.service.user.impl;
 
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.backend.lavugio.model.user.Driver;
 import com.backend.lavugio.model.user.DriverActivity;
 import com.backend.lavugio.repository.user.DriverActivityRepository;
@@ -7,6 +9,7 @@ import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.service.user.DriverActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -57,6 +60,26 @@ public class DriverActivityServiceImpl implements DriverActivityService {
 
         driver.setActive(false);
         driverRepository.save(driver);
+        System.out.printf("Ended activity for driver: %s%n", driver.getName() + driver.getLastName());
+    }
+
+    @Transactional
+    public void endActivityForAllDrivers() {
+        List<Driver> activeDrivers = driverRepository.findAll();
+
+        for (Driver driver : activeDrivers) {
+            activityRepository.findByDriverAndEndedActivity(driver, false)
+                    .ifPresent(activity -> {
+                        activity.setEndTime(LocalDateTime.now());
+                        activity.setEndedActivity(true);
+                        activityRepository.save(activity);
+                    });
+
+            if (driver.isActive()) {
+                driver.setActive(false);
+                driverRepository.save(driver);
+            }
+        }
     }
 
     @Override
