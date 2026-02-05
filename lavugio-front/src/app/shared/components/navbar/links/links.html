@@ -10,7 +10,7 @@
     @if (isDriver()) {
       <app-link [route]="'/driver-scheduled-rides'">Rides</app-link>
     }
-    <app-link>Reports</app-link>
+    <app-link [route]="'/rides-reports'">Reports</app-link>
     <app-link [route]="'/profile'">Profile</app-link>
     @if (isAdmin()) {
       <app-link [route]="'/admin-panel'">Admin Panel</app-link>

@@ -2,8 +2,17 @@
 
 <app-white-sheet-background
 [title]="'Rides Reports'" [spacing]="'center'" [width]="'md'">
-  <div class="rides-reports-container">
-    <h1>Rides Reports</h1>
-    <p>This is the Rides Reports page.</p>
-  </div>
+<div class="rides-reports-container">
+    <div class="flex items-center gap-4 justify-center">
+            <p class="m-0 text-[#BC6C25] text-lg font-semibold">Select Date Range</p>
+            <app-date-filter (dateRangeSelected)="updateSelectedDate($event)"></app-date-filter>
+            <button 
+                class="bg-[#BC6C25] text-white px-4 py-2 rounded">
+                Filter Reports
+            </button>
+            @if (authService.isAdmin()) {
+                <p>adioasjdasiodjasioj</p>
+            }
+    </div>
+</div>
 </app-white-sheet-background>
