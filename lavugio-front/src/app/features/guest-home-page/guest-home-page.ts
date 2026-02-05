@@ -35,6 +35,10 @@ export class GuestHomePage implements AfterViewInit{
     this.router.navigate(['/register']);
   }
 
+  navigateToLogin() {
+    this.router.navigate(['/login']);
+  }
+
   ngAfterViewInit() {
       this.loadDriverMarkers();
 
