@@ -146,11 +146,21 @@ export class Navbar implements OnInit {
       });
     } else {
         this.driverService.deactivateDriver().subscribe({
-          next: () => {
+          next: (response: any) => {
             this.statusLoading = false;
-            this.driverActive = false;
-            this.driverStatusService.updateLocalStatus(false);
-            this.notificationService.showNotification('Driver deactivated successfully', 'success');
+            if (response.pending) {
+              // Status change is pending - driver remains active
+              this.driverActive = true;
+              this.notificationService.showNotification(
+                response.message || 'You have an active ride. Status will change to inactive after the ride completes.',
+                'warning'
+              );
+            } else {
+              // Deactivated successfully
+              this.driverActive = false;
+              this.driverStatusService.updateLocalStatus(false);
+              this.notificationService.showNotification('Driver deactivated successfully', 'success');
+            }
             this.cdr.detectChanges();
           },
           error: (error) => {

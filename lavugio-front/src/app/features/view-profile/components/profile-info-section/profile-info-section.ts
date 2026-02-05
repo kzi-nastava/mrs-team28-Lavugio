@@ -142,11 +142,18 @@ export class ProfileInfoSection implements OnDestroy {
   onDeactivateClick() {
     console.log('Deactivate clicked');
     this.driverService.deactivateDriver().subscribe({
-      next: () => {
-        this.dialogService.open('Success', 'Driver deactivated successfully!', false);
-        this.isDriverActive.set(false);
-        this.profile.isActive = false;
-        setTimeout(() => window.location.reload(), 1000);
+      next: (response: any) => {
+        if (response.pending) {
+          // Status change is pending - driver remains active
+          this.dialogService.open('Pending', response.message || 'You have an active ride. Status will change to inactive after the ride completes.', false);
+          // Don't change the UI - driver is still active
+        } else {
+          // Deactivated successfully
+          this.dialogService.open('Success', 'Driver deactivated successfully!', false);
+          this.isDriverActive.set(false);
+          this.profile.isActive = false;
+          setTimeout(() => window.location.reload(), 1000);
+        }
       },
       error: (error) => {
         console.error('Deactivation error:', error);

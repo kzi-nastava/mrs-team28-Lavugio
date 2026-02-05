@@ -334,6 +334,16 @@ public class DriverController {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
+            
+            // Check if driver has active ride
+            if (driverService.hasActiveRide(accountId)) {
+                driverService.setDriverStatus(accountId, false); // This will set pending status
+                return ResponseEntity.ok().body(Map.of(
+                    "message", "You have an active ride. Status will change to inactive after the ride completes.",
+                    "pending", true
+                ));
+            }
+            
             driverAvailabilityService.deactivateDriver(accountId);
             Driver driver = driverService.deactivateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
