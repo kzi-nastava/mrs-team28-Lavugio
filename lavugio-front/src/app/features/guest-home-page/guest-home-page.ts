@@ -26,6 +26,7 @@ export class GuestHomePage implements AfterViewInit{
   private intervalId: any;
   destinations: TripDestination[] = [];
   isMapPickMode = false;
+  private driverMarkers: any[] = [];
   
   // Trip stats
   distance = signal<string>('0km');
@@ -61,13 +62,12 @@ export class GuestHomePage implements AfterViewInit{
   }
 
   private loadDriverMarkers() {
-    this.mapComponent.resetMarkers();
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
         console.log('Got locations from backend:', locations);
-        this.mapComponent.resetMarkers();
+        this.resetDriverMarkers();
         locations.forEach(loc => {
-          this.mapComponent.addMarker(
+          this.addDriverMarker(
             { latitude: loc.location.latitude, longitude: loc.location.longitude },
             this.getMarkerIconByStatus(loc.status)
           );
@@ -182,6 +182,16 @@ export class GuestHomePage implements AfterViewInit{
     this.destinationSelector.setLocationFromMap(coords);
     this.isMapPickMode = false;
     this.mapComponent.clickedLocation.set(null);
+  }
+
+  resetDriverMarkers() {
+    this.driverMarkers.forEach(marker => marker.remove());
+    this.driverMarkers = [];
+  }
+
+  addDriverMarker(coords: Coordinates, icon: any) {
+    const marker = this.mapComponent.addMarker(coords, icon);
+    this.driverMarkers.push(marker);
   }
 
 }

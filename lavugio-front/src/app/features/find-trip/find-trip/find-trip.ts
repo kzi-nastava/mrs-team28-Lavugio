@@ -67,7 +67,7 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
   isMapPickMode = false;
   private intervalId: any;
   private driverService = inject(DriverService);
-
+  private driverMarkers: any[] = [];
 
 
   destinations: TripDestination[] = [];
@@ -586,11 +586,11 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
   }
 
   private loadDriverMarkers() {
-    this.map.resetMarkers();
     this.driverService.getDriverLocations().subscribe({
       next: (locations: DriverMarkerLocation[]) => {
+        this.resetDriverMarkers();
         locations.forEach(loc => {
-          this.map.addMarker(
+          this.addDriverMarker(
             { latitude: loc.location.latitude, longitude: loc.location.longitude },
             this.getMarkerIconByStatus(loc.status)
           );
@@ -611,6 +611,16 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
       default:
         return MarkerIcons.default;
     }
+  }
+
+  resetDriverMarkers() {
+    this.driverMarkers.forEach(marker => marker.remove());
+    this.driverMarkers = [];
+  }
+
+  addDriverMarker(coords: Coordinates, icon: any) {
+    const marker = this.map.addMarker(coords, icon);
+    this.driverMarkers.push(marker);
   }
 
   ngAfterViewInit() {

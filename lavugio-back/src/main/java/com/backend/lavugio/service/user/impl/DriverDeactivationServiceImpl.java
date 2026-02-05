@@ -29,7 +29,8 @@ public class DriverDeactivationServiceImpl implements DriverDeactivationService 
 
 
     //@Scheduled(fixedRate = 10000) // runs every 10 seconds for testing purposes
-    @Scheduled(cron = "0 */15 * * * *") // runs every 15 minutes
+    @Scheduled(cron = "0 */15 * * * *") //
+    // runs every 15 minutes
     @Transactional
     public void checkAndDeactivateDrivers() {
         System.out.println("[" + LocalDateTime.now() + "] Checking drivers...");
