@@ -164,6 +164,13 @@ export class Navbar implements OnInit {
   }
 
   logout() {
+    if (this.authService.isDriver()){
+      this.driverService.deactivateDriver().subscribe({
+        error: (error) => {
+          console.log(error)
+        }
+      });
+    }
     this.authService.logout().subscribe({
       next: () => {
         this.router.navigate(['/home-page']);

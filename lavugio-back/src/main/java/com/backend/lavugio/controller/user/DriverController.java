@@ -31,6 +31,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import com.backend.lavugio.service.user.DriverAvailabilityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.http.HttpStatus;
@@ -47,6 +49,9 @@ import com.backend.lavugio.service.user.DriverService;
 @RestController
 @RequestMapping("/api/drivers")
 public class DriverController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DriverController.class);
+
 	@Autowired
 	private DriverService driverService;
     @Autowired
@@ -334,8 +339,20 @@ public class DriverController {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
+            Driver driver = driverService.getDriverById(accountId);
+            if (driver != null) {
+                // Check if driver has active ride
+                if (driver.isDriving()) {
+                    logger.warn("Driver {} cannot logout - has active ride", accountId);
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body(new java.util.HashMap<String, String>() {{
+                                put("message", "Cannot logout while on an active ride");
+                            }});
+                }
+                logger.info("Driver set to inactive on logout: {}", accountId);
+            }
             driverAvailabilityService.deactivateDriver(accountId);
-            Driver driver = driverService.deactivateDriver(accountId);
+            driverService.deactivateDriver(accountId);
             System.out.println("Driver ID:" + accountId + " deactivated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver deactivated successfully"));
         } catch (Exception e) {

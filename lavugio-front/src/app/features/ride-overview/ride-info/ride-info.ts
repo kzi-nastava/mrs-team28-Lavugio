@@ -20,11 +20,7 @@ export class RideInfo implements OnInit, OnDestroy {
   navigateToCancelRide() {
     this.router.navigate([`/cancel-ride/${this.rideId()}`]);
   }
-  // Dummy: Replace with real user/driver check
-  isDriver(): boolean {
-    // In real app, check auth/user service
-    return true;
-  }
+
 
   onStopRideClick() {
     this.dialogService.open(

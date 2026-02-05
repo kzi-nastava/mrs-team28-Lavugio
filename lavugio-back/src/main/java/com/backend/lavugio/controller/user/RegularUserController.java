@@ -313,10 +313,6 @@ public class RegularUserController {
                                 put("message", "Cannot logout while on an active ride");
                             }});
                 }
-                
-                // Set driver to inactive on logout
-                driver.setActive(false);
-                driverRepository.save(driver);
                 logger.info("Driver set to inactive on logout: {}", userId);
             }
             
