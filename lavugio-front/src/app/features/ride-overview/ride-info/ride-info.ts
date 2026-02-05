@@ -45,6 +45,7 @@ export class RideInfo implements OnInit, OnDestroy {
   private rideService = inject(RideService);
   private authService = inject(AuthService);
   private nowIntervalId: any;
+  private durationIntervalId: any;
   private now = signal(new Date());
   private driverService = inject(DriverService);
   private mapService = inject(MapService);
@@ -248,14 +249,17 @@ export class RideInfo implements OnInit, OnDestroy {
     return Math.ceil(diffMs / 60000);
   });
 
-  ngOnInit() {
-    this.createOneMinuteInterval();
-    
+  ngOnInit() {    
+    this.calculateDuration();
     // Initialize panic state from ride overview
     const overview = this.rideOverview();
     if (overview && (overview as any).hasPanic) {
       this.hasPanicBeenTriggered.set(true);
     }
+
+    this.durationIntervalId = setInterval(() => {
+      this.calculateDuration();
+    }, 5000); // 5000 ms = 5 sekundi
   }
 
   createOneMinuteInterval() {
@@ -282,7 +286,7 @@ export class RideInfo implements OnInit, OnDestroy {
       .subscribe(routeData => {
         const durationInSeconds = routeData.routes[0].duration;
         console.log('Route duration (seconds):', durationInSeconds);
-        this.duration.set(Math.ceil(durationInSeconds / 60));
+        this.duration.set(Math.floor(durationInSeconds / 60));
       });
   }
 
@@ -348,5 +352,6 @@ export class RideInfo implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearInterval(this.nowIntervalId);
+    clearInterval(this.durationIntervalId);
   }
 }
