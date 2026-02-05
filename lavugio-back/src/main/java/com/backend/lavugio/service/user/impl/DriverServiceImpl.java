@@ -203,7 +203,7 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public List<Driver> getActiveDrivers() {
-        return driverRepository.findByIsDrivingTrue();
+        return driverRepository.findByIsActiveTrue();
     }
 
     @Override

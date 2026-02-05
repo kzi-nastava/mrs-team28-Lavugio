@@ -27,14 +27,17 @@ import com.backend.lavugio.service.user.DriverActivityService;
 import com.backend.lavugio.service.user.DriverRegistrationTokenService;
 import com.backend.lavugio.service.utils.DateTimeParserService;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
