@@ -164,6 +164,25 @@ export class Navbar implements OnInit {
   }
 
   logout() {
+    if (this.isDriver && this.driverActive) {
+      this.driverService.deactivateDriver().subscribe({
+        next: () => {
+          this.driverActive = false;
+          this.driverStatusService.updateLocalStatus(false);
+          this.proceedLogout();
+        },
+        error: (error) => {
+          const message = error.error?.message || 'Failed to deactivate driver';
+          this.notificationService.showNotification(message, 'error');
+        }
+      });
+      return;
+    }
+
+    this.proceedLogout();
+  }
+
+  private proceedLogout() {
     this.authService.logout().subscribe({
       next: () => {
         this.router.navigate(['/home-page']);
