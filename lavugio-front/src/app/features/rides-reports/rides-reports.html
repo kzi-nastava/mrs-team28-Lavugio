@@ -145,4 +145,20 @@
       }
     </div>
   </div>
+
+  <div class="container mx-auto">
+    <div class="grid grid-cols-1 gap-6">
+      @for (chart of charts(); track $index) {
+        <app-report-graph
+          [title]="chart.title"
+          [xAxisLabel]="chart.xAxisLabel"
+          [yAxisLabel]="chart.yAxisLabel"
+          [chartData]="chart.chartData"
+          [sum]="chart.sum"
+          [average]="chart.average"
+        >
+        </app-report-graph>
+      }
+    </div>
+  </div>
 </app-white-sheet-background>
