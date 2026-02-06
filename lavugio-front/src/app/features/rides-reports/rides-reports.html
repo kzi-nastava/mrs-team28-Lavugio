@@ -1,18 +1,148 @@
 <app-navbar></app-navbar>
 
-<app-white-sheet-background
-[title]="'Rides Reports'" [spacing]="'center'" [width]="'md'">
-<div class="rides-reports-container">
-    <div class="flex items-center gap-4 justify-center">
-            <p class="m-0 text-[#BC6C25] text-lg font-semibold">Select Date Range</p>
-            <app-date-filter (dateRangeSelected)="updateSelectedDate($event)"></app-date-filter>
-            <button 
-                class="bg-[#BC6C25] text-white px-4 py-2 rounded">
-                Filter Reports
-            </button>
-            @if (authService.isAdmin()) {
-                <p>adioasjdasiodjasioj</p>
-            }
+<app-white-sheet-background [title]="'Rides Reports'" [spacing]="'center'" [width]="'md'">
+  <div class="rides-reports-container py-4">
+    <div class="max-w-4xl mx-auto flex flex-col gap-6">
+      <!-- First Row: Date Range and Email (side by side) -->
+      @if (authService.isAdmin()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <!-- Date Range Section -->
+          <div class="flex flex-col gap-3">
+            <h3 class="m-0 text-[#BC6C25] text-base font-bold">Select Date Range</h3>
+            <app-date-filter
+              class="m-0"
+              (dateRangeSelected)="updateSelectedDate($event)"
+            ></app-date-filter>
+          </div>
+
+          <!-- Email Selection (Admin only) -->
+          <div class="flex flex-col gap-3">
+            <h3 class="m-0 text-[#BC6C25] text-base font-bold">Select User Email</h3>
+            <app-user-email-input
+              class="py-5"
+              [value]="selectedEmail()"
+              (valueChange)="onEmailValueChange($event)"
+              (emailSelected)="onEmailSelected($event)"
+            ></app-user-email-input>
+          </div>
+        </div>
+      } @else {
+        <div class="flex items-center gap-4 justify-center">
+          <h3 class="m-0 text-[#BC6C25] text-base font-bold">Select Date Range</h3>
+          <app-date-filter
+            class="m-0"
+            (dateRangeSelected)="updateSelectedDate($event)"
+          ></app-date-filter>
+          <button
+            (click)="filterReports()"
+            class="bg-[#BC6C25] hover:bg-[#DDA15E] active:bg-[#A65820] text-white px-8 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 whitespace-nowrap"
+          >
+            Filter Reports
+          </button>
+        </div>
+      }
+
+      <!-- Second Row: Quick Filters and Button -->
+      @if (authService.isAdmin()) {
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+          <!-- Quick Filters (Admin only) -->
+          <div class="flex items-center gap-6 flex-wrap">
+            <span class="text-[#BC6C25] font-bold text-sm">Filter By:</span>
+
+            <label class="flex items-center gap-2 cursor-pointer select-none group">
+              <input
+                type="radio"
+                name="userFilter"
+                value="allDrivers"
+                [checked]="selectedFilter() === 'allDrivers'"
+                (change)="onFilterChange('allDrivers')"
+                class="sr-only"
+              />
+              <div
+                class="w-5 h-5 flex items-center justify-center rounded-full border-2 transition-all duration-200 group-hover:border-[#DDA15E]"
+                [class.border-[#BC6C25]]="true"
+                [class.bg-white]="selectedFilter() !== 'allDrivers'"
+                [class.bg-[#BC6C25]]="selectedFilter() === 'allDrivers'"
+              >
+                <div
+                  class="w-2 h-2 rounded-full bg-white transition-all duration-200"
+                  [class.scale-0]="selectedFilter() !== 'allDrivers'"
+                  [class.scale-100]="selectedFilter() === 'allDrivers'"
+                ></div>
+              </div>
+              <span
+                class="text-[#BC6C25] font-medium text-sm group-hover:text-[#DDA15E] transition-colors"
+              >
+                All Drivers
+              </span>
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer select-none group">
+              <input
+                type="radio"
+                name="userFilter"
+                value="allRegularUsers"
+                [checked]="selectedFilter() === 'allRegularUsers'"
+                (change)="onFilterChange('allRegularUsers')"
+                class="sr-only"
+              />
+              <div
+                class="w-5 h-5 flex items-center justify-center rounded-full border-2 transition-all duration-200 group-hover:border-[#DDA15E]"
+                [class.border-[#BC6C25]]="true"
+                [class.bg-white]="selectedFilter() !== 'allRegularUsers'"
+                [class.bg-[#BC6C25]]="selectedFilter() === 'allRegularUsers'"
+              >
+                <div
+                  class="w-2 h-2 rounded-full bg-white transition-all duration-200"
+                  [class.scale-0]="selectedFilter() !== 'allRegularUsers'"
+                  [class.scale-100]="selectedFilter() === 'allRegularUsers'"
+                ></div>
+              </div>
+              <span
+                class="text-[#BC6C25] font-medium text-sm group-hover:text-[#DDA15E] transition-colors"
+              >
+                All Regular Users
+              </span>
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer select-none group">
+              <input
+                type="radio"
+                name="userFilter"
+                value="oneUser"
+                [checked]="selectedFilter() === 'oneUser'"
+                (change)="onFilterChange('oneUser')"
+                class="sr-only"
+              />
+              <div
+                class="w-5 h-5 flex items-center justify-center rounded-full border-2 transition-all duration-200 group-hover:border-[#DDA15E]"
+                [class.border-[#BC6C25]]="true"
+                [class.bg-white]="selectedFilter() !== 'oneUser'"
+                [class.bg-[#BC6C25]]="selectedFilter() === 'oneUser'"
+              >
+                <div
+                  class="w-2 h-2 rounded-full bg-white transition-all duration-200"
+                  [class.scale-0]="selectedFilter() !== 'oneUser'"
+                  [class.scale-100]="selectedFilter() === 'oneUser'"
+                ></div>
+              </div>
+              <span
+                class="text-[#BC6C25] font-medium text-sm group-hover:text-[#DDA15E] transition-colors"
+              >
+                One User Only
+              </span>
+            </label>
+          </div>
+
+          <!-- Filter Button -->
+          <button
+            (click)="filterReports()"
+            class="bg-[#BC6C25] hover:bg-[#DDA15E] active:bg-[#A65820] text-white px-8 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 whitespace-nowrap"
+          >
+            Filter Reports
+          </button>
+        </div>
+      }
     </div>
-</div>
+  </div>
 </app-white-sheet-background>
