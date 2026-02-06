@@ -1,6 +1,7 @@
 package com.backend.lavugio.controller.ride;
 
 import com.backend.lavugio.dto.*;
+import com.backend.lavugio.dto.pricing.PricingDTO;
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
@@ -11,6 +12,7 @@ import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.security.SecurityUtils;
 import com.backend.lavugio.service.notification.PanicNotificationWebSocketService;
 import com.backend.lavugio.service.notification.NotificationService;
+import com.backend.lavugio.service.pricing.PricingService;
 import com.backend.lavugio.service.ride.ReviewService;
 import com.backend.lavugio.service.ride.RideCompletionService;
 import com.backend.lavugio.service.ride.RideOverviewService;
@@ -23,16 +25,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.io.IOException;
-import java.io.PrintWriter;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -56,6 +54,8 @@ public class RideController {
 
     private final NotificationService notificationService;
 
+    private final PricingService pricingService;
+
     @Autowired
     public RideController(RideService rideService,
                           DriverService driverService,
@@ -64,7 +64,8 @@ public class RideController {
                           RideCompletionService rideCompletionService,
                           RideOverviewService rideOverviewService,
                           PanicNotificationWebSocketService panicWebSocketService,
-                          NotificationService notificationService){
+                          NotificationService notificationService,
+                          PricingService pricingService){
         this.rideService = rideService;
         this.driverService = driverService;
         this.rideReportService = rideReportService;
@@ -73,6 +74,7 @@ public class RideController {
         this.rideOverviewService = rideOverviewService;
         this.panicWebSocketService = panicWebSocketService;
         this.notificationService = notificationService;
+        this.pricingService = pricingService;
     }
 
     @PostMapping("/estimate-price")
@@ -539,6 +541,25 @@ public class RideController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to cancel ride: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/prices")
+    public ResponseEntity<?> getPrices(){
+        try{
+            return new ResponseEntity<>(pricingService.getPricing(), HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/prices")
+    public ResponseEntity<?> postPrices(@RequestBody PricingDTO pricing){
+        try{
+            pricingService.updatePricing(pricing);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

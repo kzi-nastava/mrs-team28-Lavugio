@@ -1,0 +1,89 @@
+<div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+     (mousedown)="hideForm()">
+    
+    <div class="flex flex-col w-full sm:max-w-md bg-[#FEFAE0] rounded-xl shadow-2xl justify-center font-[Inter]"
+         (mousedown)="$event.stopPropagation()"
+         (click)="$event.stopPropagation()">
+
+        <h2 class="relative text-lg sm:text-xl font-semibold px-4 py-3 text-[#FEFAE0] bg-[#606C38] rounded-t-xl">
+            <span>Price Definition</span>
+            <button type="button" 
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-[#FEFAE0] text-xl hover:opacity-80 transition font-extralight hover:cursor-pointer"
+                    (click)="hideForm()">
+                x
+            </button>
+        </h2>
+
+        <div class="flex flex-col p-4 gap-4">
+            @if (isDone()) {
+                <div class="flex flex-col items-center justify-center gap-3 p-3">
+                    <p class="text-base sm:text-lg font-medium text-[#1B4332] text-center">Settings saved!</p>
+                    <button class="mt-2 px-6 py-2 rounded-lg w-full sm:w-auto bg-[#606C38] text-[#FEFAE0] font-semibold hover:bg-[#283618] active:scale-95 transition"
+                            (click)="hideForm()">Close</button>
+                </div>
+            }@else if (isLoadingPrices()) {
+                <div class="flex flex-col items-center justify-center gap-3 p-8">
+                    <svg class="animate-spin h-8 w-8 text-[#606C38]" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <circle class="opacity-75" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="18.84 43.96" fill="none"></circle>
+                    </svg>
+                    <p class="text-sm text-[#283618]">Loading prices...</p>
+                </div>
+            }@else if (isFailed()) {
+                <div class="flex flex-col items-center justify-center gap-3 p-3">
+                    <p class="text-base sm:text-lg font-medium text-[#BC6C25] text-center">Failed loading prices</p>
+                    <button class="mt-2 px-6 py-2 rounded-lg w-full sm:w-auto bg-[#606C38] text-[#FEFAE0] font-semibold hover:bg-[#283618] active:scale-95 transition"
+                            (click)="loadPrices()">Retry</button>
+                </div>
+            } @else {
+                <div class="flex flex-col gap-4">
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-[#283618]">Vehicle Type</label>
+                        <select [formControl]="vehicleTypeControl"
+                                class="w-full rounded-lg border border-[#606C38] p-3 text-sm text-[#283618] appearance-none cursor-pointer focus:ring-1 focus:ring-[#606C38] outline-none">
+                            <option value="standard">Standard</option>
+                            <option value="luxury">Luxury</option>
+                            <option value="combi">Combi</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-[#283618]">Vehicle Type Price (RSD)</label>
+                        <div class="relative">
+                            <input type="number"
+                                   [formControl]="pricePerTypeControl"
+                                   class="w-full rounded-lg border border-[#606C38] p-3 text-sm text-[#283618] font-semibold focus:ring-1 focus:ring-[#606C38] outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium text-[#283618]">Price per Kilometer (RSD)</label>
+                        <div class="relative">
+                            <input type="number"
+                                   [formControl]="pricePerKmControl"
+                                   class="w-full rounded-lg border border-[#606C38] p-3 text-sm text-[#283618] font-semibold focus:ring-1 focus:ring-[#606C38] outline-none" />
+                        </div>
+                        <p class="text-xs text-[#606C38]/70 italic">Applied to all vehicle types</p>
+                    </div>
+
+                    <button [disabled]="isSaving() || pricePerTypeControl.invalid || pricePerKmControl.invalid"
+                            class="w-full hover:cursor-pointer sm:w-1/2 mx-auto mt-2 py-2 rounded-lg bg-[#606C38] text-[#FEFAE0] font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#283618] active:scale-95 transition"
+                            (click)="save()">
+                        @if (isSaving()) {
+                            <span class="flex items-center justify-center gap-2">
+                                Saving...
+                                <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                    <circle class="opacity-75" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="18.84 43.96" fill="none"></circle>
+                                </svg>
+                            </span>
+                        } @else {
+                            Save Price
+                        }
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

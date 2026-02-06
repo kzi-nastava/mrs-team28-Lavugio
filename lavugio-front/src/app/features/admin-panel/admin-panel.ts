@@ -6,10 +6,11 @@ import { WhiteSheetBackground } from '@app/shared/components/white-sheet-backgro
 import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { environment } from 'environments/environment';
+import { PriceDefinitionComponent } from "./price-definition/price-definition";
 
 @Component({
   selector: 'app-admin-panel',
-  imports: [Navbar, WhiteSheetBackground, CommonModule],
+  imports: [Navbar, WhiteSheetBackground, CommonModule, PriceDefinitionComponent],
   templateUrl: './admin-panel.html',
   styleUrl: './admin-panel.css',
 })
@@ -22,6 +23,7 @@ export class AdminPanel implements OnInit {
   panicAlerts = signal<any[]>([]);
   hasUnreadPanic = signal<boolean>(false);
   showPanicPanel = signal<boolean>(false);
+  isPriceDefinitionShown = signal<boolean>(false);
 
   ngOnInit() {
     this.initializePanicWebSocket();
@@ -126,6 +128,14 @@ export class AdminPanel implements OnInit {
 
   openReportsView() {
     alert('Not implemented yet')
+  }
+
+  showPriceDefinitionForm(){
+    this.isPriceDefinitionShown.set(true);
+  }
+
+  hidePriceDefinitionForm(){
+    this.isPriceDefinitionShown.set(false);
   }
 
 }
