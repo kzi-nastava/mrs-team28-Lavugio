@@ -25,8 +25,9 @@ export class PriceDefinitionComponent {
   isDone = signal<boolean>(false);
   vehicleTypeControl = new FormControl<keyof RidePriceModel>('standard');
   pricePerTypeControl = new FormControl(0, [Validators.required, Validators.min(0)]);
-  isLoading = signal<boolean>(false);
   isFailed = signal<boolean>(false);
+  isLoadingPrices = signal<boolean>(false);  // Za učitavanje sa back-a
+  isSaving = signal<boolean>(false);
 
   ngOnInit() {
     this.loadPrices();
@@ -71,8 +72,12 @@ export class PriceDefinitionComponent {
     return current;
   }
 
-  private loadPrices() {
-    this.isLoading.set(true);
+  hideForm() {
+    this.hideFormOutput.emit();
+  }
+
+  loadPrices() {
+    this.isLoadingPrices.set(true); 
     this.priceDefinitionService.getPrices().subscribe({
       next: (prices) => {
         this.vehiclePrices = prices;
@@ -84,18 +89,15 @@ export class PriceDefinitionComponent {
           this.previousVehicleType = currentType;
         }
         
-        this.isLoading.set(false);
+        this.isLoadingPrices.set(false);
+        this.isFailed.set(false);
       },
       error: (error) => {
         console.error('Error loading prices:', error);
-        this.isLoading.set(false);
+        this.isLoadingPrices.set(false);
         this.isFailed.set(true);
       }
     });
-  }
-
-  hideForm() {
-    this.hideFormOutput.emit();
   }
 
   save() {
@@ -104,22 +106,20 @@ export class PriceDefinitionComponent {
     const pricePerKm = this.pricePerKmControl.value;
     
     if (selectedVehicleType && vehiclePrice !== null && pricePerKm !== null) {
-      this.isLoading.set(true);
+      this.isSaving.set(true); 
       this.isFailed.set(false);
 
-      // Osiguraj da su sve trenutne vrednosti sačuvane
       this.vehiclePrices[selectedVehicleType] = vehiclePrice;
       this.vehiclePrices['kilometer'] = pricePerKm;
       
       this.priceDefinitionService.postPrices(this.vehiclePrices).subscribe({
         next: () => {
-          console.log('Prices saved successfully:', this.vehiclePrices);
-          this.isLoading.set(false);
+          this.isSaving.set(false);
           this.isDone.set(true);
         },
         error: (error) => {
           console.error('Error saving prices:', error);
-          this.isLoading.set(false);
+          this.isSaving.set(false);
           this.isFailed.set(true);
         }
       });
