@@ -1,7 +1,6 @@
 package com.backend.lavugio.service.pricing.impl;
 
-import com.backend.lavugio.dto.pricing.KilometerPricingDTO;
-import com.backend.lavugio.dto.pricing.VehiclePricingDTO;
+import com.backend.lavugio.dto.pricing.PricingDTO;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.pricing.KilometerPricing;
 import com.backend.lavugio.model.pricing.VehiclePricing;
@@ -38,15 +37,11 @@ public class PricingServiceImpl implements PricingService {
     }
 
     @Override
-    public void updateVehiclePricing(VehiclePricingDTO vehiclePricingDTO){
-        VehiclePricing  vehiclePricing = vehiclePricingRepository.getVehiclePricingByVehicleType(vehiclePricingDTO.getVehicleType());
-        if (vehiclePricing == null) {
-            vehiclePricing = new VehiclePricing();
-        }
-        vehiclePricing.setVehicleType(vehiclePricingDTO.getVehicleType());
-        vehiclePricing.setPricing(vehiclePricingDTO.getNewPricing());
-        vehiclePricingRepository.save(vehiclePricing);
-        vehiclePricingRepository.flush();
+    public void updatePricing(PricingDTO pricingDTO){
+        updateVehiclePricing(VehicleType.STANDARD, pricingDTO.getStandard());
+        updateVehiclePricing(VehicleType.LUXURY, pricingDTO.getLuxury());
+        updateVehiclePricing(VehicleType.COMBI, pricingDTO.getCombi());
+        updateKilometerPricing(pricingDTO.getKilometer());
     }
 
     @Override
@@ -61,9 +56,30 @@ public class PricingServiceImpl implements PricingService {
     }
 
     @Override
-    public void updateKilometerPricing(KilometerPricingDTO kilometerPricingDTO) {
-        KilometerPricing kilometerPricing = new KilometerPricing(1L, kilometerPricingDTO.getNewPricing());
+    public PricingDTO getPricing(){
+        PricingDTO pricingDTO = new PricingDTO();
+        pricingDTO.setStandard(this.getVehiclePricingByVehicleType(VehicleType.STANDARD));
+        pricingDTO.setLuxury(this.getVehiclePricingByVehicleType(VehicleType.LUXURY));
+        pricingDTO.setCombi(this.getVehiclePricingByVehicleType(VehicleType.COMBI));
+        pricingDTO.setKilometer(this.getKilometerPricing());
+        return pricingDTO;
+    }
+
+    private void updateKilometerPricing(Double price) {
+        KilometerPricing kilometerPricing = kilometerPricingRepository.getKilometerPricing();
+        kilometerPricing.setPricePerKilometer(price);
         kilometerPricingRepository.save(kilometerPricing);
         kilometerPricingRepository.flush();
+    }
+
+    private void updateVehiclePricing(VehicleType vehicleType, Double price) {
+        VehiclePricing vehiclePricing = vehiclePricingRepository.getVehiclePricingByVehicleType(vehicleType);
+        if (vehiclePricing == null) {
+            vehiclePricing = new VehiclePricing();
+        }
+        vehiclePricing.setVehicleType(vehicleType);
+        vehiclePricing.setPricing(price);
+        vehiclePricingRepository.save(vehiclePricing);
+        vehiclePricingRepository.flush();
     }
 }
