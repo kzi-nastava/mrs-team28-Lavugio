@@ -35,7 +35,13 @@ public class RidesReportsController {
     @PostMapping("/regular-user")
     @PreAuthorize("hasRole('REGULAR_USER')")
     public ResponseEntity<?> generateRegularUserReport(@RequestBody RidesReportsDateRangeDTO dateRange) {
-        throw new UnsupportedOperationException("Regular user report generation is not implemented yet.");
+        Long userId = SecurityUtils.getCurrentUserId();
+        try {
+            RidesReportsResponseDTO report = ridesReportsService.getRidesReportsRegularUser(dateRange, userId);
+            return ResponseEntity.ok(report);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while generating the report: " + e.getMessage());
+        }
     }
 
     @PostMapping("/admin")
