@@ -78,16 +78,16 @@ public class RidesReportsServiceImpl implements RidesReportsService {
     @Override
     public RidesReportsResponseDTO getRidesReportsAdmin(RidesReportsAdminFiltersDTO adminFilters) {
         if (adminFilters.getSelectedFilter().equals(RidesReportsAdminFilterEnum.oneUser)) {
-            Account account = this.accountService.getAccountByEmail(adminFilters.getAccountEmail());
+            Account account = this.accountService.getAccountByEmail(adminFilters.getEmail());
             if (account == null) {
-                throw new RuntimeException("Account with email " + adminFilters.getAccountEmail() + " not found.");
+                throw new RuntimeException("Account with email " + adminFilters.getEmail() + " not found.");
             }
             if (account instanceof Driver) {
                 return getRidesReportsDriver(new RidesReportsDateRangeDTO(adminFilters.getStartDate(), adminFilters.getEndDate()), account.getId());
             } else if (account instanceof RegularUser){
                 return getRidesReportsRegularUser(new RidesReportsDateRangeDTO(adminFilters.getStartDate(), adminFilters.getEndDate()), account.getId());
             } else {
-                throw new RuntimeException("Account with email " + adminFilters.getAccountEmail() + " is neither a driver nor a regular user.");
+                throw new RuntimeException("Account with email " + adminFilters.getEmail() + " is neither a driver nor a regular user.");
             }
         }
         LocalDateTime startDate = parseDate(adminFilters.getStartDate());

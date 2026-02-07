@@ -31,6 +31,7 @@ public interface RideService {
     List<Ride> getActiveRides();
     List<Ride> getScheduledRidesForDriver(Long driverId);
     List<Ride> getFinishedRidesForDriver(Long driverId);
+    List<Ride> getFinishedRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
     List<Ride> getFinishedRidesForDriverInDateRange(Long driverId, LocalDateTime startDate, LocalDateTime endDate);
     List<Ride> getFinishedRidesForCreatorInDateRange(Long creatorId, LocalDateTime startDate, LocalDateTime endDate);
 

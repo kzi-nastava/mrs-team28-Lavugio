@@ -58,6 +58,11 @@ public interface RideQueryService {
     List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
 
     /**
+     * Get finished rides in a date range
+     */
+    List<Ride> getFinishedRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
+
+    /**
      * Get finished rides for a driver in a date range
      */
     List<Ride> getFinishedRidesForDriverInDateRange(Long driverId, LocalDateTime startDate, LocalDateTime endDate);

@@ -170,6 +170,11 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    public List<Ride> getFinishedRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return rideQueryService.getFinishedRidesInDateRange(startDate, endDate);
+    }
+
+    @Override
     public List<Ride> getFinishedRidesForDriverInDateRange(Long driverId, LocalDateTime startDate, LocalDateTime endDate) {
         return rideQueryService.getFinishedRidesForDriverInDateRange(driverId, startDate, endDate);
     }

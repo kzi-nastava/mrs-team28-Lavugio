@@ -117,6 +117,11 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     List<Ride> findByStartDateTime(LocalDateTime date);
 
+        @Query("SELECT r FROM Ride r WHERE r.rideStatus = 'FINISHED' " +
+            "AND r.startDateTime BETWEEN :startDate AND :endDate")
+        List<Ride> findFinishedRidesInDateRange(@Param("startDate") LocalDateTime startDate,
+                            @Param("endDate") LocalDateTime endDate);
+
     @Query(value = """
         SELECT r.*
         FROM rides r

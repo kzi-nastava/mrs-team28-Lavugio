@@ -74,6 +74,11 @@ public class RideQueryServiceImpl implements RideQueryService {
     }
 
     @Override
+    public List<Ride> getFinishedRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return rideRepository.findFinishedRidesInDateRange(startDate, endDate);
+    }
+
+    @Override
     public List<Ride> getFinishedRidesForDriverInDateRange(Long driverId, LocalDateTime startDate, LocalDateTime endDate) {
         return rideRepository.findFinishedRidesForDriverInDateRange(driverId, startDate, endDate);
     }

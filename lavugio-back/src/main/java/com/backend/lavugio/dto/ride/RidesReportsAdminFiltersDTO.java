@@ -10,6 +10,6 @@ import lombok.*;
 public class RidesReportsAdminFiltersDTO {
         private String startDate;
         private String endDate;
-        private String accountEmail;
+        private String email;
         private RidesReportsAdminFilterEnum selectedFilter;
 }
