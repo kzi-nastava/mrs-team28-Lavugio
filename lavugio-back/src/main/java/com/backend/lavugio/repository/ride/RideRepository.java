@@ -177,4 +177,18 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     @Query("SELECT DISTINCT r FROM Ride r WHERE (r.creator.id = :userId OR EXISTS (SELECT p FROM r.passengers p WHERE p.id = :userId)) AND r.rideStatus = :status")
     List<Ride> findByCreatorIdAndStatus(@Param("userId") Long userId, @Param("status") RideStatus status);
 
+        @Query("SELECT r FROM Ride r WHERE r.driver.id = :driverId " +
+            "AND r.rideStatus = 'FINISHED' " +
+            "AND r.startDateTime BETWEEN :startDate AND :endDate")
+        List<Ride> findFinishedRidesForDriverInDateRange(@Param("driverId") Long driverId,
+                                 @Param("startDate") LocalDateTime startDate,
+                                 @Param("endDate") LocalDateTime endDate);
+
+        @Query("SELECT r FROM Ride r WHERE r.creator.id = :creatorId " +
+            "AND r.rideStatus = 'FINISHED' " +
+            "AND r.startDateTime BETWEEN :startDate AND :endDate")
+        List<Ride> findFinishedRidesForCreatorInDateRange(@Param("creatorId") Long creatorId,
+                                  @Param("startDate") LocalDateTime startDate,
+                                  @Param("endDate") LocalDateTime endDate);
+
 }

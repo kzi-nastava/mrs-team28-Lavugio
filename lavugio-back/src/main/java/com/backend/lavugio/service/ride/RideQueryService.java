@@ -58,6 +58,16 @@ public interface RideQueryService {
     List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
 
     /**
+     * Get finished rides for a driver in a date range
+     */
+    List<Ride> getFinishedRidesForDriverInDateRange(Long driverId, LocalDateTime startDate, LocalDateTime endDate);
+
+    /**
+     * Get finished rides for a creator in a date range
+     */
+    List<Ride> getFinishedRidesForCreatorInDateRange(Long creatorId, LocalDateTime startDate, LocalDateTime endDate);
+
+    /**
      * Calculate total earnings for a driver
      */
     Float calculateTotalEarningsForDriver(Long driverId);

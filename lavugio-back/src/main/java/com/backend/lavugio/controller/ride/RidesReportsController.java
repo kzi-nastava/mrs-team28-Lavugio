@@ -4,6 +4,8 @@ import com.backend.lavugio.dto.ride.RidesReportsAdminFiltersDTO;
 import com.backend.lavugio.dto.ride.RidesReportsDateRangeDTO;
 import com.backend.lavugio.dto.ride.RidesReportsResponseDTO;
 import com.backend.lavugio.security.SecurityUtils;
+import com.backend.lavugio.service.ride.RidesReportsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,12 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/rides-reports")
 public class RidesReportsController {
 
+    @Autowired
+    private RidesReportsService ridesReportsService;
+
     @PostMapping("/driver")
     @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<?> generateDriverReport(@RequestBody RidesReportsDateRangeDTO dateRange) {
         Long driverId = SecurityUtils.getCurrentUserId();
         try {
-            // Call the service method to generate the report for the driver
             RidesReportsResponseDTO report = ridesReportsService.getRidesReportsDriver(dateRange, driverId);
             return ResponseEntity.ok(report);
         } catch (Exception e) {
@@ -31,12 +35,12 @@ public class RidesReportsController {
     @PostMapping("/regular-user")
     @PreAuthorize("hasRole('REGULAR_USER')")
     public ResponseEntity<?> generateRegularUserReport(@RequestBody RidesReportsDateRangeDTO dateRange) {
-
+        throw new UnsupportedOperationException("Regular user report generation is not implemented yet.");
     }
 
     @PostMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> generateAdministratorReport(@RequestBody RidesReportsAdminFiltersDTO adminFilters) {
-
+        throw new UnsupportedOperationException("Regular user report generation is not implemented yet.");
     }
 }
