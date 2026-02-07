@@ -1,8 +1,13 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.ride.RidesReportsAdminFilterEnum;
+import com.backend.lavugio.dto.ride.RidesReportsAdminFiltersDTO;
 import com.backend.lavugio.dto.ride.RidesReportsDateRangeDTO;
 import com.backend.lavugio.dto.ride.RidesReportsResponseDTO;
 import com.backend.lavugio.model.ride.Ride;
+import com.backend.lavugio.model.user.Account;
+import com.backend.lavugio.model.user.Driver;
+import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.RidesReportsService;
 import com.backend.lavugio.service.user.AccountService;
@@ -68,6 +73,41 @@ public class RidesReportsServiceImpl implements RidesReportsService {
         }
         RidesReportsResponseDTO response = this.getCharts(ridesCountMap, mileageMap, earningsMap, USER_TITLES, USER_LABELS);
         return response;
+    }
+
+    @Override
+    public RidesReportsResponseDTO getRidesReportsAdmin(RidesReportsAdminFiltersDTO adminFilters) {
+        if (adminFilters.getSelectedFilter().equals(RidesReportsAdminFilterEnum.oneUser)) {
+            Account account = this.accountService.getAccountByEmail(adminFilters.getAccountEmail());
+            if (account == null) {
+                throw new RuntimeException("Account with email " + adminFilters.getAccountEmail() + " not found.");
+            }
+            if (account instanceof Driver) {
+                return getRidesReportsDriver(new RidesReportsDateRangeDTO(adminFilters.getStartDate(), adminFilters.getEndDate()), account.getId());
+            } else if (account instanceof RegularUser){
+                return getRidesReportsRegularUser(new RidesReportsDateRangeDTO(adminFilters.getStartDate(), adminFilters.getEndDate()), account.getId());
+            } else {
+                throw new RuntimeException("Account with email " + adminFilters.getAccountEmail() + " is neither a driver nor a regular user.");
+            }
+        }
+        LocalDateTime startDate = parseDate(adminFilters.getStartDate());
+        LocalDateTime endDate = parseDate(adminFilters.getEndDate());
+        List<Ride> rideList = rideService.getFinishedRidesInDateRange(parseDate(adminFilters.getStartDate()), parseDate(adminFilters.getEndDate()));
+        Map<String, Double> ridesCountMap = getDateRangeMap(startDate, endDate);
+        Map<String, Double> mileageMap = getDateRangeMap(startDate, endDate);
+        Map<String, Double> earningsMap = getDateRangeMap(startDate, endDate);
+        for (Ride ride : rideList) {
+            String dateKey = formatDateShortString(ride.getStartDateTime());
+            ridesCountMap.put(dateKey, ridesCountMap.get(dateKey) + 1);
+            mileageMap.put(dateKey, mileageMap.get(dateKey) + ride.getDistance());
+            earningsMap.put(dateKey, earningsMap.get(dateKey) + ride.getPrice());
+        }
+        if (adminFilters.getSelectedFilter().equals(RidesReportsAdminFilterEnum.allDrivers)) {
+            return this.getCharts(ridesCountMap, mileageMap, earningsMap, DRIVER_TITLES, DRIVER_LABELS);
+        } else {
+            return this.getCharts(ridesCountMap, mileageMap, earningsMap, USER_TITLES, USER_LABELS);
+        }
+
     }
 
     private RidesReportsResponseDTO getCharts(Map<String, Double> ridesCountMap, Map<String, Double> mileageMap, Map<String, Double> earningsMap, String[] titles, String[] labels) {

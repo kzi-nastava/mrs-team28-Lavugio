@@ -47,6 +47,11 @@ public class RidesReportsController {
     @PostMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> generateAdministratorReport(@RequestBody RidesReportsAdminFiltersDTO adminFilters) {
-        throw new UnsupportedOperationException("Regular user report generation is not implemented yet.");
+        try {
+            RidesReportsResponseDTO report = ridesReportsService.getRidesReportsAdmin(adminFilters);
+            return ResponseEntity.ok(report);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while generating the report: " + e.getMessage());
+        }
     }
 }
