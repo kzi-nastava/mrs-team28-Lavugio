@@ -4,7 +4,6 @@ import { Observable, throwError } from 'rxjs';
 import { environment } from '@environments/environment';
 import { AuthService } from '@app/core/services/auth-service';
 import { Filters } from '@app/features/rides-reports/rides-reports';
-import { Filters } from '@app/features/rides-reports/rides-reports';
 
 export interface DateRangePayload {
   startDate: string;
