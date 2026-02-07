@@ -1,69 +1,64 @@
 // chat.service.ts
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import { environment } from 'environments/environment';
+import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ChatMessageModel } from '@app/shared/models/chatMessage';
-
+import { WebSocketService } from './web-socket-service';
+import { environment } from 'environments/environment';
+import { StompSubscription } from '@stomp/stompjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private socketUrl = environment.BACKEND_URL + '/socket';
-  private apiUrl = environment.BACKEND_URL + '/api/chat';
-  private client: Client | undefined;
-  private http = inject(HttpClient);
-  
-  private messagesSubject = new Subject<ChatMessageModel>();
-  public messages$ = this.messagesSubject.asObservable();
 
-  initializeWebSocketConnection() {
-    let ws = new SockJS(this.socketUrl);
-    this.client = new Client({
-      webSocketFactory: () => ws,
-      reconnectDelay: 5000,
-    });
-  }
+  private apiUrl = environment.BACKEND_URL + '/api/chat';
+  private http = inject(HttpClient);
+
+  constructor(private wsService: WebSocketService) {}
 
   connectToChat(userId: number): Observable<ChatMessageModel> {
-    if (!this.client) {
-      this.initializeWebSocketConnection();
-    }
+
+    this.wsService.connect();
 
     return new Observable<ChatMessageModel>((observer) => {
-      this.client!.onConnect = () => {
-        this.client!.subscribe(`/socket-publisher/chat/${userId}`, (message) => {
-          let chatMessage: ChatMessageModel = JSON.parse(message.body);
-          observer.next(chatMessage);
-          this.messagesSubject.next(chatMessage);
-        });
+
+      const trySubscribe = () => {
+        const sub = this.wsService.subscribe(
+          `/socket-publisher/chat/${userId}`,
+          (message) => {
+            const chatMessage: ChatMessageModel = JSON.parse(message.body);
+            observer.next(chatMessage);
+          }
+        );
+
+        if (!sub) {
+          setTimeout(trySubscribe, 200); // čekaj dok se ne poveže
+        }
+
+        return sub;
       };
-      this.client!.activate();
+
+      const subscription: StompSubscription | null = trySubscribe();
+
+      return () => {
+        subscription?.unsubscribe();
+      };
     });
   }
 
   sendMessage(message: ChatMessageModel) {
-    if (this.client && this.client.connected) {
-      this.client.publish({
-        destination: '/socket-subscriber/chat/send',
-        body: JSON.stringify(message)
-      });
-      console.log(message);
-    } else {
-      console.error('WebSocket not connected');
-    }
+    this.wsService.publish(
+      '/socket-subscriber/chat/send',
+      message
+    );
   }
 
   getChatHistory(userId: number): Observable<ChatMessageModel[]> {
     return this.http.get<ChatMessageModel[]>(`${this.apiUrl}/history/${userId}`);
   }
 
-  closeConnection() {
-    if (this.client) {
-      this.client.deactivate();
-    }
+  disconnect() {
+    this.wsService.disconnect();
   }
 }

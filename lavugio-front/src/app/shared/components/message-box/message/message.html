@@ -1,0 +1,13 @@
+<div class="flex w-full mb-3" [class.justify-end]="isSender">
+  <div 
+    class="max-w-[70%] rounded-2xl px-4 py-2 shadow-sm"
+    [ngStyle]="{
+      'background-color': isSender ? '#283618' : '#DDA15E',
+      'color': isSender ? '#FEFAE0' : '#283618'
+    }"
+    [class.rounded-br-sm]="isSender"
+    [class.rounded-bl-sm]="!isSender"
+  >
+    <p class="text-sm break-words">{{text()}}</p>
+  </div>
+</div>

@@ -233,4 +233,10 @@ public class AccountController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/chattable")
+    public ResponseEntity<?> getChattableUsers(){
+        return new ResponseEntity<>(accountService.getChattableUsers(), HttpStatus.OK);
+    }
 }
