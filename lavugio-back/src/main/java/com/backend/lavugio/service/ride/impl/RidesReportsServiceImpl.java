@@ -94,7 +94,8 @@ public class RidesReportsServiceImpl implements RidesReportsService {
     }
 
     public LocalDateTime parseDate(String dateStr) {
-        return LocalDateTime.parse(dateStr, java.time.format.DateTimeFormatter.ofPattern(DATE_FORMAT));
+        java.time.LocalDate date = java.time.LocalDate.parse(dateStr, java.time.format.DateTimeFormatter.ofPattern(DATE_FORMAT));
+        return date.atStartOfDay();
     }
 
     private String formatDateShortString(LocalDateTime date) {
