@@ -1,0 +1,19 @@
+<app-base-info-page>
+
+  <h2 class="text-center text-[#FEFAE0] text-2xl font-bold mb-6 mt-6">
+    Notifications
+  </h2>
+
+  @for (n of notifications(); track n.id) {
+    <div class="mb-3 cursor-pointer" (click)="goToNotification(n)">
+      <app-notification-item [notification]="n"></app-notification-item>
+    </div>
+  }
+
+  @if (notifications().length === 0) {
+    <div class="text-center text-[#606C38]">
+      <p>No notifications</p>
+    </div>
+  }
+
+</app-base-info-page>

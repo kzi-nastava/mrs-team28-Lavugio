@@ -46,7 +46,9 @@ public class RideDestinationServiceImpl implements RideDestinationService {
         rideDestination.setRide(ride);
         rideDestination.setAddress(address);
 
-        return rideDestinationRepository.save(rideDestination);
+        rideDestinationRepository.save(rideDestination);
+        rideDestinationRepository.flush();
+        return rideDestination;
     }
 
     @Override

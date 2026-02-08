@@ -9,12 +9,11 @@ import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-message-box',
-  standalone: true,
   imports: [CommonModule, FormsModule, Message],
   templateUrl: './message-box.html',
   styleUrls: ['./message-box.css']
 })
-export class MessageBox implements OnInit, AfterViewInit, OnDestroy {
+export class MessageBox implements OnInit, AfterViewInit {
 
   @Input() receiverId!: number;
 
@@ -39,10 +38,6 @@ export class MessageBox implements OnInit, AfterViewInit, OnDestroy {
       this.loadChatHistory();
       this.connectToChat();
     });
-  }
-
-  ngOnDestroy() {
-    this.chatService.disconnect();
   }
 
   trackByTimestamp(index: number, message: ChatMessageModel) {

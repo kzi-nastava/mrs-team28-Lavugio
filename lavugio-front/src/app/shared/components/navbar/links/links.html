@@ -11,6 +11,14 @@
       <app-link [route]="'/driver-scheduled-rides'">Rides</app-link>
     }
     <app-link>Reports</app-link>
+    <app-link
+      [route]="'/notifications'"
+      [style.color]="hasNewNotifications() ? '#ef4444' : '#FEFAE0'"
+      [style.fontWeight]="hasNewNotifications() ? '600' : '400'">
+      Notifications
+    </app-link>
+
+
     <app-link [route]="'/profile'">Profile</app-link>
     @if (isAdmin()) {
       <app-link [route]="'/admin-panel'">Admin Panel</app-link>

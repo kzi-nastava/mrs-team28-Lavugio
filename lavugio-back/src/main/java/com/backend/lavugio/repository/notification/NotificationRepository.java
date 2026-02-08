@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -20,12 +21,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findByNotificationType(NotificationType type);
 
-    List<Notification> findBySentDate(LocalDate date);
+    List<Notification> findBySentDate(LocalDateTime date);
 
-    List<Notification> findBySentDateBetween(LocalDate startDate, LocalDate endDate);
-
-    List<Notification> findBySentDateAndSentTimeBetween(
-            LocalDate date, LocalTime startTime, LocalTime endTime);
+    List<Notification> findBySentDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     List<Notification> findByTitleContainingIgnoreCase(String titleKeyword);
 
@@ -36,9 +34,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "(:type IS NULL OR n.notificationType = :type) AND " +
             "(:startDate IS NULL OR n.sentDate >= :startDate) AND " +
             "(:endDate IS NULL OR n.sentDate <= :endDate) " +
-            "ORDER BY n.sentDate DESC, n.sentTime DESC")
+            "ORDER BY n.sentDate DESC")
     List<Notification> searchNotifications(Long userId, NotificationType type,
-                                           LocalDate startDate, LocalDate endDate);
+                                           LocalDateTime startDate, LocalDateTime endDate);
 
     @Query("SELECT n FROM Notification n WHERE n.linkToRide IS NOT NULL")
     List<Notification> findLinkedNotifications();
@@ -60,15 +58,15 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     void deleteBySentToId(Long userId);
 
-    void deleteBySentDateBefore(LocalDate date);
+    void deleteBySentDateBefore(LocalDateTime date);
 
     @Query("SELECT n FROM Notification n WHERE n.sentTo.id = :userId " +
-            "ORDER BY n.sentDate DESC, n.sentTime DESC")
+            "ORDER BY n.sentDate DESC")
     List<Notification> findByUserIdOrderByDateDesc(Long userId);
 
     @Query("SELECT n FROM Notification n WHERE n.sentTo.id = :userId " +
             "AND n.notificationType = 'PANIC' " +
-            "ORDER BY n.sentDate DESC, n.sentTime DESC " +
+            "ORDER BY n.sentDate DESC " +
             "LIMIT 5")
     List<Notification> findRecentPanicNotificationsByUser(Long userId);
 }

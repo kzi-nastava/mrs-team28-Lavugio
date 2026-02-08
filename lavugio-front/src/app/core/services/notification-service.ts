@@ -1,4 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { NotificationModel } from '@app/shared/models/notification';
+import { environment } from '@environments/environment';
+import { Observable } from 'rxjs';
 
 export interface Notification {
   id: string;
@@ -12,6 +16,8 @@ export interface Notification {
 })
 export class NotificationService {
   notifications = signal<Notification[]>([]);
+  http = inject(HttpClient);
+
 
   showNotification(message: string, type: 'error' | 'warning' | 'success' | 'info' = 'info', duration = 5000) {
     const id = Math.random().toString(36).substr(2, 9);
@@ -42,5 +48,9 @@ export class NotificationService {
       'warning',
       5000
     );
+  }
+
+  getNotifications(): Observable<NotificationModel[]>{
+    return this.http.get<NotificationModel[]>(`${environment.BACKEND_URL}/api/users/notifications`);
   }
 }

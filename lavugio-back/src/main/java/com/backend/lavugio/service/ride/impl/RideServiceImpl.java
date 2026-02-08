@@ -9,6 +9,7 @@ import com.backend.lavugio.dto.user.DriverHistoryPagingDTO;
 import com.backend.lavugio.dto.user.PassengerTableRowDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.VehicleType;
+import com.backend.lavugio.model.notification.Notification;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
@@ -241,6 +242,8 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Passenger already in this ride");
         }
 
+        Notification notification = notificationService.createWebAddedToRideNotification(ride.getId(), passengerId);
+        notificationService.sendNotificationToSocket(notification);
         ride.getPassengers().add(passenger);
         return rideRepository.save(ride);
     }
@@ -251,13 +254,14 @@ public class RideServiceImpl implements RideService {
         Set<RegularUser> registeredPassengers = new HashSet<>();
         for (String passengerEmail : passengerEmails) {
             Optional<RegularUser> passenger = regularUserRepository.findByEmail(passengerEmail);
-            if (passenger.isPresent()) {
-                registeredPassengers.add(passenger.get());
-            } else {
-                // TODO: LOGIKA SLANJA MEJLOVA NEREGISTROVANIM PUTNICIMA
+            if (passenger.isEmpty()){
+                continue;
             }
-            emailService.sendFoundRideEmail(passengerEmails, ride);
+            passenger.ifPresent(registeredPassengers::add);
+            Notification notification = notificationService.createWebAddedToRideNotification(ride.getId(), passenger.get().getId());
+            notificationService.sendNotificationToSocket(notification);
         }
+        emailService.sendFoundRideEmail(passengerEmails, ride);
         ride.setPassengers(registeredPassengers);
         return rideRepository.save(ride);
     }
@@ -602,7 +606,6 @@ public class RideServiceImpl implements RideService {
             }
         }
 
-        // Add passengers to ride
         this.addPassengersToRide(ride, request.getPassengerEmails());
         this.addPassengerToRide(ride.getId(), creator.getId());
         return ride;
@@ -683,7 +686,7 @@ public class RideServiceImpl implements RideService {
     public Double calculatePrice(VehicleType vehicleType, Double distance){
         Double kilometerPrice = pricingService.getKilometerPricing();
         Double vehicleTypePrice = pricingService.getVehiclePricingByVehicleType(vehicleType);
-        return vehicleTypePrice + kilometerPrice * distance;
+        return (double) Math.round(vehicleTypePrice + kilometerPrice * distance);
     }
 
     @Override
