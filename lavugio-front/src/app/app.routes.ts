@@ -24,6 +24,7 @@ import {AuthGuard} from '@app/core/guards/authGuard';
 import {RideOverviewAccessGuard} from '@app/core/guards/rideOverviewAccessGuard'
 import { ActiveRides } from './features/active-rides/active-rides';
 import { NotificationsPage } from './features/notifications-page/notifications-page';
+import { RidesReports } from './features/rides-reports/rides-reports';
 
 export const routes: Routes = [
   {
@@ -165,5 +166,12 @@ export const routes: Routes = [
     component: NotificationsPage,
     canActivate: [AuthGuard],
     data: {role: ['ADMIN', 'REGULAR_USER', 'DRIVER']}
+  },
+  {
+    path: 'rides-reports',
+    title: 'Rides Reports',
+    component: RidesReports,
+    canActivate: [AuthGuard],
+    data:{role:['DRIVER', 'REGULAR_USER', 'ADMIN']}
   }
 ];

@@ -1,0 +1,23 @@
+<div class="chart-container bg-white rounded-lg shadow-lg md:p-6">
+  <!-- Title -->
+  <h2 class="text-2xl font-bold text-[#BC6C25] text-center mb-6">
+    {{ title }}
+  </h2>
+
+  <!-- Graph -->
+  <div class="chart-wrapper">
+    <canvas #chartCanvas></canvas>
+  </div>
+
+  <!-- Sum and Average -->
+  <div class="flex justify-center gap-8 text-sm text-[#606C38]">
+    <div class="text-center">
+      <span class="font-semibold">Sum:</span>
+      <span class="ml-2 font-bold text-[#BC6C25]">{{ sum | number:'1.2-2' }}</span>
+    </div>
+    <div class="text-center">
+      <span class="font-semibold">Average:</span>
+      <span class="ml-2 font-bold text-[#BC6C25]">{{ average | number:'1.2-2' }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+.full-width {
+	width: 100%;
+}
+
+.no-padding {
+	padding: 0;
+}
+
+.no-padding .mat-mdc-text-field-wrapper,
+.no-padding .mat-mdc-form-field-flex,
+.no-padding .mat-mdc-form-field-subscript-wrapper {
+	padding: 0;
+}
+
+.no-padding .mat-mdc-form-field-infix,
+.no-padding .mdc-text-field {
+	padding-top: 0;
+	padding-bottom: 0;
+}

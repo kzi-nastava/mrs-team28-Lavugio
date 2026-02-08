@@ -1,0 +1,13 @@
+.chart-container {
+  max-width: 100%;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+canvas {
+  max-width: 100%;
+  height: auto !important;
+}
