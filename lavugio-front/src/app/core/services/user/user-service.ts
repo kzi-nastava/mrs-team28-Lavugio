@@ -8,6 +8,7 @@ import {
   EditProfileDTO,
 } from '@app/shared/models/user/editProfileDTO';
 import { LatestRideModel } from '@app/shared/models/ride/latestRide';
+import { UserChatModel } from '@app/shared/models/userChat';
 
 @Injectable({
   providedIn: 'root',
@@ -112,5 +113,9 @@ export class UserService {
 
   getLatestRideId(){
     return this.http.get<LatestRideModel>(`${this.apiUrl}/regularUsers/latest-ride`)
+  }
+
+  getChattableUsers(): Observable<UserChatModel[]>{
+    return this.http.get<UserChatModel[]>(`${this.apiUrl}/users/chattable`);
   }
 }

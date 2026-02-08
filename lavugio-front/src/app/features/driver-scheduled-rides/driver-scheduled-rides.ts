@@ -13,10 +13,11 @@ import { FinishRide } from '@app/shared/models/ride/finishRide';
 import { AuthService } from '@app/core/services/auth-service';
 import { LocationService } from '@app/core/services/location-service';
 import { DialogService } from '@app/core/services/dialog-service';
+import { LiveSupportButtonComponent } from "@app/shared/components/live-support-button/live-support-button";
 
 @Component({
   selector: 'app-driver-scheduled-rides',
-  imports: [ScheduledRides, MapComponent, Navbar],
+  imports: [ScheduledRides, MapComponent, Navbar, LiveSupportButtonComponent],
   templateUrl: './driver-scheduled-rides.html',
   styleUrl: './driver-scheduled-rides.css',
 })

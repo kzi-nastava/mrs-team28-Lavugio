@@ -1,11 +1,12 @@
 package com.backend.lavugio.service.chat;
 
+import com.backend.lavugio.dto.MessageDTO;
 import com.backend.lavugio.model.chat.Message;
 
 import java.util.List;
 
 public interface ChatService {
-    List<Message> getChatHistory(Long userId);
+    List<MessageDTO> getChatHistory(Long userId);
     void markMessagesAsRead(Long userId, List<Long> messageIds);
     List<Message> getUnreadMessages(Long userId);
     List<Message> searchInMessages(Long userId, String searchTerm);

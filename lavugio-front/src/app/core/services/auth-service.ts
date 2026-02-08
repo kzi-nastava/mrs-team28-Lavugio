@@ -1,7 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '@environments/environment';
+import { ChatService } from './chat-service';
+import { WebSocketService } from './web-socket-service';
 
 export interface RegistrationRequest {
   email: string;
@@ -34,10 +36,14 @@ export interface LoginResponse {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.BACKEND_URL}/api/regularUsers`;
+
+  private webSocketService = inject(WebSocketService);
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  
+  isAuthenticatedSignal = signal<boolean>(!!localStorage.getItem('authToken'));
+
+
   private currentUserSubject = new BehaviorSubject<LoginResponse | null>(
     this.getStoredUser()
   );
@@ -62,6 +68,7 @@ export class AuthService {
   storeToken(token: string, user: LoginResponse): void {
     localStorage.setItem('authToken', token);
     localStorage.setItem('currentUser', JSON.stringify(user));
+    this.isAuthenticatedSignal.set(true);
     this.isAuthenticatedSubject.next(true);
     this.currentUserSubject.next(user);
   }
@@ -91,8 +98,6 @@ export class AuthService {
             observer.complete();
           },
           error: (error) => {
-            // Only clear auth data if it's not a 403 (active ride) error
-            // 403 means driver has an active ride and cannot logout
             if (error.status !== 403) {
               this.clearAuthData();
             }
@@ -111,8 +116,10 @@ export class AuthService {
   }
 
   private clearAuthData(): void {
+    this.webSocketService.disconnect();
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
+    this.isAuthenticatedSignal.set(false);
     this.isAuthenticatedSubject.next(false);
     this.currentUserSubject.next(null);
   }

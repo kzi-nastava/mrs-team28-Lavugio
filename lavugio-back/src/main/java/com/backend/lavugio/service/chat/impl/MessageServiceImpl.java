@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.chat.impl;
 
+import com.backend.lavugio.dto.MessageDTO;
 import com.backend.lavugio.model.chat.Message;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.repository.chat.MessageRepository;
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class MessageServiceImpl implements MessageService {
@@ -27,12 +30,8 @@ public class MessageServiceImpl implements MessageService {
     public Message sendMessage(Message message) {
         validateMessage(message);
 
-        if (message.getMessageDate() == null) {
-            message.setMessageDate(LocalDate.now());
-        }
-
-        if (message.getMessageTime() == null) {
-            message.setMessageTime(LocalTime.now());
+        if (message.getTimestamp() == null) {
+            message.setTimestamp(LocalDateTime.now());
         }
 
         // Proveri da li pošiljalac i primalac postoje
@@ -86,13 +85,13 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> getMessagesByDate(LocalDate date) {
-        return messageRepository.findByMessageDate(date);
+    public List<Message> getMessagesByDate(LocalDateTime date) {
+        return messageRepository.findByTimestamp(date);
     }
 
     @Override
-    public List<Message> getMessagesBetweenDates(LocalDate startDate, LocalDate endDate) {
-        return messageRepository.findByMessageDateBetween(startDate, endDate);
+    public List<Message> getMessagesBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+        return messageRepository.findByTimestampBetween(startDate, endDate);
     }
 
     @Override
@@ -108,8 +107,7 @@ public class MessageServiceImpl implements MessageService {
         message.setSender(sender);
         message.setReceiver(receiver);
         message.setText(text);
-        message.setMessageDate(LocalDate.now());
-        message.setMessageTime(LocalTime.now());
+        message.setTimestamp(LocalDateTime.now());
         message.setRead(false);
 
         return sendMessage(message);
@@ -150,5 +148,26 @@ public class MessageServiceImpl implements MessageService {
         if (message.getSender().getId().equals(message.getReceiver().getId())) {
             throw new RuntimeException("Cannot send message to yourself");
         }
+    }
+
+    public void saveMessage(MessageDTO messageDTO){
+        Message message = new Message();
+        Optional<Account> sender = this.accountRepository.findById(messageDTO.getSenderId());
+        Optional<Account> receiver = this.accountRepository.findById(messageDTO.getReceiverId());
+        if (sender.isEmpty()){
+            if (messageDTO.getSenderId() != 0)
+                throw new NoSuchElementException(String.format("No user with id: %s found", messageDTO.getSenderId()));
+        }
+        if (receiver.isEmpty()){
+            if (messageDTO.getReceiverId() != 0)
+                throw new NoSuchElementException(String.format("No user with id: %s found", messageDTO.getReceiverId()));
+        }
+        message.setText(messageDTO.getText());
+        message.setTimestamp(messageDTO.getTimestamp());
+        message.setSender(sender.orElse(null));
+        message.setReceiver(receiver.orElse(null));
+        message.setRead(false);
+        messageRepository.save(message);
+        messageRepository.flush();
     }
 }

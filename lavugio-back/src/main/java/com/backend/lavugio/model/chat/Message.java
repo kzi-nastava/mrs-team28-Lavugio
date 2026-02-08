@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "messages")
@@ -22,18 +24,15 @@ public class Message {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
+    @JoinColumn(name = "sender_id")
     private Account sender;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id", nullable = false)
+    @JoinColumn(name = "receiver_id")
     private Account receiver;
 
     @Column(nullable = false)
-    private LocalDate messageDate;
-
-    @Column(nullable = false)
-    private LocalTime messageTime;
+    private LocalDateTime timestamp;
 
     @Column(nullable = false)
     private String text;

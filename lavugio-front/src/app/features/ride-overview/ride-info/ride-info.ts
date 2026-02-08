@@ -251,7 +251,6 @@ export class RideInfo implements OnInit, OnDestroy {
 
   ngOnInit() {    
     this.calculateDuration();
-    // Initialize panic state from ride overview
     const overview = this.rideOverview();
     if (overview && (overview as any).hasPanic) {
       this.hasPanicBeenTriggered.set(true);
@@ -259,7 +258,7 @@ export class RideInfo implements OnInit, OnDestroy {
 
     this.durationIntervalId = setInterval(() => {
       this.calculateDuration();
-    }, 5000); // 5000 ms = 5 sekundi
+    }, 5000);
   }
 
   createOneMinuteInterval() {

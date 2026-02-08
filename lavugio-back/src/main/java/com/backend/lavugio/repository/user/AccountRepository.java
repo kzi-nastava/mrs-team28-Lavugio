@@ -12,10 +12,14 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByEmail(String email);
+
     boolean existsByEmail(String email);
+
     Optional<Account> findByEmailAndPassword(String email, String password);
 
     @Query("SELECT ba.email FROM BlockableAccount ba WHERE LOWER(ba.email) LIKE LOWER(CONCAT(:prefix, '%')) ORDER BY ba.email")
     List<String> findTop5EmailsByPrefix(@Param("prefix") String prefix, Pageable pageable);
 
+    @Query("SELECT a FROM Account a WHERE TYPE(a) <> Administrator")
+    List<Account> findAllNonAdmins();
 }

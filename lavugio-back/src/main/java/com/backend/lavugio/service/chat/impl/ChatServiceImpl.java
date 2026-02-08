@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.chat.impl;
 
+import com.backend.lavugio.dto.MessageDTO;
 import com.backend.lavugio.model.chat.Message;
 import com.backend.lavugio.repository.chat.MessageRepository;
 import com.backend.lavugio.service.chat.ChatService;
@@ -17,8 +18,18 @@ public class ChatServiceImpl implements ChatService {
     private MessageRepository messageRepository;
 
     @Override
-    public List<Message> getChatHistory(Long userId) {
-        return messageRepository.findUserMessagesOrderByDateDesc(userId);
+    public List<MessageDTO> getChatHistory(Long userId) {
+        List<Message> messages;
+
+        if (userId == 0) {
+            messages = messageRepository.findAllBySenderIsNullOrderByTimestampAsc();
+        } else {
+            messages = messageRepository.findUserMessagesOrderByTimestampAsc(userId);
+        }
+
+        return messages.stream()
+                .map(MessageDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -48,9 +59,9 @@ public class ChatServiceImpl implements ChatService {
 
         return allMessages.stream()
                 .sorted((m1, m2) -> {
-                    int dateComparison = m2.getMessageDate().compareTo(m1.getMessageDate());
+                    int dateComparison = m2.getTimestamp().compareTo(m1.getTimestamp());
                     if (dateComparison != 0) return dateComparison;
-                    return m2.getMessageTime().compareTo(m1.getMessageTime());
+                    return m2.getTimestamp().compareTo(m1.getTimestamp());
                 })
                 .collect(Collectors.toList());
     }
