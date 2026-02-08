@@ -1,0 +1,8 @@
+<!-- notification-item.html -->
+<div class="bg-[#FEFAE0] text-[#283618] rounded-xl p-4 shadow-md hover:shadow-lg hover:-translate-y-1 transition-transform transition-shadow">
+  <h3 class="text-[#283618] text-lg font-semibold mb-1">{{ notification().title }}</h3>
+  <p class="text-[#283618] mb-2">{{ notification().text }}</p>
+  <small class="text-[#606C38] text-sm">
+    {{ notification().sendDate | date:'dd.MM.yyyy HH:mm' }}
+  </small>
+</div>

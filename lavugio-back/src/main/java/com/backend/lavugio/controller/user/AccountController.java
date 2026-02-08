@@ -8,6 +8,7 @@ import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.security.SecurityUtils;
+import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.AdministratorService;
 import com.backend.lavugio.service.user.DriverService;
@@ -46,6 +47,9 @@ public class AccountController {
 
     @Autowired
     private DriverService driverService;
+
+    @Autowired
+    private NotificationService notificationService;
 
 
 
@@ -238,5 +242,12 @@ public class AccountController {
     @GetMapping("/chattable")
     public ResponseEntity<?> getChattableUsers(){
         return new ResponseEntity<>(accountService.getChattableUsers(), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') || hasRole('DRIVER') || hasRole('REGULAR_USER')")
+    @GetMapping("/notifications")
+    public ResponseEntity<?> getNotifications(){
+        Long userId = SecurityUtils.getCurrentUserId();
+        return new ResponseEntity<>(notificationService.getNotificationDTOsByUserId(userId), HttpStatus.OK);
     }
 }

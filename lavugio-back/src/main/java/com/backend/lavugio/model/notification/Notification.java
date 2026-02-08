@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -40,10 +41,7 @@ public class Notification {
     private NotificationType notificationType;
 
     @Column(nullable = false)
-    private LocalDate sentDate;
-
-    @Column(nullable = false)
-    private LocalTime sentTime;
+    private LocalDateTime sentDate;
 
     @Column(name = "is_read", nullable = false)
     private boolean read = false;

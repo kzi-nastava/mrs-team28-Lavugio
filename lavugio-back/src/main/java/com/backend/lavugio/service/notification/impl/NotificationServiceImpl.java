@@ -1,22 +1,31 @@
 package com.backend.lavugio.service.notification.impl;
 
+import com.backend.lavugio.dto.NotificationDTO;
 import com.backend.lavugio.model.notification.Notification;
 import com.backend.lavugio.model.enums.NotificationType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.notification.NotificationRepository;
+import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.user.AccountRepository;
 import com.backend.lavugio.service.notification.NotificationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
+@Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
@@ -24,6 +33,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private RideRepository rideRepository;
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     @Transactional
@@ -33,11 +48,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // Postavi trenutno vreme ako nije postavljeno
         if (notification.getSentDate() == null) {
-            notification.setSentDate(LocalDate.now());
-        }
-
-        if (notification.getSentTime() == null) {
-            notification.setSentTime(LocalTime.now());
+            notification.setSentDate(LocalDateTime.now());
         }
 
         // Provera da li korisnik postoji
@@ -49,6 +60,98 @@ public class NotificationServiceImpl implements NotificationService {
 
         return notificationRepository.save(notification);
     }
+
+    @Override
+    public Notification createNotification(String title, String text, String linkToRide, Long sentToId, NotificationType type) {
+        Notification notification = new Notification();
+        Optional<Account> account = accountRepository.findById(sentToId);
+        if (account.isEmpty()){
+            throw new NoSuchElementException(String.format("User with id: %d not found", sentToId));
+        }
+        notification.setTitle(title);
+        notification.setText(text);
+        notification.setLinkToRide(linkToRide);
+        notification.setSentTo(account.get());
+        notification.setNotificationType(type);
+        notification.setSentDate(LocalDateTime.now());
+        notification.setRead(false);
+        notificationRepository.save(notification);
+        notificationRepository.flush();
+        return notification;
+    }
+
+    @Override
+    public Notification createWebRideFinishedNotification(Long rideId, Long sentToId) {
+        String linkToRide = rideId + "/ride-overview";
+        String title = "Your ride has been finished";
+        Optional<Ride> rideOptional = rideRepository.findById(rideId);
+        if (rideOptional.isEmpty()){
+            throw new NoSuchElementException(String.format("Ride with id: %d not found", rideId));
+        }
+        Ride ride = rideOptional.get();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formattedDateTime = ride.getStartDateTime().format(formatter);
+        String text = String.format("Your ride from %s to %s that started at %s has been finished",
+                ride.getStartAddress(),
+                ride.getEndAddress(),
+                formattedDateTime);
+        return createNotification(title, text, linkToRide, sentToId, NotificationType.LINKED);
+    }
+
+    @Override
+    public Notification createWebAddedToRideNotification(Long rideId, Long sentToId) {
+        String linkToRide = rideId + "/ride-overview";
+        String title = "You were added to a ride";
+        Optional<Ride> rideOptional = rideRepository.findById(rideId);
+        if (rideOptional.isEmpty()){
+            throw new NoSuchElementException(String.format("Ride with id: %d not found", rideId));
+        }
+        Ride ride = rideOptional.get();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formattedDateTime = ride.getStartDateTime().format(formatter);
+        String text = String.format("You have been added to a ride that starts at %s",
+                formattedDateTime);
+        return createNotification(title, text, linkToRide, sentToId, NotificationType.LINKED);
+    }
+
+    @Override
+    public Notification createWebCancelledRideNotification(Long rideId, Long sentToId) {
+        String linkToRide = rideId + "/ride-overview";
+        String title = "Your ride has been cancelled";
+        Optional<Ride> rideOptional = rideRepository.findById(rideId);
+        if (rideOptional.isEmpty()){
+            throw new NoSuchElementException(String.format("Ride with id: %d not found", rideId));
+        }
+        Ride ride = rideOptional.get();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formattedDateTime = ride.getStartDateTime().format(formatter);
+        String text = String.format("Your ride from %s to %s that starts at %s has been cancelled",
+                ride.getStartAddress(),
+                ride.getEndAddress(),
+                formattedDateTime);
+        return createNotification(title, text, linkToRide, sentToId, NotificationType.LINKED);
+    }
+
+    @Override
+    public void sendNotificationToSocket(Notification notification){
+        if (notification.getSentTo() == null || notification.getSentTo().getId() == null) {
+            log.warn("Cannot send notification - recipient is null");
+            return;
+        }
+        try {
+            NotificationDTO notificationDTO = new NotificationDTO(notification);
+            String destination = "/socket-publisher/notifications/" + notification.getSentTo().getId();
+
+            this.simpMessagingTemplate.convertAndSend(destination, notificationDTO);
+
+            log.info("Notification sent to user {} via WebSocket", notification.getSentTo().getId());
+        } catch (Exception e) {
+            log.error("Failed to send notification to user {}: {}",
+                    notification.getSentTo().getId(),
+                    e.getMessage());
+        }
+    }
+
 
     @Override
     @Transactional
@@ -90,7 +193,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<Notification> getNotificationsByUserId(Long userId) {
-        return notificationRepository.findBySentToId(userId);
+        return notificationRepository.findByUserIdOrderByDateDesc(userId);
+    }
+
+    @Override
+    public List<NotificationDTO> getNotificationDTOsByUserId(Long userId) {
+        return this.getNotificationsByUserId(userId).stream().map(NotificationDTO::new).toList();
     }
 
     @Override
@@ -99,18 +207,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<Notification> getNotificationsByDate(LocalDate date) {
+    public List<Notification> getNotificationsByDate(LocalDateTime date) {
         return notificationRepository.findBySentDate(date);
     }
 
     @Override
-    public List<Notification> getNotificationsBetweenDates(LocalDate startDate, LocalDate endDate) {
+    public List<Notification> getNotificationsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
         return notificationRepository.findBySentDateBetween(startDate, endDate);
     }
 
     @Override
     public List<Notification> searchNotifications(Long userId, NotificationType type,
-                                                  LocalDate startDate, LocalDate endDate) {
+                                                  LocalDateTime startDate, LocalDateTime endDate) {
         return notificationRepository.searchNotifications(userId, type, startDate, endDate);
     }
 
@@ -145,8 +253,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setText("Panic alert from user " + user.getName() + ": " + message);
         notification.setSentTo(user);
         notification.setNotificationType(NotificationType.PANIC);
-        notification.setSentDate(LocalDate.now());
-        notification.setSentTime(LocalTime.now());
+        notification.setSentDate(LocalDateTime.now());
         notification.setLinkToRide(null);
 
         createNotification(notification);
@@ -165,8 +272,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setText(message);
         notification.setSentTo(user);
         notification.setNotificationType(NotificationType.REGULAR);
-        notification.setSentDate(LocalDate.now());
-        notification.setSentTime(LocalTime.now());
+        notification.setSentDate(LocalDateTime.now());
         notification.setLinkToRide(null);
 
         createNotification(notification);
@@ -183,8 +289,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setText(message);
         notification.setSentTo(user);
         notification.setNotificationType(NotificationType.LINKED);
-        notification.setSentDate(LocalDate.now());
-        notification.setSentTime(LocalTime.now());
+        notification.setSentDate(LocalDateTime.now());
         notification.setLinkToRide(rideLink);
 
         createNotification(notification);
@@ -200,8 +305,7 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setLinkToRide("http://localhost:4200/" + ride.getId() + "/ride-overview");
             notification.setSentTo(passenger);
             notification.setRead(false);
-            notification.setSentTime(LocalTime.now());
-            notification.setSentDate(LocalDate.now());
+            notification.setSentDate(LocalDateTime.now());
             createNotification(notification);
         }
     }
@@ -226,14 +330,14 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setNotificationType(NotificationType.REGULAR);
             notification.setTitle(title);
             notification.setText(message);
-            notification.setLinkToRide("http://localhost:4200/" + ride.getId() + "/ride-overview");
+            notification.setLinkToRide(ride.getId() + "/ride-overview");
             notification.setSentTo(passenger);
             notification.setRead(false);
-            notification.setSentTime(LocalTime.now());
-            notification.setSentDate(LocalDate.now());
+            notification.setSentDate(LocalDateTime.now());
             
             try {
                 Notification saved = createNotification(notification);
+                sendNotificationToSocket(saved);
                 System.out.println("✓ Notification ID " + saved.getId() + " created for passenger: " + passenger.getId());
             } catch (Exception e) {
                 System.err.println("✗ Failed to create notification for passenger " + passenger.getId() + ": " + e.getMessage());
@@ -249,19 +353,19 @@ public class NotificationServiceImpl implements NotificationService {
         System.out.println("=== NOTIFICATION SERVICE: Notifying driver about cancellation ===");
         if (ride.getDriver() != null) {
             System.out.println("Driver ID: " + ride.getDriver().getId());
-            
+
             Notification notification = new Notification();
             notification.setNotificationType(NotificationType.REGULAR);
             notification.setTitle("Ride Cancelled by Passenger");
             notification.setText("Ride #" + ride.getId() + " has been cancelled by the passenger.");
-            notification.setLinkToRide("http://localhost:4200/" + ride.getId() + "/ride-overview");
+            notification.setLinkToRide("driver-scheduled-rides");
             notification.setSentTo(ride.getDriver());
             notification.setRead(false);
-            notification.setSentTime(LocalTime.now());
-            notification.setSentDate(LocalDate.now());
-            
+            notification.setSentDate(LocalDateTime.now());
+
             try {
                 Notification saved = createNotification(notification);
+                sendNotificationToSocket(saved);
                 System.out.println("✓ Notification ID " + saved.getId() + " created for driver: " + ride.getDriver().getId());
             } catch (Exception e) {
                 System.err.println("✗ Failed to create notification for driver: " + e.getMessage());
@@ -285,7 +389,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void deleteOldNotifications(LocalDate cutoffDate) {
+    public void deleteOldNotifications(LocalDateTime cutoffDate) {
         notificationRepository.deleteBySentDateBefore(cutoffDate);
     }
 

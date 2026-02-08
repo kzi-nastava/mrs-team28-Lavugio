@@ -3,6 +3,7 @@ package com.backend.lavugio.controller.ride;
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.pricing.PricingDTO;
 import com.backend.lavugio.dto.ride.*;
+import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.RideReport;
@@ -80,7 +81,7 @@ public class RideController {
     @PostMapping("/estimate-price")
     public ResponseEntity<?> estimateRidePrice(@Valid @RequestBody RideEstimateRequestDTO request) {
         try {
-            double price = rideService.estimateRidePrice(request);
+            double price = rideService.calculatePrice(VehicleType.valueOf(request.getSelectedVehicleType().toUpperCase()), (double) (request.getDistanceMeters() / 1000));
             return ResponseEntity.ok(price);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

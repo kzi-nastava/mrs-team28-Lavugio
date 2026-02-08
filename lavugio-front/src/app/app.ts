@@ -4,10 +4,10 @@ import { NotificationsComponent } from '@app/shared/components/notifications/not
 import { MessageBox } from "./shared/components/message-box/message-box";
 import { LiveSupportButtonComponent } from "./shared/components/live-support-button/live-support-button";
 import { AuthService } from './core/services/auth-service';
-
+import { NotificationsPage } from "./features/notifications-page/notifications-page";
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NotificationsComponent, MessageBox, LiveSupportButtonComponent],
+  imports: [RouterOutlet, NotificationsComponent, MessageBox, LiveSupportButtonComponent, NotificationsPage],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

@@ -76,28 +76,25 @@ public class RideCompletionServiceImpl implements RideCompletionService {
             stoppingAddress.setStreetNumber("");
 
             if (rideDTO.getDistance() != null && rideDTO.getDistance() > 0) {
-                double newPrice = calculatePriceForDistance(rideDTO.getDistance(), ride.getDriver().getVehicle().getType().name());
+                double newPrice = rideService.calculatePrice(ride.getDriver().getVehicle().getType(), rideDTO.getDistance());
                 ride.setPrice((float) newPrice);
                 ride.setDistance(rideDTO.getDistance().floatValue());
             }
 
             finalDestinationCoords = rideDTO.getFinalDestination();
             finalDestinationAddress = stoppingAddress.toString();
-
-            sendNotificationsToPassengersAboutEarlyFinish(ride.getPassengers(), ride.getId());
         } else {
             finalDestinationCoords = new CoordinatesDTO(
                 route.getLast().getAddress().getLatitude(),
                 route.getLast().getAddress().getLongitude()
             );
             finalDestinationAddress = route.getLast().getAddress().toString();
-
-            sendEmailsToPassengers(ride.getPassengers(), ride.getId());
-            sendNotificationsToPassengers(ride.getPassengers(), ride.getId());
         }
         if (!ride.getDriver().getId().equals(driverId)){
             throw new IllegalStateException("Driver isn't driving this ride");
         }
+        sendEmailsToPassengers(ride.getPassengers(), ride.getId());
+        sendNotificationsToPassengers(ride.getPassengers(), ride.getId());
         ride.setRideStatus(RideStatus.FINISHED);
         ride.setEndDateTime(LocalDateTime.now());
         ride.getDriver().setDriving(false);
@@ -121,36 +118,6 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         );
     }
 
-    private double calculatePriceForDistance(Double distanceKm, String vehicleType) {
-        double basePrice = 200 * distanceKm;
-
-        switch (vehicleType.toUpperCase()) {
-            case "STANDARD":
-                return basePrice;
-            case "LUXURY":
-                return basePrice * 1.5;
-            case "COMBI":
-                return basePrice * 2.0;
-            default:
-                return basePrice;
-        }
-    }
-
-    private void sendNotificationsToPassengersAboutEarlyFinish(Collection<RegularUser> passengers, Long rideId){
-        for (RegularUser passenger : passengers) {
-            Notification notification = new Notification();
-            notification.setNotificationType(NotificationType.REGULAR);
-            notification.setText("Your ride was stopped early at your request. The price has been recalculated based on the distance traveled.");
-            notification.setLinkToRide("http/localhost:4200/" + rideId + "/ride-overview");
-            notification.setTitle("Ride Finished Early");
-            notification.setSentTo(passenger);
-            notification.setRead(false);
-            notification.setSentTime(LocalTime.now());
-            notification.setSentDate(LocalDate.now());
-            notificationService.createNotification(notification);
-        }
-    }
-
     private void sendEmailsToPassengers(Collection<RegularUser> passengers, Long rideId){
         String subject = "Your ride has been finished";
         String body = "Link to the ride: http/localhost:4200/" + rideId + "/ride-overview";
@@ -161,16 +128,8 @@ public class RideCompletionServiceImpl implements RideCompletionService {
 
     private void sendNotificationsToPassengers(Collection<RegularUser> passengers, Long rideId){
         for (RegularUser passenger : passengers) {
-            Notification notification = new Notification();
-            notification.setNotificationType(NotificationType.REGULAR);
-            notification.setText("Your ride has been finished - not implemented yet");
-            notification.setLinkToRide("http/localhost:4200/" + rideId + "/ride-overview");
-            notification.setTitle("Your ride has been finished - not implemented yet");
-            notification.setSentTo(passenger);
-            notification.setRead(false);
-            notification.setSentTime(LocalTime.now());
-            notification.setSentDate(LocalDate.now());
-            notificationService.createNotification(notification);
+            Notification notification = notificationService.createWebRideFinishedNotification(rideId, passenger.getId());
+            notificationService.sendNotificationToSocket(notification);
         }
 
     }
