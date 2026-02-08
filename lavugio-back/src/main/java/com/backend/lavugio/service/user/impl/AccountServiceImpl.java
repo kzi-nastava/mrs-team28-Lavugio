@@ -1,9 +1,6 @@
 package com.backend.lavugio.service.user.impl;
 
-import com.backend.lavugio.dto.user.AccountUpdateDTO;
-import com.backend.lavugio.dto.user.BlockUserDTO;
-import com.backend.lavugio.dto.user.CanOrderRideDTO;
-import com.backend.lavugio.dto.user.IsAccountBlockedDTO;
+import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.exception.InvalidCredentialsException;
 import com.backend.lavugio.exception.UserNotFoundException;
 import com.backend.lavugio.model.user.Account;
@@ -289,4 +286,10 @@ public class AccountServiceImpl implements AccountService {
 
         return canOrderRideDTO;
     }
+
+    @Override
+    public List<UserChatDTO> getChattableUsers() {
+        return accountRepository.findAllNonAdmins().stream().map(UserChatDTO::new).toList();
+    }
+
 }

@@ -5,10 +5,11 @@ import { UserEmailInput } from './components/user-email-input/user-email-input';
 import { DialogService } from '@app/core/services/dialog-service';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '@app/core/services/user/user-service';
+import { LiveSupportButtonComponent } from "@app/shared/components/live-support-button/live-support-button";
 
 @Component({
   selector: 'app-block-user',
-  imports: [WhiteSheetBackground, Navbar, UserEmailInput, FormsModule],
+  imports: [WhiteSheetBackground, Navbar, UserEmailInput, FormsModule, LiveSupportButtonComponent],
   templateUrl: './block-user.html',
   styleUrl: './block-user.css',
 })
