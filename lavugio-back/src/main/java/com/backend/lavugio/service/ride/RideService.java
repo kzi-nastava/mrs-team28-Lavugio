@@ -2,6 +2,8 @@ package com.backend.lavugio.service.ride;
 
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.dto.ride.FinishRideDTO;
+import com.backend.lavugio.dto.user.AdminHistoryDetailedDTO;
+import com.backend.lavugio.dto.user.AdminHistoryPagingDTO;
 import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
 import com.backend.lavugio.dto.user.DriverHistoryPagingDTO;
 import com.backend.lavugio.dto.user.UserHistoryDetailedDTO;
@@ -65,6 +67,10 @@ public interface RideService {
     // User (passenger) history
     UserHistoryPagingDTO getUserHistory(Long userId, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
     UserHistoryDetailedDTO getUserHistoryDetailed(Long userId, Long rideId);
+    
+    // Admin: View any user's history by email
+    AdminHistoryPagingDTO getAdminHistory(String email, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
+    AdminHistoryDetailedDTO getAdminHistoryDetailed(Long rideId);
     
     // Instant Ride Creation
     RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);

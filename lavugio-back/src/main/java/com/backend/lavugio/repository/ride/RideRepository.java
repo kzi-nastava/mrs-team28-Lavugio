@@ -255,4 +255,40 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     @Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :userId AND r.id = :rideId")
     Optional<Ride> findByIdAndPassengerId(@Param("rideId") Long rideId, @Param("userId") Long userId);
 
+    // Admin: Find rides by email (as passenger or driver)
+    @Query(value = """
+        SELECT DISTINCT r.*
+        FROM rides r
+        LEFT JOIN ride_passengers rp ON rp.ride_id = r.id
+        LEFT JOIN regular_users ru ON ru.id = rp.user_id
+        LEFT JOIN accounts a_passenger ON a_passenger.id = ru.id
+        LEFT JOIN drivers d ON d.id = r.driver_id
+        LEFT JOIN accounts a_driver ON a_driver.id = d.id
+        WHERE (a_passenger.email = :email OR a_driver.email = :email)
+            AND r.start_date_time BETWEEN :startDate AND :endDate
+            AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        ORDER BY r.start_date_time DESC
+        """,
+            countQuery = """
+        SELECT COUNT(DISTINCT r.id)
+        FROM rides r
+        LEFT JOIN ride_passengers rp ON rp.ride_id = r.id
+        LEFT JOIN regular_users ru ON ru.id = rp.user_id
+        LEFT JOIN accounts a_passenger ON a_passenger.id = ru.id
+        LEFT JOIN drivers d ON d.id = r.driver_id
+        LEFT JOIN accounts a_driver ON a_driver.id = d.id
+        WHERE (a_passenger.email = :email OR a_driver.email = :email)
+            AND r.start_date_time BETWEEN :startDate AND :endDate
+            AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        """,
+            nativeQuery = true)
+    Page<Ride> findRidesForUserByEmail(
+            @Param("email") String email,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+
+    Optional<Ride> findById(Long rideId);
+
 }

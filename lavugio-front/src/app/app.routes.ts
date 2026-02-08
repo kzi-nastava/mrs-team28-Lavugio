@@ -26,6 +26,8 @@ import {AuthGuard} from '@app/core/guards/authGuard';
 import {RideOverviewAccessGuard} from '@app/core/guards/rideOverviewAccessGuard'
 import { ActiveRides } from './features/active-rides/active-rides';
 import { RidesReports } from './features/rides-reports/rides-reports';
+import { AdminRideHistory } from './features/admin-ride-history/admin-ride-history';
+import { AdminRideHistoryDetailed } from './features/admin-ride-history-detailed/admin-ride-history-detailed';
 
 export const routes: Routes = [
   {
@@ -170,6 +172,20 @@ export const routes: Routes = [
     path: 'block-user',
     title: 'Block User',
     component: BlockUser,
+    canActivate: [AuthGuard],
+    data: {role: ['ADMIN']}
+  },
+  {
+    path: 'admin-ride-history',
+    title: 'User Ride History',
+    component: AdminRideHistory,
+    canActivate: [AuthGuard],
+    data: {role: ['ADMIN']}
+  },
+  {
+    path: 'admin-ride-history/:rideId',
+    title: 'Ride Details',
+    component: AdminRideHistoryDetailed,
     canActivate: [AuthGuard],
     data: {role: ['ADMIN']}
   },

@@ -1,0 +1,223 @@
+<app-base-info-page class="flex flex-col h-screen">
+  <!-- Back Button -->
+  <div class="py-2">
+    <button 
+      (click)="goBack()"
+      class="px-4 py-2 bg-[#BC6C25] text-white font-semibold rounded-sm hover:bg-[#DDA15E] transition-colors flex items-center gap-2">
+      ← Back to History
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4 overflow-x-hidden shrink-0">
+    <!-- Left column: Trip Info and Driver Info -->
+    <div class="flex flex-col gap-4">
+      <!-- Trip Details -->
+      <div class="bg-[rgb(255,254,248)] flex flex-col overflow-hidden shadow-sm rounded-lg">
+        <div class="bg-[#606C38] text-white px-4 py-2">
+          <h3 class="font-semibold">Ride Details</h3>
+        </div>
+        <div class="px-4 py-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[#606C38] font-medium">Start:</span>
+            <span class="text-[#BC6C25]">{{ ride()?.start }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[#606C38] font-medium">End:</span>
+            <span class="text-[#BC6C25]">{{ ride()?.end }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[#606C38] font-medium">Pickup:</span>
+            <span class="text-[#BC6C25] text-right max-w-[60%]">{{ ride()?.departure }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[#606C38] font-medium">Destination:</span>
+            <span class="text-[#BC6C25] text-right max-w-[60%]">{{ ride()?.destination }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[#606C38] font-medium">Price:</span>
+            <span class="text-[#BC6C25] font-bold">{{ ride()?.price }} RSD</span>
+          </div>
+        </div>
+        <!-- Status Section -->
+        <div class="bg-[#DDA15E] px-4 py-2 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-white font-normal">Cancelled:</span>
+            @if (ride()?.cancelled) {
+              <span class="text-white font-bold">Yes @if (ride()?.cancelledBy) { ({{ ride()?.cancelledBy }}) }</span>
+            } @else {
+              <span class="text-white">No</span>
+            }
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-white font-normal">Panic Button:</span>
+            @if (ride()?.panic) {
+              <span class="text-white font-bold">YES</span>
+            } @else {
+              <span class="text-white">No</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Driver Info -->
+      <div class="bg-[rgb(255,254,248)] flex flex-col overflow-hidden shadow-sm rounded-lg">
+        <div class="bg-[#BC6C25] text-white px-4 py-2">
+          <h3 class="font-semibold">Driver Information</h3>
+        </div>
+        @if (ride()?.driverId) {
+          <div class="px-4 py-3">
+            <div class="flex items-start gap-4">
+              <img 
+                [src]="getDriverPhotoUrl()" 
+                alt="Driver photo"
+                class="w-16 h-16 rounded-full object-cover border-2 border-[#606C38]"
+                (error)="onImageError()"
+              />
+              <div class="flex-1 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-[#606C38] font-medium">Name:</span>
+                  <span class="text-[#283618]">{{ ride()?.driverName }} {{ ride()?.driverLastName }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[#606C38] font-medium">Email:</span>
+                  <span class="text-[#283618]">{{ ride()?.driverEmail }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[#606C38] font-medium">Phone:</span>
+                  <span class="text-[#283618]">{{ ride()?.driverPhoneNumber }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[#DDA15E] space-y-1">
+              <h4 class="text-[#BC6C25] font-semibold mb-2">Vehicle</h4>
+              <div class="flex items-center justify-between">
+                <span class="text-[#606C38] font-medium">Make:</span>
+                <span class="text-[#283618]">{{ ride()?.vehicleMake }} {{ ride()?.vehicleModel }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[#606C38] font-medium">License Plate:</span>
+                <span class="text-[#283618] font-mono">{{ ride()?.vehicleLicensePlate }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[#606C38] font-medium">Color:</span>
+                <span class="text-[#283618]">{{ ride()?.vehicleColor }}</span>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="px-4 py-3 flex items-center justify-center text-[#606C38] opacity-60">
+            No driver information available
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Right column: Passengers, Reviews, Reports -->
+    <div class="flex flex-col gap-4">
+      <!-- Passengers -->
+      <div class="bg-[rgb(255,254,248)] flex flex-col overflow-hidden shadow-sm rounded-lg">
+        <div class="bg-[#283618] text-white px-4 py-2">
+          <h3 class="font-semibold">Passengers</h3>
+        </div>
+        @if (ride()?.passengers && ride()!.passengers.length > 0) {
+          <div class="px-4 py-3 space-y-2 max-h-40 overflow-y-auto">
+            @for (passenger of ride()?.passengers; track passenger.passengerId) {
+              <div class="flex items-center justify-between p-2 bg-[#f5f5f0] rounded">
+                <span class="text-[#283618] font-medium">{{ passenger.passengerName }} {{ passenger.passengerLastName }}</span>
+                <span class="text-[#606C38] text-sm">{{ passenger.passengerEmail }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="px-4 py-3 flex items-center justify-center text-[#606C38] opacity-60">
+            No passenger information available
+          </div>
+        }
+      </div>
+
+      <!-- Review Section -->
+      <div class="bg-[rgb(255,254,248)] flex flex-col overflow-hidden shadow-sm rounded-lg">
+        <div class="bg-[#606C38] text-white px-4 py-2">
+          <h3 class="font-semibold">Ride Review</h3>
+        </div>
+        @if (ride()?.hasReview) {
+          <div class="px-4 py-3 space-y-3">
+            <div>
+              <span class="text-[#606C38] font-medium block mb-1">Driver Rating:</span>
+              <div class="flex items-center gap-1">
+                @for (star of getStarArray(ride()?.driverRating ?? 0); track $index) {
+                  @if (star) {
+                    <svg class="w-5 h-5 text-[#DDA15E]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  } @else {
+                    <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  }
+                }
+                <span class="ml-2 text-[#283618]">{{ ride()?.driverRating }}/5</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-[#606C38] font-medium block mb-1">Vehicle Rating:</span>
+              <div class="flex items-center gap-1">
+                @for (star of getStarArray(ride()?.carRating ?? 0); track $index) {
+                  @if (star) {
+                    <svg class="w-5 h-5 text-[#DDA15E]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  } @else {
+                    <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  }
+                }
+                <span class="ml-2 text-[#283618]">{{ ride()?.carRating }}/5</span>
+              </div>
+            </div>
+            @if (ride()?.reviewComment) {
+              <div>
+                <span class="text-[#606C38] font-medium block mb-1">Comment:</span>
+                <p class="text-[#283618] italic bg-[#f5f5f0] p-2 rounded">"{{ ride()?.reviewComment }}"</p>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="px-4 py-3 flex items-center justify-center text-[#606C38] opacity-60">
+            No review for this ride
+          </div>
+        }
+      </div>
+
+      <!-- Reports Section -->
+      <div class="bg-[rgb(255,254,248)] flex flex-col overflow-hidden shadow-sm rounded-lg">
+        <div class="bg-[#BC6C25] text-white px-4 py-2">
+          <h3 class="font-semibold">Inconsistency Reports</h3>
+        </div>
+        @if (ride()?.reports && ride()!.reports.length > 0) {
+          <div class="px-4 py-3 space-y-3 max-h-48 overflow-y-auto">
+            @for (report of ride()?.reports; track report.reportId) {
+              <div class="bg-[#FFF5EB] p-3 rounded-lg border-l-4 border-[#BC6C25]">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[#606C38] font-medium text-sm">Reported by:</span>
+                  <span class="text-[#283618] text-sm">{{ report.reporterName }}</span>
+                </div>
+                <p class="text-[#283618] text-sm">{{ report.reportMessage }}</p>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="px-4 py-3 flex items-center justify-center text-[#606C38] opacity-60">
+            No reports for this ride
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Section -->
+  <div class="flex-1 w-full min-h-[300px]">
+    <app-map #map></app-map>
+  </div>
+</app-base-info-page>
