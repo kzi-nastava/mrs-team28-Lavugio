@@ -17,10 +17,15 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.ui.dialog.ConfirmDialogFragment;
+import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
+import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BlockUserFragment extends Fragment {
 
@@ -107,21 +112,46 @@ public class BlockUserFragment extends Fragment {
         String email = etUserEmail.getText().toString().trim();
         String reason = etBlockReason.getText().toString().trim();
 
-        if (email.isEmpty()) {
-            etUserEmail.setError("Email je obavezan");
+        if (!isValidEmailRegex(email)) {
+            ErrorDialogFragment.newInstance("Error", "You have to enter email.")
+                    .show(getActivity().getSupportFragmentManager(), "error_dialog");
             return;
         }
 
-        if (reason.isEmpty()) {
-            etBlockReason.setError("Razlog je obavezan");
-            return;
+        ConfirmDialogFragment.newInstance(
+                "Confirm Block",
+                "Are you sure you want to block this user?",
+                new ConfirmDialogFragment.ConfirmDialogListener() {
+                    @Override
+                    public void onConfirm() {
+                        Toast.makeText(requireContext(),
+                                "User blocked: " + email,
+                                Toast.LENGTH_SHORT).show();
+
+                        etUserEmail.setText("");
+                        etBlockReason.setText("");
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ).show(getActivity().getSupportFragmentManager(), "confirm_dialog");
+
+
+    }
+
+    private static final String EMAIL_REGEX =
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+
+    public static boolean isValidEmailRegex(String email) {
+        if (email == null) {
+            return false;
         }
-
-        Toast.makeText(requireContext(),
-                "Blokiran korisnik: " + email,
-                Toast.LENGTH_SHORT).show();
-
-        requireActivity().getSupportFragmentManager().popBackStack();
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 
     @Override
