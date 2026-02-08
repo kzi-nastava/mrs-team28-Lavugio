@@ -45,7 +45,7 @@ public class NavbarManager {
      */
     public void initializeNavbar() {
         // Try to find existing navbar container
-        navbarContainer = activity.findViewById(R.id.navbar_container);
+        navbarContainer = activity.findViewById(R.id.navbar);
         
         if (navbarContainer == null) {
             // If not found, add navbar dynamically
@@ -65,7 +65,7 @@ public class NavbarManager {
             LayoutInflater inflater = LayoutInflater.from(activity);
             View navbar = inflater.inflate(R.layout.navbar, rootView, false);
             rootView.addView(navbar, 0);
-            navbarContainer = navbar.findViewById(R.id.navbar_container);
+            navbarContainer = navbar.findViewById(R.id.navbar);
             setupNavbarListeners();
         }
     }
@@ -74,19 +74,19 @@ public class NavbarManager {
      * Sets up click listeners for all navbar items.
      */
     private void setupNavbarListeners() {
-        menuButton = navbarContainer.findViewById(R.id.navbar_menu_btn);
-        mobileMenu = navbarContainer.findViewById(R.id.navbar_mobile_menu);
+        menuButton = navbarContainer.findViewById(R.id.navbar_menu_button);
+        mobileMenu = activity.findViewById(R.id.navbar_menu);
 
         if (menuButton != null) {
             menuButton.setOnClickListener(v -> toggleMenu());
         }
 
-        setupItemListener(R.id.navbar_item_trips, "trips");
-        setupItemListener(R.id.navbar_item_history, "history");
-        setupItemListener(R.id.navbar_item_reports, "reports");
-        setupItemListener(R.id.navbar_item_profile, "profile");
-        setupItemListener(R.id.navbar_item_login, "login");
-        setupItemListener(R.id.navbar_item_register, "register");
+        setupItemListener(R.id.nav_item_trips, "trips");
+        setupItemListener(R.id.nav_item_history, "history");
+        setupItemListener(R.id.nav_item_reports, "reports");
+        setupItemListener(R.id.nav_item_profile, "profile");
+        setupItemListener(R.id.nav_item_login, "login");
+        setupItemListener(R.id.nav_item_register, "register");
     }
 
     /**

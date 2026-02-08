@@ -34,7 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     protected void initializeNavbar() {
         // Get navbar container from the activity's root layout
-        navbarContainer = findViewById(R.id.navbar_container);
+        navbarContainer = findViewById(R.id.navbar);
         if (navbarContainer == null) {
             // If no navbar_container exists in the current layout, add navbar dynamically
             addNavbarToLayout();
@@ -60,7 +60,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             // Inflate and add navbar at the top
             View navbar = getLayoutInflater().inflate(R.layout.navbar, null);
             rootLayout.addView(navbar, 0, navbarParams);
-            navbarContainer = navbar.findViewById(R.id.navbar_container);
+            navbarContainer = navbar.findViewById(R.id.navbar);
             setupNavbarListeners();
         }
     }
@@ -70,41 +70,41 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     private void setupNavbarListeners() {
         // Menu button
-        menuButton = navbarContainer.findViewById(R.id.navbar_menu_btn);
-        mobileMenu = navbarContainer.findViewById(R.id.navbar_mobile_menu);
+        menuButton = navbarContainer.findViewById(R.id.navbar_menu_button);
+        mobileMenu = findViewById(R.id.navbar_menu);
 
         if (menuButton != null) {
             menuButton.setOnClickListener(v -> toggleMobileMenu());
         }
 
         // Menu items
-        if (navbarContainer.findViewById(R.id.navbar_item_trips) != null) {
-            navbarContainer.findViewById(R.id.navbar_item_trips).setOnClickListener(
+        if (navbarContainer.findViewById(R.id.nav_item_trips) != null) {
+            navbarContainer.findViewById(R.id.nav_item_trips).setOnClickListener(
                     v -> onNavbarItemClicked("trips")
             );
         }
-        if (navbarContainer.findViewById(R.id.navbar_item_history) != null) {
-            navbarContainer.findViewById(R.id.navbar_item_history).setOnClickListener(
+        if (navbarContainer.findViewById(R.id.nav_item_history) != null) {
+            navbarContainer.findViewById(R.id.nav_item_history).setOnClickListener(
                     v -> onNavbarItemClicked("history")
             );
         }
-        if (navbarContainer.findViewById(R.id.navbar_item_reports) != null) {
-            navbarContainer.findViewById(R.id.navbar_item_reports).setOnClickListener(
+        if (navbarContainer.findViewById(R.id.nav_item_reports) != null) {
+            navbarContainer.findViewById(R.id.nav_item_reports).setOnClickListener(
                     v -> onNavbarItemClicked("reports")
             );
         }
-        if (navbarContainer.findViewById(R.id.navbar_item_profile) != null) {
-            navbarContainer.findViewById(R.id.navbar_item_profile).setOnClickListener(
+        if (navbarContainer.findViewById(R.id.nav_item_profile) != null) {
+            navbarContainer.findViewById(R.id.nav_item_profile).setOnClickListener(
                     v -> onNavbarItemClicked("profile")
             );
         }
-        if (navbarContainer.findViewById(R.id.navbar_item_login) != null) {
-            navbarContainer.findViewById(R.id.navbar_item_login).setOnClickListener(
+        if (navbarContainer.findViewById(R.id.nav_item_login) != null) {
+            navbarContainer.findViewById(R.id.nav_item_login).setOnClickListener(
                     v -> onNavbarItemClicked("login")
             );
         }
-        if (navbarContainer.findViewById(R.id.navbar_item_register) != null) {
-            navbarContainer.findViewById(R.id.navbar_item_register).setOnClickListener(
+        if (navbarContainer.findViewById(R.id.nav_item_register) != null) {
+            navbarContainer.findViewById(R.id.nav_item_register).setOnClickListener(
                     v -> onNavbarItemClicked("register")
             );
         }

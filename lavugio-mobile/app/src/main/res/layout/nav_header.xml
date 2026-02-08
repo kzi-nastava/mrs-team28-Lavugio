@@ -5,12 +5,12 @@
     android:orientation="vertical"
     android:gravity="bottom"
     android:padding="16dp"
-    android:background="@color/purple_700">
+    android:background="@color/lavugio_light_green">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="LAVUGO"
+        android:text="LAVUGIO"
         android:textSize="24sp"
         android:textColor="@android:color/white"
         android:textStyle="bold" />
