@@ -1,0 +1,32 @@
+<app-base-info-page class="flex flex-col h-screen">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4 overflow-x-hidden shrink-0">
+    <!-- Left column: Trip Info and Driver Info -->
+    <div class="flex flex-col gap-4">
+      <app-trip-info [info]="ride()" class="min-h-fit bg-[rgb(255,254,248)]"></app-trip-info>
+      <app-driver-info [info]="ride()" class="min-h-fit bg-[rgb(255,254,248)]"></app-driver-info>
+    </div>
+
+    <!-- Right column: Reviews, Reports, Actions -->
+    <div class="flex flex-col gap-4">
+      <app-review-section [info]="ride()" class="min-h-fit bg-[rgb(255,254,248)]"></app-review-section>
+      <app-reports-section [info]="ride()" class="min-h-fit bg-[rgb(255,254,248)]"></app-reports-section>
+      
+      <!-- Reorder Buttons -->
+      <div class="bg-[rgb(255,254,248)] rounded-lg p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-[#283618] mb-3">Reorder Ride</h3>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button 
+            (click)="reorderRide()"
+            class="flex-1 bg-[#606C38] hover:bg-[#4a5229] text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+            Order Again
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Section -->
+  <div class="flex-1 w-full min-h-[300px]">
+    <app-map #map></app-map>
+  </div>
+</app-base-info-page>

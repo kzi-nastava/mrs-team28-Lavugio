@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UserProfile } from '@app/shared/models/user/userProfile';
 import { delay, Observable, of } from 'rxjs';
@@ -8,6 +8,8 @@ import {
   EditProfileDTO,
 } from '@app/shared/models/user/editProfileDTO';
 import { LatestRideModel } from '@app/shared/models/ride/latestRide';
+import { RideHistoryUserPagingModel } from '@app/shared/models/ride/rideHistoryUserPagingModel';
+import { RideHistoryUserDetailedModel } from '@app/shared/models/ride/rideHistoryUserDetailed';
 
 @Injectable({
   providedIn: 'root',
@@ -112,5 +114,27 @@ export class UserService {
 
   getLatestRideId(){
     return this.http.get<LatestRideModel>(`${this.apiUrl}/regularUsers/latest-ride`)
+  }
+
+  getUserRideHistory(
+    page: number,
+    pageSize: number,
+    sorting: 'ASC' | 'DESC',
+    sortBy: 'START' | 'DEPARTURE' | 'DESTINATION',
+    startDate: string,
+    endDate: string
+  ): Observable<RideHistoryUserPagingModel> {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('pageSize', pageSize)
+      .set('sorting', sorting)
+      .set('sortBy', sortBy)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get<RideHistoryUserPagingModel>(`${this.apiUrl}/regularUsers/history`, { params });
+  }
+
+  getUserRideHistoryDetailed(rideId: number): Observable<RideHistoryUserDetailedModel> {
+    return this.http.get<RideHistoryUserDetailedModel>(`${this.apiUrl}/regularUsers/history/${rideId}`);
   }
 }
