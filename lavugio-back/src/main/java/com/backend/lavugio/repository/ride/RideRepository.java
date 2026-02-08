@@ -196,4 +196,63 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
                                   @Param("startDate") LocalDateTime startDate,
                                   @Param("endDate") LocalDateTime endDate);
 
+    // User (passenger) ride history with pagination and sorting
+    @Query(value = """
+        SELECT r.*
+        FROM rides r
+        JOIN ride_passengers rp ON rp.ride_id = r.id
+        JOIN ride_destinations cStart ON cStart.ride_id = r.id 
+            AND cStart.destination_order = (
+                SELECT MIN(c1.destination_order) 
+                FROM ride_destinations c1 
+                WHERE c1.ride_id = r.id
+            )
+        JOIN ride_destinations cEnd ON cEnd.ride_id = r.id 
+            AND cEnd.destination_order = (
+                SELECT MAX(c2.destination_order) 
+                FROM ride_destinations c2 
+                WHERE c2.ride_id = r.id
+            )
+        JOIN addresses aStart ON aStart.id = cStart.address_id
+        JOIN addresses aEnd ON aEnd.id = cEnd.address_id
+        WHERE rp.user_id = :userId 
+            AND r.start_date_time BETWEEN :startDate AND :endDate
+            AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        ORDER BY 
+            CASE WHEN :sorting = 'ASC' THEN
+                CASE 
+                    WHEN :sortBy = 'START' THEN TO_CHAR(r.start_date_time, 'YYYY-MM-DD HH24:MI:SS')
+                    WHEN :sortBy = 'DEPARTURE' THEN CONCAT(aStart.street_name, ' ', aStart.street_number, ' ', aStart.city)
+                    WHEN :sortBy = 'DESTINATION' THEN CONCAT(aEnd.street_name, ' ', aEnd.street_number, ' ', aEnd.city)
+                END
+            END NULLS LAST,
+            CASE WHEN :sorting = 'DESC' THEN
+                CASE 
+                    WHEN :sortBy = 'START' THEN TO_CHAR(r.start_date_time, 'YYYY-MM-DD HH24:MI:SS')
+                    WHEN :sortBy = 'DEPARTURE' THEN CONCAT(aStart.street_name, ' ', aStart.street_number, ' ', aStart.city)
+                    WHEN :sortBy = 'DESTINATION' THEN CONCAT(aEnd.street_name, ' ', aEnd.street_number, ' ', aEnd.city)
+                END
+            END DESC NULLS LAST
+        """,
+                    countQuery = """
+            SELECT COUNT(DISTINCT r.id)
+            FROM rides r
+            JOIN ride_passengers rp ON rp.ride_id = r.id
+            WHERE rp.user_id = :userId 
+                AND r.start_date_time BETWEEN :startDate AND :endDate
+                AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        """,
+            nativeQuery = true)
+    Page<Ride> findRidesForUser(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("sortBy") String sortBy,
+            @Param("sorting") String sorting,
+            Pageable pageable
+    );
+
+    @Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :userId AND r.id = :rideId")
+    Optional<Ride> findByIdAndPassengerId(@Param("rideId") Long rideId, @Param("userId") Long userId);
+
 }

@@ -1,0 +1,23 @@
+<div class="bg-[rgb(255,254,248)] h-full flex flex-col overflow-hidden shadow-sm">
+  <div class="bg-[#BC6C25] text-white px-4 py-2">
+    <h3 class="font-semibold">Inconsistency Reports</h3>
+  </div>
+
+  @if (info()?.reports && info()!.reports.length > 0) {
+    <div class="flex-1 px-4 py-3 space-y-3 max-h-48 overflow-y-auto">
+      @for (report of info()?.reports; track report.reportId) {
+        <div class="bg-[#FFF5EB] p-3 rounded-lg border-l-4 border-[#BC6C25]">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[#606C38] font-medium text-sm">Reported by:</span>
+            <span class="text-[#283618] text-sm">{{ report.reporterName }}</span>
+          </div>
+          <p class="text-[#283618] text-sm">{{ report.reportMessage }}</p>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="flex-1 px-4 py-3 flex items-center justify-center text-[#606C38] opacity-60">
+      No reports for this ride
+    </div>
+  }
+</div>

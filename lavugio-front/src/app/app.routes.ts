@@ -9,6 +9,8 @@ import { VerificationSuccess } from './features/verification-success/verificatio
 import { RideHistoryDriver as RideHistoryDriver } from '@app/features/trip-history-driver/trip-history-driver';
 import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
 import { RideHistoryDriverDetailed as RideHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
+import { TripHistoryUser } from './features/trip-history-user/trip-history-user';
+import { TripHistoryUserDetailed } from './features/trip-history-user-detailed/trip-history-user-detailed';
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
 import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
@@ -50,6 +52,18 @@ export const routes: Routes = [
     component: RideHistoryDriverDetailed,
     canActivate: [AuthGuard],
     data:{role:['DRIVER']}
+  },
+  {
+    path: 'ride-history-user',
+    component: TripHistoryUser,
+    canActivate: [AuthGuard],
+    data:{role:['REGULAR_USER']}
+  },
+  {
+    path: 'ride-history-user/:rideId',
+    component: TripHistoryUserDetailed,
+    canActivate: [AuthGuard],
+    data:{role:['REGULAR_USER']}
   },
   {
     path: 'find-trip',

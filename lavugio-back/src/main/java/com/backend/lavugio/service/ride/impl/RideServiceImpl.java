@@ -7,9 +7,15 @@ import com.backend.lavugio.dto.user.DriverHistoryDTO;
 import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
 import com.backend.lavugio.dto.user.DriverHistoryPagingDTO;
 import com.backend.lavugio.dto.user.PassengerTableRowDTO;
+import com.backend.lavugio.dto.user.UserHistoryDTO;
+import com.backend.lavugio.dto.user.UserHistoryDetailedDTO;
+import com.backend.lavugio.dto.user.UserHistoryPagingDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
+import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
+import com.backend.lavugio.model.ride.Review;
+import com.backend.lavugio.model.ride.RideReport;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.route.Address;
@@ -18,6 +24,8 @@ import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.repository.ride.RideRepository;
+import com.backend.lavugio.repository.ride.ReviewRepository;
+import com.backend.lavugio.repository.ride.RideReportRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.pricing.PricingService;
 import com.backend.lavugio.service.ride.RideService;
@@ -63,6 +71,8 @@ public class RideServiceImpl implements RideService {
     private final RideQueryService rideQueryService;
     private final EmailService emailService;
     private final com.backend.lavugio.service.notification.NotificationService notificationService;
+    private final ReviewRepository reviewRepository;
+    private final RideReportRepository rideReportRepository;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -75,7 +85,9 @@ public class RideServiceImpl implements RideService {
                            com.backend.lavugio.service.route.AddressService addressService,
                            RideQueryService rideQueryService,
                            EmailService emailService,
-                           com.backend.lavugio.service.notification.NotificationService notificationService) {
+                           com.backend.lavugio.service.notification.NotificationService notificationService,
+                           ReviewRepository reviewRepository,
+                           RideReportRepository rideReportRepository) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -87,6 +99,8 @@ public class RideServiceImpl implements RideService {
         this.rideQueryService = rideQueryService;
         this.emailService = emailService;
         this.notificationService = notificationService;
+        this.reviewRepository = reviewRepository;
+        this.rideReportRepository = rideReportRepository;
     }
 
     @Override
@@ -438,7 +452,7 @@ public class RideServiceImpl implements RideService {
         List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
         if (availableDrivers.isEmpty()) {
             System.out.println("No available drivers found");
-            throw new RuntimeException("There are no available drivers at the moment");
+            throw new RuntimeException("No drivers are currently online. Please try again later.");
         }
         System.out.println("Found available drivers: " + availableDrivers.size());
         // Sort the drivers by distance from first location
@@ -454,20 +468,52 @@ public class RideServiceImpl implements RideService {
                 .toList();
 
         System.out.println("Sorted drivers by distance");
+        
+        // Track rejection reasons for better error messages
+        int vehicleTypeRejections = 0;
+        int dailyLimitRejections = 0;
+        int scheduledRideRejections = 0;
+        int busyDrivers = 0;
+        
         for (DriverLocationDTO driverLocationDTO : sortedDrivers) {
+            // Skip drivers that are busy (on active ride)
+            if (driverLocationDTO.getStatus() == DriverStatusEnum.BUSY) {
+                busyDrivers++;
+                System.out.println("Driver " + driverLocationDTO.getId() + " is busy with an active ride");
+                continue;
+            }
+            
             Driver driver = this.driverService.getDriverById(driverLocationDTO.getId());
             System.out.println("Checking driver: " + driver.getId());
             boolean isVehicleSuitable = this.isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
             boolean isDriverUnderDailyLimit = this.isDriverUnderDailyLimit(driver.getId(), request.getEstimatedDurationSeconds());
             boolean driverHasScheduledRideSoon = this.driverHasScheduledRideSoon(driver.getId(), request.getEstimatedDurationSeconds());
             System.out.println("Vehicle suitable: " + isVehicleSuitable + ", Under daily limit: " + isDriverUnderDailyLimit + ", Has scheduled ride soon: " + driverHasScheduledRideSoon);
+            
+            if (!isVehicleSuitable) {
+                vehicleTypeRejections++;
+                System.out.println("Driver " + driver.getId() + " rejected: vehicle not suitable (requested: " + request.getVehicleType() + ", driver has: " + driver.getVehicle().getType() + ")");
+            }
+            if (!isDriverUnderDailyLimit) {
+                dailyLimitRejections++;
+                System.out.println("Driver " + driver.getId() + " rejected: exceeded daily limit");
+            }
+            if (driverHasScheduledRideSoon) {
+                scheduledRideRejections++;
+                System.out.println("Driver " + driver.getId() + " rejected: has scheduled ride soon");
+            }
+            
             if (isVehicleSuitable && isDriverUnderDailyLimit && !driverHasScheduledRideSoon) {
                 System.out.println("Assigning driver: " + driver.getId());
                 Ride ride = createInstantRide(driver, creator, request);
                 return mapToRideResponseDTO(ride);
             }
         }
-        throw new RuntimeException("There are no available drivers at the moment");
+        
+        // Provide specific error message based on rejection reasons
+        String errorMessage = buildNoDriverErrorMessage(sortedDrivers.size(), busyDrivers, vehicleTypeRejections, 
+                dailyLimitRejections, scheduledRideRejections, request.getVehicleType());
+        throw new RuntimeException(errorMessage);
     }
 
     @Transactional
@@ -505,6 +551,36 @@ public class RideServiceImpl implements RideService {
         boolean vehicleTypeSuitable = vehicleType == vehicle.getType();
         System.out.println("Number of seats: " + vehicle.getPassengerSeats() + ", Passangers num: " + passangersNum);
         return petSuitable && babySuitable && passangersSuitable && vehicleTypeSuitable;
+    }
+
+    private String buildNoDriverErrorMessage(int totalDrivers, int busyDrivers, int vehicleTypeRejections, 
+            int dailyLimitRejections, int scheduledRideRejections, VehicleType requestedType) {
+        StringBuilder message = new StringBuilder();
+        
+        if (busyDrivers == totalDrivers) {
+            return "All online drivers are currently busy with other rides. Please try again shortly.";
+        }
+        
+        if (vehicleTypeRejections > 0 && vehicleTypeRejections + busyDrivers >= totalDrivers) {
+            return "No available drivers with " + requestedType + " vehicle type. Please try a different vehicle type.";
+        }
+        
+        if (dailyLimitRejections > 0 && dailyLimitRejections + busyDrivers >= totalDrivers) {
+            return "Available drivers have reached their daily driving limit. Please try again later.";
+        }
+        
+        if (scheduledRideRejections > 0 && scheduledRideRejections + busyDrivers >= totalDrivers) {
+            return "Available drivers have upcoming scheduled rides. Please try again shortly.";
+        }
+        
+        // Generic message with details
+        message.append("No suitable driver found. ");
+        if (busyDrivers > 0) message.append(busyDrivers).append(" driver(s) busy. ");
+        if (vehicleTypeRejections > 0) message.append(vehicleTypeRejections).append(" driver(s) have incompatible vehicle. ");
+        if (dailyLimitRejections > 0) message.append(dailyLimitRejections).append(" driver(s) at daily limit. ");
+        if (scheduledRideRejections > 0) message.append(scheduledRideRejections).append(" driver(s) have scheduled rides. ");
+        
+        return message.toString().trim();
     }
 
     private boolean isDriverUnderDailyLimit(Long driverId, int estimatedDurationSeconds) {
@@ -765,6 +841,65 @@ public class RideServiceImpl implements RideService {
             throw new NoSuchElementException(String.format("Cannot find ride for user id %d", userId));
         }
         return new LatestRideDTO(ride.getId(), ride.getRideStatus());
+    }
+
+    @Override
+    public UserHistoryPagingDTO getUserHistory(Long userId, LocalDateTime startDate,
+                                               LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.unsorted());
+
+        Page<Ride> rides = rideRepository.findRidesForUser(userId, startDate, endDate, sortBy, sorting, pageable);
+        UserHistoryPagingDTO dto = new UserHistoryPagingDTO();
+        dto.setReachedEnd(!rides.hasNext());
+        dto.setTotalElements(rides.getTotalElements());
+
+        List<UserHistoryDTO> userHistoryDTOs = rides.getContent().stream()
+                .map(UserHistoryDTO::new)
+                .toList();
+
+        dto.setUserHistory(userHistoryDTOs.toArray(new UserHistoryDTO[0]));
+        return dto;
+    }
+
+    @Override
+    public UserHistoryDetailedDTO getUserHistoryDetailed(Long userId, Long rideId) {
+        Optional<Ride> rideOptional = rideRepository.findByIdAndPassengerId(rideId, userId);
+        
+        if (rideOptional.isEmpty()) {
+            throw new NoSuchElementException(String.format("Cannot find ride with id %d for user %d", rideId, userId));
+        }
+        
+        Ride ride = rideOptional.get();
+        UserHistoryDetailedDTO dto = new UserHistoryDetailedDTO(ride);
+        
+        // Get reviews for this ride
+        List<Review> reviews = reviewRepository.findByReviewedRideId(rideId);
+        if (!reviews.isEmpty()) {
+            Review review = reviews.get(0); // Get the first review (user's review)
+            dto.setHasReview(true);
+            dto.setDriverRating(review.getDriverRating());
+            dto.setCarRating(review.getCarRating());
+            dto.setReviewComment(review.getComment());
+        } else {
+            dto.setHasReview(false);
+        }
+        
+        // Get reports for this ride
+        List<RideReport> reports = rideReportRepository.findByRideId(rideId);
+        List<UserHistoryDetailedDTO.ReportInfoDTO> reportInfoDTOs = new ArrayList<>();
+        for (RideReport report : reports) {
+            UserHistoryDetailedDTO.ReportInfoDTO reportInfo = new UserHistoryDetailedDTO.ReportInfoDTO();
+            reportInfo.setReportId(report.getReportId());
+            reportInfo.setReportMessage(report.getReportMessage());
+            if (report.getReporter() != null) {
+                reportInfo.setReporterName(report.getReporter().getName() + " " + report.getReporter().getLastName());
+            }
+            reportInfoDTOs.add(reportInfo);
+        }
+        dto.setReports(reportInfoDTOs);
+        
+        return dto;
     }
 
 }
