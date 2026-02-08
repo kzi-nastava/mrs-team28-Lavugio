@@ -1,4 +1,9 @@
-<mat-form-field class="inline-block h-auto w-full border-[#BC6C25]" subscriptSizing="dynamic">
+<mat-form-field
+  class="inline-block h-auto border-[#BC6C25]"
+  [class.full-width]="fullWidth()"
+  [class.no-padding]="noPadding()"
+  subscriptSizing="dynamic"
+>
   <mat-label class="text-[#BC6C25]">Enter range</mat-label>
 
   <mat-date-range-input

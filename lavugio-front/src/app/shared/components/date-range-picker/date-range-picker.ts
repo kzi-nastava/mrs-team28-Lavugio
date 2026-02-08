@@ -1,6 +1,6 @@
-import {ChangeDetectionStrategy, Component, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
 import {provideNativeDateAdapter} from '@angular/material/core';
-import {DateRange, MatDatepickerInputEvent, MatDatepickerModule} from '@angular/material/datepicker';
+import {DateRange, MatDatepickerModule} from '@angular/material/datepicker';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
@@ -15,6 +15,9 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DateRangePicker {
+
+  noPadding = input(false);
+  fullWidth = input(false);
 
   dateRangeSelected = output<{ startDate: string; endDate: string }>();
 

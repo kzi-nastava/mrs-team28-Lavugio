@@ -23,6 +23,7 @@ import { guestOnlyauthGuardFn } from '@app/core/guards/guestOnlyAuthGuard';
 import {AuthGuard} from '@app/core/guards/authGuard';
 import {RideOverviewAccessGuard} from '@app/core/guards/rideOverviewAccessGuard'
 import { ActiveRides } from './features/active-rides/active-rides';
+import { RidesReports } from './features/rides-reports/rides-reports';
 
 export const routes: Routes = [
   {
@@ -157,5 +158,12 @@ export const routes: Routes = [
     component: BlockUser,
     canActivate: [AuthGuard],
     data: {role: ['ADMIN']}
+  },
+  {
+    path: 'rides-reports',
+    title: 'Rides Reports',
+    component: RidesReports,
+    canActivate: [AuthGuard],
+    data:{role:['DRIVER', 'REGULAR_USER', 'ADMIN']}
   }
 ];
