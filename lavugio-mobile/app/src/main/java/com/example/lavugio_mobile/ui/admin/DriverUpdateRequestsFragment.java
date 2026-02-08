@@ -166,6 +166,7 @@ public class DriverUpdateRequestsFragment extends Fragment {
 
         // Populate changes
         populateChanges(llChangesContainer, request);
+        setMarqueeEnabled(llChangesContainer, false);
 
         // Expand/Collapse logic
         final boolean[] isExpanded = {false};
@@ -174,10 +175,12 @@ public class DriverUpdateRequestsFragment extends Fragment {
                 // Collapse
                 llExpanded.setVisibility(View.GONE);
                 rotateIcon(ivExpandIcon, 180, 0);
+                setMarqueeEnabled(llChangesContainer, false);
             } else {
                 // Expand
                 llExpanded.setVisibility(View.VISIBLE);
                 rotateIcon(ivExpandIcon, 0, 180);
+                setMarqueeEnabled(llChangesContainer, true);
             }
             isExpanded[0] = !isExpanded[0];
         });
@@ -281,6 +284,22 @@ public class DriverUpdateRequestsFragment extends Fragment {
         tvNewValue.setText(newValue);
 
         container.addView(fieldView);
+    }
+
+    private void setMarqueeEnabled(LinearLayout container, boolean enabled) {
+        for (int i = 0; i < container.getChildCount(); i++) {
+            View child = container.getChildAt(i);
+            TextView tvOldValue = child.findViewById(R.id.tvOldValue);
+            TextView tvNewValue = child.findViewById(R.id.tvNewValue);
+
+            if (tvOldValue != null) {
+                tvOldValue.setSelected(enabled);
+            }
+
+            if (tvNewValue != null) {
+                tvNewValue.setSelected(enabled);
+            }
+        }
     }
 
     private void rotateIcon(ImageView icon, float fromDegrees, float toDegrees) {

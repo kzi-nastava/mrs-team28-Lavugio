@@ -32,7 +32,13 @@
             android:layout_weight="1"
             android:text="Cara Dušana 15"
             android:textColor="#666666"
-            android:textSize="13sp"/>
+            android:textSize="13sp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,7 +58,13 @@
             android:text="Milana Rakića 67"
             android:textColor="#333333"
             android:textSize="13sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
 
     </LinearLayout>
 
