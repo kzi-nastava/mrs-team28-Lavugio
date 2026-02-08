@@ -68,6 +68,7 @@
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
                 android:background="@drawable/button_bg"
+                app:backgroundTint="#DC2626"
                 android:padding="12dp"
                 android:layout_marginEnd="8dp"
                 android:textAllCaps="false"/>
@@ -79,6 +80,7 @@
                 android:layout_weight="1"
                 android:text="Approve"
                 android:textColor="#FFFFFF"
+                app:backgroundTint="@color/light_green"
                 android:textStyle="bold"
                 android:background="@drawable/button_bg"
                 android:padding="12dp"
