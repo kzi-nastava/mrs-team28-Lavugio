@@ -120,6 +120,24 @@
             android:layout_height="1dp"
             android:background="#DDA15E" />
 
+        <!-- Register -->
+        <TextView
+            android:id="@+id/nav_item_admin_panel"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Admin Panel"
+            android:textSize="16sp"
+            android:textColor="#FEFAE0"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDA15E" />
+
     </LinearLayout>
 
 </LinearLayout>
