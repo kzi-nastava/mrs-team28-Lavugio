@@ -30,7 +30,11 @@ public class AdministratorPanelFragment extends Fragment {
 
         // Set click listeners
         btnRegisterDriver.setOnClickListener(v -> {
-            // TODO: Navigate to Register Driver screen when implemented
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, new RegisterDriverFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         btnDriverUpdateRequests.setOnClickListener(v -> {

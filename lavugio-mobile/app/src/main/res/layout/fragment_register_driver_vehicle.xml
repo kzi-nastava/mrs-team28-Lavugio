@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Section Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Vehicle Information"
+            android:textColor="#B87333"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Vehicle Make -->
+        <EditText
+            android:id="@+id/etVehicleMake"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Vehicle make"
+            android:inputType="text"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Vehicle Model -->
+        <EditText
+            android:id="@+id/etVehicleModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Vehicle model"
+            android:inputType="text"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- License Plate -->
+        <EditText
+            android:id="@+id/etLicensePlate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="License plate (format: AB-12345-CD)"
+            android:inputType="text"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Number of Seats Label -->
+        <!--<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Number of passenger seats"
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/> -->
+
+        <!-- Number of Seats -->
+        <EditText
+            android:id="@+id/etSeats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Number of passenger seats"
+            android:inputType="number"
+            android:digits="0123456789"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Vehicle Color -->
+        <EditText
+            android:id="@+id/etVehicleColor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Vehicle color"
+            android:inputType="text"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Vehicle Type Spinner -->
+        <Spinner
+            android:id="@+id/spinnerVehicleType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Pet Friendly Checkbox -->
+        <CheckBox
+            android:id="@+id/cbPetFriendly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pet Friendly"
+            android:textColor="#666666"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Baby Friendly Checkbox -->
+        <CheckBox
+            android:id="@+id/cbBabyFriendly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Baby Friendly"
+            android:textColor="#666666"
+            android:textSize="16sp"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnPrevious"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Previous"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/button_bg"
+                android:backgroundTint="#6B7A4F"
+                android:padding="14dp"
+                android:layout_marginEnd="8dp"
+                android:textAllCaps="false"/>
+
+            <Button
+                android:id="@+id/btnFinish"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Finish"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/button_bg"
+                app:backgroundTint="@color/btn_finish_tint"
+                android:padding="14dp"
+                android:layout_marginStart="8dp"
+                android:textAllCaps="false"
+                android:enabled="false"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
