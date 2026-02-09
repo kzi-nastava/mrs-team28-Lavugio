@@ -105,4 +105,11 @@
     <string name="forgot_password_email_placeholder">Email</string>
     <string name="forgot_password_send_button">Send link</string>
     <string name="forgot_password_register_link">Register</string>
+
+    <!-- Vehicle Types -->
+    <string-array name="vehicle_types">
+        <item>Standard</item>
+        <item>Combi</item>
+        <item>Luxury</item>
+    </string-array>
 </resources>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Section Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Driver Information"
+            android:textColor="#B87333"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Email Input -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email address"
+            android:inputType="textEmailAddress"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:drawableEnd="@drawable/email_icon"
+            android:drawablePadding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Name Input -->
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:inputType="textPersonName"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Surname Input -->
+        <EditText
+            android:id="@+id/etSurname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Surname"
+            android:inputType="textPersonName"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Address Input -->
+        <EditText
+            android:id="@+id/etAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Address"
+            android:inputType="textPostalAddress"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Phone Input -->
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone number"
+            android:inputType="phone"
+            android:padding="16dp"
+            android:background="@drawable/text_input_field"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- Spacer to push buttons to bottom -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnPrevious"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Previous"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/button_bg"
+                android:backgroundTint="#A5B68D"
+                android:padding="14dp"
+                android:layout_marginEnd="8dp"
+                android:textAllCaps="false"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Next"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/button_bg"
+                android:backgroundTint="#6B7A4F"
+                android:padding="14dp"
+                android:layout_marginStart="8dp"
+                android:textAllCaps="false"
+                android:enabled="false"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
