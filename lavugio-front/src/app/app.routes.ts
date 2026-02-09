@@ -189,6 +189,8 @@ export const routes: Routes = [
     component: AdminRideHistoryDetailed,
     canActivate: [AuthGuard],
     data: {role: ['ADMIN']}
+  },
+  {
     path: 'notifications',
     title: 'Notifications',
     component: NotificationsPage,
