@@ -3,6 +3,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RideService } from '@app/core/services/ride-service';
 import { RideReview } from '@app/shared/models/ride/rideReview';
 
+interface ReviewResult {
+  driverRating: number;
+  carRating: number;
+  reviewComment: string;
+}
+
 @Component({
   selector: 'app-review-form',
   standalone: true,
@@ -25,7 +31,7 @@ export class ReviewForm implements OnDestroy {
   rideId = input<number>(0);
 
   hideReviewOutput = output();
-  isSuccessfulOutput = output();
+  isSuccessfulOutput = output<ReviewResult>();
 
   commentControl = new FormControl('', {
     nonNullable: true
@@ -68,7 +74,12 @@ export class ReviewForm implements OnDestroy {
     this.rideService.postRideReview(this.rideId(), review).subscribe({
       next: () => {
         console.log("Review successful");
-        this.isSuccessfulOutput.emit();
+        this.isSuccessfulOutput.emit({
+          driverRating: this.driverRating(),
+          carRating: this.vehicleRating(),
+          reviewComment: this.commentControl.value
+        });
+
         this.isDone.set(true);
         this.isLoading.set(false);
       },
@@ -97,4 +108,5 @@ export class ReviewForm implements OnDestroy {
       this.sendReview();
     }
   }
+
 }
