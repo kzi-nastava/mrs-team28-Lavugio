@@ -45,9 +45,9 @@ public class OSMMapFragment extends Fragment {
     private MapInteractionListener listener;
 
     // Default start position (Belgrade)
-    private static final double DEFAULT_LAT = 44.8176;
-    private static final double DEFAULT_LON = 20.4569;
-    private static final double DEFAULT_ZOOM = 13.0;
+    private static final double DEFAULT_LAT =  45.25417;
+    private static final double DEFAULT_LON = 19.84250;
+    private static final double DEFAULT_ZOOM = 15;
 
     public interface MapInteractionListener {
         void onMapClicked(GeoPoint point);
@@ -222,7 +222,7 @@ public class OSMMapFragment extends Fragment {
 
         // Create new route overlay
         routeOverlay = RoadManager.buildRoadOverlay(road);
-        routeOverlay.getOutlinePaint().setColor(ContextCompat.getColor(getContext(), R.color.dark_brown));
+        routeOverlay.getOutlinePaint().setColor(ContextCompat.getColor(getContext(), R.color.lavugio_light_green));
         routeOverlay.getOutlinePaint().setStrokeWidth(12f);
 
         mapView.getOverlays().add(routeOverlay);
