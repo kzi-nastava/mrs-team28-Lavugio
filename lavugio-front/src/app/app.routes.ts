@@ -9,6 +9,8 @@ import { VerificationSuccess } from './features/verification-success/verificatio
 import { RideHistoryDriver as RideHistoryDriver } from '@app/features/trip-history-driver/trip-history-driver';
 import { BaseInfoPage } from '@app/features/base-info-page/base-info-page';
 import { RideHistoryDriverDetailed as RideHistoryDriverDetailed } from './features/trip-history-driver-detailed/trip-history-driver-detailed';
+import { TripHistoryUser } from './features/trip-history-user/trip-history-user';
+import { TripHistoryUserDetailed } from './features/trip-history-user-detailed/trip-history-user-detailed';
 import {GuestHomePage} from '@app/features/guest-home-page/guest-home-page';
 import { FindTrip } from './features/find-trip/find-trip/find-trip';
 import { RideOverview } from './features/ride-overview/ride-overview';
@@ -25,6 +27,8 @@ import {RideOverviewAccessGuard} from '@app/core/guards/rideOverviewAccessGuard'
 import { ActiveRides } from './features/active-rides/active-rides';
 import { NotificationsPage } from './features/notifications-page/notifications-page';
 import { RidesReports } from './features/rides-reports/rides-reports';
+import { AdminRideHistory } from './features/admin-ride-history/admin-ride-history';
+import { AdminRideHistoryDetailed } from './features/admin-ride-history-detailed/admin-ride-history-detailed';
 import { RideMonitoring } from './features/ride-monitoring/ride-monitoring';
 
 export const routes: Routes = [
@@ -52,6 +56,18 @@ export const routes: Routes = [
     component: RideHistoryDriverDetailed,
     canActivate: [AuthGuard],
     data:{role:['DRIVER']}
+  },
+  {
+    path: 'ride-history-user',
+    component: TripHistoryUser,
+    canActivate: [AuthGuard],
+    data:{role:['REGULAR_USER']}
+  },
+  {
+    path: 'ride-history-user/:rideId',
+    component: TripHistoryUserDetailed,
+    canActivate: [AuthGuard],
+    data:{role:['REGULAR_USER']}
   },
   {
     path: 'find-trip',
@@ -158,6 +174,20 @@ export const routes: Routes = [
     path: 'block-user',
     title: 'Block User',
     component: BlockUser,
+    canActivate: [AuthGuard],
+    data: {role: ['ADMIN']}
+  },
+  {
+    path: 'admin-ride-history',
+    title: 'User Ride History',
+    component: AdminRideHistory,
+    canActivate: [AuthGuard],
+    data: {role: ['ADMIN']}
+  },
+  {
+    path: 'admin-ride-history/:rideId',
+    title: 'Ride Details',
+    component: AdminRideHistoryDetailed,
     canActivate: [AuthGuard],
     data: {role: ['ADMIN']}
   },

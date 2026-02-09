@@ -1,0 +1,123 @@
+<app-base-info-page>
+  <!-- Email Search -->
+  <div class="flex flex-col sm:flex-row gap-3 py-4 w-full">
+    <input 
+      type="email" 
+      placeholder="Enter user email..."
+      [ngModel]="email()"
+      (ngModelChange)="email.set($event)"
+      (keyup.enter)="searchByEmail()"
+      class="flex-1 px-4 py-2 border-2 border-[#606C38] rounded-sm focus:outline-none focus:border-[#283618] bg-white"
+    />
+    <button 
+      (click)="searchByEmail()"
+      class="px-6 py-2 bg-[#606C38] text-white font-bold rounded-sm hover:bg-[#283618] transition-colors">
+      Search
+    </button>
+  </div>
+
+  <!-- Date Filter -->
+  <div class="flex w-full flex-col sm:flex-row py-2">
+    <app-date-range-picker (dateRangeSelected)="updateDateRange($event)"></app-date-range-picker>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white/5 flex flex-col h-[60vh]">
+    <!-- Header -->
+    <div class="flex gap-2 p-4 border-b font-[Inter] font-bold text-[#BC6C25] text-sm select-none bg-[rgb(255,254,248)]">
+      <div class="w-[12%] hover:cursor-pointer" (click)="updateSortBy('START')">
+        Start {{ getSortIcon('START') }}
+      </div>
+      <div class="w-[12%] hover:cursor-pointer" (click)="updateSortBy('START')">
+        End {{ getSortIcon('START') }}
+      </div>
+      <div class="w-[20%] hover:cursor-pointer" (click)="updateSortBy('DEPARTURE')">
+        Pickup {{ getSortIcon('DEPARTURE') }}
+      </div>
+      <div class="w-[20%] hover:cursor-pointer" (click)="updateSortBy('DESTINATION')">
+        Destination {{ getSortIcon('DESTINATION') }}
+      </div>
+      <div class="w-[10%] hover:cursor-pointer" (click)="updateSortBy('PRICE')">
+        Price {{ getSortIcon('PRICE') }}
+      </div>
+      <div class="w-[13%] hover:cursor-pointer" (click)="updateSortBy('CANCELLED')">
+        Cancelled {{ getSortIcon('CANCELLED') }}
+      </div>
+      <div class="w-[13%] hover:cursor-pointer" (click)="updateSortBy('PANIC')">
+        Panic {{ getSortIcon('PANIC') }}
+      </div>
+    </div>
+
+    <!-- Rows -->
+    <div class="overflow-y-auto bg-[rgb(255,254,248)]">
+      @for (ride of rides(); track ride.rideId) {
+        <div 
+          (click)="openDetails(ride.rideId)" 
+          class="flex gap-2 p-4 border-b border-[#283618] text-sm font-[Inter] text-[#283618] select-none hover:bg-[rgb(243,247,243)] transition duration-100 cursor-pointer">
+          <div class="w-[12%]">
+            <p>{{ parseDateTime(ride.startDate).date }}</p>
+            <p class="text-xs text-gray-500">{{ parseDateTime(ride.startDate).time }}</p>
+          </div>
+          <div class="w-[12%]">
+            <p>{{ parseDateTime(ride.endDate).date }}</p>
+            <p class="text-xs text-gray-500">{{ parseDateTime(ride.endDate).time }}</p>
+          </div>
+          <div class="w-[20%] truncate">{{ ride.startAddress }}</div>
+          <div class="w-[20%] truncate">{{ ride.endAddress }}</div>
+          <div class="w-[10%] font-semibold">{{ ride.price }} RSD</div>
+          <div class="w-[13%]">
+            @if (ride.cancelled) {
+              <span class="text-red-600 font-semibold">Yes</span>
+              @if (ride.cancelledBy) {
+                <span class="text-xs text-gray-500 block">({{ ride.cancelledBy }})</span>
+              }
+            } @else {
+              <span class="text-green-600">No</span>
+            }
+          </div>
+          <div class="w-[13%]">
+            @if (ride.panic) {
+              <span class="text-red-600 font-bold">YES</span>
+            } @else {
+              <span class="text-green-600">No</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="flex justify-center py-4">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#283618]"></div>
+        </div>
+      }
+
+      @if (!loading() && hasMoreOlder() && rides().length > 0) {
+        <div class="flex justify-center py-4">
+          <button 
+            (click)="loadMore()"
+            class="px-6 py-2 bg-[#606C38] text-white font-bold rounded-sm hover:bg-[#283618] transition-colors">
+            Load More
+          </button>
+        </div>
+      }
+
+      @if (!hasMoreOlder() && rides().length > 0) {
+        <div class="text-center py-4 text-[#283618] opacity-60">
+          End of history
+        </div>
+      }
+
+      @if (rides().length === 0 && !loading() && email()) {
+        <div class="text-center py-8 text-[#283618] opacity-60">
+          No rides found for this user
+        </div>
+      }
+
+      @if (!email()) {
+        <div class="text-center py-8 text-[#283618] opacity-60">
+          Enter an email to search for ride history
+        </div>
+      }
+    </div>
+  </div>
+</app-base-info-page>

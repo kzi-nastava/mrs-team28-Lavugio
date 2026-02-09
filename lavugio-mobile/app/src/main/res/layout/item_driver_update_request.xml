@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_driver_edit_request_car"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp">
+
+    <!-- Collapsed view - just email -->
+    <LinearLayout
+        android:id="@+id/llCollapsed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="stefan.stefanovic@gmail.com"
+            android:textColor="#B87333"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivExpandIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_expand_more"
+            app:tint="#B87333" />
+
+    </LinearLayout>
+
+    <!-- Expanded view - details -->
+    <LinearLayout
+        android:id="@+id/llExpanded"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:visibility="gone">
+
+        <!-- Changes container -->
+        <LinearLayout
+            android:id="@+id/llChangesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnReject"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Reject"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="@drawable/button_bg"
+                app:backgroundTint="#DC2626"
+                android:padding="12dp"
+                android:layout_marginEnd="8dp"
+                android:textAllCaps="false"/>
+
+            <Button
+                android:id="@+id/btnApprove"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Approve"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="@color/light_green"
+                android:textStyle="bold"
+                android:background="@drawable/button_bg"
+                android:padding="12dp"
+                android:layout_marginStart="8dp"
+                android:textAllCaps="false"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

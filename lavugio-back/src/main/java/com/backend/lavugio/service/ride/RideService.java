@@ -1,8 +1,13 @@
 package com.backend.lavugio.service.ride;
 
 import com.backend.lavugio.dto.ride.*;
+import com.backend.lavugio.dto.ride.FinishRideDTO;
+import com.backend.lavugio.dto.user.AdminHistoryDetailedDTO;
+import com.backend.lavugio.dto.user.AdminHistoryPagingDTO;
 import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
 import com.backend.lavugio.dto.user.DriverHistoryPagingDTO;
+import com.backend.lavugio.dto.user.UserHistoryDetailedDTO;
+import com.backend.lavugio.dto.user.UserHistoryPagingDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
@@ -58,6 +63,15 @@ public interface RideService {
     Double calculatePrice(VehicleType vehicleType, Double distance);
     DriverHistoryPagingDTO getDriverHistory(Long driverId, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
     DriverHistoryDetailedDTO getDriverHistoryDetailed(Long driverId, Long rideId);
+    
+    // User (passenger) history
+    UserHistoryPagingDTO getUserHistory(Long userId, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
+    UserHistoryDetailedDTO getUserHistoryDetailed(Long userId, Long rideId);
+    
+    // Admin: View any user's history by email
+    AdminHistoryPagingDTO getAdminHistory(String email, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
+    AdminHistoryDetailedDTO getAdminHistoryDetailed(Long rideId);
+    
     // Instant Ride Creation
     RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);
     RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request);

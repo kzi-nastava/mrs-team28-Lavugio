@@ -199,4 +199,99 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
                                   @Param("startDate") LocalDateTime startDate,
                                   @Param("endDate") LocalDateTime endDate);
 
+    // User (passenger) ride history with pagination and sorting
+    @Query(value = """
+        SELECT r.*
+        FROM rides r
+        JOIN ride_passengers rp ON rp.ride_id = r.id
+        JOIN ride_destinations cStart ON cStart.ride_id = r.id 
+            AND cStart.destination_order = (
+                SELECT MIN(c1.destination_order) 
+                FROM ride_destinations c1 
+                WHERE c1.ride_id = r.id
+            )
+        JOIN ride_destinations cEnd ON cEnd.ride_id = r.id 
+            AND cEnd.destination_order = (
+                SELECT MAX(c2.destination_order) 
+                FROM ride_destinations c2 
+                WHERE c2.ride_id = r.id
+            )
+        JOIN addresses aStart ON aStart.id = cStart.address_id
+        JOIN addresses aEnd ON aEnd.id = cEnd.address_id
+        WHERE rp.user_id = :userId 
+            AND r.start_date_time BETWEEN :startDate AND :endDate
+            AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        ORDER BY 
+            CASE WHEN :sorting = 'ASC' THEN
+                CASE 
+                    WHEN :sortBy = 'START' THEN TO_CHAR(r.start_date_time, 'YYYY-MM-DD HH24:MI:SS')
+                    WHEN :sortBy = 'DEPARTURE' THEN CONCAT(aStart.street_name, ' ', aStart.street_number, ' ', aStart.city)
+                    WHEN :sortBy = 'DESTINATION' THEN CONCAT(aEnd.street_name, ' ', aEnd.street_number, ' ', aEnd.city)
+                END
+            END NULLS LAST,
+            CASE WHEN :sorting = 'DESC' THEN
+                CASE 
+                    WHEN :sortBy = 'START' THEN TO_CHAR(r.start_date_time, 'YYYY-MM-DD HH24:MI:SS')
+                    WHEN :sortBy = 'DEPARTURE' THEN CONCAT(aStart.street_name, ' ', aStart.street_number, ' ', aStart.city)
+                    WHEN :sortBy = 'DESTINATION' THEN CONCAT(aEnd.street_name, ' ', aEnd.street_number, ' ', aEnd.city)
+                END
+            END DESC NULLS LAST
+        """,
+                    countQuery = """
+            SELECT COUNT(DISTINCT r.id)
+            FROM rides r
+            JOIN ride_passengers rp ON rp.ride_id = r.id
+            WHERE rp.user_id = :userId 
+                AND r.start_date_time BETWEEN :startDate AND :endDate
+                AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        """,
+            nativeQuery = true)
+    Page<Ride> findRidesForUser(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("sortBy") String sortBy,
+            @Param("sorting") String sorting,
+            Pageable pageable
+    );
+
+    @Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :userId AND r.id = :rideId")
+    Optional<Ride> findByIdAndPassengerId(@Param("rideId") Long rideId, @Param("userId") Long userId);
+
+    // Admin: Find rides by email (as passenger or driver)
+    @Query(value = """
+        SELECT DISTINCT r.*
+        FROM rides r
+        LEFT JOIN ride_passengers rp ON rp.ride_id = r.id
+        LEFT JOIN regular_users ru ON ru.id = rp.user_id
+        LEFT JOIN accounts a_passenger ON a_passenger.id = ru.id
+        LEFT JOIN drivers d ON d.id = r.driver_id
+        LEFT JOIN accounts a_driver ON a_driver.id = d.id
+        WHERE (a_passenger.email = :email OR a_driver.email = :email)
+            AND r.start_date_time BETWEEN :startDate AND :endDate
+            AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        ORDER BY r.start_date_time DESC
+        """,
+            countQuery = """
+        SELECT COUNT(DISTINCT r.id)
+        FROM rides r
+        LEFT JOIN ride_passengers rp ON rp.ride_id = r.id
+        LEFT JOIN regular_users ru ON ru.id = rp.user_id
+        LEFT JOIN accounts a_passenger ON a_passenger.id = ru.id
+        LEFT JOIN drivers d ON d.id = r.driver_id
+        LEFT JOIN accounts a_driver ON a_driver.id = d.id
+        WHERE (a_passenger.email = :email OR a_driver.email = :email)
+            AND r.start_date_time BETWEEN :startDate AND :endDate
+            AND r.ride_status IN ('FINISHED', 'CANCELLED', 'DENIED')
+        """,
+            nativeQuery = true)
+    Page<Ride> findRidesForUserByEmail(
+            @Param("email") String email,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+
+    Optional<Ride> findById(Long rideId);
+
 }
