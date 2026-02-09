@@ -25,6 +25,7 @@ import { guestOnlyauthGuardFn } from '@app/core/guards/guestOnlyAuthGuard';
 import {AuthGuard} from '@app/core/guards/authGuard';
 import {RideOverviewAccessGuard} from '@app/core/guards/rideOverviewAccessGuard'
 import { ActiveRides } from './features/active-rides/active-rides';
+import { NotificationsPage } from './features/notifications-page/notifications-page';
 import { RidesReports } from './features/rides-reports/rides-reports';
 import { AdminRideHistory } from './features/admin-ride-history/admin-ride-history';
 import { AdminRideHistoryDetailed } from './features/admin-ride-history-detailed/admin-ride-history-detailed';
@@ -188,6 +189,11 @@ export const routes: Routes = [
     component: AdminRideHistoryDetailed,
     canActivate: [AuthGuard],
     data: {role: ['ADMIN']}
+    path: 'notifications',
+    title: 'Notifications',
+    component: NotificationsPage,
+    canActivate: [AuthGuard],
+    data: {role: ['ADMIN', 'REGULAR_USER', 'DRIVER']}
   },
   {
     path: 'rides-reports',

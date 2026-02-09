@@ -29,6 +29,9 @@ export class Links {
   driverActive = input<boolean>(false);
   statusLoading = input<boolean>(false);
 
+  hasNewNotifications = input(false);
+
+
   constructor(){
   }
 

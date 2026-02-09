@@ -7,10 +7,11 @@ import { Client, Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { environment } from 'environments/environment';
 import { PriceDefinitionComponent } from "./price-definition/price-definition";
+import { LiveSupportButtonComponent } from "@app/shared/components/live-support-button/live-support-button";
 
 @Component({
   selector: 'app-admin-panel',
-  imports: [Navbar, WhiteSheetBackground, CommonModule, PriceDefinitionComponent],
+  imports: [Navbar, WhiteSheetBackground, CommonModule, PriceDefinitionComponent, LiveSupportButtonComponent],
   templateUrl: './admin-panel.html',
   styleUrl: './admin-panel.css',
 })
