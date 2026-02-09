@@ -2,6 +2,9 @@ package com.backend.lavugio.service.ride.impl;
 
 import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.*;
+import com.backend.lavugio.dto.user.AdminHistoryDTO;
+import com.backend.lavugio.dto.user.AdminHistoryDetailedDTO;
+import com.backend.lavugio.dto.user.AdminHistoryPagingDTO;
 import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.dto.user.DriverHistoryDTO;
 import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
@@ -893,6 +896,65 @@ public class RideServiceImpl implements RideService {
         List<UserHistoryDetailedDTO.ReportInfoDTO> reportInfoDTOs = new ArrayList<>();
         for (RideReport report : reports) {
             UserHistoryDetailedDTO.ReportInfoDTO reportInfo = new UserHistoryDetailedDTO.ReportInfoDTO();
+            reportInfo.setReportId(report.getReportId());
+            reportInfo.setReportMessage(report.getReportMessage());
+            if (report.getReporter() != null) {
+                reportInfo.setReporterName(report.getReporter().getName() + " " + report.getReporter().getLastName());
+            }
+            reportInfoDTOs.add(reportInfo);
+        }
+        dto.setReports(reportInfoDTOs);
+        
+        return dto;
+    }
+
+    @Override
+    public AdminHistoryPagingDTO getAdminHistory(String email, LocalDateTime startDate,
+                                                 LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber) {
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.unsorted());
+
+        Page<Ride> rides = rideRepository.findRidesForUserByEmail(email, startDate, endDate, pageable);
+        AdminHistoryPagingDTO dto = new AdminHistoryPagingDTO();
+        dto.setReachedEnd(!rides.hasNext());
+        dto.setTotalElements(rides.getTotalElements());
+
+        List<AdminHistoryDTO> adminHistoryDTOs = rides.getContent().stream()
+                .map(AdminHistoryDTO::new)
+                .toList();
+
+        dto.setAdminHistory(adminHistoryDTOs.toArray(new AdminHistoryDTO[0]));
+        return dto;
+    }
+
+    @Override
+    public AdminHistoryDetailedDTO getAdminHistoryDetailed(Long rideId) {
+        Optional<Ride> rideOptional = rideRepository.findById(rideId);
+        
+        if (rideOptional.isEmpty()) {
+            throw new NoSuchElementException(String.format("Cannot find ride with id %d", rideId));
+        }
+        
+        Ride ride = rideOptional.get();
+        AdminHistoryDetailedDTO dto = new AdminHistoryDetailedDTO(ride);
+        
+        // Get reviews for this ride
+        List<Review> reviews = reviewRepository.findByReviewedRideId(rideId);
+        if (!reviews.isEmpty()) {
+            Review review = reviews.get(0);
+            dto.setHasReview(true);
+            dto.setDriverRating(review.getDriverRating());
+            dto.setCarRating(review.getCarRating());
+            dto.setReviewComment(review.getComment());
+        } else {
+            dto.setHasReview(false);
+        }
+        
+        // Get reports for this ride
+        List<RideReport> reports = rideReportRepository.findByRideId(rideId);
+        List<AdminHistoryDetailedDTO.ReportInfoDTO> reportInfoDTOs = new ArrayList<>();
+        for (RideReport report : reports) {
+            AdminHistoryDetailedDTO.ReportInfoDTO reportInfo = new AdminHistoryDetailedDTO.ReportInfoDTO();
             reportInfo.setReportId(report.getReportId());
             reportInfo.setReportMessage(report.getReportMessage());
             if (report.getReporter() != null) {
