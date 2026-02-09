@@ -37,7 +37,6 @@ export class WebSocketService {
       console.log('WebSocket connected');
       this.isConnectedFlag = true;
 
-      // Pretplati sve što je čekalo dok se konekcija ne otvori
       this.pendingSubscriptions.forEach(sub => {
         this.client.subscribe(sub.destination, sub.callback);
       });

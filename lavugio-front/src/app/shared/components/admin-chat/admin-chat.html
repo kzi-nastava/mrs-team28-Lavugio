@@ -29,7 +29,7 @@
             Select user...
         </option>
 
-        <option *ngFor="let user of users" [ngValue]="user.userId">
+        <option *ngFor="let user of users()" [ngValue]="user.userId">
             {{ user.email }}
         </option>
 

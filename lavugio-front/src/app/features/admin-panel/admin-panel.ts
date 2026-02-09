@@ -127,6 +127,10 @@ export class AdminPanel implements OnInit {
     this.router.navigate(['/block-user']);
   }
 
+  openRideMonitoring() {
+    this.router.navigate(['/ride-monitoring']);
+  }
+
   openReportsView() {
     alert('Not implemented yet')
   }

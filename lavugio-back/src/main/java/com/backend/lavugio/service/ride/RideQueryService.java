@@ -33,9 +33,9 @@ public interface RideQueryService {
     List<Ride> getRidesByStatus(RideStatus status);
 
     /**
-     * Get all active rides
+     * Get all active or scheduled rides
      */
-    List<Ride> getActiveRides();
+    List<Ride> getActiveOrScheduledRides();
 
     /**
      * Get scheduled rides for a specific driver

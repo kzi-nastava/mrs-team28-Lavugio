@@ -19,6 +19,7 @@ import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
 import { FinishRide } from '@app/shared/models/ride/finishRide';
 import { RideHistoryDriverModel } from '@app/shared/models/ride/rideHistoryDriver';
 import { RideHistoryDriverPagingModel } from '@app/shared/models/ride/rideHistoryDriverPagingModel';
+import { RideMonitoringModel } from '@app/shared/models/ride/rideMonitoring';
 @Injectable({
   providedIn: 'root',
 })
@@ -121,5 +122,9 @@ export class RideService {
 
   cancelRideByPassenger(rideId: number): Observable<any> {
     return this.http.post<any>(`${this.mainPortUrl}/${rideId}/cancel-by-passenger`, {});
+  }
+
+  getActiveRides(): Observable<RideMonitoringModel[]>{
+    return this.http.get<RideMonitoringModel[]>(`${this.mainPortUrl}/active`);
   }
 }

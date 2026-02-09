@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { Coordinates } from '@app/shared/models/coordinates';
+import { RideMonitoringModel } from '@app/shared/models/ride/rideMonitoring';
 import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
 
 @Component({
@@ -9,7 +10,7 @@ import { ScheduledRideDTO } from '@app/shared/models/ride/scheduledRide';
   styleUrl: './ride.css',
 })
 export class Ride {
-  ride = input<ScheduledRideDTO | null>();
+  ride = input<RideMonitoringModel | null>();
   clickedOutput = output<Coordinates[] | null>();
   hasActiveRide = input();
   canStart = input<boolean>();
@@ -34,7 +35,7 @@ export class Ride {
     const month = pad(date.getMonth() + 1); 
     const year = date.getFullYear();
 
-    return `${hours}:${minutes} ${day}.${month}.${year}`;
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
   }
 
   onStart(event: Event){
@@ -77,4 +78,7 @@ export class Ride {
       this.rideActionOutput.emit({action: 'DENY', rideId});
     }
   }
+
+  
+  
 }
