@@ -34,7 +34,11 @@ public class AdministratorPanelFragment extends Fragment {
         });
 
         btnDriverUpdateRequests.setOnClickListener(v -> {
-            // TODO: Navigate to Driver Update Requests screen when implemented
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, new DriverUpdateRequestsFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         btnBlockUser.setOnClickListener(v -> {
