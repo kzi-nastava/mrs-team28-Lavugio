@@ -1,0 +1,16 @@
+<div (click)="navigate()" class="flex flex-col sm:flex-row gap-4 p-4 border-b border-[#283618] font-semibold font-[Inter] text-[#283618] select-none hover:bg-[rgb(243,247,243)] transition duration-100 cursor-pointer">
+  <div class="sm:w-1/6">
+    <p>{{ startDate() }}</p>
+    <p>{{ startTime() }}</p>
+  </div>
+  <div class="sm:w-1/6">
+    <p>{{ endDate() }}</p>
+    <p>{{ endTime() }}</p>
+  </div>
+  <div class="sm:w-1/3">
+    <span>{{ departure() }}</span>
+  </div>
+  <div class="sm:w-1/3">
+    <span>{{ destination() }}</span>
+  </div>
+</div>

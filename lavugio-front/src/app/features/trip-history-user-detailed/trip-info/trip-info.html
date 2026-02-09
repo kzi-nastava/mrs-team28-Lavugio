@@ -1,0 +1,80 @@
+<div class="bg-[rgb(255,254,248)] h-full flex flex-col overflow-hidden shadow-sm">
+  <div class="bg-[#606C38] text-white px-4 py-2">
+    <h3 class="font-semibold">Ride Details</h3>
+  </div>
+  
+  <div class="flex-1 px-4 py-3 space-y-2">
+    <!-- Begin -->
+    <div class="flex items-center justify-between">
+      <span class="text-[#606C38] font-medium">Start:</span>
+      <span class="text-[#BC6C25]">{{ info()?.start }}</span>
+    </div>
+    
+    <!-- End -->
+    <div class="flex items-center justify-between">
+      <span class="text-[#606C38] font-medium">End:</span>
+      <span class="text-[#BC6C25]">{{ info()?.end }}</span>
+    </div>
+    
+    <!-- Departure -->
+    <div class="flex items-center justify-between">
+      <span class="text-[#606C38] font-medium">Pickup:</span>
+      <span class="text-[#BC6C25] text-right max-w-[60%]">{{ info()?.departure }}</span>
+    </div>
+    
+    <!-- Destination -->
+    <div class="flex items-center justify-between">
+      <span class="text-[#606C38] font-medium">Destination:</span>
+      <span class="text-[#BC6C25] text-right max-w-[60%]">{{ info()?.destination }}</span>
+    </div>
+    
+    <!-- Price -->
+    <div class="flex items-center justify-between">
+      <span class="text-[#606C38] font-medium">Price:</span>
+      <span class="text-[#BC6C25] font-bold">{{ info()?.price }} RSD</span>
+    </div>
+  </div>
+  
+  <!-- Status Section - Orange Background -->
+  <div class="bg-[#DDA15E] px-4 py-2 space-y-2">
+    <!-- Cancelled -->
+    <div class="flex items-center justify-between">
+      <span class="text-white font-normal">Cancelled:</span>
+      <div class="w-6 h-6 border-2 flex items-center justify-center"
+           [class.border-green-700]="info()?.cancelled"
+           [class.border-red-700]="!info()?.cancelled">
+        @if (info()?.cancelled) {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" class="w-4 h-4 text-green-700">
+            <path d="M5 13l4 4L19 7" />
+          </svg>
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" class="w-4 h-4 text-red-700">
+            <path d="M6 18L18 6M6 6L18 18" />
+          </svg>
+        }
+      </div>
+    </div>
+    
+    <!-- PANIC -->
+    <div class="flex items-center justify-between">
+      <span class="text-white font-normal">Panic Button:</span>
+      <div class="w-6 h-6 border-2 flex items-center justify-center"
+           [class.border-green-700]="info()?.panic"
+           [class.border-red-700]="!info()?.panic">
+        @if (info()?.panic) {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" class="w-4 h-4 text-green-700">
+            <path d="M5 13l4 4L19 7" />
+          </svg>
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" class="w-4 h-4 text-red-700">
+            <path d="M6 18L18 6M6 6L18 18" />
+          </svg>
+        }
+      </div>
+    </div>
+  </div>
+</div>

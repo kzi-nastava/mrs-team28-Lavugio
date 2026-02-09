@@ -7,6 +7,9 @@ import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.dto.user.EmailVerificationDTO;
+import com.backend.lavugio.dto.user.UserHistoryDetailedDTO;
+import com.backend.lavugio.dto.user.UserHistoryPagingDTO;
+import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.user.Account;
 import com.backend.lavugio.model.user.RegularUser;
@@ -18,15 +21,18 @@ import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.RegularUserService;
 import com.backend.lavugio.service.user.UserRegistrationTokenService;
 import com.backend.lavugio.service.user.*;
+import com.backend.lavugio.service.utils.DateTimeParserService;
 import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.repository.user.AdministratorRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,6 +74,9 @@ public class RegularUserController {
 
     @Autowired
     private RideService rideService;
+    
+    @Autowired
+    private DateTimeParserService dateTimeParserService;
 
     // REGISTRATION & AUTHENTICATION
 
@@ -567,6 +576,49 @@ public class RegularUserController {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
+    @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserHistoryPagingDTO> getUserHistory(
+            @RequestParam int page,
+            @RequestParam int pageSize,
+            @RequestParam(defaultValue = "DESC") String sorting,
+            @RequestParam(defaultValue = "START") String sortBy,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate
+    ) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        LocalDateTime start = dateTimeParserService.parseStartOfDay(startDate);
+        LocalDateTime end = dateTimeParserService.parseEndOfDay(endDate);
+
+        UserHistoryPagingDTO dto = rideService.getUserHistory(
+                userId,
+                start,
+                end,
+                sortBy,
+                sorting,
+                pageSize,
+                page
+        );
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @PreAuthorize("hasRole('REGULAR_USER')")
+    @GetMapping(value = "/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserHistoryDetailedDTO> getUserHistoryByRideId(@PathVariable Long rideId) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            UserHistoryDetailedDTO dto = rideService.getUserHistoryDetailed(userId, rideId);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
