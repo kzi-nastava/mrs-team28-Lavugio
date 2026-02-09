@@ -4,10 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DialogService } from '@app/core/services/dialog-service';
 import { UserService } from '@app/core/services/user/user-service';
 import { Navbar } from '@app/shared/components/navbar/navbar';
+import { LiveSupportButtonComponent } from "@app/shared/components/live-support-button/live-support-button";
 
 @Component({
   selector: 'app-driver-activation',
-  imports: [FormsModule, Navbar],
+  imports: [FormsModule, Navbar, LiveSupportButtonComponent],
   templateUrl: './driver-activation.html',
   styleUrl: './driver-activation.css',
 })

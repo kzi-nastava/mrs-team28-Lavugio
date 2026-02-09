@@ -10,6 +10,7 @@ import {
 import { LatestRideModel } from '@app/shared/models/ride/latestRide';
 import { RideHistoryUserPagingModel } from '@app/shared/models/ride/rideHistoryUserPagingModel';
 import { RideHistoryUserDetailedModel } from '@app/shared/models/ride/rideHistoryUserDetailed';
+import { UserChatModel } from '@app/shared/models/userChat';
 
 @Injectable({
   providedIn: 'root',
@@ -136,5 +137,7 @@ export class UserService {
 
   getUserRideHistoryDetailed(rideId: number): Observable<RideHistoryUserDetailedModel> {
     return this.http.get<RideHistoryUserDetailedModel>(`${this.apiUrl}/regularUsers/history/${rideId}`);
+  getChattableUsers(): Observable<UserChatModel[]>{
+    return this.http.get<UserChatModel[]>(`${this.apiUrl}/users/chattable`);
   }
 }

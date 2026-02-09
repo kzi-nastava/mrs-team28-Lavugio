@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, NgZone, ChangeDetectorRef, computed } from '@angular/core';
+import { Component, OnInit, signal, NgZone, ChangeDetectorRef, computed, inject } from '@angular/core';
 import { Links } from './links/links';
 import { Logo } from './links/logo/logo';
 import { Link } from './links/link/link';
@@ -12,6 +12,7 @@ import { UserService } from '@app/core/services/user/user-service';
 import { timeout } from 'rxjs';
 import { DriverService } from '@app/core/services/user/driver-service';
 import { Coordinates } from '@app/shared/models/coordinates';
+import { WebSocketService } from '@app/core/services/web-socket-service';
 
 @Component({
   selector: 'app-navbar',
@@ -33,6 +34,12 @@ export class Navbar implements OnInit {
   latestRideStatus = signal("");
   timeActiveDuration = signal<number>(0);
   hasExceeded8Hours = computed(() => this.timeActiveDuration() >= 480);
+  private ws = inject(WebSocketService);
+
+  hasNewNotifications = signal(false);
+
+  private notificationAudio = new Audio('notification.wav');
+
 
   constructor(
     private authService: AuthService,
@@ -51,19 +58,16 @@ export class Navbar implements OnInit {
   }
 
   ngOnInit() {
-    // Check current authentication state
     this.isAuthenticated = this.authService.isAuthenticated();
     this.currentUser = this.authService.getStoredUser();
     this.isAdmin = this.authService.isAdmin();
     this.isDriver = this.authService.isDriver();
     this.isRegularUser = this.authService.isRegularUser();
 
-    // Load driver status if user is a driver
     if (this.isDriver && this.currentUser?.userId) {
       this.loadDriverStatus();
     }
 
-    // Subscribe to future changes
     this.authService.isAuthenticated$.subscribe(
       isAuth => {
         this.isAuthenticated = isAuth;
@@ -93,6 +97,25 @@ export class Navbar implements OnInit {
         }
       }
     );
+
+    if (this.currentUser?.userId) {
+      this.ws.connect(() => {
+
+        this.ws.subscribe(
+          `/socket-publisher/notifications/${this.currentUser!.userId}`,
+          (message) => {
+
+            this.ngZone.run(() => {
+              this.hasNewNotifications.set(true);
+              this.notificationAudio.play().catch(() => {});
+            });
+
+          }
+        );
+
+      });
+    }
+
   }
 
   loadDriverStatus(): void {

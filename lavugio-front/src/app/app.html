@@ -1,4 +1,7 @@
 <app-notifications></app-notifications>
-<main >
-  <router-outlet ></router-outlet>
+<main>
+  <router-outlet></router-outlet>
+  @if(authService.isAuthenticatedSignal()){
+    <app-live-support-button></app-live-support-button>
+  }
 </main>

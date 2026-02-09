@@ -87,6 +87,7 @@ public class NavbarManager {
         setupItemListener(R.id.nav_item_profile, "profile");
         setupItemListener(R.id.nav_item_login, "login");
         setupItemListener(R.id.nav_item_register, "register");
+        setupItemListener(R.id.nav_item_admin_panel, "admin_panel");
     }
 
     /**

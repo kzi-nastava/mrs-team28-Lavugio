@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
@@ -143,6 +144,7 @@ public class Navbar {
         TextView profileItem = menuDropdown.findViewById(R.id.nav_item_profile);
         TextView loginItem = menuDropdown.findViewById(R.id.nav_item_login);
         TextView registerItem = menuDropdown.findViewById(R.id.nav_item_register);
+        TextView adminPanelItem = menuDropdown.findViewById(R.id.nav_item_admin_panel);
 
         if (tripsItem != null) {
             tripsItem.setOnClickListener(v -> {
@@ -185,6 +187,13 @@ public class Navbar {
                 closeMenu();
             });
         }
+
+        if (adminPanelItem != null) {
+            adminPanelItem.setOnClickListener(v -> {
+                onMenuItemSelected("Admin Panel");
+                closeMenu();
+            });
+        }
     }
 
     private void onMenuItemSelected(String itemName) {
@@ -207,6 +216,10 @@ public class Navbar {
             case "Register":
                 // Navigate to Register screen
                 navigateToFragment(new RegisterFragment());
+                break;
+            case "Admin Panel":
+                // Navigate to Admin Panel screen
+                navigateToFragment(new AdministratorPanelFragment());
                 break;
         }
     }

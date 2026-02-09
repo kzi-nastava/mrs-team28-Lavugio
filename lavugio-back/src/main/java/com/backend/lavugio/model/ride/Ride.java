@@ -78,7 +78,7 @@ public class Ride {
     @Column(nullable = false)
     private boolean hasPanic;
 
-    @OneToMany(mappedBy = "ride", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ride", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<RideDestination> checkpoints;
 
