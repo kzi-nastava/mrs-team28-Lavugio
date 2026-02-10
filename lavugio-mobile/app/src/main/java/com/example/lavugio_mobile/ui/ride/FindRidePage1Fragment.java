@@ -17,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.location.Address;
+import android.location.Geocoder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +34,7 @@ import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FindRidePage1Fragment extends Fragment {
     private static final String TAG = "FindRidePage1";
@@ -175,6 +178,12 @@ public class FindRidePage1Fragment extends Fragment {
 
     private void setupButtons() {
         btnAddDestination.setOnClickListener(v -> {
+            OSMMapFragment mapFragment = ((FindRideFragment) getParentFragment()).getMapFragment();
+            mapFragment.setAddDestinationMode(true);
+            FindRideFragment parent = (FindRideFragment) getParentFragment();
+            if (parent != null) {
+                parent.setAwaitingMapDestination(true);
+            }
             String text = etDestination.getText().toString().trim();
             if (!text.isEmpty()) {
                 // Search and add first result
@@ -208,6 +217,61 @@ public class FindRidePage1Fragment extends Fragment {
             addMarkersToMap();
             ((FindRideFragment) getParentFragment()).nextPage();
         });
+    }
+
+    public void addDestinationFromMap(GeoPoint point) {
+        double lat = point.getLatitude();
+        double lon = point.getLongitude();
+
+        new Thread(() -> {
+            String street = "";
+            String houseNumber = "";
+            String city = "";
+            String postcode = "";
+            String country = "";
+            String displayName;
+
+            try {
+                Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
+                    street = address.getThoroughfare() != null ? address.getThoroughfare() : "";
+                    houseNumber = address.getSubThoroughfare() != null ? address.getSubThoroughfare() : "";
+                    city = address.getLocality() != null ? address.getLocality() : "";
+                    postcode = address.getPostalCode() != null ? address.getPostalCode() : "";
+                    country = address.getCountryName() != null ? address.getCountryName() : "";
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Reverse geocoding failed", e);
+            }
+
+            if (!street.isEmpty()) {
+                displayName = houseNumber.isEmpty() ? street : street + " " + houseNumber;
+                if (!city.isEmpty()) {
+                    displayName += ", " + city;
+                }
+            } else if (!city.isEmpty()) {
+                displayName = city;
+            } else {
+                displayName = String.format(Locale.US, "Lat %.5f, Lon %.5f", lat, lon);
+            }
+
+            GeocodingHelper.GeocodingResult result = new GeocodingHelper.GeocodingResult(
+                    displayName,
+                    lat,
+                    lon,
+                    street,
+                    houseNumber,
+                    city,
+                    postcode,
+                    country
+            );
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> addDestination(result));
+            }
+        }).start();
     }
 
     private void addDestination(GeocodingHelper.GeocodingResult result) {

@@ -14,14 +14,17 @@ import androidx.annotation.Nullable;
 
 import com.example.lavugio_mobile.ui.components.BottomSheetHelper;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.util.GeoPoint;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.example.lavugio_mobile.R;
 
-public class FindRideFragment extends Fragment {
+public class FindRideFragment extends Fragment implements OSMMapFragment.MapInteractionListener {
     private OSMMapFragment mapFragment;
     private FrameLayout bottomSheet;
     private TextView tvBottomSheetTitle;
     private BottomSheetHelper bottomSheetHelper;
+    private boolean awaitingMapDestination;
 
     // Current page index
     private int currentPage = 0;
@@ -149,5 +152,32 @@ public class FindRideFragment extends Fragment {
      */
     public OSMMapFragment getMapFragment() {
         return mapFragment;
+    }
+
+    public void setAwaitingMapDestination(boolean awaiting) {
+        awaitingMapDestination = awaiting;
+    }
+
+    @Override
+    public void onMapClicked(GeoPoint point) {
+        if (!awaitingMapDestination || currentPage != 0) {
+            return;
+        }
+
+        Fragment pageFragment = getChildFragmentManager().findFragmentById(R.id.bottomSheetContentContainer);
+        if (pageFragment instanceof FindRidePage1Fragment) {
+            ((FindRidePage1Fragment) pageFragment).addDestinationFromMap(point);
+            awaitingMapDestination = false;
+        }
+    }
+
+    @Override
+    public void onMarkerClicked(org.osmdroid.views.overlay.Marker marker, GeoPoint point) {
+        // No-op for now.
+    }
+
+    @Override
+    public void onRouteCalculated(Road road) {
+        // No-op for now.
     }
 }

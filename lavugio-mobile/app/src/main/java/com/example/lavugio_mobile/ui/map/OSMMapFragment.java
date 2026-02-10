@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OSMMapFragment extends Fragment {
-
+    private boolean addDestinationMode = false;
     private MapView mapView;
     private MyLocationNewOverlay myLocationOverlay;
     private List<Marker> waypoints = new ArrayList<>();
@@ -81,6 +81,10 @@ public class OSMMapFragment extends Fragment {
         return view;
     }
 
+    public void setAddDestinationMode(boolean mode) {
+        this.addDestinationMode = mode;
+    }
+
     private void setupMap() {
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
@@ -109,6 +113,11 @@ public class OSMMapFragment extends Fragment {
         MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
+                if (addDestinationMode) {
+                    addWaypoint(p);
+                    addDestinationMode = false;
+                }
+
                 if (listener != null) {
                     listener.onMapClicked(p);
                 }
