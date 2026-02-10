@@ -315,11 +315,11 @@ public class FindRidePage1Fragment extends Fragment {
     }
 
     private View createDestinationItem(int position, GeocodingHelper.GeocodingResult destination) {
-        View itemView = LayoutInflater.from(getContext()).inflate(R.layout.find_ride_destination_item, llDestinationsList, false);
+        View itemView = LayoutInflater.from(getContext()).inflate(R.layout.scrollable_list_item, llDestinationsList, false);
 
-        TextView tvNumber = itemView.findViewById(R.id.tvDestinationNumber);
-        TextView tvAddress = itemView.findViewById(R.id.tvDestinationAddress);
-        ImageView ivRemove = itemView.findViewById(R.id.ivRemoveDestination);
+        TextView tvNumber = itemView.findViewById(R.id.tvItemNumber);
+        TextView tvAddress = itemView.findViewById(R.id.tvItemName);
+        ImageView ivRemove = itemView.findViewById(R.id.ivRemoveItem);
 
         tvNumber.setText(String.valueOf(position + 1));
         tvAddress.setText(destination.getDisplayName());

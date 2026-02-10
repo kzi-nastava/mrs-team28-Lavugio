@@ -10,7 +10,7 @@
 
     <!-- Number -->
     <TextView
-        android:id="@+id/tvDestinationNumber"
+        android:id="@+id/tvItemNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="1"
@@ -22,7 +22,7 @@
 
     <!-- Address with Marquee -->
     <TextView
-        android:id="@+id/tvDestinationAddress"
+        android:id="@+id/tvItemName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -40,7 +40,7 @@
 
     <!-- Remove Button -->
     <ImageView
-        android:id="@+id/ivRemoveDestination"
+        android:id="@+id/ivRemoveItem"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_close_circle"
