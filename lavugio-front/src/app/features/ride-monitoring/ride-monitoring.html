@@ -1,0 +1,43 @@
+<div class="flex flex-col h-screen w-screen">
+  <div class="sticky top-0 z-30">
+    <app-navbar></app-navbar>
+  </div>
+
+  <div class="flex flex-col lg:flex-row flex-1 gap-4 p-4 lg:p-8 min-h-0 bg-linear-to-r from-[#606C38] to-[#283618]">
+    
+    <div class="w-full lg:w-1/2 flex-1 lg:flex-initial min-h-0 overflow-y-auto p-1">
+
+        <div class="mb-2 pr-3">
+            <input
+                type="text"
+                placeholder="Filter by driver name..."
+                class="w-full p-2 rounded-md border border-[#606C38] text-[#283618] bg-[#FEFAE0] 
+                    focus:border-[#BC6C25] focus:outline-none focus:ring-2 focus:ring-[#BC6C25] focus:ring-opacity-50"
+                (input)="filterText.set($any($event.target).value)"
+            />
+        </div>
+
+        <div class="flex flex-col h-auto w-full gap-2 overflow-y-auto pr-3">
+            @if (filteredRides()?.length != 0) {
+                @for (ride of filteredRides(); track ride.rideId) {
+                    <app-ride 
+                    [ride]="ride"
+                    [readonly]="true"
+                    (clickedOutput)="onRideSelected(ride)">
+                    </app-ride>
+                }
+                } @else {
+                <span class="font-[Inter] text-[#FEFAE0]">
+                    No active rides...
+                </span>
+            }
+        </div>  
+    </div>
+
+    <!-- Mapa -->
+    <div class="w-full lg:w-1/2 h-64 lg:h-auto lg:flex-initial min-h-0 rounded-2xl overflow-hidden sticky lg:static bottom-0">
+      <app-map #map></app-map>
+    </div>
+
+  </div>
+</div>

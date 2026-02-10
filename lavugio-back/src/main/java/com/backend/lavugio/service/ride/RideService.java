@@ -13,7 +13,6 @@ import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 
-import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,7 +31,8 @@ public interface RideService {
     List<Ride> getRidesByStatus(RideStatus status);
     List<Ride> getUpcomingRidesForDriver(Long driverId);
     List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
-    List<Ride> getActiveRides();
+    List<Ride> getActiveOrScheduledRides();
+    List<RideMonitoringDTO> getActiveRides();
     List<Ride> getScheduledRidesForDriver(Long driverId);
     List<Ride> getFinishedRidesForDriver(Long driverId);
     List<Ride> getFinishedRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);

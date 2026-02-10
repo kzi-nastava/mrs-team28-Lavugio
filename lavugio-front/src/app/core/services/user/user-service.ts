@@ -137,6 +137,8 @@ export class UserService {
 
   getUserRideHistoryDetailed(rideId: number): Observable<RideHistoryUserDetailedModel> {
     return this.http.get<RideHistoryUserDetailedModel>(`${this.apiUrl}/regularUsers/history/${rideId}`);
+  }
+  
   getChattableUsers(): Observable<UserChatModel[]>{
     return this.http.get<UserChatModel[]>(`${this.apiUrl}/users/chattable`);
   }

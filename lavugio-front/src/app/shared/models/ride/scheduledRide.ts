@@ -2,6 +2,7 @@ import { Coordinates } from "../coordinates";
 
 export interface ScheduledRideDTO {
     rideId : number;
+    driverId: number;
     startAddress : string;
     endAddress : string;
     scheduledTime : Date;

@@ -52,6 +52,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
                                          @Param("fromDate") LocalDateTime fromDate);
 
     @Query("SELECT r FROM Ride r WHERE r.rideStatus IN ('SCHEDULED', 'ACTIVE')")
+    List<Ride> findAllActiveOrScheduledRides();
+
+    @Query("SELECT r FROM Ride r WHERE r.rideStatus IN ('ACTIVE') ORDER BY r.startDateTime ASC")
     List<Ride> findAllActiveRides();
 
     @Query("""

@@ -1,6 +1,5 @@
 package com.backend.lavugio.service.ride.impl;
 
-import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.dto.user.AdminHistoryDTO;
 import com.backend.lavugio.dto.user.AdminHistoryDetailedDTO;
@@ -24,7 +23,6 @@ import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.repository.ride.RideRepository;
@@ -46,9 +44,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -77,6 +75,7 @@ public class RideServiceImpl implements RideService {
     private final com.backend.lavugio.service.notification.NotificationService notificationService;
     private final ReviewRepository reviewRepository;
     private final RideReportRepository rideReportRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -91,7 +90,8 @@ public class RideServiceImpl implements RideService {
                            EmailService emailService,
                            com.backend.lavugio.service.notification.NotificationService notificationService,
                            ReviewRepository reviewRepository,
-                           RideReportRepository rideReportRepository) {
+                           RideReportRepository rideReportRepository,
+                           SimpMessagingTemplate simpMessagingTemplate) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -105,6 +105,7 @@ public class RideServiceImpl implements RideService {
         this.notificationService = notificationService;
         this.reviewRepository = reviewRepository;
         this.rideReportRepository = rideReportRepository;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -173,8 +174,13 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public List<Ride> getActiveRides() {
-        return rideQueryService.getActiveRides();
+    public List<Ride> getActiveOrScheduledRides() {
+        return rideQueryService.getActiveOrScheduledRides();
+    }
+
+    @Override
+    public List<RideMonitoringDTO> getActiveRides() {
+        return this.rideRepository.findAllActiveRides().stream().map(RideMonitoringDTO::new).toList();
     }
 
     public List<Ride> getScheduledRidesForDriver(Long driverId){
@@ -838,6 +844,7 @@ public class RideServiceImpl implements RideService {
         rideCreator.setCanOrder(false);
         regularUserRepository.save(rideCreator);
         driverService.updateDriverDriving(ride.getDriver().getId(), true);
+        notifySocket(ride);
     }
 
     @Override
@@ -847,6 +854,13 @@ public class RideServiceImpl implements RideService {
             throw new NoSuchElementException(String.format("Cannot find ride for user id %d", userId));
         }
         return new LatestRideDTO(ride.getId(), ride.getRideStatus());
+    }
+
+    private void notifySocket(Ride ride){
+        this.simpMessagingTemplate.convertAndSend(
+                "/socket-publisher/ride/start",
+                new RideMonitoringDTO(ride)
+        );
     }
 
     @Override
