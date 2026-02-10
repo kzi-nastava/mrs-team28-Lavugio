@@ -9,6 +9,7 @@ import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.repository.route.RideDestinationRepository;
 import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.ride.RideCompletionService;
@@ -46,7 +47,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
                                      EmailService emailService,
                                      RideOverviewService rideOverviewService,
                                      DriverRepository driverRepository,
-                                     SimpMessagingTemplate simpMessagingTemplate) {
+                                     SimpMessagingTemplate simpMessagingTemplate, RideDestinationRepository rideDestinationRepository) {
         this.rideDestinationService = rideDestinationService;
         this.rideService = rideService;
         this.emailService = emailService;
