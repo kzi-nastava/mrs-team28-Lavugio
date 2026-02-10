@@ -13,10 +13,12 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "polyfills": ["src/polyfills.ts"],
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
@@ -69,7 +71,11 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "runner": "karma",
+            "runnerConfig": true
+          }
         }
       }
     }
