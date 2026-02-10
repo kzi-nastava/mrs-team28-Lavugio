@@ -44,6 +44,7 @@ public class FindRidePage1Fragment extends Fragment {
     private AutoCompleteTextView etDestination;
     private AppCompatImageButton btnAddDestination;
     private ScrollView svDestinationsList;
+    private static final int MAX_VISIBLE_ITEMS = 3;
     private LinearLayout llDestinationsList;
     private TextView tvNoDestinations;
     private EditText etFavoriteRoute;
@@ -76,7 +77,9 @@ public class FindRidePage1Fragment extends Fragment {
         etDestination = view.findViewById(R.id.etDestination);
         btnAddDestination = view.findViewById(R.id.btnAddDestination);
         llDestinationsList = view.findViewById(R.id.llDestinationsList);
+
         svDestinationsList = view.findViewById(R.id.svDestinationsList);
+
         tvNoDestinations = view.findViewById(R.id.tvNoDestinations);
         etFavoriteRoute = view.findViewById(R.id.etFavoriteRoute);
         btnSaveFavorite = view.findViewById(R.id.btnSaveFavorite);
@@ -98,9 +101,47 @@ public class FindRidePage1Fragment extends Fragment {
 
     private void setupDestinationScroll() {
         svDestinationsList.setOnTouchListener((v, event) -> {
-            v.getParent().requestDisallowInterceptTouchEvent(true);
+            if (v.canScrollVertically(1) || v.canScrollVertically(-1)) {
+                // Walk up the entire view hierarchy to prevent bottom sheet from intercepting
+                ViewGroup parent = (ViewGroup) v.getParent();
+                while (parent != null) {
+                    parent.requestDisallowInterceptTouchEvent(true);
+                    if (parent.getParent() instanceof ViewGroup) {
+                        parent = (ViewGroup) parent.getParent();
+                    } else {
+                        break;
+                    }
+                }
+            }
             return false;
         });
+    }
+
+    private void constrainScrollViewHeight() {
+        if (selectedDestinations.size() > MAX_VISIBLE_ITEMS) {
+            // Measure one item to calculate max height for 3 items
+            svDestinationsList.post(() -> {
+                if (llDestinationsList.getChildCount() > 0) {
+                    View firstItem = llDestinationsList.getChildAt(0);
+                    firstItem.measure(
+                            View.MeasureSpec.makeMeasureSpec(llDestinationsList.getWidth(), View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                    int itemHeight = firstItem.getMeasuredHeight();
+                    // 3 items + spacing (8dp each) + padding (12dp top + 12dp bottom)
+                    int spacingPx = (int) (8 * getResources().getDisplayMetrics().density);
+                    int paddingPx = (int) (24 * getResources().getDisplayMetrics().density);
+                    int maxHeight = (itemHeight * MAX_VISIBLE_ITEMS) + (spacingPx * (MAX_VISIBLE_ITEMS - 1)) + paddingPx;
+
+                    ViewGroup.LayoutParams params = svDestinationsList.getLayoutParams();
+                    params.height = maxHeight;
+                    svDestinationsList.setLayoutParams(params);
+                }
+            });
+        } else {
+            ViewGroup.LayoutParams params = svDestinationsList.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            svDestinationsList.setLayoutParams(params);
+        }
     }
 
     private void setupAutocomplete() {
@@ -325,6 +366,8 @@ public class FindRidePage1Fragment extends Fragment {
                 }
             }
         }
+
+        constrainScrollViewHeight();
     }
 
     private View createDestinationItem(int position, GeocodingHelper.GeocodingResult destination) {
