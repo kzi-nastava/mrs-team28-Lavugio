@@ -33,8 +33,8 @@ import org.osmdroid.views.overlay.Marker;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FindTripPage1Fragment extends Fragment {
-    private static final String TAG = "FindTripPage1";
+public class FindRidePage1Fragment extends Fragment {
+    private static final String TAG = "FindRidePage1";
 
     private AutoCompleteTextView etDestination;
     private AppCompatImageButton btnAddDestination;
@@ -55,7 +55,7 @@ public class FindTripPage1Fragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_find_trip_page_1, container, false);
+        return inflater.inflate(R.layout.fragment_find_ride_page_1, container, false);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class FindTripPage1Fragment extends Fragment {
             // TODO: Save favorite route logic
         });
 
-        btnPrevious.setVisibility(View.GONE);
+        btnPrevious.setEnabled(false);
 
         btnNext.setOnClickListener(v -> {
             // Add markers to map and go to next page

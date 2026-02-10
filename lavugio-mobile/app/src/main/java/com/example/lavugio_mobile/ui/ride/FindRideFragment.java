@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import com.example.lavugio_mobile.ui.components.BottomSheetHelper;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.lavugio_mobile.R;
 
 public class FindRideFragment extends Fragment {
@@ -26,7 +25,7 @@ public class FindRideFragment extends Fragment {
 
     // Current page index
     private int currentPage = 0;
-    private String[] pageTitles = {"Find a Trip", "Select Route", "Confirm Ride"};
+    private String[] pageTitles = {"Find a Ride", "Preferences", "Review & Confirm"};
 
     @Nullable
     @Override
@@ -90,18 +89,16 @@ public class FindRideFragment extends Fragment {
         Fragment pageFragment;
         switch (pageIndex) {
             case 0:
-                pageFragment = new FindTripPage1Fragment();
+                pageFragment = new FindRidePage1Fragment();
                 break;
             case 1:
-                pageFragment = new FindTripPage1Fragment();
-                //pageFragment = new FindTripPage2Fragment();
+                pageFragment = new FindRidePage2Fragment();
                 break;
             case 2:
-                pageFragment = new FindTripPage1Fragment();
-                //pageFragment = new FindTripPage3Fragment();
+                pageFragment = new FindRidePage3Fragment();
                 break;
             default:
-                pageFragment = new FindTripPage1Fragment();
+                pageFragment = new FindRidePage1Fragment();
         }
 
         getChildFragmentManager()
