@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,12 +23,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.data.model.ride.RidePreferences;
+import com.example.lavugio_mobile.data.model.vehicle.VehicleType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FindRidePage2Fragment extends Fragment {
     private static final String TAG = "FindRidePage2";
+    private static final String ARG_RIDE_PREFERENCES = "ride_preferences";
+
     private Button btnPrevious, btnNext;
 
     private View viewPetCheckbox, viewBabyCheckbox;
@@ -43,9 +48,21 @@ public class FindRidePage2Fragment extends Fragment {
 
     private List<String> passengerEmails = new ArrayList<>();
 
+    private RidePreferences ridePreferences;
     private Spinner spinnerVehicleType;
 
+    public static FindRidePage2Fragment newInstance(RidePreferences ridePreferences) {
+        FindRidePage2Fragment fragment = new FindRidePage2Fragment();
+        fragment.ridePreferences = ridePreferences;
+        return fragment;
+    }
 
+    private void setRidePreferences(RidePreferences ridePreferences) {
+        this.isPetFriendly = ridePreferences.isPetFriendly();
+        this.isBabyFriendly = ridePreferences.isBabyFriendly();
+        this.passengerEmails = ridePreferences.getPassengerEmails();
+        setSpinnerSelection(this.spinnerVehicleType, ridePreferences.getVehicleType().toString());
+    }
 
     @Nullable
     @Override
@@ -57,6 +74,7 @@ public class FindRidePage2Fragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize views
         etPassengerEmail = view.findViewById(R.id.etPassengerEmail);
         btnAddPassenger = view.findViewById(R.id.btnAddPassenger);
         svPassengersList = view.findViewById(R.id.svPassengersList);
@@ -66,24 +84,31 @@ public class FindRidePage2Fragment extends Fragment {
         btnPrevious = view.findViewById(R.id.btnPrevious);
         btnNext = view.findViewById(R.id.btnNext);
 
-
         viewPetCheckbox = view.findViewById(R.id.viewPetCheckbox);
         viewBabyCheckbox = view.findViewById(R.id.viewBabyCheckbox);
         spinnerVehicleType = view.findViewById(R.id.spinnerVehicleType);
         llPetFriendly = view.findViewById(R.id.llPetFriendly);
         llBabyFriendly = view.findViewById(R.id.llBabyFriendly);
 
+        // Setup
         setupButtons();
         setupPassengerInput();
         setupVehicleSpinner();
+
+        // Load preferences after all views are initialized
+        if (ridePreferences != null) {
+            loadPreferences();
+        }
     }
 
     private void setupButtons() {
         btnPrevious.setOnClickListener(v -> {
+            savePreferencesToParent();
             ((FindRideFragment) getParentFragment()).previousPage();
         });
 
         btnNext.setOnClickListener(v -> {
+            savePreferencesToParent();
             ((FindRideFragment) getParentFragment()).nextPage();
         });
 
@@ -105,17 +130,14 @@ public class FindRidePage2Fragment extends Fragment {
             String email = etPassengerEmail.getText().toString().trim();
 
             if (TextUtils.isEmpty(email)) {
-                //Toast.makeText(getContext(), "Please enter an email", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                //Toast.makeText(getContext(), "Please enter a valid email", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (passengerEmails.contains(email)) {
-                //Toast.makeText(getContext(), "Email already added", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -132,6 +154,31 @@ public class FindRidePage2Fragment extends Fragment {
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerVehicleType.setAdapter(adapter);
+    }
+
+    /**
+     * Load preferences and display them on the UI
+     */
+    private void loadPreferences() {
+        isPetFriendly = ridePreferences.isPetFriendly();
+        isBabyFriendly = ridePreferences.isBabyFriendly();
+        
+        // Create a copy of the list to avoid shared reference issues
+        List<String> emails = ridePreferences.getPassengerEmails();
+        passengerEmails = emails != null ? new ArrayList<>(emails) : new ArrayList<>();
+
+        viewPetCheckbox.setBackgroundResource(isPetFriendly ?
+                R.drawable.checkbox_checked : R.drawable.checkbox_unchecked);
+        viewBabyCheckbox.setBackgroundResource(isBabyFriendly ?
+                R.drawable.checkbox_checked : R.drawable.checkbox_unchecked);
+
+        // Set passenger emails
+        updatePassengersDisplay();
+
+        // Set vehicle type spinner
+        if (ridePreferences.getVehicleType() != null) {
+            setSpinnerSelection(spinnerVehicleType, ridePreferences.getVehicleType().toString());
+        }
     }
 
     private void addPassenger(String email) {
@@ -213,6 +260,43 @@ public class FindRidePage2Fragment extends Fragment {
         textView.setOnClickListener(v -> {
             textView.setSelected(!textView.isSelected());
         });
+    }
+
+    private void setSpinnerSelection(Spinner spinner, String value) {
+        SpinnerAdapter adapter = spinner.getAdapter();
+        if (adapter == null) return;
+
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equalsIgnoreCase(value)) {
+                spinner.setSelection(i);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Save current preferences to parent fragment
+     */
+    private void savePreferencesToParent() {
+        FindRideFragment parent = (FindRideFragment) getParentFragment();
+        if (parent != null) {
+            parent.setSelectedPreferences(getCurrentPreferences());
+        }
+    }
+
+    /**
+     * Get current preferences from UI
+     */
+    public RidePreferences getCurrentPreferences() {
+        RidePreferences prefs = new RidePreferences();
+        prefs.setPetFriendly(isPetFriendly);
+        prefs.setBabyFriendly(isBabyFriendly);
+        prefs.setPassengerEmails(new ArrayList<>(passengerEmails));
+
+        String selectedVehicle = spinnerVehicleType.getSelectedItem().toString().toUpperCase();
+        prefs.setVehicleType(VehicleType.valueOf(selectedVehicle));
+
+        return prefs;
     }
 
     public List<String> getPassengerEmails() {

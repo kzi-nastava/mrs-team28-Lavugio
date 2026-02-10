@@ -12,12 +12,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.lavugio_mobile.data.model.ride.RidePreferences;
+import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 import com.example.lavugio_mobile.ui.components.BottomSheetHelper;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.util.GeoPoint;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.example.lavugio_mobile.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FindRideFragment extends Fragment implements OSMMapFragment.MapInteractionListener {
     private OSMMapFragment mapFragment;
@@ -30,6 +35,9 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
     private int currentPage = 0;
     private String[] pageTitles = {"Find a Ride", "Preferences", "Review & Confirm"};
 
+    private List<GeocodingHelper.GeocodingResult> selectedDestinations;
+    private RidePreferences selectedPreferences;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -39,6 +47,9 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        selectedDestinations = new ArrayList<>();
+        selectedPreferences = new RidePreferences();
 
         // Initialize views
         bottomSheet = view.findViewById(R.id.bottomSheet);
@@ -92,10 +103,11 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
         Fragment pageFragment;
         switch (pageIndex) {
             case 0:
-                pageFragment = new FindRidePage1Fragment();
+                pageFragment = FindRidePage1Fragment.newInstance(selectedDestinations);
+
                 break;
             case 1:
-                pageFragment = new FindRidePage2Fragment();
+                pageFragment = FindRidePage2Fragment.newInstance(selectedPreferences);
                 break;
             case 2:
                 pageFragment = new FindRidePage3Fragment();
@@ -179,5 +191,13 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
     @Override
     public void onRouteCalculated(Road road) {
         // No-op for now.
+    }
+
+    public void setSelectedDestinations(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
+        this.selectedDestinations = selectedDestinations;
+    }
+
+    public void setSelectedPreferences(RidePreferences selectedPreferences) {
+        this.selectedPreferences = selectedPreferences;
     }
 }

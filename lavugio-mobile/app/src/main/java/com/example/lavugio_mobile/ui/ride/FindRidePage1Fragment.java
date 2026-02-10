@@ -26,7 +26,9 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.data.model.user.DriverRegistrationData;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
+import com.example.lavugio_mobile.ui.admin.RegisterDriverVehicleFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 
 import org.osmdroid.util.GeoPoint;
@@ -55,6 +57,12 @@ public class FindRidePage1Fragment extends Fragment {
 
     private List<GeocodingHelper.GeocodingResult> selectedDestinations = new ArrayList<>();
 
+    public static FindRidePage1Fragment newInstance(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
+        FindRidePage1Fragment fragment = new FindRidePage1Fragment();
+        fragment.selectedDestinations = selectedDestinations;
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -81,6 +89,11 @@ public class FindRidePage1Fragment extends Fragment {
         setupAutocomplete();
         setupButtons();
         setupDestinationScroll();
+
+        if (selectedDestinations != null) {
+            updateDestinationsDisplay();
+            updateMapWithAllDestinations();
+        }
     }
 
     private void setupDestinationScroll() {
