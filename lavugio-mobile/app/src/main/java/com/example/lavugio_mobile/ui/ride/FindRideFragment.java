@@ -110,7 +110,7 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
                 pageFragment = FindRidePage2Fragment.newInstance(selectedPreferences);
                 break;
             case 2:
-                pageFragment = new FindRidePage3Fragment();
+                pageFragment = FindRidePage3Fragment.newInstance(selectedDestinations, selectedPreferences);
                 break;
             default:
                 pageFragment = new FindRidePage1Fragment();
