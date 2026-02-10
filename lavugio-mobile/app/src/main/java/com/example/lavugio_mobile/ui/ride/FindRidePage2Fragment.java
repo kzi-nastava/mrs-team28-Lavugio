@@ -46,6 +46,7 @@ public class FindRidePage2Fragment extends Fragment {
     private LinearLayout llPassengersList;
     private TextView tvNoPassengers;
 
+    private static final int MAX_VISIBLE_PASSENGERS = 2;
     private List<String> passengerEmails = new ArrayList<>();
 
     private RidePreferences ridePreferences;
@@ -93,6 +94,7 @@ public class FindRidePage2Fragment extends Fragment {
         // Setup
         setupButtons();
         setupPassengerInput();
+        setupPassengerScroll();
         setupVehicleSpinner();
 
         // Load preferences after all views are initialized
@@ -123,6 +125,48 @@ public class FindRidePage2Fragment extends Fragment {
             viewBabyCheckbox.setBackgroundResource(isBabyFriendly ?
                     R.drawable.checkbox_checked : R.drawable.checkbox_unchecked);
         });
+    }
+
+    private void setupPassengerScroll() {
+        svPassengersList.setOnTouchListener((v, event) -> {
+            if (v.canScrollVertically(1) || v.canScrollVertically(-1)) {
+                ViewGroup parent = (ViewGroup) v.getParent();
+                while (parent != null) {
+                    parent.requestDisallowInterceptTouchEvent(true);
+                    if (parent.getParent() instanceof ViewGroup) {
+                        parent = (ViewGroup) parent.getParent();
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return false;
+        });
+    }
+
+    private void constrainPassengersScrollViewHeight() {
+        if (passengerEmails.size() > MAX_VISIBLE_PASSENGERS) {
+            svPassengersList.post(() -> {
+                if (llPassengersList.getChildCount() > 0) {
+                    View firstItem = llPassengersList.getChildAt(0);
+                    firstItem.measure(
+                            View.MeasureSpec.makeMeasureSpec(llPassengersList.getWidth(), View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                    int itemHeight = firstItem.getMeasuredHeight();
+                    int spacingPx = (int) (8 * getResources().getDisplayMetrics().density);
+                    int paddingPx = (int) (24 * getResources().getDisplayMetrics().density);
+                    int maxHeight = (itemHeight * MAX_VISIBLE_PASSENGERS) + (spacingPx * (MAX_VISIBLE_PASSENGERS - 1)) + paddingPx;
+
+                    ViewGroup.LayoutParams params = svPassengersList.getLayoutParams();
+                    params.height = maxHeight;
+                    svPassengersList.setLayoutParams(params);
+                }
+            });
+        } else {
+            ViewGroup.LayoutParams params = svPassengersList.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            svPassengersList.setLayoutParams(params);
+        }
     }
 
     private void setupPassengerInput() {
@@ -227,6 +271,8 @@ public class FindRidePage2Fragment extends Fragment {
                 }
             }
         }
+
+        constrainPassengersScrollViewHeight();
     }
 
     private View createPassengerItem(int position, String email) {
