@@ -68,7 +68,7 @@ public class OSMMapFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // IMPORTANT: Initialize OSMDroid configuration
+        // Initialize OSMDroid configuration
         Context ctx = getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         Configuration.getInstance().setUserAgentValue(getActivity().getPackageName());
@@ -117,7 +117,7 @@ public class OSMMapFragment extends Fragment {
 
             @Override
             public boolean longPressHelper(GeoPoint p) {
-                addWaypoint(p);
+                //addWaypoint(p);
                 return true;
             }
         };

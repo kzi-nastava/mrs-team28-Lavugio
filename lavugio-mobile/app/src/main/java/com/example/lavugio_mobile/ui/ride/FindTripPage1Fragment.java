@@ -12,6 +12,9 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +38,8 @@ public class FindTripPage1Fragment extends Fragment {
 
     private AutoCompleteTextView etDestination;
     private AppCompatImageButton btnAddDestination;
+    private ScrollView svDestinationsList;
+    private LinearLayout llDestinationsList;
     private TextView tvNoDestinations;
     private EditText etFavoriteRoute;
     private AppCompatImageButton btnSaveFavorite;
@@ -59,6 +64,8 @@ public class FindTripPage1Fragment extends Fragment {
 
         etDestination = view.findViewById(R.id.etDestination);
         btnAddDestination = view.findViewById(R.id.btnAddDestination);
+        llDestinationsList = view.findViewById(R.id.llDestinationsList);
+        svDestinationsList = view.findViewById(R.id.svDestinationsList);
         tvNoDestinations = view.findViewById(R.id.tvNoDestinations);
         etFavoriteRoute = view.findViewById(R.id.etFavoriteRoute);
         btnSaveFavorite = view.findViewById(R.id.btnSaveFavorite);
@@ -70,13 +77,22 @@ public class FindTripPage1Fragment extends Fragment {
 
         setupAutocomplete();
         setupButtons();
+        setupDestinationScroll();
+    }
+
+    private void setupDestinationScroll() {
+        svDestinationsList.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
     }
 
     private void setupAutocomplete() {
         // Setup adapter for autocomplete with a mutable list
         addressAdapter = new ArrayAdapter<>(
                 getContext(),
-                android.R.layout.simple_dropdown_item_1line
+                android.R.layout.simple_dropdown_item_1line,
+                new ArrayList<>()
         );
         etDestination.setAdapter(addressAdapter);
         etDestination.setThreshold(1); // Start showing after 1 character
@@ -188,11 +204,6 @@ public class FindTripPage1Fragment extends Fragment {
         btnPrevious.setVisibility(View.GONE);
 
         btnNext.setOnClickListener(v -> {
-            if (selectedDestinations.isEmpty()) {
-                Toast.makeText(getContext(), "Please add at least one destination", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             // Add markers to map and go to next page
             addMarkersToMap();
             ((FindRideFragment) getParentFragment()).nextPage();
@@ -202,24 +213,92 @@ public class FindTripPage1Fragment extends Fragment {
     private void addDestination(GeocodingHelper.GeocodingResult result) {
         selectedDestinations.add(result);
         updateDestinationsDisplay();
+        updateMapWithAllDestinations();
 
         Toast.makeText(getContext(), "Added: " + result.getDisplayName(), Toast.LENGTH_SHORT).show();
     }
 
+    private void removeDestination(int position) {
+        if (position >= 0 && position < selectedDestinations.size()) {
+            GeocodingHelper.GeocodingResult removed = selectedDestinations.remove(position);
+            updateDestinationsDisplay();
+            updateMapWithAllDestinations();
+
+            Toast.makeText(getContext(), "Removed: " + removed.getDisplayName(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void updateDestinationsDisplay() {
+        llDestinationsList.removeAllViews();
         if (selectedDestinations.isEmpty()) {
-            tvNoDestinations.setVisibility(View.VISIBLE);
-            tvNoDestinations.setText("No destinations added yet");
+            llDestinationsList.addView(tvNoDestinations);
         } else {
-            tvNoDestinations.setVisibility(View.VISIBLE);
-            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < selectedDestinations.size(); i++) {
-                sb.append((i + 1)).append(". ").append(selectedDestinations.get(i).getDisplayName());
+                View destinationItem = createDestinationItem(i, selectedDestinations.get(i));
+                llDestinationsList.addView(destinationItem);
+
                 if (i < selectedDestinations.size() - 1) {
-                    sb.append("\n");
+                    View spacer = new View(getContext());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            8 // 8dp spacing
+                    );
+                    spacer.setLayoutParams(params);
+                    llDestinationsList.addView(spacer);
                 }
             }
-            tvNoDestinations.setText(sb.toString());
+        }
+    }
+
+    private View createDestinationItem(int position, GeocodingHelper.GeocodingResult destination) {
+        View itemView = LayoutInflater.from(getContext()).inflate(R.layout.find_ride_destination_item, llDestinationsList, false);
+
+        TextView tvNumber = itemView.findViewById(R.id.tvDestinationNumber);
+        TextView tvAddress = itemView.findViewById(R.id.tvDestinationAddress);
+        ImageView ivRemove = itemView.findViewById(R.id.ivRemoveDestination);
+
+        tvNumber.setText(String.valueOf(position + 1));
+        tvAddress.setText(destination.getDisplayName());
+
+        setupMarquee(tvAddress);
+
+        ivRemove.setOnClickListener(v -> removeDestination(position));
+
+        return itemView;
+    }
+
+    private void updateMapWithAllDestinations() {
+        FindRideFragment parentFragment = (FindRideFragment) getParentFragment();
+
+        if (parentFragment != null) {
+            OSMMapFragment mapFragment = parentFragment.getMapFragment();
+
+            if (mapFragment != null) {
+                // Clear all existing waypoints
+                mapFragment.clearWaypoints();
+                mapFragment.clearRoute();
+
+                // Add all destinations as markers
+                for (GeocodingHelper.GeocodingResult destination : selectedDestinations) {
+                    GeoPoint point = new GeoPoint(destination.getLatitude(), destination.getLongitude());
+                    Marker marker = mapFragment.addWaypoint(point);
+                    marker.setTitle(destination.getDisplayName());
+                }
+
+                // Calculate route if multiple destinations
+                if (selectedDestinations.size() > 1) {
+                    mapFragment.calculateRoute();
+                }
+
+                // Center map on latest destination
+                if (!selectedDestinations.isEmpty()) {
+                    GeocodingHelper.GeocodingResult latest = selectedDestinations.get(selectedDestinations.size() - 1);
+                    mapFragment.centerMap(
+                            new GeoPoint(latest.getLatitude(), latest.getLongitude()),
+                            15.0
+                    );
+                }
+            }
         }
     }
 
@@ -259,5 +338,22 @@ public class FindTripPage1Fragment extends Fragment {
 
     public List<GeocodingHelper.GeocodingResult> getSelectedDestinations() {
         return selectedDestinations;
+    }
+
+
+    private void setupMarquee(TextView textView) {
+        // Initially not selected (no marquee)
+        textView.setSelected(false);
+
+        // Toggle marquee on click
+        textView.setOnClickListener(v -> {
+            boolean isSelected = textView.isSelected();
+
+            if (!isSelected) {
+                textView.setSelected(true);
+            } else {
+                textView.setSelected(false);
+            }
+        });
     }
 }

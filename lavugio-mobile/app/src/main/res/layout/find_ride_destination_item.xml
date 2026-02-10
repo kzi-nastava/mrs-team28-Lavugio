@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="12dp"
+    android:background="@drawable/bg_find_ride_destination_item">
+
+    <!-- Number -->
+    <TextView
+        android:id="@+id/tvDestinationNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textColor="#FF9800"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:minWidth="30dp"
+        android:gravity="center" />
+
+    <!-- Address with Marquee -->
+    <TextView
+        android:id="@+id/tvDestinationAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Bore Prodanovića 18, Novi Sad"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true" />
+
+    <!-- Remove Button -->
+    <ImageView
+        android:id="@+id/ivRemoveDestination"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_close_circle"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="2dp"
+        app:tint="#999999" />
+
+</LinearLayout>

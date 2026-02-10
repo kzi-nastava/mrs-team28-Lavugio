@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.core:core-ktx:1.13.1")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

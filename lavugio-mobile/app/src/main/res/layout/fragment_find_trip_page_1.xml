@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fillViewport="true"
+    android:orientation="vertical"
+    android:padding="20dp"
     android:background="@android:color/transparent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
 
         <!-- Destination Input -->
         <LinearLayout
@@ -21,7 +16,7 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_white_rounded"
@@ -31,7 +26,7 @@
                 <AutoCompleteTextView
                     android:id="@+id/etDestination"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:hint="Enter a destination..."
                     android:textSize="16sp"
                     android:padding="12dp"
@@ -44,32 +39,63 @@
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnAddDestination"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_location_marker"
-                android:scaleType="centerInside"
-                android:contentDescription="Add waypoint"
+                android:layout_width="54dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/button_bg"
-                app:backgroundTint="@color/white"
-                app:tint="@color/light_green"
+                android:contentDescription="Add waypoint"
                 android:padding="10dp"
-                android:minWidth="48dp"
-                android:minHeight="48dp"/>
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_location_marker"
+                app:backgroundTint="@color/white"
+                app:tint="@color/light_green" />
 
         </LinearLayout>
 
-        <!-- No Destinations Message -->
-        <TextView
-            android:id="@+id/tvNoDestinations"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_white_rounded"
+        android:layout_marginBottom="16dp">
+
+        <!-- Replace ScrollView with a custom height LinearLayout wrapper -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No destinations added yet"
-            android:textColor="#333333"
-            android:textSize="16sp"
-            android:background="@drawable/bg_white_rounded"
-            android:padding="16dp"
-            android:gravity="center"
-            android:layout_marginBottom="16dp"/>
+            android:minHeight="80dp"
+            android:maxHeight="240dp"
+            android:orientation="vertical">
+
+            <ScrollView
+                android:id="@+id/svDestinationsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="true"
+                android:scrollbars="vertical"
+                android:fadeScrollbars="false">
+
+                <LinearLayout
+                    android:id="@+id/llDestinationsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <!-- Empty state or destinations will be added here dynamically -->
+                    <TextView
+                        android:id="@+id/tvNoDestinations"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No destinations added yet"
+                        android:textColor="#999999"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:padding="16dp"/>
+
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+    </LinearLayout>
 
         <!-- Select Favorite Route Text -->
         <TextView
@@ -91,7 +117,7 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_white_rounded"
@@ -101,7 +127,7 @@
                 <EditText
                     android:id="@+id/etFavoriteRoute"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:hint="Enter favorite route name..."
                     android:textSize="16sp"
                     android:padding="12dp"
@@ -111,17 +137,15 @@
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnSaveFavorite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_star"
-                android:scaleType="centerInside"
-                android:contentDescription="Save favorite route"
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/button_bg"
-                app:backgroundTint="@color/white"
-                app:tint="@color/light_brown"
+                android:contentDescription="Save favorite route"
                 android:padding="10dp"
-                android:minWidth="48dp"
-                android:minHeight="48dp"/>
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_star"
+                app:backgroundTint="@color/white"
+                app:tint="@color/light_brown" />
 
         </LinearLayout>
 
@@ -169,5 +193,3 @@
         </LinearLayout>
 
     </LinearLayout>
-
-</ScrollView>

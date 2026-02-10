@@ -22,7 +22,6 @@ public class FindRideFragment extends Fragment {
     private OSMMapFragment mapFragment;
     private FrameLayout bottomSheet;
     private TextView tvBottomSheetTitle;
-    private FloatingActionButton fabSettings;
     private BottomSheetHelper bottomSheetHelper;
 
     // Current page index
@@ -42,7 +41,6 @@ public class FindRideFragment extends Fragment {
         // Initialize views
         bottomSheet = view.findViewById(R.id.bottomSheet);
         tvBottomSheetTitle = view.findViewById(R.id.tvBottomSheetTitle);
-        fabSettings = view.findViewById(R.id.fabSettings);
 
         // Load map fragment
         mapFragment = new OSMMapFragment();
@@ -57,10 +55,6 @@ public class FindRideFragment extends Fragment {
         // Load first page
         loadPage(0);
 
-        // Settings button
-        fabSettings.setOnClickListener(v -> {
-            // TODO: Open settings
-        });
     }
 
     private void setupBottomSheet() {
@@ -78,10 +72,7 @@ public class FindRideFragment extends Fragment {
             @Override
             public void onSlide(float slideOffset) {
                 // slideOffset: 0.0 = collapsed, 1.0 = fully expanded
-                // You can animate things based on this if needed
-
-                // Example: Fade settings button when expanding
-                fabSettings.setAlpha(1.0f - (slideOffset * 0.5f));
+                // Method for animating things when sheet is opened
             }
         });
 
