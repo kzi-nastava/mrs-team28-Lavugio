@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.core:core-ktx:1.13.1")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -68,4 +69,5 @@ dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.18")
     implementation("com.github.MKergall:osmbonuspack:6.9.0")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.android.material:material:1.11.0")
 }

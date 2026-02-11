@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OSMMapFragment extends Fragment {
-
+    private boolean addDestinationMode = false;
     private MapView mapView;
     private MyLocationNewOverlay myLocationOverlay;
     private List<Marker> waypoints = new ArrayList<>();
@@ -68,7 +68,7 @@ public class OSMMapFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // IMPORTANT: Initialize OSMDroid configuration
+        // Initialize OSMDroid configuration
         Context ctx = getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         Configuration.getInstance().setUserAgentValue(getActivity().getPackageName());
@@ -79,6 +79,10 @@ public class OSMMapFragment extends Fragment {
         setupMap();
 
         return view;
+    }
+
+    public void setAddDestinationMode(boolean mode) {
+        this.addDestinationMode = mode;
     }
 
     private void setupMap() {
@@ -109,6 +113,11 @@ public class OSMMapFragment extends Fragment {
         MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
+                if (addDestinationMode) {
+                    addWaypoint(p);
+                    addDestinationMode = false;
+                }
+
                 if (listener != null) {
                     listener.onMapClicked(p);
                 }
@@ -117,7 +126,7 @@ public class OSMMapFragment extends Fragment {
 
             @Override
             public boolean longPressHelper(GeoPoint p) {
-                addWaypoint(p);
+                //addWaypoint(p);
                 return true;
             }
         };

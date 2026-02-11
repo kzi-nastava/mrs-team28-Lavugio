@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomCheckBoxOutline">
+        <item name="strokeColor">#FFFFFF</item>
+        <item name="strokeWidth">2dp</item>
+    </style>
+</resources>
