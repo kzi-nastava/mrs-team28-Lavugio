@@ -30,6 +30,7 @@ import com.example.lavugio_mobile.data.model.route.RideDestination;
 import com.example.lavugio_mobile.data.model.user.DriverRegistrationData;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 import com.example.lavugio_mobile.ui.admin.RegisterDriverVehicleFragment;
+import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 
 import org.osmdroid.util.GeoPoint;
@@ -264,7 +265,7 @@ public class FindRidePage1Fragment extends Fragment {
         });
 
         btnSaveFavorite.setOnClickListener(v -> {
-            // TODO: Save favorite route logic
+            addFavoriteRoute();
         });
 
         tvSelectFavoriteRoute.setOnClickListener(this::openFavoriteRoutesDialog);
@@ -282,6 +283,22 @@ public class FindRidePage1Fragment extends Fragment {
             }
             ((FindRideFragment) getParentFragment()).nextPage();
         });
+    }
+
+    private void addFavoriteRoute() {
+        if (etFavoriteRoute.getText().toString().isEmpty()) {
+            ErrorDialogFragment.newInstance("Error", "You have to enter a name of the favorite route.")
+                    .show(getActivity().getSupportFragmentManager(), "error_dialog");
+            return;
+        }
+        if (selectedDestinations.size() < 2) {
+            ErrorDialogFragment.newInstance("Error", "You have to enter at least 2 destinations.")
+                    .show(getActivity().getSupportFragmentManager(), "error_dialog");
+            return;
+        }
+        etFavoriteRoute.setText("");
+        Log.d("SCHEDULE", "Added favorite route" + etFavoriteRoute.getText().toString());
+        // TODO: POZOVI ENDPOINT ZA DODAVANJE OMILJENE RUTE
     }
 
     public void addDestinationFromMap(GeoPoint point) {
