@@ -15,8 +15,34 @@ public class FavoriteRoute {
         this.destinations = destinations;
     }
 
-    public Long getId() {
-        return id;
+    public String getFirstDestination() {
+        if (destinations == null || destinations.length == 0) {
+            return "";
+        }
+        return this.destinations[0].getName();
+    }
+
+    public String getLastDestination() {
+        if (destinations == null || destinations.length == 0) {
+            return "";
+        }
+        return this.destinations[this.destinations.length - 1].getName();
+    }
+
+    public String getId() {
+        return String.valueOf(id);
+    }
+
+    public String getFromAddress() {
+        return getFirstDestination();
+    }
+
+    public String getToAddress() {
+        return getLastDestination();
+    }
+
+    public int getDestinationsCount() {
+        return destinations != null ? destinations.length : 0;
     }
 
     public void setId(Long id) {
