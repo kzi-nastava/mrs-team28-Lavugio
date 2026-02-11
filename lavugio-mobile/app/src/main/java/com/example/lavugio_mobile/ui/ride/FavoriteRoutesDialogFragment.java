@@ -26,11 +26,11 @@ import com.example.lavugio_mobile.data.model.route.RideDestination;
 import java.util.ArrayList;
 import java.util.List;
 
-class SelectFavoriteRouteFragment extends DialogFragment {
+public class FavoriteRoutesDialogFragment extends DialogFragment {
 
     // Interface for callback
     public interface OnRouteSelectedListener {
-        void onRouteSelected(String routeId, String routeName, String fromAddress, String toAddress);
+        void onRouteSelected(RideDestination[] destinations, String routeName);
     }
 
     private OnRouteSelectedListener listener;
@@ -99,10 +99,8 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                     for (FavoriteRoute route : favoriteRoutes) {
                         if (route.getId().equals(selectedRouteId)) {
                             listener.onRouteSelected(
-                                    route.getId(),
-                                    route.getName(),
-                                    route.getFirstDestination(),
-                                    route.getLastDestination()
+                                    route.getDestinations(),
+                                    route.getName()
                             );
                             break;
                         }
@@ -122,7 +120,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "46",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19847400L, 45267100L)
+                new Coordinates(19.847400d, 45.267100d)
         );
         RideDestination work = new RideDestination(
                 2L,
@@ -131,7 +129,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "6",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19849200L, 45255100L)
+            new Coordinates(19.8492d, 45.2551d)
         );
         favoriteRoutes.add(new FavoriteRoute(1L, "Home to Work", new RideDestination[]{home, work}));
 
@@ -143,7 +141,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "10",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19842000L, 45265000L)
+            new Coordinates(19.842d, 45.265d)
         );
         RideDestination mall = new RideDestination(
                 4L,
@@ -152,7 +150,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "119",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19805200L, 45239800L)
+            new Coordinates(19.8052d, 45.2398d)
         );
         RideDestination groceryStore = new RideDestination(
                 5L,
@@ -161,7 +159,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "2",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19833500L, 45259000L)
+            new Coordinates(19.8335d, 45.259d)
         );
         favoriteRoutes.add(new FavoriteRoute(2L, "Shopping Route", new RideDestination[]{start, mall, groceryStore}));
 
@@ -173,7 +171,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "23",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19845000L, 45258000L)
+            new Coordinates(19.845d, 45.258d)
         );
         RideDestination university = new RideDestination(
                 7L,
@@ -182,7 +180,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "6",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19849200L, 45255100L)
+            new Coordinates(19.8492d, 45.2551d)
         );
         favoriteRoutes.add(new FavoriteRoute(3L, "To University", new RideDestination[]{dorm, university}));
 
@@ -194,7 +192,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "5",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19843200L, 45255500L)
+            new Coordinates(19.8432d, 45.2555d)
         );
         RideDestination fortress = new RideDestination(
                 9L,
@@ -203,7 +201,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "bb",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19863400L, 45251500L)
+            new Coordinates(19.8634d, 45.2515d)
         );
         RideDestination beach = new RideDestination(
                 10L,
@@ -212,7 +210,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "bb",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19849000L, 45251000L)
+            new Coordinates(19.849d, 45.251d)
         );
         favoriteRoutes.add(new FavoriteRoute(4L, "Weekend Sightseeing", new RideDestination[]{city, fortress, beach}));
 
@@ -224,7 +222,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "23",
                 "Novi Sad",
                 "Serbia",
-                new Coordinates(19840000L, 45260000L)
+            new Coordinates(19.84d, 45.26d)
         );
         RideDestination airport = new RideDestination(
                 12L,
@@ -233,7 +231,7 @@ class SelectFavoriteRouteFragment extends DialogFragment {
                 "1",
                 "Belgrade",
                 "Serbia",
-                new Coordinates(20309000L, 44818500L)
+                new Coordinates(20.309000, 44.818500)
         );
         favoriteRoutes.add(new FavoriteRoute(5L, "To Airport", new RideDestination[]{hotel, airport}));
     }

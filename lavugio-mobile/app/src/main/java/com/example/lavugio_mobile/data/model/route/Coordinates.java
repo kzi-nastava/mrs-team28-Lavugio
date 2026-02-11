@@ -1,10 +1,10 @@
 package com.example.lavugio_mobile.data.model.route;
 
 public class Coordinates {
-    private long longitude;
-    private long latitude;
+    private double longitude;
+    private double latitude;
 
-    public Coordinates(long longitude, long latitude) {
+    public Coordinates(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
@@ -12,19 +12,19 @@ public class Coordinates {
     public Coordinates() {
     }
 
-    public long getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(long longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
-    public long getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(long latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 }
