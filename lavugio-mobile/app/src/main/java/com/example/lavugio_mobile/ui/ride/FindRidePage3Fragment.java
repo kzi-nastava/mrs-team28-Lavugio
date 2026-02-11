@@ -288,6 +288,16 @@ public class FindRidePage3Fragment extends Fragment {
         super.onDestroyView();
     }
 
+    private void setupMarquee(TextView textView) {
+        // Initially not selected
+        textView.setSelected(false);
+
+        // Toggle marquee on click
+        textView.setOnClickListener(v -> {
+            textView.setSelected(!textView.isSelected());
+        });
+    }
+
     private void setRidePreferences(RidePreferences ridePreferences) {
         this.ridePreferences = ridePreferences;
     }

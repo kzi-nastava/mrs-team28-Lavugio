@@ -269,6 +269,12 @@ public class FindRidePage1Fragment extends Fragment {
         btnNext.setOnClickListener(v -> {
             // Add markers to map and go to next page
             addMarkersToMap();
+            OSMMapFragment mapFragment = ((FindRideFragment) getParentFragment()).getMapFragment();
+            mapFragment.setAddDestinationMode(false);
+            FindRideFragment parent = (FindRideFragment) getParentFragment();
+            if (parent != null) {
+                parent.setAwaitingMapDestination(false);
+            }
             ((FindRideFragment) getParentFragment()).nextPage();
         });
     }
