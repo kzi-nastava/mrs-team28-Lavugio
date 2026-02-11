@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.ui.reports;
 
 import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,10 +19,22 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.data.model.reports.ChartData;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class RidesReportsFragment extends Fragment {
 
@@ -55,6 +68,26 @@ public class RidesReportsFragment extends Fragment {
 
         initViews(view);
         setupListeners();
+
+        List<ChartData> chartsData = getHardcodedChartData();
+
+        // Setup Chart 1
+        setupChart(
+                view.findViewById(R.id.chart1),
+                chartsData.get(0)
+        );
+
+        // Setup Chart 2
+        setupChart(
+                view.findViewById(R.id.chart2),
+                chartsData.get(1)
+        );
+
+        // Setup Chart 3
+        setupChart(
+                view.findViewById(R.id.chart3),
+                chartsData.get(2)
+        );
     }
 
     private void initViews(View view) {
@@ -191,5 +224,120 @@ public class RidesReportsFragment extends Fragment {
         }
 
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    private void setupChart(View chartContainer, ChartData chartData) {
+        // Find views
+        TextView tvTitle = chartContainer.findViewById(R.id.tvChartTitle);
+        LineChart lineChart = chartContainer.findViewById(R.id.lineChart);
+        TextView tvSum = chartContainer.findViewById(R.id.tvSum);
+        TextView tvAverage = chartContainer.findViewById(R.id.tvAverage);
+
+        // Set title
+        tvTitle.setText(chartData.getTitle());
+
+        // Set sum and average
+        tvSum.setText(String.format("Sum: %.2f", chartData.getSum()));
+        tvAverage.setText(String.format("Average: %.2f", chartData.getAverage()));
+
+        // Create chart entries
+        List<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < chartData.getData().size(); i++) {
+            entries.add(new Entry(i, chartData.getData().get(i)));
+        }
+
+        // Create dataset
+        LineDataSet dataSet = new LineDataSet(entries, chartData.getYAxisLabel());
+        dataSet.setColor(Color.parseColor("#B87333"));
+        dataSet.setCircleColor(Color.parseColor("#B87333"));
+        dataSet.setCircleRadius(5f);
+        dataSet.setLineWidth(2.5f);
+        dataSet.setDrawValues(false);
+        dataSet.setMode(LineDataSet.Mode.LINEAR);
+
+        // Create line data
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        // Customize X-Axis
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(chartData.getLabels()));
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);  // DODAJ
+        xAxis.setTextSize(10f);
+        xAxis.setTextColor(Color.BLACK);  // Promeni u BLACK
+        xAxis.setDrawGridLines(true);
+        xAxis.setGridColor(Color.LTGRAY);
+        xAxis.setLabelCount(chartData.getLabels().size(), false);  // PROMENI - dodaj false
+        xAxis.setDrawLabels(true);
+        xAxis.setAvoidFirstLastClipping(true);  // DODAJ
+        xAxis.setYOffset(5f);  // DODAJ - space between axis and labels
+
+        // Customize Y-Axis (Left)
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setTextSize(10f);
+        leftAxis.setTextColor(Color.BLACK);  // Promeni u BLACK
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setGridColor(Color.LTGRAY);
+        leftAxis.setDrawLabels(true);
+        leftAxis.setXOffset(5f);  // DODAJ - space between axis and labels
+        leftAxis.setGranularityEnabled(true);  // DODAJ
+        leftAxis.setGranularity(1f);  // DODAJ
+
+        // Disable right Y-Axis
+        lineChart.getAxisRight().setEnabled(false);
+
+        // Chart settings
+        lineChart.getDescription().setEnabled(false);
+        lineChart.getLegend().setEnabled(false);
+        lineChart.setTouchEnabled(true);
+        lineChart.setDragEnabled(true);
+        lineChart.setScaleEnabled(false);
+        lineChart.setPinchZoom(false);
+        lineChart.setDrawBorders(false);
+        lineChart.setExtraOffsets(15f, 15f, 15f, 25f);
+
+        // Refresh chart
+        lineChart.invalidate();
+    }
+
+    private List<ChartData> getHardcodedChartData() {
+        List<ChartData> charts = new ArrayList<>();
+
+        // Chart 1: Rides Per Day
+        charts.add(new ChartData(
+                "Rides Per Day",
+                "Date",
+                "Rides",
+                Arrays.asList("07/10", "08/10", "09/10", "10/10", "11/10", "12/10"),
+                Arrays.asList(2.5f, 6f, 14f, 19f, 5.5f, 0.5f),
+                47.5f,
+                7.92f
+        ));
+
+        // Chart 2: Mileage Covered Per Day
+        charts.add(new ChartData(
+                "Total Mileage",
+                "Date",
+                "Mileage (km)",
+                Arrays.asList("07/10", "08/10", "09/10", "10/10", "11/10", "12/10"),
+                Arrays.asList(2.5f, 6f, 14f, 19f, 5.5f, 0.5f),
+                47.31f,
+                7.88f
+        ));
+
+        // Chart 3: Daily Financial Report
+        charts.add(new ChartData(
+                "Daily Revenue",
+                "Date",
+                "Revenue (RSD)",
+                Arrays.asList("07/10", "08/10", "09/10", "10/10", "11/10", "12/10"),
+                Arrays.asList(2500f, 3600f, 7400f, 9500f, 5500f, 1200f),
+                29700f,
+                4950f
+        ));
+
+        return charts;
     }
 }
