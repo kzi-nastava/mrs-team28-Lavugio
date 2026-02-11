@@ -15,7 +15,10 @@ import com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
+import com.example.lavugio_mobile.ui.map.MapContainerFragment;
+import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
+import com.example.lavugio_mobile.ui.ride.FindRideFragment;
 
 public class Navbar {
     private LinearLayout navbarContainer;
@@ -199,6 +202,7 @@ public class Navbar {
     private void onMenuItemSelected(String itemName) {
         switch (itemName) {
             case "Trips":
+                navigateToFragment(new FindRideFragment());
                 break;
             case "History":
                 navigateToFragment(new TripHistoryFragment());

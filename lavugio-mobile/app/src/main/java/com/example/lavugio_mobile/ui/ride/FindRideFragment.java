@@ -1,0 +1,203 @@
+package com.example.lavugio_mobile.ui.ride;
+
+import androidx.fragment.app.Fragment;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.example.lavugio_mobile.data.model.ride.RidePreferences;
+import com.example.lavugio_mobile.services.utils.GeocodingHelper;
+import com.example.lavugio_mobile.ui.components.BottomSheetHelper;
+import com.example.lavugio_mobile.ui.map.OSMMapFragment;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.util.GeoPoint;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.example.lavugio_mobile.R;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FindRideFragment extends Fragment implements OSMMapFragment.MapInteractionListener {
+    private OSMMapFragment mapFragment;
+    private FrameLayout bottomSheet;
+    private TextView tvBottomSheetTitle;
+    private BottomSheetHelper bottomSheetHelper;
+    private boolean awaitingMapDestination;
+
+    // Current page index
+    private int currentPage = 0;
+    private String[] pageTitles = {"Find a Ride", "Preferences", "Review & Confirm"};
+
+    private List<GeocodingHelper.GeocodingResult> selectedDestinations;
+    private RidePreferences selectedPreferences;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_find_ride, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        selectedDestinations = new ArrayList<>();
+        selectedPreferences = new RidePreferences();
+
+        // Initialize views
+        bottomSheet = view.findViewById(R.id.bottomSheet);
+        tvBottomSheetTitle = view.findViewById(R.id.tvBottomSheetTitle);
+
+        // Load map fragment
+        mapFragment = new OSMMapFragment();
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.mapFragmentContainer, mapFragment)
+                .commit();
+
+        // Setup bottom sheet
+        setupBottomSheet();
+
+        // Load first page
+        loadPage(0);
+
+    }
+
+    private void setupBottomSheet() {
+        bottomSheetHelper = new BottomSheetHelper(bottomSheet, new BottomSheetHelper.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(int newState) {
+                // Handle state changes if needed
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    // Fully expanded
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    // Collapsed (peek)
+                }
+            }
+
+            @Override
+            public void onSlide(float slideOffset) {
+                // slideOffset: 0.0 = collapsed, 1.0 = fully expanded
+                // Method for animating things when sheet is opened
+            }
+        });
+
+        // Set peek height (collapsed state height)
+        bottomSheetHelper.setPeekHeight(200);
+    }
+
+    /**
+     * Load a specific page in the bottom sheet
+     */
+    public void loadPage(int pageIndex) {
+        currentPage = pageIndex;
+        tvBottomSheetTitle.setText(pageTitles[pageIndex]);
+
+        Fragment pageFragment;
+        switch (pageIndex) {
+            case 0:
+                pageFragment = FindRidePage1Fragment.newInstance(selectedDestinations);
+
+                break;
+            case 1:
+                pageFragment = FindRidePage2Fragment.newInstance(selectedPreferences);
+                break;
+            case 2:
+                pageFragment = FindRidePage3Fragment.newInstance(selectedDestinations, selectedPreferences);
+                break;
+            default:
+                pageFragment = new FindRidePage1Fragment();
+        }
+
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.bottomSheetContentContainer, pageFragment)
+                .commit();
+    }
+
+    /**
+     * Go to next page
+     */
+    public void nextPage() {
+        if (currentPage < pageTitles.length - 1) {
+            loadPage(currentPage + 1);
+
+            // Expand bottom sheet when moving to next page
+            if (!bottomSheetHelper.isExpanded()) {
+                bottomSheetHelper.expand();
+            }
+        }
+    }
+
+    /**
+     * Go to previous page
+     */
+    public void previousPage() {
+        if (currentPage > 0) {
+            loadPage(currentPage - 1);
+        }
+    }
+
+    /**
+     * Expand bottom sheet
+     */
+    public void expandBottomSheet() {
+        bottomSheetHelper.expand();
+    }
+
+    /**
+     * Collapse bottom sheet
+     */
+    public void collapseBottomSheet() {
+        bottomSheetHelper.collapse();
+    }
+
+    /**
+     * Get map fragment for interaction
+     */
+    public OSMMapFragment getMapFragment() {
+        return mapFragment;
+    }
+
+    public void setAwaitingMapDestination(boolean awaiting) {
+        awaitingMapDestination = awaiting;
+    }
+
+    @Override
+    public void onMapClicked(GeoPoint point) {
+        if (!awaitingMapDestination || currentPage != 0) {
+            return;
+        }
+
+        Fragment pageFragment = getChildFragmentManager().findFragmentById(R.id.bottomSheetContentContainer);
+        if (pageFragment instanceof FindRidePage1Fragment) {
+            ((FindRidePage1Fragment) pageFragment).addDestinationFromMap(point);
+            awaitingMapDestination = false;
+        }
+    }
+
+    @Override
+    public void onMarkerClicked(org.osmdroid.views.overlay.Marker marker, GeoPoint point) {
+        // No-op for now.
+    }
+
+    @Override
+    public void onRouteCalculated(Road road) {
+        // No-op for now.
+    }
+
+    public void setSelectedDestinations(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
+        this.selectedDestinations = selectedDestinations;
+    }
+
+    public void setSelectedPreferences(RidePreferences selectedPreferences) {
+        this.selectedPreferences = selectedPreferences;
+    }
+}

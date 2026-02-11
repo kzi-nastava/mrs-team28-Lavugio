@@ -8,7 +8,11 @@
 
     <!-- Right column: Reviews, Reports, Actions -->
     <div class="flex flex-col gap-4">
-      <app-review-section [info]="ride()" class="min-h-fit bg-[rgb(255,254,248)]"></app-review-section>
+      <app-review-section
+        [info]="ride()"
+        (reviewClicked)="showReview.set(true)"
+        class="min-h-fit bg-[rgb(255,254,248)]">
+      </app-review-section>
       <app-reports-section [info]="ride()" class="min-h-fit bg-[rgb(255,254,248)]"></app-reports-section>
       
       <!-- Reorder Buttons -->
@@ -29,4 +33,32 @@
   <div class="flex-1 w-full min-h-[300px]">
     <app-map #map></app-map>
   </div>
+
+  
+
 </app-base-info-page>
+
+  @if (showReview()) {
+
+    @if (showReview()) {
+      <div class="fixed inset-0 z-[9999] flex items-center justify-center">
+
+        <!-- Overlay -->
+        <div
+          class="absolute inset-0 bg-black/50"
+          (click)="showReview.set(false)">
+        </div>
+
+        <!-- Modal wrapper -->
+        <div class="relative z-10 w-[95%] md:w-1/2 max-h-[90vh] flex items-center justify-center">
+          <app-review-form
+            class="w-full"
+            [rideId]="ride()?.rideId!"
+            (hideReviewOutput)="showReview.set(false)"
+            (isSuccessfulOutput)="onReviewSuccess($event)">
+          </app-review-form>
+        </div>
+      </div>
+    }
+
+  }

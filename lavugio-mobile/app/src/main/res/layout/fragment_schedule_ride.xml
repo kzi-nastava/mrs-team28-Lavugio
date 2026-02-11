@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_white_rounded"
+    android:padding="24dp"
+    android:elevation="8dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Schedule Ride"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Ride Now / Schedule Ride Radio Buttons -->
+    <RadioGroup
+        android:id="@+id/rgRideType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="24dp">
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/rbRideNow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ride Now"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:buttonTint="@color/light_green"
+            android:padding="12dp"
+            android:gravity="center" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/rbScheduleRide"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Schedule Ride"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:buttonTint="@color/light_green"
+            android:padding="12dp"
+            android:gravity="center" />
+
+    </RadioGroup>
+
+    <!-- Time Input (initially disabled) -->
+    <LinearLayout
+        android:id="@+id/llTimeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_white_rounded"
+        android:padding="16dp"
+        android:alpha="0.5"
+        android:enabled="false"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_time"
+            app:tint="#333333" />
+
+        <TextView
+            android:id="@+id/tvSelectedTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="12:30 AM"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:layout_marginStart="12dp" />
+
+        <ImageView
+            android:id="@+id/ivTimePicker"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_drop_down"
+            android:enabled="false"
+            app:tint="#333333" />
+
+    </LinearLayout>
+
+    <!-- Info Text -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ride can be scheduled up to 5 hours in advance."
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"
+        android:paddingHorizontal="16dp" />
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:background="@drawable/button_outline_light_green"
+            app:backgroundTint="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnSchedule"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Schedule"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_bg"
+            app:backgroundTint="@color/dark_brown"
+            android:padding="14dp"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+</LinearLayout>
