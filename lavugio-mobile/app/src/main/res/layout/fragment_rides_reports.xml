@@ -18,7 +18,6 @@
         android:gravity="center"
         android:layout_margin="24dp"/>
 
-    <?xml version="1.0" encoding="utf-8"?>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -40,7 +39,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/dark_brown"
                 android:gravity="left"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="8dp" />
 
             <!-- Date Range Input - Jedan unos kao na slici -->
             <LinearLayout
@@ -74,13 +73,6 @@
                     app:tint="#BC6C25" />
 
             </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#EEEEEE"
-                android:layout_marginVertical="16dp" />
 
             <!-- Select User Email -->
             <TextView
@@ -133,7 +125,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/dark_brown"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="8dp" />
 
             <!-- Radio Group -->
             <RadioGroup
