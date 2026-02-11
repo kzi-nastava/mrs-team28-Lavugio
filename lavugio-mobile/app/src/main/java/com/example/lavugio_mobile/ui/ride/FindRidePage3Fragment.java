@@ -281,6 +281,7 @@ public class FindRidePage3Fragment extends Fragment {
     private void orderRide(String rideType, String selectedTime) {
         Log.d("SCHEDULE", "Ordered Ride type: " + rideType);
         Log.d("SCHEDULE", "Ordered Selected time: " + selectedTime);
+        // TODO: POVEŽI SA BACKEND DODAVANJE VOŽNJE
     }
 
     @Override
