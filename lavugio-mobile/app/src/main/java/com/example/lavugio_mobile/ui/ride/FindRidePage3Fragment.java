@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.ui.ride;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,9 +81,17 @@ public class FindRidePage3Fragment extends Fragment {
             ((FindRideFragment) getParentFragment()).previousPage();
         });
 
-        btnFinish.setOnClickListener(v -> {
-            orderRide();
-        });
+        if (this.selectedDestinations == null || this.selectedDestinations.size() < 2) {
+            btnFinish.setEnabled(false);
+            btnFinish.setAlpha(0.5f);
+        } else {
+            btnFinish.setAlpha(1);
+            btnFinish.setEnabled(true);
+            btnFinish.setOnClickListener(v -> {
+                openScheduleDialog();
+            });
+        }
+
     }
 
     private void setupScrollInterception() {
@@ -253,8 +262,25 @@ public class FindRidePage3Fragment extends Fragment {
         }
     }
 
-    private void orderRide() {
+    private void openScheduleDialog() {
+        FindRideScheduleFragment fragment = new FindRideScheduleFragment();
 
+        fragment.setOnRideScheduledListener(new FindRideScheduleFragment.OnRideScheduledListener() {
+            @Override
+            public void onRideScheduled(String rideType, String selectedTime) {
+                Log.d("SCHEDULE", "Ride type: " + rideType);
+                Log.d("SCHEDULE", "Selected time: " + selectedTime);
+
+                orderRide(rideType, selectedTime);
+            }
+        });
+
+        fragment.show(getParentFragmentManager(), "ScheduleRideFragment");
+    }
+
+    private void orderRide(String rideType, String selectedTime) {
+        Log.d("SCHEDULE", "Ordered Ride type: " + rideType);
+        Log.d("SCHEDULE", "Ordered Selected time: " + selectedTime);
     }
 
     @Override

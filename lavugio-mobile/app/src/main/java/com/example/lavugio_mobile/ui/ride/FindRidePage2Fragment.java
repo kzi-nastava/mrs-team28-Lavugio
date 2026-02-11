@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
 import com.example.lavugio_mobile.data.model.vehicle.VehicleType;
+import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,14 +175,20 @@ public class FindRidePage2Fragment extends Fragment {
             String email = etPassengerEmail.getText().toString().trim();
 
             if (TextUtils.isEmpty(email)) {
+                ErrorDialogFragment.newInstance("Error", "You have to enter email.")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
                 return;
             }
 
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                ErrorDialogFragment.newInstance("Error", "You have to enter email in valid format.")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
                 return;
             }
 
             if (passengerEmails.contains(email)) {
+                ErrorDialogFragment.newInstance("Error", "You have already added this passenger email.")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
                 return;
             }
 

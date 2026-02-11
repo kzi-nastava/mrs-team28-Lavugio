@@ -265,7 +265,7 @@ public class FindRidePage1Fragment extends Fragment {
         });
 
         btnPrevious.setEnabled(false);
-
+        btnPrevious.setAlpha(0.5f);
         btnNext.setOnClickListener(v -> {
             // Add markers to map and go to next page
             addMarkersToMap();
