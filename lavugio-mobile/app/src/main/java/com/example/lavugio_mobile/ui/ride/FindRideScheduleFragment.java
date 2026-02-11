@@ -24,6 +24,9 @@ import com.example.lavugio_mobile.R;
 import java.util.Calendar;
 
 public class FindRideScheduleFragment extends DialogFragment {
+    private static final int MIN_OFFSET_MINUTES = 15;
+    private static final int MAX_OFFSET_MINUTES = 5 * 60; // 5 hours
+
     private RadioGroup rgRideType;
     private RadioButton rbRideNow;
     private RadioButton rbScheduleRide;
@@ -68,6 +71,7 @@ public class FindRideScheduleFragment extends DialogFragment {
         // By default ride now is selected
         rbRideNow.setChecked(true);
         disableTimeInput();
+        btnSchedule.setEnabled(true);
     }
 
     private void initViews(View view) {
@@ -87,8 +91,12 @@ public class FindRideScheduleFragment extends DialogFragment {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.rbRideNow) {
                     disableTimeInput();
+                    // For Ride Now, button is always enabled
+                    btnSchedule.setEnabled(true);
                 } else {
                     enableTimeInput();
+                    // When switching to schedule ride, require a valid time selection first
+                    btnSchedule.setEnabled(false);
                 }
             }
         });
@@ -157,6 +165,9 @@ public class FindRideScheduleFragment extends DialogFragment {
                 (view, hourOfDay, minuteOfHour) -> {
                     String time = formatTime(hourOfDay, minuteOfHour);
                     tvSelectedTime.setText(time);
+
+                    // Enable/disable Schedule button based on selected time
+                    updateScheduleButtonStateForTime(hourOfDay, minuteOfHour);
                 },
                 hour,
                 minute,
@@ -184,6 +195,40 @@ public class FindRideScheduleFragment extends DialogFragment {
         }
 
         return String.format("%02d:%02d %s", hour, minute, amPm);
+    }
+
+    private void updateScheduleButtonStateForTime(int hourOfDay, int minuteOfHour) {
+        // If Ride Now is selected, button must always be enabled
+        if (rbRideNow != null && rbRideNow.isChecked()) {
+            if (btnSchedule != null) {
+                btnSchedule.setEnabled(true);
+            }
+            return;
+        }
+
+        if (btnSchedule == null) {
+            return;
+        }
+
+        Calendar now = Calendar.getInstance();
+        Calendar selected = Calendar.getInstance();
+        selected.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        selected.set(Calendar.MINUTE, minuteOfHour);
+        selected.set(Calendar.SECOND, 0);
+        selected.set(Calendar.MILLISECOND, 0);
+
+        long diffMillis = selected.getTimeInMillis() - now.getTimeInMillis();
+        long diffMinutes = diffMillis / (60 * 1000);
+
+        boolean isValid = diffMinutes >= MIN_OFFSET_MINUTES && diffMinutes <= MAX_OFFSET_MINUTES;
+        if (isValid) {
+            btnSchedule.setEnabled(true);
+            btnSchedule.setAlpha(1f);
+        } else {
+            btnSchedule.setEnabled(false);
+            btnSchedule.setAlpha(0.5f);
+        }
+
     }
 
     private void dismissFragment() {
