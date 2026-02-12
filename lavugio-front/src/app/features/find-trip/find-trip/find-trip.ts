@@ -264,7 +264,7 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
             : '',
           scheduled: result.isScheduled,
           estimatedDurationSeconds: this.rideEstimate()?.durationSeconds ?? 0,
-          distance: this.rideEstimate()?.distanceMeters ?? 0,
+          distance: parseFloat(((this.rideEstimate()?.distanceMeters ?? 0) / 1000).toFixed(2)),
           price: this.ridePrice(),
         };
 
