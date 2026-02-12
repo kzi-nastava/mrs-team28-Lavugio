@@ -88,10 +88,13 @@ public class RideController {
         }
     }
 
-    // 3. Create scheduled ride (for future)
+    /*
+* Endpoint for creating a new ride request. Depending on the "scheduled" flag in the request, * it will either create an instant ride or a scheduled ride.
+     */
     @PostMapping("/find-ride")
     public ResponseEntity<?> findRide(
             @Valid @RequestBody RideRequestDTO request) {
+        System.out.println("Received ride request scheduled for: " + request.getScheduledTime().toString());
         Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
         Long creatorId = JwtUtil.extractAccountId(authentication);
         System.out.println("Trying to find ride for account with id: " + creatorId);
