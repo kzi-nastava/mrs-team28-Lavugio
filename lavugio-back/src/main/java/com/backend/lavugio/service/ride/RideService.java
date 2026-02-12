@@ -59,7 +59,6 @@ public interface RideService {
     Float calculateTotalDistanceForDriver(Long driverId);
     Float calculateAverageFareForDriver(Long driverId);
     List<Ride> applyParametersToRides(List<Ride> rides, boolean ascending, DriverHistorySortFieldEnum sortBy, String dateRangeStart, String dateRangeEnd);
-    double estimateRidePrice(RideEstimateRequestDTO request);
     Double calculatePrice(VehicleType vehicleType, Double distance);
     DriverHistoryPagingDTO getDriverHistory(Long driverId, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
     DriverHistoryDetailedDTO getDriverHistoryDetailed(Long driverId, Long rideId);
