@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LiveSupportButton } from './live-support-button';
+import { LiveSupportButtonComponent } from './live-support-button';
 
-describe('LiveSupportButton', () => {
-  let component: LiveSupportButton;
-  let fixture: ComponentFixture<LiveSupportButton>;
+describe('LiveSupportButtonComponent', () => {
+  let component: LiveSupportButtonComponent;
+  let fixture: ComponentFixture<LiveSupportButtonComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LiveSupportButton]
+      imports: [LiveSupportButtonComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(LiveSupportButton);
+    fixture = TestBed.createComponent(LiveSupportButtonComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
