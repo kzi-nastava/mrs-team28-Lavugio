@@ -894,9 +894,8 @@ public class RideServiceImpl implements RideService {
         UserHistoryDetailedDTO dto = new UserHistoryDetailedDTO(ride);
         
         // Get reviews for this ride
-        List<Review> reviews = reviewRepository.findByReviewedRideId(rideId);
-        if (!reviews.isEmpty()) {
-            Review review = reviews.get(0); // Get the first review (user's review)
+        Review review = reviewRepository.findReviewByRideIdAndUserId(rideId, userId);
+        if (review != null) {
             dto.setHasReview(true);
             dto.setDriverRating(review.getDriverRating());
             dto.setCarRating(review.getCarRating());
