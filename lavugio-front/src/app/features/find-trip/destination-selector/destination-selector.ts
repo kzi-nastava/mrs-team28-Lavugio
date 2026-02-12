@@ -40,7 +40,7 @@ export class DestinationSelector implements OnDestroy {
     this.isLoading = true;
 
     this.geocodingService
-      .reverseGeocode(coords.latitude, coords.longitude)
+      .reverseGeocodeNominatim(coords.latitude, coords.longitude)
       .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
         this.isLoading = false;
