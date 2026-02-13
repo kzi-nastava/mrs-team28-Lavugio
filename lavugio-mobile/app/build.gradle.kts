@@ -57,7 +57,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-ktx:1.17.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -78,10 +78,15 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("org.osmdroid:osmdroid-android:6.1.18")
-    implementation("com.github.MKergall:osmbonuspack:6.9.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmbonuspack)
+    implementation(libs.gson)
+    implementation(libs.material.v1110)
+    implementation(libs.logging.interceptor)
+    implementation(libs.stompprotocolandroid)
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
+    implementation(libs.okhttp)
 }

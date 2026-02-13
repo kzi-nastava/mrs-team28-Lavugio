@@ -18,6 +18,11 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.MainActivity;
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.models.auth.AuthCallback;
+import com.example.lavugio_mobile.services.auth.AuthService;
+import com.example.lavugio_mobile.services.WebSocketService;
+import com.example.lavugio_mobile.models.auth.LoginRequest;
+import com.example.lavugio_mobile.models.auth.LoginResponse;
 
 public class LoginFragment extends Fragment {
 
@@ -28,6 +33,8 @@ public class LoginFragment extends Fragment {
     private TextView registerLink;
     private TextView forgotPasswordLink;
     private boolean isPasswordVisible = false;
+
+    private AuthService authService;
 
     @Nullable
     @Override
@@ -41,6 +48,8 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        authService = AuthService.getInstance();
+
         // Initialize views
         emailInput = view.findViewById(R.id.login_email);
         passwordInput = view.findViewById(R.id.login_password);
@@ -49,20 +58,14 @@ public class LoginFragment extends Fragment {
         registerLink = view.findViewById(R.id.register_link);
         forgotPasswordLink = view.findViewById(R.id.forgot_password_link);
 
-        // Verify all views are found
         if (emailInput == null || passwordInput == null || passwordToggle == null ||
                 loginButton == null || registerLink == null || forgotPasswordLink == null) {
             Toast.makeText(getContext(), "Error: Some views could not be found", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Set up password toggle
         passwordToggle.setOnClickListener(v -> togglePasswordVisibility());
-
-        // Set up login button
         loginButton.setOnClickListener(v -> handleLogin());
-
-        // Set up navigation links
         registerLink.setOnClickListener(v -> navigateToRegister());
         forgotPasswordLink.setOnClickListener(v -> navigateToForgotPassword());
     }
@@ -78,7 +81,6 @@ public class LoginFragment extends Fragment {
             passwordToggle.setImageResource(android.R.drawable.ic_menu_view);
         }
 
-        // Keep cursor at the end
         passwordInput.setSelection(passwordInput.getText().length());
     }
 
@@ -102,19 +104,38 @@ public class LoginFragment extends Fragment {
             return;
         }
 
-        // TODO: Send login request to backend
-        Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+        // Disable button to prevent double-tap while request is in flight
+        loginButton.setEnabled(false);
+        loginButton.setText("Logging in...");
 
-        // For now, show profile fragment
-        navigateToProfile();
+        LoginRequest request = new LoginRequest(email, password);
+
+        authService.login(request, new AuthCallback<LoginResponse>() {
+            @Override
+            public void onSuccess(LoginResponse result) {
+                // Retrofit callbacks come on the main thread when using enqueue
+                if (!isAdded()) return; // Fragment might have been detached
+
+                Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+                navigateToProfile();
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                if (!isAdded()) return;
+
+                loginButton.setEnabled(true);
+                loginButton.setText("Login");
+                Toast.makeText(getContext(), "Login failed: " + message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void navigateToRegister() {
         if (getActivity() instanceof MainActivity) {
-            Fragment fragment = new RegisterFragment();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.content_container, fragment)
+                    .replace(R.id.content_container, new RegisterFragment())
                     .addToBackStack(null)
                     .commit();
         }
@@ -122,10 +143,9 @@ public class LoginFragment extends Fragment {
 
     private void navigateToForgotPassword() {
         if (getActivity() instanceof MainActivity) {
-            Fragment fragment = new ForgotPasswordFragment();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.content_container, fragment)
+                    .replace(R.id.content_container, new ForgotPasswordFragment())
                     .addToBackStack(null)
                     .commit();
         }
@@ -133,10 +153,10 @@ public class LoginFragment extends Fragment {
 
     private void navigateToProfile() {
         if (getActivity() instanceof MainActivity) {
-            Fragment fragment = new com.example.lavugio_mobile.ui.profile.ProfileFragment();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.content_container, fragment)
+                    .replace(R.id.content_container,
+                            new com.example.lavugio_mobile.ui.profile.ProfileFragment())
                     .addToBackStack(null)
                     .commit();
         }

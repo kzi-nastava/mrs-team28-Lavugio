@@ -2,7 +2,6 @@ package com.example.lavugio_mobile.ui;
 
 import android.annotation.SuppressLint;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -16,24 +15,20 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.models.DriverLocation;
 import com.example.lavugio_mobile.services.ApiClient;
-import com.example.lavugio_mobile.services.DriverService;
+import com.example.lavugio_mobile.services.DriverApi;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 
-import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import retrofit2.Call;
 
@@ -199,8 +194,8 @@ public class GuestHomePageFragment extends Fragment {
     }
     private void fetchLocations(){
         android.util.Log.d("GuestHomePage", "Fetching driver locations...");
-        DriverService driverService = ApiClient.getClient().create(DriverService.class);
-        driverService.getLocations().enqueue(new retrofit2.Callback<List<DriverLocation>>() {
+        DriverApi driverApi = ApiClient.getClient().create(DriverApi.class);
+        driverApi.getLocations().enqueue(new retrofit2.Callback<List<DriverLocation>>() {
             @Override
             public void onResponse(@NonNull Call<List<DriverLocation>> call, retrofit2.Response<List<DriverLocation>> response) {
                 if (response.isSuccessful() && response.body() != null) {
