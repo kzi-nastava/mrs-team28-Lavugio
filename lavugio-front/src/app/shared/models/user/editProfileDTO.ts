@@ -30,8 +30,26 @@ export interface EditDriverProfileRequestDTO {
 }
 
 export function MapProfileToEditDriverProfileRequestDTO(profile: UserProfile): EditDriverProfileRequestDTO {
-    console.log(profile.vehicleBabyFriendly);
-    console.log(profile.vehiclePetFriendly);
+    const mapVehicleType = (type?: string): string => {
+        if (!type) return '';
+
+        const upper = type.toUpperCase();
+        if (upper === 'STANDARD' || upper === 'LUXURY' || upper === 'COMBI') {
+            return upper;
+        }
+
+        switch (type) {
+            case 'Standard':
+                return 'STANDARD';
+            case 'Luxury':
+                return 'LUXURY';
+            case 'Combi':
+                return 'COMBI';
+            default:
+                return upper;
+        }
+    };
+
     return {
         profile: MapProfileToEditProfileDTO(profile),
         vehicleMake: profile.vehicleMake || '',
@@ -41,7 +59,7 @@ export function MapProfileToEditDriverProfileRequestDTO(profile: UserProfile): E
         vehicleSeats: profile.vehicleSeats || 0,
         vehiclePetFriendly: profile.vehiclePetFriendly || false,
         vehicleBabyFriendly: profile.vehicleBabyFriendly || false,
-        vehicleType: profile.vehicleType || '',
+        vehicleType: mapVehicleType(profile.vehicleType),
     }
 }
 

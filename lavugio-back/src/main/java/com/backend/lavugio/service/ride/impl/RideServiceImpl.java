@@ -245,27 +245,6 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public double estimateRidePrice(RideEstimateRequestDTO request) {
-        // TODO: Implement a more sophisticated pricing algorithm
-        double priceForDistance = 200*(request.getDistanceMeters() / 1000);
-        BigDecimal bd = BigDecimal.valueOf(priceForDistance).setScale(2, BigDecimal.ROUND_HALF_UP);
-        priceForDistance = bd.doubleValue();
-        if (request.getSelectedVehicleType() == null) {
-            throw new IllegalArgumentException("Vehicle type cannot be null");
-        }
-        switch (request.getSelectedVehicleType().toUpperCase()) {
-            case "STANDARD":
-                return priceForDistance;
-            case "LUXURY":
-                return priceForDistance * 1.5f;
-            case "COMBI":
-                return priceForDistance * 2.0f;
-            default:
-                throw new IllegalArgumentException("Unknown vehicle type: " + request.getSelectedVehicleType());
-        }
-    }
-
-    @Override
     @Transactional
     public Ride addPassengerToRide(Long rideId, Long passengerId) {
         Ride ride = getRideById(rideId);
@@ -894,9 +873,8 @@ public class RideServiceImpl implements RideService {
         UserHistoryDetailedDTO dto = new UserHistoryDetailedDTO(ride);
         
         // Get reviews for this ride
-        List<Review> reviews = reviewRepository.findByReviewedRideId(rideId);
-        if (!reviews.isEmpty()) {
-            Review review = reviews.get(0); // Get the first review (user's review)
+        Review review = reviewRepository.findReviewByRideIdAndUserId(rideId, userId);
+        if (review != null) {
             dto.setHasReview(true);
             dto.setDriverRating(review.getDriverRating());
             dto.setCarRating(review.getCarRating());

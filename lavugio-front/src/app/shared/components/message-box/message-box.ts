@@ -1,11 +1,10 @@
-import { Component, OnInit, OnDestroy, Input, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, AfterViewChecked, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Message } from './message/message';
 import { AuthService } from '@app/core/services/auth-service';
 import { ChatService } from '@app/core/services/chat-service';
 import { ChatMessageModel } from '@app/shared/models/chatMessage';
-import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-message-box',
@@ -20,6 +19,7 @@ export class MessageBox implements OnInit, AfterViewInit {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
   messages: ChatMessageModel[] = [];
+  @ViewChildren(Message) messageComponents!: QueryList<Message>;
   newMessage: string = '';
   userId: number = 0;
 

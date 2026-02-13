@@ -42,5 +42,5 @@ public class RideRequestDTO {
     private int estimatedDurationSeconds;
 
     private int price;
-    private int distance;
+    private float distance;
 }

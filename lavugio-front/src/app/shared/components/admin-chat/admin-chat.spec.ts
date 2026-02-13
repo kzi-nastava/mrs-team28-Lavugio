@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AdminChatComponent } from './admin-chat';
 
-describe('AdminChatComponent', () => {
+describe('AdminChat', () => {
   let component: AdminChatComponent;
   let fixture: ComponentFixture<AdminChatComponent>;
 

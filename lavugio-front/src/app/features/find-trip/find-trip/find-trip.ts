@@ -259,10 +259,12 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
           vehicleType: this.selectedVehicleType.toUpperCase() as VehicleType,
           babyFriendly: this.isBabyFriendly,
           petFriendly: this.isPetFriendly,
-          scheduledTime: result.scheduledTime ? new Date(result.scheduledTime).toISOString().replace('Z', '') : '',
+          scheduledTime: result.scheduledTime
+            ? this.formatLocalDateTime(result.scheduledTime)
+            : '',
           scheduled: result.isScheduled,
           estimatedDurationSeconds: this.rideEstimate()?.durationSeconds ?? 0,
-          distance: this.rideEstimate()?.distanceMeters ?? 0,
+          distance: parseFloat(((this.rideEstimate()?.distanceMeters ?? 0) / 1000).toFixed(2)),
           price: this.ridePrice(),
         };
 
@@ -297,6 +299,18 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
         );
       },
     });
+  }
+
+  private formatLocalDateTime(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
   onFinish() {

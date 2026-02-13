@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="24dp"
+    android:elevation="8dp"
+    android:minHeight="400dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Favorite Route"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/light_green"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Routes Container - Scrollable when multiple -->
+    <ScrollView
+        android:id="@+id/svRoutesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:background="@drawable/bg_white_rounded"
+        android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:id="@+id/llRoutesList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Empty State -->
+            <TextView
+                android:id="@+id/tvNoRoutes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No favorite routes added"
+                android:textSize="16sp"
+                android:textColor="#999999"
+                android:gravity="center"
+                android:padding="40dp"
+                android:visibility="gone" />
+
+            <!-- Route Item Template -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvRouteItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground">
+
+                    <!-- Route Name -->
+                    <TextView
+                        android:id="@+id/tvRouteName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Fakultet - Stan"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333333"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Destinations Count -->
+                    <TextView
+                        android:id="@+id/tvDestinationsCount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="2 destinations"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- From Address -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="From:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#333333"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvFromAddress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Makedonska 2ᵗ →"
+                            android:textSize="14sp"
+                            android:textColor="#333333"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+
+                    <!-- To Address -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="To:"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#333333"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvToAddress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cara Dušana 1ᵗ"
+                            android:textSize="14sp"
+                            android:textColor="#333333"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:background="@drawable/button_bg"
+            app:backgroundTint="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnSelect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Select"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_bg"
+            app:backgroundTint="@color/light_green"
+            android:padding="14dp"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

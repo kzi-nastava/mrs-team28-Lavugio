@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LiveSupportButtonComponent } from './live-support-button';
 
-describe('LiveSupportButtonComponent', () => {
+describe('LiveSupportButton', () => {
   let component: LiveSupportButtonComponent;
   let fixture: ComponentFixture<LiveSupportButtonComponent>;
 
