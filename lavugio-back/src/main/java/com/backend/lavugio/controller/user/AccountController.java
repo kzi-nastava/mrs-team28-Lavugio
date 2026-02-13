@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
-public class AccountController {
+public class    AccountController {
 
     @Autowired
     private AccountService accountService;

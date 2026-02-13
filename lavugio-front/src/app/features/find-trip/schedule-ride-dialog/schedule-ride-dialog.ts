@@ -20,8 +20,9 @@ export class ScheduleRideDialog {
 
   minTime = computed(() => {
     const now = new Date();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const minDate = new Date(now.getTime() + 15 * 60 * 1000); // +15 minuta
+    const hours = minDate.getHours().toString().padStart(2, '0');
+    const minutes = minDate.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   });
 
@@ -60,7 +61,8 @@ export class ScheduleRideDialog {
     }
 
     const maxAllowedTime = new Date(now.getTime() + 5 * 60 * 60 * 1000);
-    return scheduledTime <= maxAllowedTime;
+    const minAllowedTime = new Date(now.getTime() + 15 * 60 * 1000);
+    return scheduledTime >= minAllowedTime && scheduledTime <= maxAllowedTime;
   });
 
   getRideScheduleData(): RideScheduleData {

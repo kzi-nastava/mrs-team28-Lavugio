@@ -88,7 +88,9 @@ public class RideController {
         }
     }
 
-    // 3. Create scheduled ride (for future)
+    /*
+* Endpoint for creating a new ride request. Depending on the "scheduled" flag in the request, * it will either create an instant ride or a scheduled ride.
+     */
     @PostMapping("/find-ride")
     public ResponseEntity<?> findRide(
             @Valid @RequestBody RideRequestDTO request) {
