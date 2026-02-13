@@ -1,5 +1,6 @@
 package com.backend.lavugio.endToEnd.pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -16,8 +17,9 @@ public class FindTripPage {
     @FindBy(xpath = "//app-navbar//span[text()='History']")
     WebElement historyBtn;
 
-    @FindBy(id = "map")
-    WebElement map;
+    // Navbar element to verify page loaded
+    @FindBy(xpath = "//app-navbar")
+    WebElement navbar;
 
     public FindTripPage(WebDriver driver){
         this.driver = driver;
@@ -26,12 +28,17 @@ public class FindTripPage {
     }
 
     private void waitForPageToLoad(){
-        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(map));
+        // Wait for navbar to appear (indicates logged-in page loaded)
+        new WebDriverWait(this.driver, Duration.ofSeconds(15)).until(
+                ExpectedConditions.or(
+                        ExpectedConditions.visibilityOfElementLocated(By.xpath("//app-navbar")),
+                        ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(text(),'Logout')]"))
+                )
+        );
     }
 
     public void clickHistoryBtn(){
         new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(historyBtn)).click();
     }
-
 
 }

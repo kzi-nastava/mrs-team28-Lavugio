@@ -6,7 +6,6 @@ import { Register } from './register';
 import { AuthService } from '@app/core/services/auth-service';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock Navbar component
 @Component({
@@ -23,16 +22,12 @@ class MockNavbar {}
 describe('Register Component', () => {
   let component: Register;
   let fixture: ComponentFixture<Register>;
-  let mockAuthService: { registerWithFile: ReturnType<typeof vi.fn> };
-  let mockRouter: { navigate: ReturnType<typeof vi.fn> };
+  let mockAuthService: jasmine.SpyObj<AuthService>;
+  let mockRouter: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    mockAuthService = {
-      registerWithFile: vi.fn()
-    };
-    mockRouter = {
-      navigate: vi.fn()
-    };
+    mockAuthService = jasmine.createSpyObj('AuthService', ['registerWithFile']);
+    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [Register, FormsModule, CommonModule, MockNavbar],
@@ -69,7 +64,7 @@ describe('Register Component', () => {
       expect(component.phoneNumber()).toBe('');
     });
 
-    it('should successfully submit registration with valid data', async () => {
+    it('should successfully submit registration with valid data', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -78,16 +73,15 @@ describe('Register Component', () => {
       component.address.set('123 Main St');
       component.phoneNumber.set('1234567890');
 
-      mockAuthService.registerWithFile.mockReturnValue(of({ message: 'Success' }));
+      mockAuthService.registerWithFile.and.returnValue(of({ message: 'Success' }));
 
       component.handleRegister();
-      await fixture.whenStable();
 
       expect(mockAuthService.registerWithFile).toHaveBeenCalled();
       expect(component.successMessage()).toContain('Registration successful!');
     });
 
-    it('should send correct FormData to AuthService', async () => {
+    it('should send correct FormData to AuthService', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -96,12 +90,11 @@ describe('Register Component', () => {
       component.address.set('123 Main St');
       component.phoneNumber.set('1234567890');
 
-      mockAuthService.registerWithFile.mockReturnValue(of({ message: 'Success' }));
+      mockAuthService.registerWithFile.and.returnValue(of({ message: 'Success' }));
 
       component.handleRegister();
-      await fixture.whenStable();
 
-      const formData = mockAuthService.registerWithFile.mock.calls[0][0] as FormData;
+      const formData = mockAuthService.registerWithFile.calls.mostRecent().args[0] as FormData;
       expect(formData.get('email')).toBe('test@example.com');
       expect(formData.get('password')).toBe('validPassword123');
       expect(formData.get('name')).toBe('John');
@@ -110,7 +103,7 @@ describe('Register Component', () => {
       expect(formData.get('phoneNumber')).toBe('1234567890');
     });
 
-    it('should set success message after successful registration', async () => {
+    it('should set success message after successful registration', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -119,10 +112,9 @@ describe('Register Component', () => {
       component.address.set('123 Main St');
       component.phoneNumber.set('1234567890');
 
-      mockAuthService.registerWithFile.mockReturnValue(of({ message: 'Success' }));
+      mockAuthService.registerWithFile.and.returnValue(of({ message: 'Success' }));
 
       component.handleRegister();
-      await fixture.whenStable();
 
       expect(component.successMessage()).toContain('Registration successful!');
     });
@@ -185,7 +177,7 @@ describe('Register Component', () => {
       expect(component.errorMessage()).toBe('Name is required');
     });
 
-    it('should display error message from server on failed registration', async () => {
+    it('should display error message from server on failed registration', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -199,15 +191,14 @@ describe('Register Component', () => {
           message: 'Email already exists'
         }
       };
-      mockAuthService.registerWithFile.mockReturnValue(throwError(() => errorResponse));
+      mockAuthService.registerWithFile.and.returnValue(throwError(() => errorResponse));
 
       component.handleRegister();
-      await fixture.whenStable();
 
       expect(component.errorMessage()).toBe('Email already exists');
     });
 
-    it('should not call navigate on failed registration', async () => {
+    it('should not call navigate on failed registration', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -216,13 +207,11 @@ describe('Register Component', () => {
       component.address.set('123 Main St');
       component.phoneNumber.set('1234567890');
 
-      mockAuthService.registerWithFile.mockReturnValue(throwError(() => ({ error: 'Error' })));
+      mockAuthService.registerWithFile.and.returnValue(throwError(() => ({ error: 'Error' })));
 
       component.handleRegister();
-      await fixture.whenStable();
 
-      // Navigation should not be called immediately after error
-      expect(component.errorMessage()).toBeTruthy();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
   });
 
@@ -242,7 +231,7 @@ describe('Register Component', () => {
       expect(component.errorMessage()).toBe('Password must be at least 8 characters');
     });
 
-    it('should allow password with exactly 8 characters (minimum valid)', async () => {
+    it('should allow password with exactly 8 characters (minimum valid)', () => {
       component.email.set('test@example.com');
       component.password.set('12345678'); // 8 chars - boundary
       component.confirmPassword.set('12345678');
@@ -251,10 +240,9 @@ describe('Register Component', () => {
       component.address.set('123 Main St');
       component.phoneNumber.set('1234567890');
 
-      mockAuthService.registerWithFile.mockReturnValue(of({ message: 'Success' }));
+      mockAuthService.registerWithFile.and.returnValue(of({ message: 'Success' }));
 
       component.handleRegister();
-      await fixture.whenStable();
 
       expect(component.errorMessage()).toBe('');
       expect(mockAuthService.registerWithFile).toHaveBeenCalled();
@@ -283,7 +271,7 @@ describe('Register Component', () => {
       expect(component.profilePicture()).toBeNull();
     });
 
-    it('should handle server error with field validation errors', async () => {
+    it('should handle server error with field validation errors', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -299,15 +287,14 @@ describe('Register Component', () => {
           }
         }
       };
-      mockAuthService.registerWithFile.mockReturnValue(throwError(() => errorResponse));
+      mockAuthService.registerWithFile.and.returnValue(throwError(() => errorResponse));
 
       component.handleRegister();
-      await fixture.whenStable();
 
       expect(component.errorMessage()).toContain('email: Email format invalid');
     });
 
-    it('should display generic error on unknown server error', async () => {
+    it('should display generic error on unknown server error', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -316,15 +303,14 @@ describe('Register Component', () => {
       component.address.set('123 Main St');
       component.phoneNumber.set('1234567890');
 
-      mockAuthService.registerWithFile.mockReturnValue(throwError(() => ({})));
+      mockAuthService.registerWithFile.and.returnValue(throwError(() => ({})));
 
       component.handleRegister();
-      await fixture.whenStable();
 
       expect(component.errorMessage()).toBe('Registration failed. Please try again.');
     });
 
-    it('should set loading to false after failed registration', async () => {
+    it('should set loading to false after failed registration', () => {
       component.email.set('test@example.com');
       component.password.set('validPassword123');
       component.confirmPassword.set('validPassword123');
@@ -333,12 +319,11 @@ describe('Register Component', () => {
       component.address.set('123 Main St');
       component.phoneNumber.set('1234567890');
 
-      mockAuthService.registerWithFile.mockReturnValue(throwError(() => ({ error: 'Error' })));
+      mockAuthService.registerWithFile.and.returnValue(throwError(() => ({ error: 'Error' })));
 
       component.handleRegister();
-      await fixture.whenStable();
 
-      expect(component.loading()).toBe(false);
+      expect(component.loading()).toBeFalse();
     });
   });
 });

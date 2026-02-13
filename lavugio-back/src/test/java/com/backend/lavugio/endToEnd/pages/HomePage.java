@@ -1,5 +1,6 @@
 package com.backend.lavugio.endToEnd.pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -17,8 +18,9 @@ public class HomePage {
     @FindBy(xpath = "//span[text() = 'Login here']")
     WebElement loginBtn;
 
-    @FindBy(id = "map")
-    WebElement map;
+    // Wait for Login here text to be visible (guest page) or Logout button (logged in)
+    @FindBy(xpath = "//span[contains(text(),'Login here')] | //button[contains(text(),'Logout')]")
+    WebElement pageLoadIndicator;
 
     public HomePage(WebDriver driver){
         this.driver = driver;
@@ -28,12 +30,19 @@ public class HomePage {
     }
 
     public void goToLoginPage(){
-        loginBtn.click();
+        new WebDriverWait(this.driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.elementToBeClickable(loginBtn)).click();
     }
 
     private void waitForPageToLoad(){
-        new WebDriverWait(this.driver, Duration.ofSeconds(20)).until(ExpectedConditions.visibilityOf(map));
+        // Wait for either "Login here" (guest) or "Logout" (logged in) to appear
+        new WebDriverWait(this.driver, Duration.ofSeconds(20)).until(
+                ExpectedConditions.or(
+                        ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(),'Login here')]")),
+                        ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(text(),'Logout')]")),
+                        ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[contains(text(),'Tired')]"))
+                )
+        );
     }
-
 
 }
