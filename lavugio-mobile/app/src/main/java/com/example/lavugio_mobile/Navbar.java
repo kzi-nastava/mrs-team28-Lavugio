@@ -18,6 +18,7 @@ import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
 import com.example.lavugio_mobile.ui.map.MapContainerFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
+import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 import com.example.lavugio_mobile.ui.ride.FindRideFragment;
 
 public class Navbar {
@@ -208,6 +209,7 @@ public class Navbar {
                 navigateToFragment(new TripHistoryFragment());
                 break;
             case "Reports":
+                navigateToFragment(new RidesReportsFragment());
                 break;
             case "Profile":
                 // Navigate to Profile screen
