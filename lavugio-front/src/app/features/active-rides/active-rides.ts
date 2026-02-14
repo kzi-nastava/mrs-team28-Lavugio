@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { RideService } from '@app/core/services/ride-service';
 import { Navbar } from '@app/shared/components/navbar/navbar';
 import { DialogService } from '@app/core/services/dialog-service';
-import { LiveSupportButtonComponent } from "@app/shared/components/live-support-button/live-support-button";
 
 interface Ride {
   id: number;
@@ -17,7 +16,7 @@ interface Ride {
 
 @Component({
   selector: 'app-active-rides',
-  imports: [CommonModule, Navbar, LiveSupportButtonComponent],
+  imports: [CommonModule, Navbar],
   templateUrl: './active-rides.html',
   styleUrl: './active-rides.css'
 })
