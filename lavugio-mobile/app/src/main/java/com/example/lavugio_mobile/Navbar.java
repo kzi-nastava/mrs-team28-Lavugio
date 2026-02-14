@@ -27,6 +27,7 @@ import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
+import com.example.lavugio_mobile.ui.ride.ActiveRidesFragment;
 import com.example.lavugio_mobile.ui.ride.FindRideFragment;
 
 public class Navbar {
@@ -482,8 +483,7 @@ public class Navbar {
     }
 
     private void onRidesClicked() {
-        // TODO: Navigate to active rides fragment
-        Toast.makeText(activity, "Active Rides — coming soon", Toast.LENGTH_SHORT).show();
+        navigateToFragment(new ActiveRidesFragment());
     }
 
     private void onDriverRidesClicked() {
