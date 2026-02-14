@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#BC6C25">
+
+    <TextView
+        android:id="@+id/nav_item_reports"
+        style="@style/NavMenuItem"
+        android:text="Reports" />
+
+    <TextView
+        android:id="@+id/nav_item_notifications"
+        style="@style/NavMenuItem"
+        android:text="Notifications" />
+
+    <TextView
+        android:id="@+id/nav_item_profile"
+        style="@style/NavMenuItem"
+        android:text="Profile"
+        android:background="@drawable/nav_item_border_top" />
+
+    <TextView
+        android:id="@+id/nav_item_admin_panel"
+        style="@style/NavMenuItem"
+        android:text="Admin Panel"
+        android:background="@drawable/nav_item_border_top" />
+
+    <TextView
+        android:id="@+id/nav_item_logout"
+        style="@style/NavMenuItem"
+        android:text="Logout"
+        android:background="@drawable/nav_item_border_top" />
+
+</LinearLayout>

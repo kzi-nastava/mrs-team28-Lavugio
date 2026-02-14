@@ -9,12 +9,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lavugio_mobile.services.WebSocketService;
+import com.example.lavugio_mobile.services.auth.AuthService;
 import com.example.lavugio_mobile.ui.GuestHomePageFragment;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private Navbar navbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         String LOCAL_IP = BuildConfig.SERVER_IP;
 
         System.out.println(LOCAL_IP);
-
+        AuthService.init(this, new WebSocketService());
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        
+
         // Initialize the navbar
         navbar = new Navbar(this, findViewById(R.id.main));
 

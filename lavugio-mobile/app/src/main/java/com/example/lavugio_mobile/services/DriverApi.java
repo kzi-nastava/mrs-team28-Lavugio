@@ -6,10 +6,9 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 
-public interface DriverService {
+public interface DriverApi {
 
-    @GET("drivers/locations")
+    @GET("api/drivers/locations")
     Call<List<DriverLocation>> getLocations();
 }

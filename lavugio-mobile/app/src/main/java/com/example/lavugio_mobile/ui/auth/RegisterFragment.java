@@ -18,6 +18,10 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.MainActivity;
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.models.auth.AuthCallback;
+import com.example.lavugio_mobile.services.auth.AuthService;
+import com.example.lavugio_mobile.services.WebSocketService;
+import com.example.lavugio_mobile.models.auth.RegistrationRequest;
 
 public class RegisterFragment extends Fragment {
 
@@ -32,6 +36,8 @@ public class RegisterFragment extends Fragment {
     private TextView loginLink;
     private boolean isPasswordVisible = false;
 
+    private AuthService authService;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -44,6 +50,10 @@ public class RegisterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize AuthService here where requireContext() is safe
+        WebSocketService wsService = new WebSocketService();
+        authService = AuthService.getInstance();
+
         // Initialize views
         emailInput = view.findViewById(R.id.register_email);
         passwordInput = view.findViewById(R.id.register_password);
@@ -55,7 +65,6 @@ public class RegisterFragment extends Fragment {
         registerButton = view.findViewById(R.id.register_button);
         loginLink = view.findViewById(R.id.login_link);
 
-        // Verify all views are found
         if (emailInput == null || passwordInput == null || nameInput == null ||
                 surnameInput == null || addressInput == null || phoneInput == null ||
                 passwordToggle == null || registerButton == null || loginLink == null) {
@@ -63,13 +72,8 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
-        // Set up password toggle
         passwordToggle.setOnClickListener(v -> togglePasswordVisibility());
-
-        // Set up register button
         registerButton.setOnClickListener(v -> handleRegister());
-
-        // Set up navigation links
         loginLink.setOnClickListener(v -> navigateToLogin());
     }
 
@@ -115,34 +119,59 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
-        // TODO: Send registration request to backend
-        Toast.makeText(getContext(), "Registration successful! Please verify your email.", Toast.LENGTH_SHORT).show();
+        // Disable button to prevent double-tap
+        registerButton.setEnabled(false);
+        registerButton.setText("Registering...");
 
-        // Navigate to verify email
-        try {
-            VerifyEmailFragment verifyEmailFragment = new VerifyEmailFragment();
-            Bundle args = new Bundle();
-            args.putString("email", email);
-            verifyEmailFragment.setArguments(args);
+        RegistrationRequest request = new RegistrationRequest(
+                email, password, name, surname, phone, address
+        );
 
-            if (getActivity() instanceof MainActivity) {
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.content_container, verifyEmailFragment)
-                        .addToBackStack(null)
-                        .commit();
+        authService.register(request, new AuthCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                if (!isAdded()) return;
+
+                Toast.makeText(getContext(), "Registration successful! Please verify your email.",
+                        Toast.LENGTH_SHORT).show();
+
+                // Navigate to email verification screen
+                try {
+                    VerifyEmailFragment verifyEmailFragment = new VerifyEmailFragment();
+                    Bundle args = new Bundle();
+                    args.putString("email", email);
+                    verifyEmailFragment.setArguments(args);
+
+                    if (getActivity() instanceof MainActivity) {
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.content_container, verifyEmailFragment)
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(getContext(), "Error navigating: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
             }
-        } catch (Exception e) {
-            Toast.makeText(getContext(), "Error navigating: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+
+            @Override
+            public void onError(int code, String message) {
+                if (!isAdded()) return;
+
+                registerButton.setEnabled(true);
+                registerButton.setText("Register");
+                Toast.makeText(getContext(), "Registration failed: " + message,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void navigateToLogin() {
         if (getActivity() instanceof MainActivity) {
-            Fragment fragment = new LoginFragment();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.content_container, fragment)
+                    .replace(R.id.content_container, new LoginFragment())
                     .addToBackStack(null)
                     .commit();
         }
