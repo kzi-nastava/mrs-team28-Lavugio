@@ -57,7 +57,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.17.0")
+    implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -83,10 +83,12 @@ dependencies {
     implementation(libs.osmdroid.android)
     implementation(libs.osmbonuspack)
     implementation(libs.gson)
-    implementation(libs.material.v1110)
+    implementation(libs.material)
     implementation(libs.logging.interceptor)
     implementation(libs.stompprotocolandroid)
     implementation(libs.rxjava)
     implementation(libs.rxandroid)
     implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.mpandroidchart)
 }

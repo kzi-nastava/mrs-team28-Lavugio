@@ -26,6 +26,7 @@ import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
+import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 import com.example.lavugio_mobile.ui.ride.FindRideFragment;
 
 public class Navbar {
@@ -432,9 +433,29 @@ public class Navbar {
             @Override
             public void onError(int code, String message) {
                 Toast.makeText(activity, "Logout failed: " + message, Toast.LENGTH_SHORT).show();
-                navigateToFragment(new LoginFragment());
             }
         });
+    }
+
+    private void onMenuItemSelected(String itemName) {
+        switch (itemName) {
+            case "Trips":
+                navigateToFragment(new FindRideFragment());
+                break;
+            case "History":
+                navigateToFragment(new TripHistoryFragment());
+                break;
+            case "Reports":
+                navigateToFragment(new RidesReportsFragment());
+                break;
+            case "Profile":
+                // Navigate to Profile screen
+                navigateToFragment(new ProfileFragment());
+                break;
+            case "Login":
+                // Navigate to Login screen
+                navigateToFragment(new LoginFragment());
+        }
     }
 
     private void navigateToHome() {

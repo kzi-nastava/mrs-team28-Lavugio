@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <!-- Header - Van ScrollView, uvek vidljiv -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="RIDES REPORTS"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="@drawable/title_text_view"
+        android:padding="16dp"
+        android:gravity="center"
+        android:layout_margin="24dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- OVDE IDE DEO SA PADDINGOM - Filteri i opcije -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Title -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select Date Range"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_brown"
+                    android:gravity="left"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Date Range Input -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/edittext_background"
+                    android:padding="4dp"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tvDateRange"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Enter range"
+                        android:textSize="16sp"
+                        android:textColor="#999999"
+                        android:padding="12dp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:focusable="false"
+                        android:cursorVisible="false" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_time"
+                        android:layout_marginEnd="12dp"
+                        app:tint="#BC6C25" />
+
+                </LinearLayout>
+
+                <!-- Select User Email -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select User Email"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_brown"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Email Input -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/edittext_background"
+                    android:padding="4dp"
+                    android:layout_marginBottom="24dp">
+
+                    <EditText
+                        android:id="@+id/etUserEmail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Enter user email..."
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:textColorHint="#999999"
+                        android:padding="12dp"
+                        android:maxLines="1"
+                        android:inputType="textEmailAddress"
+                        android:background="@android:color/transparent" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_email"
+                        android:layout_marginEnd="12dp"
+                        app:tint="#BC6C25" />
+
+                </LinearLayout>
+
+                <!-- Filter By Title -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Filter By:"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_brown"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Radio Group -->
+                <RadioGroup
+                    android:id="@+id/rgFilterType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <RadioButton
+                        android:id="@+id/rbAllDrivers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="All Drivers"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:buttonTint="@color/light_green"
+                        android:paddingVertical="12dp"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/rbAllRegularUsers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="All Regular Users"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:buttonTint="@color/light_green"
+                        android:paddingVertical="12dp" />
+
+                    <RadioButton
+                        android:id="@+id/rbOneUserOnly"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="One User Only"
+                        android:textSize="16sp"
+                        android:textColor="#333333"
+                        android:buttonTint="@color/light_green"
+                        android:paddingVertical="12dp" />
+
+                </RadioGroup>
+
+                <!-- Filter Reports Button -->
+                <Button
+                    android:id="@+id/btnFilterReports"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="24dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/button_bg"
+                    android:gravity="center"
+                    android:text="Filter Reports"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    app:backgroundTint="@color/dark_brown" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Chart 1: Rides Per Day -->
+                <include
+                    android:id="@+id/chart1"
+                    layout="@layout/item_chart"/>
+
+                <!-- Chart 2: Mileage Covered Per Day -->
+                <include
+                    android:id="@+id/chart2"
+                    layout="@layout/item_chart"/>
+
+                <!-- Chart 3: Daily Financial Report -->
+                <include
+                    android:id="@+id/chart3"
+                    layout="@layout/item_chart"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

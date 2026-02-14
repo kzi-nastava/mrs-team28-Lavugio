@@ -40,6 +40,24 @@ interface PhotonResponse {
   features: PhotonFeature[];
 }
 
+export interface NominatimReverseResponse {
+  display_name: string;
+  lat: string;
+  lon: string;
+  address: {
+    road?: string;
+    house_number?: string;
+    suburb?: string;
+    neighbourhood?: string;
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    postcode?: string;
+    country?: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -50,6 +68,8 @@ export class GeocodingService {
 
   // OSRM - Open Source Routing Machine for route estimation
   private osrmUrl = 'https://router.project-osrm.org/route/v1/driving/';
+
+  private reverseNominatimApiUrl = 'https://nominatim.openstreetmap.org/reverse';
 
   constructor(private http: HttpClient) {}
 
@@ -76,28 +96,82 @@ export class GeocodingService {
     const params = {
       lat: lat.toString(),
       lon: lon.toString(),
-      limit: '1',
+      limit: '5',
+      radius: '50', // search within 50 meters for better accuracy
     };
 
     return this.http.get<PhotonResponse>(this.photonReverseUrl, { params }).pipe(
       map((response) => {
-        if (!response.features || response.features.length === 0) {
-          return null;
-        }
+        if (!response.features?.length) return null;
 
-        const result = this.transformPhotonResults(response)[0];
+        const results = this.transformPhotonResults(response);
 
-        if (!result.display_name || result.display_name.trim() === '') {
-          result.display_name = `Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
-        }
+        // Prioritize results with both street and number, then street only, then any result
 
-        return result;
+        return (
+          results.find((r) => r.street && r.streetNumber) ||
+          results.find((r) => r.street) ||
+          results[0]
+        );
       }),
-      catchError((error) => {
-        console.error('Reverse geocoding error:', error);
-        return of(null);
-      }),
+      catchError(() => of(null)),
     );
+  }
+
+  reverseGeocodeNominatim(lat: number, lon: number): Observable<GeocodeResult | null> {
+    const params = {
+      format: 'jsonv2',
+      lat: lat.toString(),
+      lon: lon.toString(),
+      zoom: '18', // 18 = building level
+      addressdetails: '1',
+    };
+
+    return this.http
+      .get<NominatimReverseResponse>(this.reverseNominatimApiUrl, { params })
+      .pipe(
+        map((res) => {
+          if (!res || !res.address) return null;
+
+          const a = res.address;
+
+          const city = a.city || a.town || a.village || a.municipality || '';
+
+          let displayName = '';
+
+          if (a.road) {
+            displayName = a.road;
+
+            if (a.house_number) {
+              displayName += ' ' + a.house_number;
+            }
+
+            if (city) {
+              displayName += ', ' + city;
+            }
+          } else if (city) {
+            displayName = city;
+          } else {
+            displayName = res.display_name;
+          }
+
+          return {
+            place_id: 0,
+            display_name: displayName,
+            lat: res.lat,
+            lon: res.lon,
+            type: 'reverse',
+            street: a.road,
+            streetNumber: a.house_number ?? null,
+            city: city,
+            country: a.country,
+          };
+        }),
+        catchError((err) => {
+          console.error('Nominatim reverse error:', err);
+          return of(null);
+        }),
+      );
   }
 
   private transformPhotonResults(response: PhotonResponse): GeocodeResult[] {
