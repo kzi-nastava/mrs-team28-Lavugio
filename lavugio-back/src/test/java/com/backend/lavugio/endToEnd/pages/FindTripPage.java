@@ -21,6 +21,9 @@ public class FindTripPage {
     WebElement orderRideBtn;
 
     @FindBy(xpath = "//button[text()=' Select favorite route ']")
+    WebElement openFavoriteRoutesBtn;
+
+    @FindBy(xpath = "//button[text()=' Select ']")
     WebElement selectFavoriteRouteBtn;
 
     @FindBy(tagName = "app-destinations-display")
@@ -47,13 +50,49 @@ public class FindTripPage {
         new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(orderRideBtn)).click();
     }
 
-    public void clickSelectFavoriteRouteBtn() {
-        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(selectFavoriteRouteBtn)).click();
+    public void clickOpenFavoriteRoutesBtn() {
+        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(openFavoriteRoutesBtn)).click();
     }
 
     public boolean isNoDestinationsAdded() {
         System.out.println(this.destinationsDisplay.findElement(By.tagName("p")).getText());
         return this.destinationsDisplay.findElement(By.tagName("p")).getText().equals("No destinations added yet");
+    }
+
+    public boolean selectFavoriteRoute(String favoriteRouteName) {
+        WebElement firstFavoriteRoute = this.destinationsDisplay.findElement(By.xpath("//p[contains(text(),'" + favoriteRouteName + "')]"));
+        if (firstFavoriteRoute != null) {
+            firstFavoriteRoute.click();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSelectFavoriteRouteBtnEnabled() {
+        try {
+            new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.elementToBeClickable(selectFavoriteRouteBtn));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean clickSelectFavoriteRouteBtn() {
+        try {
+            new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(selectFavoriteRouteBtn)).click();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isDestinationAdded(String destination) {
+        try {
+            new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(destinationsDisplay.findElement(By.xpath("//p[contains(text(),'" + destination + "')]"))));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }
