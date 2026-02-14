@@ -1,17 +1,7 @@
 package com.backend.lavugio.service.ride.impl;
 
 import com.backend.lavugio.dto.ride.*;
-import com.backend.lavugio.dto.user.AdminHistoryDTO;
-import com.backend.lavugio.dto.user.AdminHistoryDetailedDTO;
-import com.backend.lavugio.dto.user.AdminHistoryPagingDTO;
-import com.backend.lavugio.dto.user.DriverLocationDTO;
-import com.backend.lavugio.dto.user.DriverHistoryDTO;
-import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
-import com.backend.lavugio.dto.user.DriverHistoryPagingDTO;
-import com.backend.lavugio.dto.user.PassengerTableRowDTO;
-import com.backend.lavugio.dto.user.UserHistoryDTO;
-import com.backend.lavugio.dto.user.UserHistoryDetailedDTO;
-import com.backend.lavugio.dto.user.UserHistoryPagingDTO;
+import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
 import com.backend.lavugio.model.enums.VehicleType;
@@ -748,8 +738,71 @@ public class RideServiceImpl implements RideService {
         response.setStatus(ride.getRideStatus());
         response.setPrice(ride.getPrice());
         response.setDistance(ride.getDistance());
-        response.setEstimatedDuration(30); // Placeholder
-        // TODO: Map driver, creator, passengers DTOs properly
+        response.setEstimatedDuration(ride.getEstimatedDurationSeconds());
+        
+        // Map driver
+        if (ride.getDriver() != null) {
+            response.setDriver(new DriverDTO(ride.getDriver()));
+            
+            // Get vehicle info from driver
+            Vehicle vehicle = ride.getDriver().getVehicle();
+            if (vehicle != null) {
+                response.setVehicleType(vehicle.getType());
+                response.setBabyFriendly(vehicle.isBabyFriendly());
+                response.setPetFriendly(vehicle.isPetFriendly());
+            }
+        }
+        
+        if (ride.getCreator() != null) {
+            RegularUser creator = ride.getCreator();
+            UserDTO creatorDTO = new UserDTO();
+            creatorDTO.setId(creator.getId());
+            creatorDTO.setName(creator.getName());
+            creatorDTO.setEmail(creator.getEmail());
+            creatorDTO.setPhoneNumber(creator.getPhoneNumber());
+            response.setCreator(creatorDTO);
+        }
+        
+        if (ride.getPassengers() != null && !ride.getPassengers().isEmpty()) {
+            List<UserDTO> passengerDTOs = ride.getPassengers().stream()
+                    .map(passenger -> {
+                        UserDTO dto = new UserDTO();
+                        dto.setId(passenger.getId());
+                        dto.setName(passenger.getName());
+                        dto.setEmail(passenger.getEmail());
+                        dto.setPhoneNumber(passenger.getPhoneNumber());
+                        return dto;
+                    })
+                    .toList();
+            response.setPassengers(passengerDTOs);
+        }
+        
+        if (ride.getCheckpoints() != null && !ride.getCheckpoints().isEmpty()) {
+            List<RideDestinationDTO> stops = ride.getCheckpoints().stream()
+                    .map(checkpoint -> {
+                        RideDestinationDTO destDTO = new RideDestinationDTO();
+                        Address addr = checkpoint.getAddress();
+                        if (addr != null) {
+                            destDTO.setLocation(new StopBaseDTO(
+                                    checkpoint.getDestinationOrder(),
+                                    addr.getLatitude(),
+                                    addr.getLongitude()
+                            ));
+                            destDTO.setAddress(addr.toString());
+                            destDTO.setStreetName(addr.getStreetName());
+                            destDTO.setCity(addr.getCity());
+                            destDTO.setCountry(addr.getCountry());
+                            destDTO.setStreetNumber(Integer.parseInt(addr.getStreetNumber()));
+                            destDTO.setZipCode(addr.getZipCode());
+                        }
+                        return destDTO;
+                    })
+                    .toList();
+            response.setStops(stops);
+        }
+        
+        response.setScheduledTime(ride.getStartDateTime());
+        
         return response;
     }
 

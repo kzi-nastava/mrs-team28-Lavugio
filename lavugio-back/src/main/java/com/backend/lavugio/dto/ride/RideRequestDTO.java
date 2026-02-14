@@ -36,7 +36,7 @@ public class RideRequestDTO {
     private boolean scheduled;
 
     public RideDestinationDTO getStartAddress() {
-        return destinations.getFirst();
+        return destinations.isEmpty() ? null : destinations.getFirst();
     }
 
     private int estimatedDurationSeconds;
