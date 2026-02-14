@@ -125,8 +125,25 @@ public class WebSocketService {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(event -> {
                     switch (event.getType()) {
+
                         case OPENED:
                             Log.d(TAG, "STOMP connection opened");
+                            isConnectedFlag = true;
+
+                            // Flush pending subscriptions
+                            List<PendingSubscription> pending =
+                                    new ArrayList<>(pendingSubscriptions);
+                            pendingSubscriptions.clear();
+
+                            for (PendingSubscription sub : pending) {
+                                doSubscribe(sub.destination, sub.callback);
+                            }
+
+                            // Run connect callback AFTER real connection
+                            if (onConnectCallback != null) {
+                                onConnectCallback.run();
+                                onConnectCallback = null;
+                            }
                             break;
 
                         case CLOSED:
@@ -150,17 +167,6 @@ public class WebSocketService {
         stompClient.connect(headers);
         isConnectedFlag = true;
 
-        // Flush pending subscriptions
-        List<PendingSubscription> pending = new ArrayList<>(pendingSubscriptions);
-        pendingSubscriptions.clear();
-        for (PendingSubscription sub : pending) {
-            doSubscribe(sub.destination, sub.callback);
-        }
-
-        if (onConnectCallback != null) {
-            onConnectCallback.run();
-            onConnectCallback = null;
-        }
     }
 
     public void connect() {

@@ -5,12 +5,13 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.lavugio_mobile.api.AuthApi;
 import com.example.lavugio_mobile.models.auth.LoginRequest;
 import com.example.lavugio_mobile.models.auth.AuthCallback;
 import com.example.lavugio_mobile.models.auth.LoginResponse;
 import com.example.lavugio_mobile.models.auth.RegistrationRequest;
 import com.example.lavugio_mobile.models.auth.VerifyEmailRequest;
-import com.example.lavugio_mobile.services.ApiClient;
+import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.services.WebSocketService;
 
 import java.io.File;
