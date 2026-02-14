@@ -1,4 +1,4 @@
-package com.example.lavugio_mobile.adapters;
+package com.example.lavugio_mobile.api;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

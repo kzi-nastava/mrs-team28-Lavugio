@@ -1,8 +1,9 @@
-package com.example.lavugio_mobile.services;
+package com.example.lavugio_mobile.api;
 
 import androidx.annotation.NonNull;
 
 import com.example.lavugio_mobile.BuildConfig;
+import com.example.lavugio_mobile.api.AuthApi;
 import com.example.lavugio_mobile.api.DriverApi;
 import com.example.lavugio_mobile.api.LocalDateTimeAdapter;
 import com.example.lavugio_mobile.api.RideApi;
