@@ -77,13 +77,14 @@ public class RideOverviewServiceImpl implements RideOverviewService {
         if (ride == null) {
             throw new NoSuchElementException("Ride not found");
         }
+        System.out.println("Sending ride overview update...");
         RideOverviewUpdateDTO rideOverviewUpdateDTO = new RideOverviewUpdateDTO(endAddress, coordinates, ride);
-        simpMessagingTemplate.convertAndSend("socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
+        simpMessagingTemplate.convertAndSend("/socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
     }
 
     @Override
     public void sendRideOverviewUpdateDTO(RideOverviewUpdateDTO rideOverviewUpdateDTO, Long rideId) {
-        simpMessagingTemplate.convertAndSend("socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
+        simpMessagingTemplate.convertAndSend("/socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
     }
 
     @Override
