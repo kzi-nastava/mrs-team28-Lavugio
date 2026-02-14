@@ -174,7 +174,6 @@ public class RideServiceImpl implements RideService {
     }
 
     public List<Ride> getScheduledRidesForDriver(Long driverId){
-        System.out.println("Pozvalo se");
         return rideQueryService.getScheduledRidesForDriver(driverId);
     }
 
