@@ -9,6 +9,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lavugio_mobile.ui.GuestHomePageFragment;
+
+
 public class MainActivity extends AppCompatActivity {
 
     private Navbar navbar;
@@ -18,7 +21,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Set fullscreen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        
+        String LOCAL_IP = BuildConfig.SERVER_IP;
+
+        System.out.println(LOCAL_IP);
+
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -30,6 +37,14 @@ public class MainActivity extends AppCompatActivity {
         
         // Initialize the navbar
         navbar = new Navbar(this, findViewById(R.id.main));
+
+        // Load GuestHomePageFragment as the initial fragment
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, new GuestHomePageFragment())
+                    .commit();
+        }
     }
 }
 

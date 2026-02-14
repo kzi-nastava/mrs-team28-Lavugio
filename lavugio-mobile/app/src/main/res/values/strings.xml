@@ -105,6 +105,8 @@
     <string name="forgot_password_email_placeholder">Email</string>
     <string name="forgot_password_send_button">Send link</string>
     <string name="forgot_password_register_link">Register</string>
+    <string name="server_ip">192.168.1.10</string>
+    <string name="base_url">http://192.168.1.10:8080/api</string>
 
     <!-- Vehicle Types -->
     <string-array name="vehicle_types">

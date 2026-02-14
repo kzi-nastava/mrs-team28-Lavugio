@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Hero Section with Background Image - Full Screen -->
+        <FrameLayout
+            android:id="@+id/heroSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Background Image -->
+            <ImageView
+                android:id="@+id/heroBackground"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/home_page_background"
+                android:contentDescription="Background" />
+
+            <!-- Dark Overlay - 60% opacity (#99 = 153/255 ≈ 60%) -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#99283618" />
+
+            <!-- Hero Content -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp">
+
+                <!-- Main Title -->
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tired of long exhausting rides?"
+                    android:textColor="@color/lavugio_white"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:fontFamily="@font/inter" />
+
+                <!-- Subtitle -->
+                <TextView
+                    android:id="@+id/tvSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Travel easy with Lavugio"
+                    android:textColor="@color/lavugio_white"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:fontFamily="@font/inter" />
+
+                <!-- Buttons Row -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="24dp">
+
+                    <!-- See Routes Button -->
+                    <Button
+                        android:id="@+id/btnSeeRoutes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:paddingStart="24dp"
+                        android:paddingEnd="24dp"
+                        android:text="See routes"
+                        android:textColor="@color/lavugio_white"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:background="@drawable/rounded_button_bg"
+                        app:backgroundTint="@color/light_green" />
+
+                    <!-- Register Button -->
+                    <Button
+                        android:id="@+id/btnRegister"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="16dp"
+                        android:paddingStart="24dp"
+                        android:paddingEnd="24dp"
+                        android:text="Register"
+                        android:textColor="@color/lavugio_white"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:background="@drawable/rounded_button_bg"
+                        app:backgroundTint="@color/dark_brown" />
+
+                </LinearLayout>
+
+                <!-- Login Link -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="32dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Already registered? "
+                        android:textColor="@color/lavugio_white"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/inter" />
+
+                    <TextView
+                        android:id="@+id/tvLoginLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Login here"
+                        android:textColor="@color/lavugio_white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/inter"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!-- Map Section -->
+        <FrameLayout
+            android:id="@+id/mapSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Map Fragment Container -->
+            <FrameLayout
+                android:id="@+id/mapFragmentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</ScrollView>

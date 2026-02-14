@@ -1,8 +1,6 @@
 package com.example.lavugio_mobile.ui.map;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,11 +10,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.models.enums.DriverStatusEnum;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
@@ -49,10 +47,19 @@ public class OSMMapFragment extends Fragment {
     private static final double DEFAULT_LON = 19.84250;
     private static final double DEFAULT_ZOOM = 15;
 
+    private final List<Marker> driverMarkers = new ArrayList<>();
+
     public interface MapInteractionListener {
         void onMapClicked(GeoPoint point);
         void onMarkerClicked(Marker marker, GeoPoint point);
         void onRouteCalculated(Road road);
+    }
+
+    /**
+     * Set the map interaction listener explicitly
+     */
+    public void setMapInteractionListener(MapInteractionListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -90,6 +97,13 @@ public class OSMMapFragment extends Fragment {
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
+        // Prevent parent views from intercepting touch events
+        // This allows the map to handle vertical panning
+        mapView.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
+
         // Set initial position
         IMapController mapController = mapView.getController();
         mapController.setZoom(DEFAULT_ZOOM);
@@ -113,8 +127,9 @@ public class OSMMapFragment extends Fragment {
         MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
+                // Note: Don't add waypoint here - let the listener handle it
+                // This prevents duplicate markers when using map pick mode
                 if (addDestinationMode) {
-                    addWaypoint(p);
                     addDestinationMode = false;
                 }
 
@@ -161,6 +176,10 @@ public class OSMMapFragment extends Fragment {
         mapView.getOverlays().add(marker);
         mapView.invalidate();
 
+        android.util.Log.d("OSMMapFragment", "addWaypoint: marker=" + marker +
+                ", waypoints size=" + waypoints.size() +
+                ", overlays size=" + mapView.getOverlays().size());
+
         return marker;
     }
 
@@ -168,8 +187,19 @@ public class OSMMapFragment extends Fragment {
      * Remove a specific waypoint
      */
     public void removeWaypoint(Marker marker) {
-        waypoints.remove(marker);
-        mapView.getOverlays().remove(marker);
+        if (marker == null) {
+            android.util.Log.e("OSMMapFragment", "removeWaypoint: marker is null");
+            return;
+        }
+
+        boolean removedFromWaypoints = waypoints.remove(marker);
+        boolean removedFromOverlays = mapView.getOverlays().remove(marker);
+
+        android.util.Log.d("OSMMapFragment", "removeWaypoint: removedFromWaypoints=" + removedFromWaypoints +
+                ", removedFromOverlays=" + removedFromOverlays +
+                ", waypoints size=" + waypoints.size() +
+                ", overlays size=" + mapView.getOverlays().size());
+
         mapView.invalidate();
     }
 
@@ -321,5 +351,37 @@ public class OSMMapFragment extends Fragment {
         if (mapView != null) {
             mapView.onDetach();
         }
+    }
+
+    public void clearDriverMarkers() {
+        if (mapView == null) return;
+        for (Marker marker : driverMarkers) {
+            mapView.getOverlays().remove(marker);
+        }
+        driverMarkers.clear();
+        mapView.invalidate();
+    }
+
+    public void addDriverMarker(GeoPoint point, String title, DriverStatusEnum status) {
+        if (mapView == null) return;
+        Marker marker = new Marker(mapView);
+        marker.setPosition(point);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        marker.setTitle(title);
+
+        Drawable icon = null;
+
+        if (status.equals(DriverStatusEnum.AVAILABLE)) {
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_available);
+        } else if (status.equals(DriverStatusEnum.BUSY)) {
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_busy);
+        } else if (status.equals(DriverStatusEnum.RESERVED)) {
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_reserved);
+        }
+        if (icon != null) marker.setIcon(icon);
+
+        mapView.getOverlays().add(marker);
+        driverMarkers.add(marker);
+        mapView.invalidate();
     }
 }
