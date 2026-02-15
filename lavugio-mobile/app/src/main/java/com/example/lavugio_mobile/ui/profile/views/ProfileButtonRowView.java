@@ -43,11 +43,11 @@ public class ProfileButtonRowView extends LinearLayout {
         setGravity(Gravity.CENTER);
         setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(16));
 
-        // Create left button (Activate/Deactivate for drivers)
-        leftButton = createStyledButton("Activate", R.color.lavugio_dark_orange);
+        // Create right button (Activate/Deactivate for drivers)
+        rightButton = createStyledButton("Activate", R.color.lavugio_dark_orange);
 
-        // Create right button (Edit for everyone)
-        rightButton = createStyledButton("Edit", R.color.lavugio_dark_green);
+        // Create left button (Edit for everyone)
+        leftButton = createStyledButton("Edit", R.color.lavugio_light_green);
 
         // Set layout params with spacing
         LayoutParams leftParams = new LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
