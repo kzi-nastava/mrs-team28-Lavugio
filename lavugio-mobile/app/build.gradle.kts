@@ -97,4 +97,6 @@ dependencies {
     implementation(libs.location)
     implementation(libs.play.services.base)
     implementation(libs.base)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }

@@ -104,7 +104,8 @@
                     android:layout_weight="1"
                     android:background="@drawable/edittext_background"
                     android:entries="@array/trip_history_sort_options"
-                    android:padding="12dp" />
+                    android:padding="12dp"
+                    />
 
                 <!-- Sort Order Button -->
                 <LinearLayout
@@ -116,7 +117,9 @@
                         android:id="@+id/sortOrderButton"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
-                        android:backgroundTint="@color/off_white"
+                        android:backgroundTint="@color/lavugio_white"
+                        app:strokeColor="@color/dark_brown"
+                        app:strokeWidth="1dp"
                         android:fontFamily="@font/inter_variable_font"
                         app:cornerRadius="8dp"
                         app:icon="@drawable/ic_arrow_long_downward"
@@ -127,8 +130,7 @@
                         android:insetBottom="0dp"
                         android:padding="0dp"
                         android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:textColor="@color/white" />
+                        android:minHeight="0dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -142,7 +144,7 @@
                 android:fontFamily="@font/inter_variable_font"
                 android:text="Apply"
                 app:cornerRadius="8dp"
-                android:textColor="@color/white"
+                android:textColor="@color/lavugio_white"
                 android:textSize="16sp" />
         </LinearLayout>
 

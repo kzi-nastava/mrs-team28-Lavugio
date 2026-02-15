@@ -1,4 +1,4 @@
-package com.example.lavugio_mobile.ui.driver;
+package com.example.lavugio_mobile.ui.driver.history;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -23,17 +23,15 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.models.RideHistoryDriverModel;
 import com.example.lavugio_mobile.models.RideHistoryDriverPagingModel;
 import com.example.lavugio_mobile.services.DriverService;
-import com.example.lavugio_mobile.services.LocationService;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class RideHistoryFragment extends Fragment {
+public class DriverRideHistoryFragment extends Fragment {
 
     private EditText startDateEditText;
     private EditText endDateEditText;
@@ -49,7 +47,6 @@ public class RideHistoryFragment extends Fragment {
     private MaterialButton applyButton;
     private Spinner sortBySpinner;
 
-    // Overlay loading indicators (from XML, NOT adapter items)
     private ProgressBar topLoadingIndicator;
     private ProgressBar bottomLoadingIndicator;
 
@@ -61,6 +58,7 @@ public class RideHistoryFragment extends Fragment {
     private boolean hasMoreNewer = false;
     private boolean hasMoreOlder = true;
     private boolean isLoading = false;
+    private boolean suppressScrollEvents = false;
 
     private final int pageSize = 10;
     private final int maxLoadedPages = 3;
@@ -73,23 +71,19 @@ public class RideHistoryFragment extends Fragment {
     private String startDate = "01/01/2000";
     private String endDate = "31/12/2100";
 
-    // List of rides
     private List<RideHistoryDriverModel> rides = new ArrayList<>();
 
-    // For scroll position preservation
-    private int savedScrollPosition = 0;
+    public DriverRideHistoryFragment() {}
 
-    public RideHistoryFragment() {}
-
-    public static RideHistoryFragment newInstance() {
-        return new RideHistoryFragment();
+    public static DriverRideHistoryFragment newInstance() {
+        return new DriverRideHistoryFragment();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_driver_trip_history, container, false);
+        return inflater.inflate(R.layout.fragment_driver_ride_history, container, false);
     }
 
     @Override
@@ -131,17 +125,21 @@ public class RideHistoryFragment extends Fragment {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if (isLoading) return;
+                if (isLoading || suppressScrollEvents) return;
 
                 int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
                 int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
                 int totalItemCount = layoutManager.getItemCount();
 
-                if (firstVisibleItem <= 3 && hasMoreNewer) {
+                if (firstVisibleItem == RecyclerView.NO_POSITION) return;
+
+                // Only trigger load-newer when user is truly at the very top
+                if (dy < 0 && firstVisibleItem == 0 && hasMoreNewer) {
                     loadNewer();
                 }
 
-                if (lastVisibleItem >= totalItemCount - 3 && hasMoreOlder) {
+                // Only trigger load-older when user is truly near the bottom
+                if (dy > 0 && lastVisibleItem >= totalItemCount - 2 && hasMoreOlder) {
                     loadOlder();
                 }
             }
@@ -152,7 +150,7 @@ public class RideHistoryFragment extends Fragment {
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
                 requireContext(),
                 R.array.trip_history_sort_options,
-                android.R.layout.simple_spinner_item
+                R.layout.custom_spinner
         );
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortBySpinner.setAdapter(spinnerAdapter);
@@ -197,8 +195,6 @@ public class RideHistoryFragment extends Fragment {
         ridesRecyclerView.post(this::loadInitialRides);
     }
 
-    // ── Loading indicator helpers ────────────────────────
-
     private void showTopLoading() {
         topLoadingIndicator.setVisibility(View.VISIBLE);
     }
@@ -215,19 +211,11 @@ public class RideHistoryFragment extends Fragment {
         bottomLoadingIndicator.setVisibility(View.GONE);
     }
 
-    /**
-     * Sync all state to the adapter and notify once.
-     */
-    private void commitAdapterState() {
-        adapter.setHasMoreNewer(hasMoreNewer);
-        adapter.setHasMoreOlder(hasMoreOlder);
-        adapter.notifyDataSetChanged();
-    }
-
     // ── Data loading ─────────────────────────────────────
 
     private void loadInitialRides() {
         isLoading = true;
+        suppressScrollEvents = true;
         hideTopLoading();
         hideBottomLoading();
 
@@ -245,16 +233,21 @@ public class RideHistoryFragment extends Fragment {
                         newestLoadedPage = 0;
                         hasMoreOlder = !response.isReachedEnd();
                         hasMoreNewer = false;
-                        isLoading = false;
 
-                        commitAdapterState();
+                        adapter.setHasMoreNewer(hasMoreNewer);
+                        adapter.setHasMoreOlder(hasMoreOlder);
+                        adapter.notifyDataSetChanged();
+
+                        ridesRecyclerView.post(() -> {
+                            suppressScrollEvents = false;
+                            isLoading = false;
+                        });
                     }
 
                     @Override
                     public void onError(int code, String message) {
                         isLoading = false;
-                        hideTopLoading();
-                        hideBottomLoading();
+                        suppressScrollEvents = false;
                         Toast.makeText(requireContext(),
                                 "Error loading rides: " + message,
                                 Toast.LENGTH_SHORT).show();
@@ -275,24 +268,37 @@ public class RideHistoryFragment extends Fragment {
                 new DriverService.Callback<RideHistoryDriverPagingModel>() {
                     @Override
                     public void onSuccess(RideHistoryDriverPagingModel response) {
-                        if (response.getDriverHistory() != null) {
-                            rides.addAll(response.getDriverHistory());
-                        }
+                        hideBottomLoading();
+
+                        List<RideHistoryDriverModel> newRides =
+                                response.getDriverHistory() != null
+                                        ? response.getDriverHistory()
+                                        : new ArrayList<>();
+
+                        int insertPosition = rides.size();
+                        rides.addAll(newRides);
 
                         newestLoadedPage = nextPage;
                         hasMoreOlder = !response.isReachedEnd();
+                        adapter.setHasMoreOlder(hasMoreOlder);
 
-                        trimOldPages();
+                        suppressScrollEvents = true;
+                        adapter.notifyItemRangeInserted(insertPosition, newRides.size());
 
-                        isLoading = false;
-                        hideBottomLoading();
-
-                        commitAdapterState();
+                        // Defer trim to next frame so RecyclerView finishes the insert first
+                        ridesRecyclerView.post(() -> {
+                            trimOldPages();
+                            ridesRecyclerView.post(() -> {
+                                suppressScrollEvents = false;
+                                isLoading = false;
+                            });
+                        });
                     }
 
                     @Override
                     public void onError(int code, String message) {
                         isLoading = false;
+                        suppressScrollEvents = false;
                         hideBottomLoading();
                         Toast.makeText(requireContext(),
                                 "Error loading older rides: " + message,
@@ -311,43 +317,50 @@ public class RideHistoryFragment extends Fragment {
         isLoading = true;
         showTopLoading();
 
-        // Save scroll position before prepending items
-        int firstVisible = layoutManager.findFirstVisibleItemPosition();
-        View firstVisibleView = layoutManager.findViewByPosition(firstVisible);
-        if (firstVisibleView != null) {
-            savedScrollPosition = firstVisibleView.getTop();
-        }
-
         driverService.getDriverRideHistory(
                 nextPage, pageSize, sorting, sortBy, startDate, endDate,
                 new DriverService.Callback<RideHistoryDriverPagingModel>() {
                     @Override
                     public void onSuccess(RideHistoryDriverPagingModel response) {
+                        hideTopLoading();
+
                         List<RideHistoryDriverModel> newRides =
                                 response.getDriverHistory() != null
                                         ? response.getDriverHistory()
                                         : new ArrayList<>();
 
+                        // Save scroll anchor before prepending
+                        int firstVisible = layoutManager.findFirstVisibleItemPosition();
+                        View firstVisibleView = layoutManager.findViewByPosition(firstVisible);
+                        int topOffset = (firstVisibleView != null) ? firstVisibleView.getTop() : 0;
+
                         rides.addAll(0, newRides);
 
                         oldestLoadedPage = nextPage;
                         hasMoreNewer = nextPage > 0;
+                        adapter.setHasMoreNewer(hasMoreNewer);
 
-                        trimNewPages();
+                        suppressScrollEvents = true;
+                        adapter.notifyItemRangeInserted(0, newRides.size());
 
-                        isLoading = false;
-                        hideTopLoading();
-
-                        commitAdapterState();
-
-                        // Restore scroll position offset by prepended items
+                        // Restore scroll: old firstVisible is now shifted by newRides.size()
                         layoutManager.scrollToPositionWithOffset(
-                                newRides.size(), savedScrollPosition);
+                                firstVisible + newRides.size(), topOffset);
+
+                        // Defer trim to next frame
+                        ridesRecyclerView.post(() -> {
+                            trimNewPages();
+                            ridesRecyclerView.post(() -> {
+                                suppressScrollEvents = false;
+                                isLoading = false;
+                            });
+                        });
                     }
 
                     @Override
                     public void onError(int code, String message) {
                         isLoading = false;
+                        suppressScrollEvents = false;
                         hideTopLoading();
                         Toast.makeText(requireContext(),
                                 "Error loading newer rides: " + message,
@@ -361,65 +374,72 @@ public class RideHistoryFragment extends Fragment {
 
     private void trimOldPages() {
         int totalLoadedPages = newestLoadedPage - oldestLoadedPage + 1;
-        if (totalLoadedPages > maxLoadedPages) {
-            int pagesToRemove = totalLoadedPages - maxLoadedPages;
-            int itemsToRemove = Math.min(pagesToRemove * pageSize, rides.size());
+        if (totalLoadedPages <= maxLoadedPages) return;
 
-            for (int i = 0; i < itemsToRemove; i++) {
-                rides.remove(0);
-            }
+        int pagesToRemove = totalLoadedPages - maxLoadedPages;
+        int itemsToRemove = pagesToRemove * pageSize;
 
-            oldestLoadedPage += pagesToRemove;
-            hasMoreNewer = true;
+        // Never remove more items than we have, and always keep at least one page
+        itemsToRemove = Math.min(itemsToRemove, rides.size() - pageSize);
+        if (itemsToRemove <= 0) return;
+
+        // Capture scroll anchor BEFORE removing
+        int firstVisible = layoutManager.findFirstVisibleItemPosition();
+        View firstVisibleView = layoutManager.findViewByPosition(firstVisible);
+        int topOffset = (firstVisibleView != null) ? firstVisibleView.getTop() : 0;
+
+        for (int i = 0; i < itemsToRemove; i++) {
+            rides.remove(0);
+        }
+
+        oldestLoadedPage += pagesToRemove;
+        hasMoreNewer = true;
+        adapter.setHasMoreNewer(hasMoreNewer);
+
+        adapter.notifyItemRangeRemoved(0, itemsToRemove);
+
+        // Adjust scroll: the item that was at firstVisible moved up by itemsToRemove
+        int newPosition = firstVisible - itemsToRemove;
+        if (newPosition >= 0 && newPosition < rides.size()) {
+            layoutManager.scrollToPositionWithOffset(newPosition, topOffset);
         }
     }
 
     private void trimNewPages() {
         int totalLoadedPages = newestLoadedPage - oldestLoadedPage + 1;
-        if (totalLoadedPages > maxLoadedPages) {
-            int pagesToRemove = totalLoadedPages - maxLoadedPages;
-            int itemsToRemove = Math.min(pagesToRemove * pageSize, rides.size());
+        if (totalLoadedPages <= maxLoadedPages) return;
 
-            for (int i = 0; i < itemsToRemove; i++) {
-                rides.remove(rides.size() - 1);
-            }
+        int pagesToRemove = totalLoadedPages - maxLoadedPages;
+        int itemsToRemove = pagesToRemove * pageSize;
 
-            newestLoadedPage -= pagesToRemove;
-            hasMoreOlder = true;
+        // Never remove more items than we have, and always keep at least one page
+        itemsToRemove = Math.min(itemsToRemove, rides.size() - pageSize);
+        if (itemsToRemove <= 0) return;
+
+        int removeFrom = rides.size() - itemsToRemove;
+
+        for (int i = 0; i < itemsToRemove; i++) {
+            rides.remove(rides.size() - 1);
         }
+
+        newestLoadedPage -= pagesToRemove;
+        hasMoreOlder = true;
+        adapter.setHasMoreOlder(hasMoreOlder);
+
+        adapter.notifyItemRangeRemoved(removeFrom, itemsToRemove);
     }
 
     // ── Navigation ───────────────────────────────────────
 
     private void openRideDetails(RideHistoryDriverModel ride) {
-        // Backend already sends pre-formatted strings — just split them
-        RideDetailsFragment fragment = RideDetailsFragment.newInstance(
-                String.valueOf(ride.getRideId()),
-                ride.getStartDateOnly(),   // "12.02.2026"
-                ride.getStartTime(),       // "22:15"
-                ride.getEndDateOnly(),     // "12.02.2026"
-                ride.getEndTime(),         // "22:15"
-                ride.getStartAddress(),
-                ride.getEndAddress()
-        );
+        RideHistoryDriverDetailedFragment fragment =
+                RideHistoryDriverDetailedFragment.newInstance(ride.getRideId());
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_container, fragment)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    private String formatTime(LocalDateTime dateTime) {
-        if (dateTime == null) return "";
-        return String.format(Locale.getDefault(), "%02d:%02d",
-                dateTime.getHour(), dateTime.getMinute());
-    }
-
-    private String formatDate(LocalDateTime dateTime) {
-        if (dateTime == null) return "";
-        return String.format(Locale.getDefault(), "%02d.%02d.%04d.",
-                dateTime.getDayOfMonth(), dateTime.getMonthValue(), dateTime.getYear());
     }
 
     // ── Date picker ──────────────────────────────────────

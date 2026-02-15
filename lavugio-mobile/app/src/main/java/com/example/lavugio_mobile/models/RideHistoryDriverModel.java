@@ -1,7 +1,5 @@
 package com.example.lavugio_mobile.models;
 
-import java.util.List;
-
 /**
  * Matches the actual backend JSON:
  *   "rideId": 193,
@@ -13,35 +11,28 @@ import java.util.List;
  * Dates come as pre-formatted strings "HH:mm dd.MM.yyyy" from the backend.
  */
 public class RideHistoryDriverModel {
-    private String departure;
-    private String destination;
-    private String start;
-    private String end;
+    private Long rideId;
+    private String startAddress;
+    private String endAddress;
+    private String startDate;   // "HH:mm dd.MM.yyyy" or ""
+    private String endDate;     // "HH:mm dd.MM.yyyy" or ""
 
-    private String status;
-    private double price;
-    private boolean cancelled;
-    private boolean panic;
-    private List<PassengerTableRow> passengers;
-    private Coordinates[] checkpoints;
+    // Android-only fields (not in Angular model, but used by the UI)
 
-    public String getStartAddress() { return departure; }
-    public void setStartAddress(String startAddress) { this.departure = startAddress; }
+    public long getRideId() { return rideId; }
+    public void setRideId(long rideId) { this.rideId = rideId; }
 
-    public String getEndAddress() { return destination; }
-    public void setEndAddress(String endAddress) { this.destination = endAddress; }
+    public String getStartAddress() { return startAddress; }
+    public void setStartAddress(String startAddress) { this.startAddress = startAddress; }
 
-    public String getStartDate() { return start; }
-    public void setStartDate(String startDate) { this.start = startDate; }
+    public String getEndAddress() { return endAddress; }
+    public void setEndAddress(String endAddress) { this.endAddress = endAddress; }
 
-    public String getEndDate() { return end; }
-    public void setEndDate(String endDate) { this.end = endDate; }
+    public String getStartDate() { return startDate; }
+    public void setStartDate(String startDate) { this.startDate = startDate; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
+    public String getEndDate() { return endDate; }
+    public void setEndDate(String endDate) { this.endDate = endDate; }
 
     /**
      * Extracts the time portion from a date string.
@@ -49,11 +40,11 @@ public class RideHistoryDriverModel {
      * Output: "22:15"
      */
     public String getStartTime() {
-        return extractTime(start);
+        return extractTime(startDate);
     }
 
     public String getEndTime() {
-        return extractTime(end);
+        return extractTime(endDate);
     }
 
     /**
@@ -62,11 +53,11 @@ public class RideHistoryDriverModel {
      * Output: "12.02.2026"
      */
     public String getStartDateOnly() {
-        return extractDate(start);
+        return extractDate(startDate);
     }
 
     public String getEndDateOnly() {
-        return extractDate(end);
+        return extractDate(endDate);
     }
 
     private String extractTime(String dateStr) {
@@ -79,69 +70,5 @@ public class RideHistoryDriverModel {
         if (dateStr == null || dateStr.isEmpty()) return "";
         String[] parts = dateStr.split(" ", 2);
         return parts.length >= 2 ? parts[1] : "";
-    }
-
-    public String getDeparture() {
-        return departure;
-    }
-
-    public void setDeparture(String departure) {
-        this.departure = departure;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
-    public String getStart() {
-        return start;
-    }
-
-    public void setStart(String start) {
-        this.start = start;
-    }
-
-    public String getEnd() {
-        return end;
-    }
-
-    public void setEnd(String end) {
-        this.end = end;
-    }
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
-    public boolean isPanic() {
-        return panic;
-    }
-
-    public void setPanic(boolean panic) {
-        this.panic = panic;
-    }
-
-    public List<PassengerTableRow> getPassengers() {
-        return passengers;
-    }
-
-    public void setPassengers(List<PassengerTableRow> passengers) {
-        this.passengers = passengers;
-    }
-
-    public Coordinates[] getCheckpoints() {
-        return checkpoints;
-    }
-
-    public void setCheckpoints(Coordinates[] checkpoints) {
-        this.checkpoints = checkpoints;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.lavugio_mobile.ui.driver;
+package com.example.lavugio_mobile.ui.driver.history;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,7 +59,7 @@ public class RideHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return new EndViewHolder(endView);
         }
 
-        View itemView = inflater.inflate(R.layout.trip_row_item, parent, false);
+        View itemView = inflater.inflate(R.layout.fragment_driver_ride_history_card, parent, false);
         return new RideViewHolder(itemView);
     }
 

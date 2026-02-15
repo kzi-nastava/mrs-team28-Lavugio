@@ -20,10 +20,11 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.lavugio_mobile.models.auth.AuthCallback;
 import com.example.lavugio_mobile.services.auth.AuthService;
+import com.example.lavugio_mobile.ui.GuestHomePageFragment;
 import com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
-import com.example.lavugio_mobile.ui.driver.RideHistoryFragment;
+import com.example.lavugio_mobile.ui.driver.history.DriverRideHistoryFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 import com.example.lavugio_mobile.ui.ride.CurrentRidesFragment;
@@ -372,7 +373,7 @@ public class Navbar {
             setMenuClickListener(R.id.nav_item_rides,
                     this::onRidesClicked);
             setMenuClickListener(R.id.nav_item_history,
-                    () -> navigateToFragment(new RideHistoryFragment()));
+                    this::onRidesClicked);
         }
 
         // Driver
@@ -382,7 +383,7 @@ public class Navbar {
                 statusButton.setOnClickListener(v -> toggleDriverStatus());
             }
             setMenuClickListener(R.id.nav_item_history,
-                    () -> navigateToFragment(new RideHistoryFragment()));
+                    () -> navigateToFragment(new DriverRideHistoryFragment()));
             setMenuClickListener(R.id.nav_item_rides,
                     this::onDriverRidesClicked);
         }
@@ -426,8 +427,17 @@ public class Navbar {
         authService.logout(new AuthCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+
+                activity.getSupportFragmentManager()
+                        .popBackStack(null,
+                                androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                activity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_container, new GuestHomePageFragment())
+                        .commit();
+
                 Toast.makeText(activity, "Logged out", Toast.LENGTH_SHORT).show();
-                navigateToFragment(new LoginFragment());
             }
 
             @Override
@@ -443,7 +453,7 @@ public class Navbar {
                 navigateToFragment(new FindRideFragment());
                 break;
             case "History":
-                navigateToFragment(new RideHistoryFragment());
+                navigateToFragment(new DriverRideHistoryFragment());
                 break;
             case "Reports":
                 navigateToFragment(new RidesReportsFragment());
