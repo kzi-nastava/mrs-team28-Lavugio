@@ -33,6 +33,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OSMMapFragment extends Fragment {
     private boolean addDestinationMode = false;
@@ -109,9 +110,6 @@ public class OSMMapFragment extends Fragment {
         mapController.setZoom(DEFAULT_ZOOM);
         GeoPoint startPoint = new GeoPoint(DEFAULT_LAT, DEFAULT_LON);
         mapController.setCenter(startPoint);
-
-        // Add my location overlay
-        setupMyLocationOverlay();
 
         // Add map click listener
         setupMapClickListener();
@@ -231,7 +229,8 @@ public class OSMMapFragment extends Fragment {
                 }
 
                 // Get road using OSRM
-                RoadManager roadManager = new OSRMRoadManager(getContext(), getActivity().getPackageName());
+                OSRMRoadManager roadManager = new OSRMRoadManager(getContext(), getActivity().getPackageName());
+                roadManager.setMean(OSRMRoadManager.MEAN_BY_CAR);
                 Road road = roadManager.getRoad(routePoints);
 
                 // Update UI on main thread
@@ -362,8 +361,8 @@ public class OSMMapFragment extends Fragment {
         mapView.invalidate();
     }
 
-    public void addDriverMarker(GeoPoint point, String title, DriverStatusEnum status) {
-        if (mapView == null) return;
+    public Marker addDriverMarker(GeoPoint point, String title, DriverStatusEnum status) {
+        if (mapView == null) return null;
         Marker marker = new Marker(mapView);
         marker.setPosition(point);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
@@ -383,5 +382,84 @@ public class OSMMapFragment extends Fragment {
         mapView.getOverlays().add(marker);
         driverMarkers.add(marker);
         mapView.invalidate();
+        return marker;
+    }
+
+    public Marker addClientMarker(GeoPoint point){
+        if (mapView == null) return null;
+        Marker marker = new Marker(mapView);
+        marker.setPosition(point);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        marker.setTitle("Your location");
+
+        Drawable icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_available);
+
+        marker.setIcon(icon);
+
+        mapView.getOverlays().add(marker);
+        driverMarkers.add(marker);
+        mapView.invalidate();
+        return marker;
+    }
+
+    public interface DurationCallback {
+        void onDurationCalculated(int durationMinutes, double distanceKm);
+        void onDurationError(String error);
+    }
+
+    /**
+     * Calculate route duration between two points using OSRM.
+     */
+    public void calculateDuration(GeoPoint from, GeoPoint to, DurationCallback callback) {
+        if (!isAdded() || getContext() == null) {
+            callback.onDurationError("Fragment not attached");
+            return;
+        }
+
+        // Capture context on main thread before going to background
+        Context ctx = requireContext().getApplicationContext();
+        String userAgent = requireActivity().getPackageName();
+
+        new Thread(() -> {
+            try {
+                ArrayList<GeoPoint> points = new ArrayList<>();
+                points.add(from);
+                points.add(to);
+
+                RoadManager roadManager = new OSRMRoadManager(ctx, userAgent);
+                Road road = roadManager.getRoad(points);
+
+                if (road == null) {
+                    postDurationError(callback, "Road calculation returned null");
+                    return;
+                }
+
+                if (road.mStatus != Road.STATUS_OK) {
+                    postDurationError(callback, "Road status: " + road.mStatus);
+                    return;
+                }
+
+                int minutes = (int) Math.ceil(road.mDuration / 60.0);
+                double km = road.mLength;
+
+                android.util.Log.d("OSMMapFragment",
+                        "Duration calculated: " + minutes + " min, " + km + " km");
+
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> callback.onDurationCalculated(minutes, km));
+                }
+
+            } catch (Exception e) {
+                android.util.Log.e("OSMMapFragment", "Duration calculation failed", e);
+                postDurationError(callback, e.getMessage());
+            }
+        }).start();
+    }
+
+    private void postDurationError(DurationCallback callback, String error) {
+        android.util.Log.e("OSMMapFragment", "Duration error: " + error);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> callback.onDurationError(error));
+        }
     }
 }

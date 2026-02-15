@@ -1,4 +1,4 @@
-package com.example.lavugio_mobile.services.auth;
+package com.example.lavugio_mobile.api;
 
 import com.example.lavugio_mobile.models.auth.LoginRequest;
 import com.example.lavugio_mobile.models.auth.LoginResponse;

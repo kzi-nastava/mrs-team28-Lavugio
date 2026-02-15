@@ -19,8 +19,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.models.DriverLocation;
-import com.example.lavugio_mobile.services.ApiClient;
-import com.example.lavugio_mobile.services.DriverApi;
+import com.example.lavugio_mobile.api.ApiClient;
+import com.example.lavugio_mobile.api.DriverApi;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
@@ -194,8 +194,8 @@ public class GuestHomePageFragment extends Fragment {
     }
     private void fetchLocations(){
         android.util.Log.d("GuestHomePage", "Fetching driver locations...");
-        DriverApi driverApi = ApiClient.getClient().create(DriverApi.class);
-        driverApi.getLocations().enqueue(new retrofit2.Callback<List<DriverLocation>>() {
+        DriverApi driverApi = ApiClient.getInstance().create(DriverApi.class);
+        driverApi.getDriverLocations().enqueue(new retrofit2.Callback<List<DriverLocation>>() {
             @Override
             public void onResponse(@NonNull Call<List<DriverLocation>> call, retrofit2.Response<List<DriverLocation>> response) {
                 if (response.isSuccessful() && response.body() != null) {

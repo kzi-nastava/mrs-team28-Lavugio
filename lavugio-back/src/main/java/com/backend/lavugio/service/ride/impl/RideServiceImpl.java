@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.dto.user.AdminHistoryDTO;
 import com.backend.lavugio.dto.user.AdminHistoryDetailedDTO;
@@ -30,6 +31,7 @@ import com.backend.lavugio.repository.ride.ReviewRepository;
 import com.backend.lavugio.repository.ride.RideReportRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.pricing.PricingService;
+import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -824,6 +826,8 @@ public class RideServiceImpl implements RideService {
         regularUserRepository.save(rideCreator);
         driverService.updateDriverDriving(ride.getDriver().getId(), true);
         notifySocket(ride);
+        RideOverviewUpdateDTO rideOverviewUpdateDTO = new RideOverviewUpdateDTO(ride.getEndAddress(), new CoordinatesDTO(ride.getCheckpoints().getLast().getAddress()), ride);
+        simpMessagingTemplate.convertAndSend("/socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
     }
 
     @Override
