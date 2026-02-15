@@ -1,6 +1,8 @@
 package com.example.lavugio_mobile.ui.profile;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -29,10 +31,12 @@ import com.example.lavugio_mobile.ui.profile.views.ProfileButtonRowView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileHeaderView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileInfoRowView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,7 +71,7 @@ public class ProfileFragment extends Fragment {
 
         // Load profile data
         loadProfileData();
-
+        loadProfilePhoto();
     }
 
     private void loadProfileData() {
@@ -94,7 +98,7 @@ public class ProfileFragment extends Fragment {
 
     private void fillData(UserProfileData profileData) {
         headerView.setName(profileData.getName() + " " + profileData.getSurname());
-        headerView.setUserType(profileData.getRole());
+        headerView.setUserType(this.getUserTypeDisplay());
         headerView.setEmail(profileData.getEmail());
 
         infoContainer.removeAllViews();
@@ -120,6 +124,41 @@ public class ProfileFragment extends Fragment {
         }
 
         addButtonRow();
+    }
+
+    private void loadProfilePhoto() {
+        userApi.getProfilePhoto().enqueue(new Callback<ResponseBody>() {
+
+            @Override
+            public void onResponse(Call<ResponseBody> call,
+                                   Response<ResponseBody> response) {
+
+                if (response.isSuccessful() && response.body() != null) {
+
+                    byte[] bytes;
+                    try {
+                        bytes = response.body().bytes();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                    requireActivity().runOnUiThread(() -> {
+                        headerView.setProfileBitmap(bitmap);
+                    });
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(requireContext(),
+                        "Failed to load image",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void addEditableInfoRow(String label, String value, int inputType) {
@@ -203,7 +242,8 @@ public class ProfileFragment extends Fragment {
         infoContainer.addView(titleView);
     }
 
-    private String getUserTypeDisplay(String role) {
+    private String getUserTypeDisplay() {
+        String role = authService.getUserRole();
         switch (role) {
             case "DRIVER":
                 return "Driver";

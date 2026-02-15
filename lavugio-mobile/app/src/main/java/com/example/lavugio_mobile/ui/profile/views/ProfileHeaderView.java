@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.ui.profile.views;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -85,5 +86,9 @@ public class ProfileHeaderView extends LinearLayout {
         setName(name);
         setUserType(userType);
         setEmail(email);
+    }
+
+    public void setProfileBitmap(Bitmap bitmap) {
+        profileImage.setImageBitmap(bitmap);
     }
 }
