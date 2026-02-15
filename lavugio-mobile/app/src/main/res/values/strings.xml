@@ -45,12 +45,6 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
-    <string-array name="trip_history_sort_options">
-        <item>Start date</item>
-        <item>End date</item>
-        <item>Departure</item>
-        <item>Destination</item>
-    </string-array>
 
     <string-array name="sort_order_options">
         <item>Ascending</item>
@@ -105,13 +99,17 @@
     <string name="forgot_password_email_placeholder">Email</string>
     <string name="forgot_password_send_button">Send link</string>
     <string name="forgot_password_register_link">Register</string>
-    <string name="server_ip">192.168.1.10</string>
-    <string name="base_url">http://192.168.1.10:8080/api</string>
 
     <!-- Vehicle Types -->
     <string-array name="vehicle_types">
         <item>Standard</item>
         <item>Combi</item>
         <item>Luxury</item>
+    </string-array>
+
+    <string-array name="trip_history_sort_options">
+        <item>Start</item>
+        <item>Departure</item>
+        <item>Destination</item>
     </string-array>
 </resources>

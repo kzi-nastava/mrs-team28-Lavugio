@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_marginBottom="12dp"
-    android:background="@drawable/trip_row_background"
+    android:background="@drawable/card_background"
     android:clickable="true"
     android:focusable="true"
     android:elevation="2dp">
@@ -24,7 +24,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#BC6C25"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:id="@+id/tripStartDate"
@@ -34,7 +34,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
             android:text=" - "
             android:textSize="14sp"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:id="@+id/tripStartTime"
@@ -52,7 +52,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
     </LinearLayout>
 
@@ -70,7 +70,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#BC6C25"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:id="@+id/tripEndDate"
@@ -80,7 +80,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -88,7 +88,7 @@
             android:text=" - "
             android:textSize="14sp"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:id="@+id/tripEndTime"
@@ -98,7 +98,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
     </LinearLayout>
 
@@ -116,7 +116,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#BC6C25"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:id="@+id/tripDeparture"
@@ -127,7 +127,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
     </LinearLayout>
 
@@ -144,7 +144,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#BC6C25"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
         <TextView
             android:id="@+id/tripDestination"
@@ -155,7 +155,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#283618"
-            android:fontFamily="@font/inter_italic_variable_font" />
+            android:fontFamily="@font/inter_variable_font" />
 
     </LinearLayout>
 

@@ -7,6 +7,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,15 +19,20 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.lavugio_mobile.models.enums.UserRole;
 import com.example.lavugio_mobile.services.auth.AuthService;
 import com.example.lavugio_mobile.ui.GuestHomePageFragment;
+import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     private Navbar navbar;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
 
+    private boolean doubleBackToExitPressedOnce = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        handleOnBackPressed();
 
         // Register permission launcher before any UI
         locationPermissionLauncher = registerForActivityResult(
@@ -64,10 +70,18 @@ public class MainActivity extends AppCompatActivity {
         navbar = new Navbar(this, findViewById(R.id.main));
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_container, new GuestHomePageFragment())
-                    .commit();
+            if (!AuthService.getInstance().isAuthenticated()){
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_container, new GuestHomePageFragment())
+                        .commit();
+            }
+            else {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.content_container, new ProfileFragment())
+                        .commit();
+            }
         }
 
         // Request location permission immediately
@@ -119,5 +133,37 @@ public class MainActivity extends AppCompatActivity {
      */
     public boolean isLocationPermissionGranted() {
         return hasLocationPermission();
+    }
+
+    private void handleOnBackPressed(){
+        getOnBackPressedDispatcher().addCallback(this,
+                new OnBackPressedCallback(true) {
+
+                    private boolean doubleBackToExitPressedOnce = false;
+
+                    @Override
+                    public void handleOnBackPressed() {
+
+                        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                            setEnabled(false);
+                            getOnBackPressedDispatcher().onBackPressed();
+                            setEnabled(true);
+                            return;
+                        }
+
+                        if (doubleBackToExitPressedOnce) {
+                            finish();
+                            return;
+                        }
+
+                        doubleBackToExitPressedOnce = true;
+                        Toast.makeText(MainActivity.this,
+                                "Press back again to exit",
+                                Toast.LENGTH_SHORT).show();
+
+                        new android.os.Handler(android.os.Looper.getMainLooper())
+                                .postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
+                    }
+                });
     }
 }

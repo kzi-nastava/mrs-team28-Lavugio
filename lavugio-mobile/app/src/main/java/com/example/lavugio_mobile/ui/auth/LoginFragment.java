@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.lavugio_mobile.MainActivity;
 import com.example.lavugio_mobile.R;
@@ -23,6 +24,8 @@ import com.example.lavugio_mobile.services.auth.AuthService;
 import com.example.lavugio_mobile.services.WebSocketService;
 import com.example.lavugio_mobile.models.auth.LoginRequest;
 import com.example.lavugio_mobile.models.auth.LoginResponse;
+
+import java.util.Objects;
 
 public class LoginFragment extends Fragment {
 
@@ -117,6 +120,7 @@ public class LoginFragment extends Fragment {
                 if (!isAdded()) return; // Fragment might have been detached
 
                 Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+
                 navigateToProfile();
             }
 
@@ -153,11 +157,11 @@ public class LoginFragment extends Fragment {
 
     private void navigateToProfile() {
         if (getActivity() instanceof MainActivity) {
+            getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container,
                             new com.example.lavugio_mobile.ui.profile.ProfileFragment())
-                    .addToBackStack(null)
                     .commit();
         }
     }

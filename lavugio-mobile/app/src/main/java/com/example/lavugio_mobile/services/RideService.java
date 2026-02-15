@@ -144,7 +144,7 @@ public class RideService {
     }
 
     /**
-     * Unsubscribe from ride updates and close the WebSocket connection.
+     * Unsubscribe from ride updates.
      */
     public void closeConnection() {
         if (rideUpdateSubscription != null) {

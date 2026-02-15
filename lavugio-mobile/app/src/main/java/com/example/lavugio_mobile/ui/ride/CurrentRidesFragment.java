@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class ActiveRidesFragment extends Fragment {
+public class CurrentRidesFragment extends Fragment {
 
     private RideService rideService;
 

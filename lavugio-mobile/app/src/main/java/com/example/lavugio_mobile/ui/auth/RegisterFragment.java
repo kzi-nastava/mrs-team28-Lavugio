@@ -146,7 +146,6 @@ public class RegisterFragment extends Fragment {
                         getActivity().getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.content_container, verifyEmailFragment)
-                                .addToBackStack(null)
                                 .commit();
                     }
                 } catch (Exception e) {
