@@ -305,18 +305,20 @@ public class ProfileFragment extends Fragment {
         ProfileButtonRowView buttonRow = new ProfileButtonRowView(getContext());
         String role = authService.getUserRole();
         // Configure based on user role
-        if (Objects.equals(role, "DRIVER")) {
-            buttonRow.setLeftButtonVisible(true);
-            buttonRow.setLeftButtonText("Activate");
-        } else {
-            // Hide left button for regular users and admins
-            buttonRow.setLeftButtonVisible(false);
-        }
 
         // Change right button text based on mode
         if (isProfileEditMode) {
             buttonRow.setRightButtonText("Save");
+            buttonRow.setLeftButtonVisible(true);
+            buttonRow.setLeftButtonText("Change Password");
         } else {
+            if (Objects.equals(role, "DRIVER")) {
+                buttonRow.setLeftButtonVisible(true);
+                buttonRow.setLeftButtonText("Activate");
+            } else {
+                // Hide left button for regular users and admins
+                buttonRow.setLeftButtonVisible(false);
+            }
             buttonRow.setRightButtonText("Edit");
         }
 
@@ -324,13 +326,18 @@ public class ProfileFragment extends Fragment {
         buttonRow.setOnButtonClickListener(new ProfileButtonRowView.OnButtonClickListener() {
             @Override
             public void onLeftButtonClick() {
-                handleActivationToggle();
+                if (isProfileEditMode) {
+                    changePassword();
+                } else {
+                    handleActivationToggle();
+                }
+
             }
 
             @Override
             public void onRightButtonClick() {
                 if (isProfileEditMode) {
-                    //saveProfileChanges(driver);
+                    saveProfileChanges();
                 } else {
                     handleEditProfile();
                 }
@@ -361,9 +368,9 @@ public class ProfileFragment extends Fragment {
         addButtonRow();
     }
 
-    private void saveProfileChanges(Driver driver) {
+    private void saveProfileChanges() {
         // Collect data from editable rows
-        for (ProfileInfoRowView row : editableRows) {
+        /*for (ProfileInfoRowView row : editableRows) {
             String label = row.getLabel();
             String value = row.getValue();
 
@@ -413,7 +420,7 @@ public class ProfileFragment extends Fragment {
                     }
                     break;
             }
-        }
+        }*/
 
         // TODO: Send updated data to backend API
         // Example: viewModel.updateDriverProfile(driver);
@@ -444,5 +451,9 @@ public class ProfileFragment extends Fragment {
 
         // Show confirmation
         Toast.makeText(getContext(), "Activation toggled", Toast.LENGTH_SHORT).show();
+    }
+
+    private void changePassword() {
+        Toast.makeText(getContext(), "Change password", Toast.LENGTH_SHORT).show();
     }
 }
