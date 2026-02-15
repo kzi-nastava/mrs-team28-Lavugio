@@ -23,6 +23,8 @@ public class ForgotPasswordFragment extends Fragment {
     private Button sendLinkButton;
     private TextView registerLink;
 
+    private com.example.lavugio_mobile.services.auth.AuthService authService;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -34,6 +36,9 @@ public class ForgotPasswordFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Initialize AuthService
+        authService = com.example.lavugio_mobile.services.auth.AuthService.getInstance();
 
         // Initialize views
         emailInput = view.findViewById(R.id.forgot_password_email);
@@ -65,11 +70,33 @@ public class ForgotPasswordFragment extends Fragment {
             return;
         }
 
-        // TODO: Send password reset email to backend
-        Toast.makeText(getContext(), "Password reset link sent to your email!", Toast.LENGTH_SHORT).show();
+        // Disable button to prevent double-tap
+        sendLinkButton.setEnabled(false);
+        sendLinkButton.setText("Sending...");
 
-        // Navigate back to login
-        navigateToLogin();
+        // Send forgot password request to backend
+        authService.forgotPassword(email, new com.example.lavugio_mobile.models.auth.AuthCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                if (!isAdded()) return;
+
+                sendLinkButton.setEnabled(true);
+                sendLinkButton.setText("Send Reset Link");
+                Toast.makeText(getContext(), "Password reset link sent to your email!", Toast.LENGTH_SHORT).show();
+
+                // Navigate back to login
+                navigateToLogin();
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                if (!isAdded()) return;
+
+                sendLinkButton.setEnabled(true);
+                sendLinkButton.setText("Send Reset Link");
+                Toast.makeText(getContext(), "Failed to send reset link: " + message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void navigateToRegister() {

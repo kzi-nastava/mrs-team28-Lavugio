@@ -42,6 +42,7 @@ public class GuestHomePageFragment extends Fragment {
     private FrameLayout heroSection;
     private Button btnSeeRoutes;
     private Button btnRegister;
+    private Button btnScrollToTop;
     private TextView tvLoginLink;
 
     // Map Section Views
@@ -94,6 +95,7 @@ public class GuestHomePageFragment extends Fragment {
         scrollView = view.findViewById(R.id.scrollView);
         btnSeeRoutes = view.findViewById(R.id.btnSeeRoutes);
         btnRegister = view.findViewById(R.id.btnRegister);
+        btnScrollToTop = view.findViewById(R.id.btnScrollToTop);
         tvLoginLink = view.findViewById(R.id.tvLoginLink);
 
         // Map Section
@@ -118,6 +120,15 @@ public class GuestHomePageFragment extends Fragment {
         ViewGroup.LayoutParams containerParams = mapFragmentContainer.getLayoutParams();
         containerParams.height = screenHeight;
         mapFragmentContainer.setLayoutParams(containerParams);
+
+        // Setup scroll listener for scroll to top button
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY > 100) { // Show after scrolling 100 pixels
+                btnScrollToTop.setVisibility(View.VISIBLE);
+            } else {
+                btnScrollToTop.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void setupHeroSection() {
@@ -132,6 +143,10 @@ public class GuestHomePageFragment extends Fragment {
         // Login link with underline
         tvLoginLink.setPaintFlags(tvLoginLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         tvLoginLink.setOnClickListener(v -> navigateToLogin());
+
+        // Scroll to top button
+        btnScrollToTop.setOnClickListener(v -> scrollView.smoothScrollTo(0, 0));
+        btnScrollToTop.bringToFront();
     }
 
     private void setupMap() {
