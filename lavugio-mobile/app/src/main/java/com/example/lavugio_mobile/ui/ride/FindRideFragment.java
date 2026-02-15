@@ -74,22 +74,17 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
         bottomSheetHelper = new BottomSheetHelper(bottomSheet, new BottomSheetHelper.BottomSheetCallback() {
             @Override
             public void onStateChanged(int newState) {
-                // Handle state changes if needed
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    // Fully expanded
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    // Collapsed (peek)
                 }
             }
 
             @Override
             public void onSlide(float slideOffset) {
-                // slideOffset: 0.0 = collapsed, 1.0 = fully expanded
-                // Method for animating things when sheet is opened
+
             }
         });
 
-        // Set peek height (collapsed state height)
         bottomSheetHelper.setPeekHeight(200);
     }
 

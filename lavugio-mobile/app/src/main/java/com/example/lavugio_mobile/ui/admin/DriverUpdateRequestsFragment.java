@@ -15,12 +15,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.user.DriverUpdateRequest;
 import com.example.lavugio_mobile.data.model.user.DriverUpdateRequestDiff;
+import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
+import com.example.lavugio_mobile.models.user.DriverUpdateRequestDiffDTO;
 import com.example.lavugio_mobile.ui.dialog.ConfirmDialogFragment;
+import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
 import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
+import com.example.lavugio_mobile.viewmodel.admin.DriverUpdateRequestsViewModel;
+import com.example.lavugio_mobile.viewmodel.user.ProfileViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +35,8 @@ public class DriverUpdateRequestsFragment extends Fragment {
 
     private TextView tvEmptyState;
     private LinearLayout llRequestsContainer;
-    private List<DriverUpdateRequestDiff> requests;
+    private DriverUpdateRequestsViewModel viewModel;
+    private List<DriverUpdateRequestDiffDTO> requests;
 
     @Nullable
     @Override
@@ -43,95 +50,14 @@ public class DriverUpdateRequestsFragment extends Fragment {
 
         tvEmptyState = view.findViewById(R.id.tvEmptyState);
         llRequestsContainer = view.findViewById(R.id.llRequestsContainer);
+        viewModel = new ViewModelProvider(this).get(DriverUpdateRequestsViewModel.class);
 
-        // Load hardcoded data
-        loadHardcodedRequests();
-        displayRequests();
-    }
+        viewModel.getDriverUpdateRequests().observe(getViewLifecycleOwner(), requests -> {
+            this.requests = requests;
+            displayRequests();
+        });
 
-    private void loadHardcodedRequests() {
-        requests = new ArrayList<>();
-
-        // Request 1 - Multiple changes
-        DriverUpdateRequest oldData1 = new DriverUpdateRequest(
-                "Cara Dušana 15",
-                "Toyota",
-                "Camry",
-                "BG-123-AB",
-                4,
-                true,
-                false,
-                "Black",
-                "SEDAN"
-        );
-
-        DriverUpdateRequest newData1 = new DriverUpdateRequest(
-                "Milana Rakića 67",
-                "Toyota",
-                "Camry",
-                "BG-123-AB",
-                4,
-                false,
-                false,
-                "Black",
-                "SEDAN"
-        );
-
-        requests.add(new DriverUpdateRequestDiff(1L, oldData1, newData1, "stefan.stefanovic@gmail.com"));
-
-        // Request 2 - Vehicle changes
-        DriverUpdateRequest oldData2 = new DriverUpdateRequest(
-                "Bulevar kralja Aleksandra 73",
-                "Honda",
-                "Accord",
-                "NS-456-CD",
-                5,
-                false,
-                true,
-                "White",
-                "SEDAN"
-        );
-
-        DriverUpdateRequest newData2 = new DriverUpdateRequest(
-                "Bulevar kralja Aleksandra 73",
-                "BMW",
-                "X5",
-                "BG-789-EF",
-                7,
-                true,
-                true,
-                "Blue",
-                "SUV"
-        );
-
-        requests.add(new DriverUpdateRequestDiff(2L, oldData2, newData2, "marko.markovic@gmail.com"));
-
-        // Request 3 - Address only
-        DriverUpdateRequest oldData3 = new DriverUpdateRequest(
-                "Knez Mihailova 12",
-                "Mercedes",
-                "E-Class",
-                "BG-111-GH",
-                5,
-                false,
-                false,
-                "Silver",
-                "SEDAN"
-        );
-
-        DriverUpdateRequest newData3 = new DriverUpdateRequest(
-                "Terazije 25",
-                "Mercedes",
-                "E-Class",
-                "BG-111-GH",
-                5,
-                false,
-                false,
-                "Silver",
-                "SEDAN"
-        );
-
-        requests.add(new DriverUpdateRequestDiff(3L, oldData3, newData3, "ana.petrovic@gmail.com"));
+        viewModel.fetchDriverUpdateRequests();
     }
 
     private void displayRequests() {
@@ -144,14 +70,14 @@ public class DriverUpdateRequestsFragment extends Fragment {
 
             llRequestsContainer.removeAllViews();
 
-            for (DriverUpdateRequestDiff request : requests) {
+            for (DriverUpdateRequestDiffDTO request : requests) {
                 View requestCard = createRequestCard(request);
                 llRequestsContainer.addView(requestCard);
             }
         }
     }
 
-    private View createRequestCard(DriverUpdateRequestDiff request) {
+    private View createRequestCard(DriverUpdateRequestDiffDTO request) {
         View cardView = LayoutInflater.from(getContext()).inflate(R.layout.item_driver_update_request, llRequestsContainer, false);
 
         TextView tvEmail = cardView.findViewById(R.id.tvEmail);
@@ -226,13 +152,25 @@ public class DriverUpdateRequestsFragment extends Fragment {
         return cardView;
     }
 
-    private void populateChanges(LinearLayout container, DriverUpdateRequestDiff request) {
-        DriverUpdateRequest oldData = request.getOldData();
-        DriverUpdateRequest newData = request.getNewData();
+    private void populateChanges(LinearLayout container, DriverUpdateRequestDiffDTO request) {
+        DriverEditProfileRequestDTO oldData = request.getOldData();
+        DriverEditProfileRequestDTO newData = request.getNewData();
 
         // Check each field for changes
-        if (!oldData.getAddress().equals(newData.getAddress())) {
-            addChangedField(container, "Address:", oldData.getAddress(), newData.getAddress());
+        if (!oldData.getProfile().getName().equals(newData.getProfile().getName())) {
+            addChangedField(container, "Name:", oldData.getProfile().getName(), newData.getProfile().getName());
+        }
+
+        if (!oldData.getProfile().getSurname().equals(newData.getProfile().getSurname())) {
+            addChangedField(container, "Surname:", oldData.getProfile().getSurname(), newData.getProfile().getSurname());
+        }
+
+        if (!oldData.getProfile().getPhoneNumber().equals(newData.getProfile().getPhoneNumber())) {
+            addChangedField(container, "Phone Number:", oldData.getProfile().getPhoneNumber(), newData.getProfile().getPhoneNumber());
+        }
+
+        if (!oldData.getProfile().getAddress().equals(newData.getProfile().getAddress())) {
+            addChangedField(container, "Address:", oldData.getProfile().getAddress(), newData.getProfile().getAddress());
         }
 
         if (!oldData.getVehicleMake().equals(newData.getVehicleMake())) {
@@ -261,10 +199,6 @@ public class DriverUpdateRequestsFragment extends Fragment {
             addChangedField(container, "Baby Friendly:",
                     oldData.isVehicleBabyFriendly() ? "Yes" : "No",
                     newData.isVehicleBabyFriendly() ? "Yes" : "No");
-        }
-
-        if (!oldData.getVehicleColor().equals(newData.getVehicleColor())) {
-            addChangedField(container, "Color:", oldData.getVehicleColor(), newData.getVehicleColor());
         }
 
         if (!oldData.getVehicleType().equals(newData.getVehicleType())) {
@@ -313,23 +247,33 @@ public class DriverUpdateRequestsFragment extends Fragment {
         icon.startAnimation(rotate);
     }
 
-    private void handleReject(DriverUpdateRequestDiff request) {
-        // TODO: Call backend API to reject
-        requests.remove(request);
-        displayRequests();
-
-        SuccessDialogFragment.newInstance("Request Rejected",
-                        "Update request has been rejected successfully")
-                .show(getParentFragmentManager(), "success_dialog");
+    private void handleReject(DriverUpdateRequestDiffDTO request) {
+        viewModel.rejectEditRequst(request.getRequestId()).observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                requests.remove(request);
+                displayRequests();
+                SuccessDialogFragment.newInstance("Request Rejected",
+                                "Update request has been rejected successfully")
+                        .show(getParentFragmentManager(), "success_dialog");
+            } else if (success != null) {
+                ErrorDialogFragment.newInstance("Error", "Could not reject the edit request.")
+                        .show(getParentFragmentManager(), "error_dialog");
+            }
+        });
     }
 
-    private void handleApprove(DriverUpdateRequestDiff request) {
-        // TODO: Call backend API to approve
-        requests.remove(request);
-        displayRequests();
-
-        SuccessDialogFragment.newInstance("Request Approved",
-                        "Update request has been approved successfully")
-                .show(getParentFragmentManager(), "success_dialog");
+    private void handleApprove(DriverUpdateRequestDiffDTO request) {
+        viewModel.approveEditRequest(request.getRequestId()).observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                requests.remove(request);
+                displayRequests();
+                SuccessDialogFragment.newInstance("Request Approved",
+                                "Update request has been approved successfully")
+                        .show(getParentFragmentManager(), "success_dialog");
+            } else if (success != null) {
+                ErrorDialogFragment.newInstance("Error", "Could not approve the edit request.")
+                        .show(getParentFragmentManager(), "error_dialog");
+            }
+        });
     }
 }
