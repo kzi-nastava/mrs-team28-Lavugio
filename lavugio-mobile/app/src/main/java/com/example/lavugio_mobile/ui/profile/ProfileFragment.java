@@ -24,6 +24,8 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.user.Driver;
 import com.example.lavugio_mobile.data.model.user.UserType;
 import com.example.lavugio_mobile.data.model.vehicle.Vehicle;
+import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
+import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
 import com.example.lavugio_mobile.services.ApiClient;
 import com.example.lavugio_mobile.services.auth.AuthService;
@@ -370,70 +372,143 @@ public class ProfileFragment extends Fragment {
 
     private void saveProfileChanges() {
         // Collect data from editable rows
-        /*for (ProfileInfoRowView row : editableRows) {
-            String label = row.getLabel();
-            String value = row.getValue();
-
-            // Update driver object based on label
-            switch (label) {
-                case "Name":
-                    driver.setFirstName(value);
-                    break;
-                case "Surname":
-                    driver.setLastName(value);
-                    break;
-                case "Phone number":
-                    driver.setPhoneNumber(value);
-                    break;
-                case "Address":
-                    driver.setAddress(value);
-                    break;
-                case "Vehicle":
-                    if (driver.getVehicle() != null) {
-                        // Parse vehicle full name (e.g., "Toyota Camry")
-                        String[] parts = value.split(" ", 2);
-                        if (parts.length >= 1) {
-                            driver.getVehicle().setMake(parts[0]);
-                        }
-                        if (parts.length >= 2) {
-                            driver.getVehicle().setModel(parts[1]);
-                        }
-                    }
-                    break;
-                case "License Plate":
-                    if (driver.getVehicle() != null) {
-                        driver.getVehicle().setLicensePlate(value);
-                    }
-                    break;
-                case "Pet Friendly":
-                    // For boolean fields, use getBooleanValue() to get the checkbox state
-                    if (driver.getVehicle() != null) {
-                        boolean petFriendly = row.getBooleanValue();
-                        driver.getVehicle().setPetFriendly(petFriendly);
-                    }
-                    break;
-                case "Baby Friendly":
-                    // For boolean fields, use getBooleanValue() to get the checkbox state
-                    if (driver.getVehicle() != null) {
-                        boolean babyFriendly = row.getBooleanValue();
-                        driver.getVehicle().setBabyFriendly(babyFriendly);
-                    }
-                    break;
-            }
-        }*/
-
-        // TODO: Send updated data to backend API
-        // Example: viewModel.updateDriverProfile(driver);
+        String role = authService.getUserRole();
+        if (role.equals("DRIVER")) {
+            sendDriverEditRequest();
+        } else {
+            editProfile();
+        }
 
         // Exit edit mode
         isProfileEditMode = false;
 
-        // Reload data to show updated values
-        loadProfileData();
-
         // Show confirmation
         Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
     }
+
+    private void editProfile() {
+        EditProfileDTO editProfileDTO = new EditProfileDTO();
+
+        for (ProfileInfoRowView row : editableRows) {
+            String label = row.getLabel();
+            String value = row.getValue();
+            switch (label) {
+                case "Name":
+                    editProfileDTO.setName(value);
+                    break;
+                case "Surname":
+                    editProfileDTO.setSurname(value);
+                    break;
+                case "Phone number":
+                    editProfileDTO.setPhoneNumber(value);
+                    break;
+                case "Address":
+                    editProfileDTO.setAddress(value);
+                    break;
+            }
+        }
+
+        userApi.sendProfileEditRequest(editProfileDTO).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    loadProfileData();
+                    Toast.makeText(requireContext(),
+                            "Profil uspešno ažuriran",
+                            Toast.LENGTH_SHORT).show();
+
+                } else {
+
+                    Toast.makeText(requireContext(),
+                            "Greška pri ažuriranju",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(requireContext(),
+                        "Network error",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void sendDriverEditRequest() {
+        EditProfileDTO editProfileDTO = new EditProfileDTO();
+        DriverEditProfileRequestDTO driverEditProfileRequestDTO = new DriverEditProfileRequestDTO();
+
+        for (ProfileInfoRowView row : editableRows) {
+            String label = row.getLabel();
+            String value = row.getValue();
+            switch (label) {
+                case "Name":
+                    editProfileDTO.setName(value);
+                    break;
+                case "Surname":
+                    editProfileDTO.setSurname(value);
+                    break;
+                case "Phone number":
+                    editProfileDTO.setPhoneNumber(value);
+                    break;
+                case "Address":
+                    editProfileDTO.setAddress(value);
+                    break;
+                case "Make":
+                    driverEditProfileRequestDTO.setVehicleMake(value);
+                    break;
+                case "Model":
+                    driverEditProfileRequestDTO.setVehicleModel(value);
+                    break;
+                case "License Plate":
+                    driverEditProfileRequestDTO.setVehicleLicensePlate(value);
+                    break;
+                case "Passenger Seats":
+                    driverEditProfileRequestDTO.setVehicleSeats(Integer.parseInt(value));
+                    break;
+                case "Vehicle Type":
+                    driverEditProfileRequestDTO.setVehicleType(value.toUpperCase());
+                    break;
+                case "Pet Friendly":
+                    boolean petFriendly = row.getBooleanValue();
+                    driverEditProfileRequestDTO.setVehiclePetFriendly(petFriendly);
+                    break;
+                case "Baby Friendly":
+                    boolean babyFriendly = row.getBooleanValue();
+                    driverEditProfileRequestDTO.setVehicleBabyFriendly(babyFriendly);
+                    break;
+                }
+            }
+        driverEditProfileRequestDTO.setVehicleColor("Red");
+        driverEditProfileRequestDTO.setProfile(editProfileDTO);
+
+        userApi.sendDriverEditRequest(driverEditProfileRequestDTO).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    loadProfileData();
+                    Toast.makeText(requireContext(),
+                            "Edit Request Sent Successfully",
+                            Toast.LENGTH_SHORT).show();
+
+                } else {
+
+                    Toast.makeText(requireContext(),
+                            "Error",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(requireContext(),
+                        "Network error",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        }
+
 
     private void handleActivationToggle() {
         // TODO: Implement activation toggle
