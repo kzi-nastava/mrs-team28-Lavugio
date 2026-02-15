@@ -1,5 +1,6 @@
 package com.example.lavugio_mobile.services.user;
 
+import com.example.lavugio_mobile.models.user.ChangePasswordDTO;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
@@ -33,4 +34,7 @@ public interface UserApi {
     @Multipart
     @POST("api/users/profile-photo")
     Call<ResponseBody> uploadProfilePhoto(@Part MultipartBody.Part file);
+
+    @PUT("api/users/change-password")
+    Call<ResponseBody> changePassword(@Body ChangePasswordDTO changePasswordDTO);
 }

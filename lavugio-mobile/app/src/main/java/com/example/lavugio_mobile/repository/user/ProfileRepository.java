@@ -3,6 +3,7 @@ package com.example.lavugio_mobile.repository.user;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.lavugio_mobile.models.user.ChangePasswordDTO;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
@@ -119,6 +120,24 @@ public class ProfileRepository {
             @Override
             public void onResponse(Call<ResponseBody> call,
                                    Response<ResponseBody> response) {
+                result.setValue(response.isSuccessful());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                result.setValue(false);
+            }
+        });
+
+        return result;
+    }
+
+    public LiveData<Boolean> changePassword(ChangePasswordDTO changePasswordDTO) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        userApi.changePassword(changePasswordDTO).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 result.setValue(response.isSuccessful());
             }
 

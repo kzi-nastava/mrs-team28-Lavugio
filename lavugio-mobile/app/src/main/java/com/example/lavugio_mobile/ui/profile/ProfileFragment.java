@@ -29,9 +29,12 @@ import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
 import com.example.lavugio_mobile.services.auth.AuthService;
+import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
+import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
 import com.example.lavugio_mobile.ui.profile.views.ProfileButtonRowView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileHeaderView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileInfoRowView;
+import com.example.lavugio_mobile.viewmodel.user.ChangePasswordViewModel;
 import com.example.lavugio_mobile.viewmodel.user.ProfileViewModel;
 
 import java.io.IOException;
@@ -563,6 +566,34 @@ public class ProfileFragment extends Fragment {
     }
 
     private void changePassword() {
-        Toast.makeText(getContext(), "Change password", Toast.LENGTH_SHORT).show();
+        ChangePasswordFragment fragment = new ChangePasswordFragment();
+
+        ChangePasswordViewModel changePasswordViewModel = new ViewModelProvider(this).get(ChangePasswordViewModel.class);
+
+        changePasswordViewModel.getPasswordChangeResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                SuccessDialogFragment.newInstance("Success", "Password changed successfully.")
+                        .show(getActivity().getSupportFragmentManager(), "success_dialog");
+            } else if (success != null) {
+                ErrorDialogFragment.newInstance("Error", "Password change failed.")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
+            }
+        });
+
+        fragment.setOnPasswordChangedListener(new ChangePasswordFragment.OnPasswordChangedListener() {
+            @Override
+            public void onPasswordChanged(String oldPassword, String newPassword) {
+                changePasswordViewModel.changePassword(oldPassword, newPassword);
+            }
+
+            @Override
+            public void onCancelled() {
+            }
+        });
+
+        getParentFragmentManager().beginTransaction()
+                .add(android.R.id.content, fragment, "ChangePasswordFragment")
+                .addToBackStack("ChangePasswordFragment")
+                .commit();
     }
 }
