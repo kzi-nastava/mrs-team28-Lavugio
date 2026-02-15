@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.ui.profile;
 
 
+import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -16,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -35,12 +38,16 @@ import com.example.lavugio_mobile.ui.profile.views.ProfileHeaderView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileInfoRowView;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -77,6 +84,12 @@ public class ProfileFragment extends Fragment {
         // Load profile data
         loadProfileData();
         loadProfilePhoto();
+
+        headerView.getProfileImage().setOnClickListener(v -> {
+                if (this.isProfileEditMode) {
+                    openGallery();
+            }
+        });
     }
 
     private void loadProfileData() {
@@ -167,6 +180,81 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
+
+    private final ActivityResultLauncher<String> imagePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(),
+                    uri -> {
+                        if (uri != null) {
+                            uploadProfilePhoto(uri);
+                        }
+                    });
+
+    private void openGallery() {
+        imagePickerLauncher.launch("image/*");
+    }
+
+    private void uploadProfilePhoto(Uri imageUri) {
+
+        try {
+
+            ContentResolver contentResolver = requireContext().getContentResolver();
+            String mimeType = contentResolver.getType(imageUri);
+
+            if (mimeType == null) {
+                mimeType = "image/jpeg";
+            }
+
+            InputStream inputStream = contentResolver.openInputStream(imageUri);
+
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes);
+
+            RequestBody requestFile =
+                    RequestBody.create(bytes, MediaType.parse(mimeType));
+
+            String fileName = "profile." + mimeType.substring(mimeType.lastIndexOf("/") + 1);
+
+            MultipartBody.Part body =
+                    MultipartBody.Part.createFormData(
+                            "file",
+                            fileName,
+                            requestFile
+                    );
+
+            userApi.uploadProfilePhoto(body)
+                    .enqueue(new Callback<ResponseBody>() {
+
+                        @Override
+                        public void onResponse(Call<ResponseBody> call,
+                                               Response<ResponseBody> response) {
+
+                            if (response.isSuccessful()) {
+                                Toast.makeText(requireContext(),
+                                        "Photo uploaded",
+                                        Toast.LENGTH_SHORT).show();
+
+                                loadProfilePhoto();
+                            } else {
+                                Toast.makeText(requireContext(),
+                                        "Server rejected file",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                            Toast.makeText(requireContext(),
+                                    "Upload failed",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void loadDefaultAvatar() {
         String encodedName = Uri.encode(authService.getStoredUser().getName());

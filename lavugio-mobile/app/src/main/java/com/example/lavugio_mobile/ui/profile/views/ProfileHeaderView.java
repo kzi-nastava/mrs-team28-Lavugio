@@ -44,6 +44,10 @@ public class ProfileHeaderView extends LinearLayout {
         profileEmail = findViewById(R.id.profile_email);
     }
 
+    public ImageView getProfileImage() {
+        return this.profileImage;
+    }
+
     // Setter methods for updating the view
     public void setProfileImage(int resourceId) {
         profileImage.setImageResource(resourceId);
