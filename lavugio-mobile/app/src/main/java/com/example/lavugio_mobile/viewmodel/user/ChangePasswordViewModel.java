@@ -27,4 +27,8 @@ public class ChangePasswordViewModel extends ViewModel {
             passwordChangeResult.setValue(result);
         });
     }
+
+    public void resetPasswordChangeResult() {
+        passwordChangeResult.setValue(null);
+    }
 }

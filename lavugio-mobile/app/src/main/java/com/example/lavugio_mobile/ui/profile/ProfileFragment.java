@@ -56,6 +56,7 @@ public class ProfileFragment extends Fragment {
     private List<ProfileInfoRowView> editableRows = new ArrayList<>();
     private AuthService authService;
     private ProfileViewModel viewModel;
+    private ChangePasswordViewModel changePasswordViewModel;
 
     @Nullable
     @Override
@@ -124,6 +125,20 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), "Edit Request Sent Successfully", Toast.LENGTH_SHORT).show();
             } else if (success != null) {
                 Toast.makeText(requireContext(), "Error sending edit request", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Observe password change result (registered once)
+        changePasswordViewModel = new ViewModelProvider(this).get(ChangePasswordViewModel.class);
+        changePasswordViewModel.getPasswordChangeResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                changePasswordViewModel.resetPasswordChangeResult();
+                SuccessDialogFragment.newInstance("Success", "Password changed successfully.")
+                        .show(getActivity().getSupportFragmentManager(), "success_dialog");
+            } else if (success != null) {
+                changePasswordViewModel.resetPasswordChangeResult();
+                ErrorDialogFragment.newInstance("Error", "Password change failed.")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
             }
         });
 
@@ -567,18 +582,6 @@ public class ProfileFragment extends Fragment {
 
     private void changePassword() {
         ChangePasswordFragment fragment = new ChangePasswordFragment();
-
-        ChangePasswordViewModel changePasswordViewModel = new ViewModelProvider(this).get(ChangePasswordViewModel.class);
-
-        changePasswordViewModel.getPasswordChangeResult().observe(getViewLifecycleOwner(), success -> {
-            if (success != null && success) {
-                SuccessDialogFragment.newInstance("Success", "Password changed successfully.")
-                        .show(getActivity().getSupportFragmentManager(), "success_dialog");
-            } else if (success != null) {
-                ErrorDialogFragment.newInstance("Error", "Password change failed.")
-                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
-            }
-        });
 
         fragment.setOnPasswordChangedListener(new ChangePasswordFragment.OnPasswordChangedListener() {
             @Override
