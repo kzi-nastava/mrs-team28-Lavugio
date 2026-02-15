@@ -9,7 +9,7 @@ import com.example.lavugio_mobile.models.user.DriverActiveTimeResponse;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
-import com.example.lavugio_mobile.services.ApiClient;
+import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.services.user.UserApi;
 
 import okhttp3.MultipartBody;

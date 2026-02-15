@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.lavugio_mobile.models.user.DriverUpdateRequestDiffDTO;
-import com.example.lavugio_mobile.services.ApiClient;
+import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.services.user.AdminApi;
 
 import java.util.List;

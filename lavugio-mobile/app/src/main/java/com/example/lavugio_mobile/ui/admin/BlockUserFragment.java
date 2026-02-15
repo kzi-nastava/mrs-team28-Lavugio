@@ -15,14 +15,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.models.user.EmailSuggestion;
 import com.example.lavugio_mobile.ui.dialog.ConfirmDialogFragment;
 import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
 import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
+import com.example.lavugio_mobile.viewmodel.admin.BlockUserViewModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,17 +39,7 @@ public class BlockUserFragment extends Fragment {
     private Runnable searchRunnable;
     private ArrayAdapter<String> emailAdapter;
 
-    private final List<String> allEmails = Arrays.asList(
-            "admin@lavugio.com",
-            "driver1@gmail.com",
-            "driver2@gmail.com",
-            "user1@yahoo.com",
-            "user2@hotmail.com",
-            "marko.petrovic@gmail.com",
-            "ivan.jovanovic@yahoo.com",
-            "stefan.nikolic@outlook.com",
-            "test.user@gmail.com"
-    );
+    private BlockUserViewModel viewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,6 +54,20 @@ public class BlockUserFragment extends Fragment {
                 android.R.layout.simple_dropdown_item_1line,
                 new ArrayList<>()
         );
+
+        viewModel = new ViewModelProvider(this).get(BlockUserViewModel.class);
+
+        viewModel.getSuggestions().observe(getViewLifecycleOwner(), suggestions -> {
+            if (suggestions != null) {
+                List<String> emails = new ArrayList<>();
+                for (EmailSuggestion s : suggestions) {
+                    emails.add(s.getEmail());
+                }
+                emailAdapter.clear();
+                emailAdapter.addAll(emails);
+                emailAdapter.notifyDataSetChanged();
+            }
+        });
 
         etUserEmail.setAdapter(emailAdapter);
         etUserEmail.setThreshold(1);
@@ -92,20 +98,7 @@ public class BlockUserFragment extends Fragment {
 
     private void fetchEmailSuggestions(String query) {
         if (query.length() < 2) return;
-
-        List<String> filtered = new ArrayList<>();
-
-        for (String email : allEmails) {
-            if (email.toLowerCase().contains(query.toLowerCase())) {
-                filtered.add(email);
-            }
-        }
-
-        requireActivity().runOnUiThread(() -> {
-            emailAdapter.clear();
-            emailAdapter.addAll(filtered);
-            emailAdapter.notifyDataSetChanged();
-        });
+        viewModel.fetchEmailSuggestions(query);
     }
 
     private void blockUser() {
@@ -124,17 +117,21 @@ public class BlockUserFragment extends Fragment {
                 new ConfirmDialogFragment.ConfirmDialogListener() {
                     @Override
                     public void onConfirm() {
-                        Toast.makeText(requireContext(),
-                                "User blocked: " + email,
-                                Toast.LENGTH_SHORT).show();
-
-                        etUserEmail.setText("");
-                        etBlockReason.setText("");
+                        viewModel.blockUser(email, reason).observe(getViewLifecycleOwner(), success -> {
+                            if (success != null && success) {
+                                SuccessDialogFragment.newInstance("Success", "User blocked successfully.")
+                                        .show(getActivity().getSupportFragmentManager(), "success_dialog");
+                                etUserEmail.setText("");
+                                etBlockReason.setText("");
+                            } else if (success != null) {
+                                ErrorDialogFragment.newInstance("Error", "Failed to block user.")
+                                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
+                            }
+                        });
                     }
 
                     @Override
                     public void onCancel() {
-                        Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_SHORT).show();
                     }
                 }
         ).show(getActivity().getSupportFragmentManager(), "confirm_dialog");
