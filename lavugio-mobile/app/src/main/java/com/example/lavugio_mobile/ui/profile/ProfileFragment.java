@@ -461,12 +461,15 @@ public class ProfileFragment extends Fragment {
     private void saveProfileChanges() {
         // Collect data from editable rows
         String role = authService.getUserRole();
+        boolean success = false;
         if (role.equals("DRIVER")) {
-            sendDriverEditRequest();
+            success = sendDriverEditRequest();
         } else {
-            editProfile();
+            success = editProfile();
         }
-
+        if (!success) {
+            return;
+        }
         // Exit edit mode
         isProfileEditMode = false;
 
@@ -474,12 +477,16 @@ public class ProfileFragment extends Fragment {
         Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
     }
 
-    private void editProfile() {
+    private boolean editProfile() {
         EditProfileDTO editProfileDTO = new EditProfileDTO();
 
         for (ProfileInfoRowView row : editableRows) {
             String label = row.getLabel();
             String value = row.getValue();
+            if (value.isEmpty()) {
+                Toast.makeText(getContext(), "No empty fields are allowed.", Toast.LENGTH_LONG).show();
+                return false;
+            }
             switch (label) {
                 case "Name":
                     editProfileDTO.setName(value);
@@ -488,7 +495,12 @@ public class ProfileFragment extends Fragment {
                     editProfileDTO.setSurname(value);
                     break;
                 case "Phone number":
-                    editProfileDTO.setPhoneNumber(value);
+                    if (isValidPhoneNumber(value)) {
+                        editProfileDTO.setPhoneNumber(value);
+                    } else {
+                        Toast.makeText(getContext(), "Phone number is in invalid format.", Toast.LENGTH_LONG).show();
+                        return false;
+                    }
                     break;
                 case "Address":
                     editProfileDTO.setAddress(value);
@@ -520,15 +532,27 @@ public class ProfileFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
             }
         });
+        return true;
     }
 
-    private void sendDriverEditRequest() {
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        String phoneFormat1Regex = "^06\\d{5,9}$";
+        String phoneFormat2Regex = "^\\+381\\d{6,10}$";
+        return phoneNumber != null &&
+                (phoneNumber.matches(phoneFormat1Regex) || phoneNumber.matches(phoneFormat2Regex));
+    }
+
+    private boolean sendDriverEditRequest() {
         EditProfileDTO editProfileDTO = new EditProfileDTO();
         DriverEditProfileRequestDTO driverEditProfileRequestDTO = new DriverEditProfileRequestDTO();
 
         for (ProfileInfoRowView row : editableRows) {
             String label = row.getLabel();
             String value = row.getValue();
+            if (value.isEmpty()) {
+                Toast.makeText(getContext(), "No empty fields are allowed.", Toast.LENGTH_LONG).show();
+                return false;
+            }
             switch (label) {
                 case "Name":
                     editProfileDTO.setName(value);
@@ -537,7 +561,12 @@ public class ProfileFragment extends Fragment {
                     editProfileDTO.setSurname(value);
                     break;
                 case "Phone number":
-                    editProfileDTO.setPhoneNumber(value);
+                    if (isValidPhoneNumber(value)) {
+                        editProfileDTO.setPhoneNumber(value);
+                    } else {
+                        Toast.makeText(getContext(), "Phone number is in invalid format.", Toast.LENGTH_LONG).show();
+                        return false;
+                    }
                     break;
                 case "Address":
                     editProfileDTO.setAddress(value);
@@ -552,7 +581,13 @@ public class ProfileFragment extends Fragment {
                     driverEditProfileRequestDTO.setVehicleLicensePlate(value);
                     break;
                 case "Passenger Seats":
-                    driverEditProfileRequestDTO.setVehicleSeats(Integer.parseInt(value));
+                    int passengerSeats = Integer.parseInt(value);
+                    if (passengerSeats > 0 && passengerSeats < 30) {
+                        driverEditProfileRequestDTO.setVehicleSeats(Integer.parseInt(value));
+                    } else {
+                        Toast.makeText(getContext(), "Vehicle needs to have between 1 and 30 passenger seats.", Toast.LENGTH_LONG).show();
+                        return false;
+                    }
                     break;
                 case "Vehicle Type":
                     driverEditProfileRequestDTO.setVehicleType(value.toUpperCase());
@@ -594,8 +629,8 @@ public class ProfileFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
             }
         });
-
-        }
+        return true;
+    }
 
 
     private void handleActivationToggle() {
