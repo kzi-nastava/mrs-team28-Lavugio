@@ -1,5 +1,6 @@
 package com.example.lavugio_mobile.ui.profile;
 
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -20,71 +21,105 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.user.Driver;
 import com.example.lavugio_mobile.data.model.user.UserType;
 import com.example.lavugio_mobile.data.model.vehicle.Vehicle;
+import com.example.lavugio_mobile.models.user.UserProfileData;
+import com.example.lavugio_mobile.services.ApiClient;
+import com.example.lavugio_mobile.services.auth.AuthService;
+import com.example.lavugio_mobile.services.user.UserApi;
 import com.example.lavugio_mobile.ui.profile.views.ProfileButtonRowView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileHeaderView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileInfoRowView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
     private ProfileHeaderView headerView;
     private LinearLayout infoContainer;
     private boolean isProfileEditMode = false;
     private List<ProfileInfoRowView> editableRows = new ArrayList<>();
-    private Driver currentDriver;
+    private AuthService authService;
+
+    private UserApi userApi;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        return inflater.inflate(R.layout.fragment_profile, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Initialize views
         headerView = view.findViewById(R.id.profile_header);
         infoContainer = view.findViewById(R.id.info_container);
 
+        this.authService = AuthService.getInstance();
+        userApi = ApiClient.getInstance().create(UserApi.class);
+
         // Load profile data
         loadProfileData();
 
-        return view;
     }
 
     private void loadProfileData() {
-        // For now, using mock data
-        // Later this will come from ViewModel and backend
-        currentDriver = createMockDriver();
+        userApi.getProfile().enqueue(new Callback<UserProfileData>() {
+            @Override
+            public void onResponse(Call<UserProfileData> call, Response<UserProfileData> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserProfileData profileData = response.body();
+                    fillData(profileData);
+                } else if (response.code() == 401) {
+                    Toast.makeText(requireContext(), "Unauthorized access", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "Unexpected error occured", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-        // Set header data
-        headerView.setName(currentDriver.getFullName());
-        headerView.setUserType(getUserTypeDisplay(currentDriver.getRole()));
-        headerView.setEmail(currentDriver.getEmail());
+            @Override
+            public void onFailure(Call<UserProfileData> call, Throwable throwable) {
+                Toast.makeText(requireContext(), "Unexpected error occured: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        // Clear any existing rows
+    }
+
+    private void fillData(UserProfileData profileData) {
+        headerView.setName(profileData.getName() + " " + profileData.getSurname());
+        headerView.setUserType(profileData.getRole());
+        headerView.setEmail(profileData.getEmail());
+
         infoContainer.removeAllViews();
         editableRows.clear();
 
-        // Add info rows based on user type
-        addEditableInfoRow("Name", currentDriver.getFirstName(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        addEditableInfoRow("Surname", currentDriver.getLastName(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        addEditableInfoRow("Phone number", currentDriver.getPhoneNumber(), InputType.TYPE_CLASS_PHONE);
-        addNonEditableInfoRow("Email", currentDriver.getEmail());
-        addEditableInfoRow("Address", currentDriver.getAddress(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        addEditableInfoRow("Name", profileData.getName(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        addEditableInfoRow("Surname", profileData.getSurname(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        addEditableInfoRow("Phone number", profileData.getPhoneNumber(), InputType.TYPE_CLASS_PHONE);
+        addNonEditableInfoRow("Email", profileData.getEmail());
+        addEditableInfoRow("Address", profileData.getAddress(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         // Add driver-specific rows if user is a driver
-        if (currentDriver.getRole() == UserType.DRIVER) {
+        if (Objects.equals(authService.getUserRole(), "DRIVER")) {
             addVehicleTitle("Vehicle Information");
-            addEditableInfoRow("Make", currentDriver.getVehicle().getMake(), InputType.TYPE_CLASS_TEXT);
-            addEditableInfoRow("Model", currentDriver.getVehicle().getModel(), InputType.TYPE_CLASS_TEXT);
+            addEditableInfoRow("Make", profileData.getVehicleMake(), InputType.TYPE_CLASS_TEXT);
+            addEditableInfoRow("Model", profileData.getVehicleModel(), InputType.TYPE_CLASS_TEXT);
+            addDropdownInfoRow("Vehicle Type", profileData.getVehicleType(), new String[]{"Standard", "Luxury", "Combi"});
+            addEditableInfoRow("License Plate", profileData.getVehicleLicensePlate(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+            addEditableInfoRow("Passenger Seats", profileData.getVehicleSeats().toString(), InputType.TYPE_CLASS_NUMBER);
+            addEditableBooleanInfoRow("Pet Friendly", profileData.getVehiclePetFriendly());
+            addEditableBooleanInfoRow("Baby Friendly", profileData.getVehicleBabyFriendly());
             addNonEditableInfoRow("Active in last 24h", "4h30min");
-            addEditableInfoRow("License Plate", currentDriver.getVehicle().getLicensePlate(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-
-            addBooleanInfoRow("Pet Friendly", currentDriver.getVehicle().isPetFriendly());
-            addBooleanInfoRow("Baby Friendly", currentDriver.getVehicle().isBabyFriendly());
         }
 
-        addButtonRow(currentDriver);
+        addButtonRow();
     }
 
     private void addEditableInfoRow(String label, String value, int inputType) {
@@ -119,6 +154,26 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    private void addDropdownInfoRow(String label, String value, String[] options) {
+        ProfileInfoRowView row = new ProfileInfoRowView(getContext());
+        row.setData(label, value);
+        row.setDropdownOptions(options);
+        row.setEditable(true);
+        row.setEditMode(isProfileEditMode);
+        editableRows.add(row);
+        infoContainer.addView(row);
+    }
+
+    private void addEditableBooleanInfoRow(String label, boolean value) {
+        ProfileInfoRowView row = new ProfileInfoRowView(getContext());
+        row.setLabel(label);
+        row.setCheckboxMode(value);
+        row.setEditable(true);
+        row.setEditMode(isProfileEditMode);
+        editableRows.add(row);
+        infoContainer.addView(row);
+    }
+
     private void addVehicleTitle(String title) {
         TextView titleView = new TextView(getContext());
         titleView.setText(title);
@@ -148,28 +203,25 @@ public class ProfileFragment extends Fragment {
         infoContainer.addView(titleView);
     }
 
-    private String getUserTypeDisplay(UserType role) {
+    private String getUserTypeDisplay(String role) {
         switch (role) {
-            case DRIVER:
+            case "DRIVER":
                 return "Driver";
-            case ADMINISTRATOR:
+            case "ADMIN":
                 return "Administrator";
-            case REGULAR_USER:
+            case "PASSENGER":
             default:
                 return "Regular User";
         }
     }
 
-    private void addButtonRow(Driver driver) {
+    private void addButtonRow() {
         ProfileButtonRowView buttonRow = new ProfileButtonRowView(getContext());
-
+        String role = authService.getUserRole();
         // Configure based on user role
-        if (driver.getRole() == UserType.DRIVER) {
-            // Show left button for drivers
+        if (Objects.equals(role, "DRIVER")) {
             buttonRow.setLeftButtonVisible(true);
             buttonRow.setLeftButtonText("Activate");
-            // Enable/disable based on verification status
-            // buttonRow.setLeftButtonEnabled(driver.isVerified());
         } else {
             // Hide left button for regular users and admins
             buttonRow.setLeftButtonVisible(false);
@@ -186,15 +238,15 @@ public class ProfileFragment extends Fragment {
         buttonRow.setOnButtonClickListener(new ProfileButtonRowView.OnButtonClickListener() {
             @Override
             public void onLeftButtonClick() {
-                handleActivationToggle(driver);
+                handleActivationToggle();
             }
 
             @Override
             public void onRightButtonClick() {
                 if (isProfileEditMode) {
-                    saveProfileChanges(driver);
+                    //saveProfileChanges(driver);
                 } else {
-                    handleEditProfile(driver);
+                    handleEditProfile();
                 }
             }
         });
@@ -202,7 +254,7 @@ public class ProfileFragment extends Fragment {
         infoContainer.addView(buttonRow);
     }
 
-    private void handleEditProfile(Driver driver) {
+    private void handleEditProfile() {
         isProfileEditMode = !isProfileEditMode;
 
         // Toggle edit mode on all editable rows
@@ -211,17 +263,16 @@ public class ProfileFragment extends Fragment {
         }
 
         // Update button row
-        updateButtonRow(driver);
+        updateButtonRow();
     }
 
-    private void updateButtonRow(Driver driver) {
-        // Remove and re-add button row with updated state
+    private void updateButtonRow() {
         View lastView = infoContainer.getChildAt(infoContainer.getChildCount() - 1);
         if (lastView instanceof ProfileButtonRowView) {
             infoContainer.removeView(lastView);
         }
 
-        addButtonRow(driver);
+        addButtonRow();
     }
 
     private void saveProfileChanges(Driver driver) {
@@ -261,6 +312,20 @@ public class ProfileFragment extends Fragment {
                         driver.getVehicle().setLicensePlate(value);
                     }
                     break;
+                case "Pet Friendly":
+                    // For boolean fields, use getBooleanValue() to get the checkbox state
+                    if (driver.getVehicle() != null) {
+                        boolean petFriendly = row.getBooleanValue();
+                        driver.getVehicle().setPetFriendly(petFriendly);
+                    }
+                    break;
+                case "Baby Friendly":
+                    // For boolean fields, use getBooleanValue() to get the checkbox state
+                    if (driver.getVehicle() != null) {
+                        boolean babyFriendly = row.getBooleanValue();
+                        driver.getVehicle().setBabyFriendly(babyFriendly);
+                    }
+                    break;
             }
         }
 
@@ -277,7 +342,7 @@ public class ProfileFragment extends Fragment {
         Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
     }
 
-    private void handleActivationToggle(Driver driver) {
+    private void handleActivationToggle() {
         // TODO: Implement activation toggle
         // if (!driver.isVerified()) {
         //     Toast.makeText(getContext(), "You must be verified to activate", Toast.LENGTH_SHORT).show();
@@ -293,30 +358,5 @@ public class ProfileFragment extends Fragment {
 
         // Show confirmation
         Toast.makeText(getContext(), "Activation toggled", Toast.LENGTH_SHORT).show();
-    }
-
-    private Driver createMockDriver() {
-        // Create mock driver data for UI testing
-        Driver driver = new Driver();
-        driver.setId(1L);
-        driver.setFirstName("Pera");
-        driver.setLastName("Perić");
-        driver.setEmail("bm230294d@student.etf.bg.ac.rs");
-        driver.setPhoneNumber("069123456");
-        driver.setLicenseNumber("DL123456789");
-        driver.setAddress("Bulevar Kralja Aleksandra 30, Beograd, 11000");
-
-        // Mock vehicle data
-        Vehicle vehicle = new Vehicle();
-        vehicle.setMake("Toyota");
-        vehicle.setModel("Camry");
-        vehicle.setColor("Silver");
-        vehicle.setLicensePlate("BG-123-AB");
-        vehicle.setBabyFriendly(true);
-        vehicle.setPetFriendly(false);
-
-        driver.setVehicle(vehicle);
-
-        return driver;
     }
 }

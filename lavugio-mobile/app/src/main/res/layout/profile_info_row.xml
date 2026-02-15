@@ -38,6 +38,26 @@
         android:background="@android:color/transparent"
         android:visibility="gone" />
 
+    <Spinner
+        android:id="@+id/value_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        android:textSize="20sp"
+        android:textColor="@color/lavugio_dark_orange"/>
+
+    <CheckBox
+        android:id="@+id/value_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="4dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone" />
+
+
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"
