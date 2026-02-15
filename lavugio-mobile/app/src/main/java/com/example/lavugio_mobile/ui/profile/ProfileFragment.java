@@ -22,20 +22,17 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.lavugio_mobile.R;
-import com.example.lavugio_mobile.data.model.user.Driver;
-import com.example.lavugio_mobile.data.model.user.UserType;
-import com.example.lavugio_mobile.data.model.vehicle.Vehicle;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
-import com.example.lavugio_mobile.services.ApiClient;
 import com.example.lavugio_mobile.services.auth.AuthService;
-import com.example.lavugio_mobile.services.user.UserApi;
 import com.example.lavugio_mobile.ui.profile.views.ProfileButtonRowView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileHeaderView;
 import com.example.lavugio_mobile.ui.profile.views.ProfileInfoRowView;
+import com.example.lavugio_mobile.viewmodel.user.ProfileViewModel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,10 +45,6 @@ import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
     private ProfileHeaderView headerView;
@@ -59,8 +52,7 @@ public class ProfileFragment extends Fragment {
     private boolean isProfileEditMode = false;
     private List<ProfileInfoRowView> editableRows = new ArrayList<>();
     private AuthService authService;
-
-    private UserApi userApi;
+    private ProfileViewModel viewModel;
 
     @Nullable
     @Override
@@ -79,39 +71,68 @@ public class ProfileFragment extends Fragment {
         infoContainer = view.findViewById(R.id.info_container);
 
         this.authService = AuthService.getInstance();
-        userApi = ApiClient.getInstance().create(UserApi.class);
+        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+
+        // Observe profile data
+        viewModel.getProfileData().observe(getViewLifecycleOwner(), profileData -> {
+            if (profileData != null) {
+                fillData(profileData);
+            } else {
+                Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Observe profile photo bytes
+        viewModel.getProfilePhotoBytes().observe(getViewLifecycleOwner(), bytes -> {
+            if (bytes != null) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                if (bitmap != null) {
+                    headerView.setProfileBitmap(bitmap);
+                } else {
+                    loadDefaultAvatar();
+                }
+            } else {
+                loadDefaultAvatar();
+            }
+        });
+
+        // Observe update profile result
+        viewModel.getUpdateSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+            } else if (success != null) {
+                Toast.makeText(requireContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Observe upload photo result
+        viewModel.getUploadPhotoSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(requireContext(), "Photo uploaded", Toast.LENGTH_SHORT).show();
+                viewModel.loadProfilePhoto();
+            } else if (success != null) {
+                Toast.makeText(requireContext(), "Server rejected file", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Observe driver edit request result
+        viewModel.getDriverEditRequestSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(requireContext(), "Edit Request Sent Successfully", Toast.LENGTH_SHORT).show();
+            } else if (success != null) {
+                Toast.makeText(requireContext(), "Error sending edit request", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Load profile data
-        loadProfileData();
-        loadProfilePhoto();
+        viewModel.loadProfile();
+        viewModel.loadProfilePhoto();
 
         headerView.getProfileImage().setOnClickListener(v -> {
                 if (this.isProfileEditMode) {
                     openGallery();
             }
         });
-    }
-
-    private void loadProfileData() {
-        userApi.getProfile().enqueue(new Callback<UserProfileData>() {
-            @Override
-            public void onResponse(Call<UserProfileData> call, Response<UserProfileData> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    UserProfileData profileData = response.body();
-                    fillData(profileData);
-                } else if (response.code() == 401) {
-                    Toast.makeText(requireContext(), "Unauthorized access", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(requireContext(), "Unexpected error occured", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserProfileData> call, Throwable throwable) {
-                Toast.makeText(requireContext(), "Unexpected error occured: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
     }
 
     private void fillData(UserProfileData profileData) {
@@ -142,43 +163,6 @@ public class ProfileFragment extends Fragment {
         }
 
         addButtonRow();
-    }
-
-    private void loadProfilePhoto() {
-        userApi.getProfilePhoto().enqueue(new Callback<ResponseBody>() {
-
-            @Override
-            public void onResponse(Call<ResponseBody> call,
-                                   Response<ResponseBody> response) {
-
-                if (response.isSuccessful() && response.body() != null) {
-
-                    byte[] bytes;
-                    try {
-                        bytes = response.body().bytes();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                    requireActivity().runOnUiThread(() -> {
-                        headerView.setProfileBitmap(bitmap);
-                    });
-
-                } else {
-                    loadDefaultAvatar();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(requireContext(),
-                        "Failed to load image",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private final ActivityResultLauncher<String> imagePickerLauncher =
@@ -221,34 +205,7 @@ public class ProfileFragment extends Fragment {
                             requestFile
                     );
 
-            userApi.uploadProfilePhoto(body)
-                    .enqueue(new Callback<ResponseBody>() {
-
-                        @Override
-                        public void onResponse(Call<ResponseBody> call,
-                                               Response<ResponseBody> response) {
-
-                            if (response.isSuccessful()) {
-                                Toast.makeText(requireContext(),
-                                        "Photo uploaded",
-                                        Toast.LENGTH_SHORT).show();
-
-                                loadProfilePhoto();
-                            } else {
-                                Toast.makeText(requireContext(),
-                                        "Server rejected file",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                            Toast.makeText(requireContext(),
-                                    "Upload failed",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            viewModel.uploadProfilePhoto(body);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -508,30 +465,7 @@ public class ProfileFragment extends Fragment {
             }
         }
 
-        userApi.sendProfileEditRequest(editProfileDTO).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    loadProfileData();
-                    Toast.makeText(requireContext(),
-                            "Profil uspešno ažuriran",
-                            Toast.LENGTH_SHORT).show();
-
-                } else {
-
-                    Toast.makeText(requireContext(),
-                            "Greška pri ažuriranju",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(requireContext(),
-                        "Network error",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        viewModel.updateProfile(editProfileDTO);
         return true;
     }
 
@@ -605,30 +539,7 @@ public class ProfileFragment extends Fragment {
         driverEditProfileRequestDTO.setVehicleColor("Red");
         driverEditProfileRequestDTO.setProfile(editProfileDTO);
 
-        userApi.sendDriverEditRequest(driverEditProfileRequestDTO).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    loadProfileData();
-                    Toast.makeText(requireContext(),
-                            "Edit Request Sent Successfully",
-                            Toast.LENGTH_SHORT).show();
-
-                } else {
-
-                    Toast.makeText(requireContext(),
-                            "Error",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(requireContext(),
-                        "Network error",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        viewModel.sendDriverEditRequest(driverEditProfileRequestDTO);
         return true;
     }
 
