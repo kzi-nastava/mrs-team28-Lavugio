@@ -51,6 +51,12 @@ public interface AuthApi {
     @POST("api/regularUsers/verify-email")
     Call<Void> verifyEmail(@Body VerifyEmailRequest request);
 
+    @POST("api/regularUsers/forgot-password")
+    Call<Void> forgotPassword(@Body java.util.Map<String, String> request);
+
+    @POST("api/regularUsers/reset-password")
+    Call<Void> resetPassword(@Body java.util.Map<String, String> request);
+
     @POST("api/regularUsers/logout/{userId}")
     Call<Void> logout(@Path("userId") int userId);
 }

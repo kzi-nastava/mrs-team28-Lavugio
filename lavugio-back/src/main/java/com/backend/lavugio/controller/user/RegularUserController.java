@@ -181,8 +181,13 @@ public class RegularUserController {
 
     private String saveProfilePicture(MultipartFile file) throws Exception {
         String contentType = file.getContentType();
-        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-            throw new IllegalArgumentException("Only JPG and PNG images are allowed");
+        if (!contentType.equals("image/jpeg") &&
+            !contentType.equals("image/png") &&
+            !contentType.equals("image/jpg") &&
+            !contentType.equals("image/webp") &&
+            !contentType.equals("image/heic") &&
+            !contentType.equals("image/heif")) {
+            throw new IllegalArgumentException("Only JPG, PNG, WebP, HEIC, and HEIF images are allowed");
         }
 
         // Use absolute path in user's project directory
