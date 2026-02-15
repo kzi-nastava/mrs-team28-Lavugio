@@ -1,5 +1,6 @@
 package com.example.lavugio_mobile.services.user;
 
+import com.example.lavugio_mobile.models.Coordinates;
 import com.example.lavugio_mobile.models.user.ChangePasswordDTO;
 import com.example.lavugio_mobile.models.user.DriverActiveTimeResponse;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
@@ -41,4 +42,13 @@ public interface UserApi {
 
     @GET("api/drivers/active-24h")
     Call<DriverActiveTimeResponse> getDriverActiveLast24Hours();
+
+    @POST("api/drivers/activate")
+    Call<ResponseBody> activateDriver(@Body Coordinates coordinates);
+
+    @POST("api/drivers/deactivate")
+    Call<ResponseBody> deactivateDriver();
+
+    @GET("api/drivers/{id}")
+    Call<ResponseBody> getDriverStatus(@retrofit2.http.Path("id") int driverId);
 }

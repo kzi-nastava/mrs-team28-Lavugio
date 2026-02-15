@@ -1,11 +1,15 @@
 package com.example.lavugio_mobile.ui.profile;
 
 
+import android.Manifest;
 import android.content.ContentResolver;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
@@ -21,10 +25,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.models.Coordinates;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
@@ -58,6 +64,8 @@ public class ProfileFragment extends Fragment {
     private ProfileViewModel viewModel;
     private ChangePasswordViewModel changePasswordViewModel;
     private ProfileInfoRowView activeTimeRow;
+    private boolean isDriverActive = false;
+    private int driverActiveTotalMinutes = 0;
 
     @Nullable
     @Override
@@ -160,6 +168,46 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        viewModel.getDriverActiveTotalMinutes().observe(getViewLifecycleOwner(), minutes -> {
+            if (minutes != null) {
+                driverActiveTotalMinutes = minutes;
+                updateActivateButtonState();
+            }
+        });
+
+        viewModel.getIsDriverActive().observe(getViewLifecycleOwner(), active -> {
+            if (active != null) {
+                isDriverActive = active;
+                updateActivateButtonState();
+            }
+        });
+
+        viewModel.getActivationResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                viewModel.resetActivationResult();
+                SuccessDialogFragment.newInstance("Success", "Driver activated successfully!")
+                        .show(getActivity().getSupportFragmentManager(), "success_dialog");
+                viewModel.loadDriverActiveTime();
+            } else if (success != null) {
+                viewModel.resetActivationResult();
+                ErrorDialogFragment.newInstance("Error", "Failed to activate driver!")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
+            }
+        });
+
+        viewModel.getDeactivationResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                viewModel.resetDeactivationResult();
+                SuccessDialogFragment.newInstance("Success", "Driver deactivated successfully!")
+                        .show(getActivity().getSupportFragmentManager(), "success_dialog");
+                viewModel.loadDriverActiveTime();
+            } else if (success != null) {
+                viewModel.resetDeactivationResult();
+                ErrorDialogFragment.newInstance("Error", "Failed to deactivate driver!")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
+            }
+        });
+
         // Load profile data
         viewModel.loadProfile();
         viewModel.loadProfilePhoto();
@@ -200,6 +248,7 @@ public class ProfileFragment extends Fragment {
             activeTimeRow.setEditable(false);
             infoContainer.addView(activeTimeRow);
             viewModel.loadDriverActiveTime();
+            viewModel.loadDriverActiveStatus(authService.getUserId());
         }
         addButtonRow();
     }
@@ -400,7 +449,14 @@ public class ProfileFragment extends Fragment {
         } else {
             if (Objects.equals(role, "DRIVER")) {
                 buttonRow.setLeftButtonVisible(true);
-                buttonRow.setLeftButtonText("Activate");
+                if (isDriverActive) {
+                    buttonRow.setLeftButtonText("Deactivate");
+                    buttonRow.setLeftButtonEnabled(true);
+                } else {
+                    buttonRow.setLeftButtonText("Activate");
+                    boolean hasExceeded8Hours = driverActiveTotalMinutes >= 480;
+                    buttonRow.setLeftButtonEnabled(!hasExceeded8Hours);
+                }
             } else {
                 // Hide left button for regular users and admins
                 buttonRow.setLeftButtonVisible(false);
@@ -583,8 +639,83 @@ public class ProfileFragment extends Fragment {
     }
 
 
+    private void updateActivateButtonState() {
+        if (!Objects.equals(authService.getUserRole(), "DRIVER")) return;
+        if (isProfileEditMode) return;
+
+        View lastView = infoContainer.getChildAt(infoContainer.getChildCount() - 1);
+        if (lastView instanceof ProfileButtonRowView) {
+            ProfileButtonRowView buttonRow = (ProfileButtonRowView) lastView;
+            if (isDriverActive) {
+                buttonRow.setLeftButtonText("Deactivate");
+                buttonRow.setLeftButtonEnabled(true);
+            } else {
+                buttonRow.setLeftButtonText("Activate");
+                boolean hasExceeded8Hours = driverActiveTotalMinutes >= 480;
+                buttonRow.setLeftButtonEnabled(!hasExceeded8Hours);
+            }
+        }
+    }
+
     private void handleActivationToggle() {
-        Toast.makeText(getContext(), "Activation toggled", Toast.LENGTH_SHORT).show();
+        if (isDriverActive) {
+            viewModel.deactivateDriver();
+        } else {
+            if (driverActiveTotalMinutes >= 480) {
+                ErrorDialogFragment.newInstance("Cannot Activate",
+                        "You have reached the maximum 8 hours of active time in the last 24 hours. Please try again later.")
+                        .show(getActivity().getSupportFragmentManager(), "error_dialog");
+                return;
+            }
+
+            if (ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                return;
+            }
+
+            activateWithLocation();
+        }
+    }
+
+    private final ActivityResultLauncher<String> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) {
+                    activateWithLocation();
+                } else {
+                    Toast.makeText(getContext(),
+                            "Location permission is required to activate", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private void activateWithLocation() {
+        try {
+            LocationManager locationManager = (LocationManager)
+                    requireContext().getSystemService(android.content.Context.LOCATION_SERVICE);
+
+            if (ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (location == null) {
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+
+            if (location != null) {
+                Coordinates coordinates = new Coordinates(
+                        location.getLatitude(), location.getLongitude());
+                viewModel.activateDriver(coordinates);
+            } else {
+                // Fallback: use default coordinates (Novi Sad city center)
+                Coordinates coordinates = new Coordinates(45.2671, 19.8335);
+                viewModel.activateDriver(coordinates);
+            }
+        } catch (Exception e) {
+            ErrorDialogFragment.newInstance("Error", "Failed to get location.")
+                    .show(getActivity().getSupportFragmentManager(), "error_dialog");
+        }
     }
 
     private void changePassword() {

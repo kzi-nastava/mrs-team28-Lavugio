@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.lavugio_mobile.models.Coordinates;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
@@ -21,6 +22,10 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<Boolean> driverEditRequestSuccess = new MutableLiveData<>();
 
     private final MutableLiveData<String> driverActiveTime = new MutableLiveData<>();
+    private final MutableLiveData<Integer> driverActiveTotalMinutes = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isDriverActive = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> activationResult = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> deactivationResult = new MutableLiveData<>();
 
     public ProfileViewModel() {
         repository = new ProfileRepository();
@@ -48,6 +53,30 @@ public class ProfileViewModel extends ViewModel {
 
     public LiveData<String> getDriverActiveTime() {
         return driverActiveTime;
+    }
+
+    public LiveData<Integer> getDriverActiveTotalMinutes() {
+        return driverActiveTotalMinutes;
+    }
+
+    public LiveData<Boolean> getIsDriverActive() {
+        return isDriverActive;
+    }
+
+    public LiveData<Boolean> getActivationResult() {
+        return activationResult;
+    }
+
+    public LiveData<Boolean> getDeactivationResult() {
+        return deactivationResult;
+    }
+
+    public void resetActivationResult() {
+        activationResult.setValue(null);
+    }
+
+    public void resetDeactivationResult() {
+        deactivationResult.setValue(null);
     }
 
     public void loadProfile() {
@@ -90,6 +119,35 @@ public class ProfileViewModel extends ViewModel {
         repository.getDriverActiveLast24Hours().observeForever(data -> {
             if (data != null) {
                 driverActiveTime.setValue(data);
+            }
+        });
+        repository.getDriverActiveTotalMinutes().observeForever(minutes -> {
+            if (minutes != null) {
+                driverActiveTotalMinutes.setValue(minutes);
+            }
+        });
+    }
+
+    public void loadDriverActiveStatus(int driverId) {
+        repository.getDriverActiveStatus(driverId).observeForever(active -> {
+            isDriverActive.setValue(active);
+        });
+    }
+
+    public void activateDriver(Coordinates coordinates) {
+        repository.activateDriver(coordinates).observeForever(success -> {
+            activationResult.setValue(success);
+            if (success) {
+                isDriverActive.setValue(true);
+            }
+        });
+    }
+
+    public void deactivateDriver() {
+        repository.deactivateDriver().observeForever(success -> {
+            deactivationResult.setValue(success);
+            if (success) {
+                isDriverActive.setValue(false);
             }
         });
     }
