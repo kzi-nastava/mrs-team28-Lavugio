@@ -1,24 +1,24 @@
 package com.example.lavugio_mobile.ui.driver;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TripDetailsActivity extends AppCompatActivity {
+public class RideDetailsFragment extends Fragment {
 
     private TextView tripBeginText;
     private TextView tripEndText;
@@ -32,51 +32,74 @@ public class TripDetailsActivity extends AppCompatActivity {
 
     private List<String> passengersList;
 
+    public static RideDetailsFragment newInstance(String tripId, String startDate, String startTime,
+                                                  String endDate, String endTime,
+                                                  String departure, String destination) {
+        RideDetailsFragment fragment = new RideDetailsFragment();
+        Bundle args = new Bundle();
+        args.putString("tripId", tripId);
+        args.putString("startDate", startDate);
+        args.putString("startTime", startTime);
+        args.putString("endDate", endDate);
+        args.putString("endTime", endTime);
+        args.putString("departure", departure);
+        args.putString("destination", destination);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.fragment_driver_trip_details);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        // Inflate layout za fragment
+        return inflater.inflate(R.layout.fragment_driver_trip_details, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         try {
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-                return insets;
-            });
-
-            initViews();
+            initViews(view);
             loadTripData();
             loadPassengers();
 
             if (backButton != null) {
-                backButton.setOnClickListener(v -> finish());
+                backButton.setOnClickListener(v -> {
+                    // Vrati se nazad
+                    requireActivity().onBackPressed();
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();
-            finish();
+            requireActivity().onBackPressed();
         }
     }
 
-    private void initViews() {
-        tripBeginText = findViewById(R.id.tripBeginText);
-        tripEndText = findViewById(R.id.tripEndText);
-        tripDepartureText = findViewById(R.id.tripDepartureText);
-        tripDestinationText = findViewById(R.id.tripDestinationText);
-        tripPriceText = findViewById(R.id.tripPriceText);
-        cancelledIcon = findViewById(R.id.cancelledIcon);
-        panicIcon = findViewById(R.id.panicIcon);
-        passengersContainer = findViewById(R.id.passengersContainer);
+    private void initViews(View view) {
+        tripBeginText = view.findViewById(R.id.tripBeginText);
+        tripEndText = view.findViewById(R.id.tripEndText);
+        tripDepartureText = view.findViewById(R.id.tripDepartureText);
+        tripDestinationText = view.findViewById(R.id.tripDestinationText);
+        tripPriceText = view.findViewById(R.id.tripPriceText);
+        cancelledIcon = view.findViewById(R.id.cancelledIcon);
+        panicIcon = view.findViewById(R.id.panicIcon);
+        passengersContainer = view.findViewById(R.id.passengersContainer);
     }
 
     private void loadTripData() {
         try {
-            String startDate = getIntent().getStringExtra("startDate");
-            String startTime = getIntent().getStringExtra("startTime");
-            String endDate = getIntent().getStringExtra("endDate");
-            String endTime = getIntent().getStringExtra("endTime");
-            String departure = getIntent().getStringExtra("departure");
-            String destination = getIntent().getStringExtra("destination");
+            // Uzmi argumente umesto getIntent()
+            Bundle args = getArguments();
+            if (args == null) return;
+
+            String startDate = args.getString("startDate");
+            String startTime = args.getString("startTime");
+            String endDate = args.getString("endDate");
+            String endTime = args.getString("endTime");
+            String departure = args.getString("departure");
+            String destination = args.getString("destination");
 
             String begin = (startDate != null ? startDate : "N/A") + " " + (startTime != null ? startTime : "");
             String end = (endDate != null ? endDate : "N/A") + " " + (endTime != null ? endTime : "");
@@ -85,7 +108,7 @@ public class TripDetailsActivity extends AppCompatActivity {
             if (tripEndText != null) tripEndText.setText(end.trim());
             if (tripDepartureText != null) tripDepartureText.setText(departure != null ? departure : "N/A");
             if (tripDestinationText != null) tripDestinationText.setText(destination != null ? destination : "N/A");
-            if (tripPriceText != null) tripPriceText.setText("850.00 RSD"); // Hardcoded za sada
+            if (tripPriceText != null) tripPriceText.setText("850.00 RSD");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,8 +138,8 @@ public class TripDetailsActivity extends AppCompatActivity {
             View passengerView = createPassengerView(passengerName);
             passengersContainer.addView(passengerView);
 
-            // Dodaj separator (border-bottom)
-            View separator = new View(this);
+            // Dodaj separator
+            View separator = new View(requireContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     2

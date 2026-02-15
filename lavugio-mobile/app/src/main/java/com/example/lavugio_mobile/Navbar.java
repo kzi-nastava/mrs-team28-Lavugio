@@ -20,14 +20,13 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.lavugio_mobile.models.auth.AuthCallback;
 import com.example.lavugio_mobile.services.auth.AuthService;
-import com.example.lavugio_mobile.models.auth.LoginResponse;
 import com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
-import com.example.lavugio_mobile.ui.driver.TripHistoryFragment;
+import com.example.lavugio_mobile.ui.driver.RideHistoryFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
-import com.example.lavugio_mobile.ui.ride.ActiveRidesFragment;
+import com.example.lavugio_mobile.ui.ride.CurrentRidesFragment;
 import com.example.lavugio_mobile.ui.ride.FindRideFragment;
 
 public class Navbar {
@@ -373,7 +372,7 @@ public class Navbar {
             setMenuClickListener(R.id.nav_item_rides,
                     this::onRidesClicked);
             setMenuClickListener(R.id.nav_item_history,
-                    () -> navigateToFragment(new TripHistoryFragment()));
+                    () -> navigateToFragment(new RideHistoryFragment()));
         }
 
         // Driver
@@ -383,7 +382,7 @@ public class Navbar {
                 statusButton.setOnClickListener(v -> toggleDriverStatus());
             }
             setMenuClickListener(R.id.nav_item_history,
-                    () -> navigateToFragment(new TripHistoryFragment()));
+                    () -> navigateToFragment(new RideHistoryFragment()));
             setMenuClickListener(R.id.nav_item_rides,
                     this::onDriverRidesClicked);
         }
@@ -444,7 +443,7 @@ public class Navbar {
                 navigateToFragment(new FindRideFragment());
                 break;
             case "History":
-                navigateToFragment(new TripHistoryFragment());
+                navigateToFragment(new RideHistoryFragment());
                 break;
             case "Reports":
                 navigateToFragment(new RidesReportsFragment());
@@ -483,7 +482,7 @@ public class Navbar {
     }
 
     private void onRidesClicked() {
-        navigateToFragment(new ActiveRidesFragment());
+        navigateToFragment(new CurrentRidesFragment());
     }
 
     private void onDriverRidesClicked() {

@@ -21,24 +21,18 @@ public class LavugioApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // 1. Session manager (reads/writes auth token from SharedPreferences)
         SessionManager sessionManager = new SessionManager(this);
 
-        // 2. Wire up Retrofit with auth token injection
         ApiClient.init(sessionManager::getToken);
 
-        // 3. WebSocket (STOMP over SockJS)
         webSocketService = new WebSocketService();
         webSocketService.setSessionManager(sessionManager);
 
-        // 4. Location service (auto-detects GMS vs HMS)
         locationService = new LocationService(this);
 
-        // 5. Ride & Driver services
         rideService = new RideService(webSocketService);
         driverService = new DriverService(locationService);
 
-        // 6. Auth service singleton
         AuthService.init(this, webSocketService);
     }
 
