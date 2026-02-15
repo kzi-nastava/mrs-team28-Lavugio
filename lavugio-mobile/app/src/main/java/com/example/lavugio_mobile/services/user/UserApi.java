@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.services.user;
 
 import com.example.lavugio_mobile.models.user.ChangePasswordDTO;
+import com.example.lavugio_mobile.models.user.DriverActiveTimeResponse;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
@@ -37,4 +38,7 @@ public interface UserApi {
 
     @PUT("api/users/change-password")
     Call<ResponseBody> changePassword(@Body ChangePasswordDTO changePasswordDTO);
+
+    @GET("api/drivers/active-24h")
+    Call<DriverActiveTimeResponse> getDriverActiveLast24Hours();
 }

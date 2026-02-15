@@ -158,6 +158,10 @@ public class ProfileInfoRowView extends LinearLayout {
         }
     }
 
+    public void setValueTextColor(int color) {
+        valueTextView.setTextColor(color);
+    }
+
     public void setInputType(int inputType) {
         int typeClass = inputType & android.text.InputType.TYPE_MASK_CLASS;
         if (typeClass == android.text.InputType.TYPE_CLASS_TEXT) {

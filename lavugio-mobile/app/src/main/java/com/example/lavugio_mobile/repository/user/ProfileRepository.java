@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.lavugio_mobile.models.user.ChangePasswordDTO;
+import com.example.lavugio_mobile.models.user.DriverActiveTimeResponse;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
@@ -148,5 +149,61 @@ public class ProfileRepository {
         });
 
         return result;
+    }
+
+    public LiveData<String> getDriverActiveLast24Hours() {
+        MutableLiveData<String> formattedResult = new MutableLiveData<>();
+
+        userApi.getDriverActiveLast24Hours().enqueue(new Callback<DriverActiveTimeResponse>() {
+            @Override
+            public void onResponse(Call<DriverActiveTimeResponse> call,
+                                   Response<DriverActiveTimeResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String duration = response.body().getTimeActive();
+                    String formatted = formatDuration(duration);
+                    formattedResult.setValue(formatted);
+                } else {
+                    formattedResult.setValue("N/A");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DriverActiveTimeResponse> call, Throwable t) {
+                formattedResult.setValue("N/A");
+            }
+        });
+
+        return formattedResult;
+    }
+
+    private String formatDuration(String duration) {
+        if (duration == null || duration.isEmpty()) {
+            return "0h 0m";
+        }
+
+        // ISO 8601 duration format: PT2H30M15S
+        java.util.regex.Pattern pattern =
+                java.util.regex.Pattern.compile("PT(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?");
+        java.util.regex.Matcher matcher = pattern.matcher(duration);
+
+        if (!matcher.find()) {
+            return "0h 0m";
+        }
+
+        String hoursStr = matcher.group(1);
+        String minutesStr = matcher.group(2);
+        String secondsStr = matcher.group(3);
+
+        int hours = hoursStr != null ? Integer.parseInt(hoursStr) : 0;
+        int minutes = minutesStr != null ? Integer.parseInt(minutesStr) : 0;
+        int seconds = secondsStr != null ? (int) Float.parseFloat(secondsStr) : 0;
+
+        if (hours > 0) {
+            return hours + "h " + minutes + "m";
+        } else if (minutes > 0) {
+            return minutes + "m " + seconds + "s";
+        } else {
+            return seconds + "s";
+        }
     }
 }

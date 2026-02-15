@@ -57,6 +57,7 @@ public class ProfileFragment extends Fragment {
     private AuthService authService;
     private ProfileViewModel viewModel;
     private ChangePasswordViewModel changePasswordViewModel;
+    private ProfileInfoRowView activeTimeRow;
 
     @Nullable
     @Override
@@ -142,6 +143,23 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        viewModel.getDriverActiveTime().observe(getViewLifecycleOwner(), time -> {
+            if (time != null && activeTimeRow != null) {
+                activeTimeRow.setValue(time);
+                // Turn red if active 8+ hours
+                try {
+                    java.util.regex.Matcher m = java.util.regex.Pattern
+                            .compile("(\\d+)h").matcher(time);
+                    if (m.find()) {
+                        int hours = Integer.parseInt(m.group(1));
+                        if (hours >= 8) {
+                            activeTimeRow.setValueTextColor(Color.RED);
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        });
+
         // Load profile data
         viewModel.loadProfile();
         viewModel.loadProfilePhoto();
@@ -177,9 +195,12 @@ public class ProfileFragment extends Fragment {
             addEditableInfoRow("Passenger Seats", profileData.getVehicleSeats().toString(), InputType.TYPE_CLASS_NUMBER);
             addEditableBooleanInfoRow("Pet Friendly", profileData.getVehiclePetFriendly());
             addEditableBooleanInfoRow("Baby Friendly", profileData.getVehicleBabyFriendly());
-            addNonEditableInfoRow("Active in last 24h", "4h30min");
+            activeTimeRow = new ProfileInfoRowView(getContext());
+            activeTimeRow.setData("Active in last 24h", "Loading...");
+            activeTimeRow.setEditable(false);
+            infoContainer.addView(activeTimeRow);
+            viewModel.loadDriverActiveTime();
         }
-
         addButtonRow();
     }
 
@@ -563,20 +584,6 @@ public class ProfileFragment extends Fragment {
 
 
     private void handleActivationToggle() {
-        // TODO: Implement activation toggle
-        // if (!driver.isVerified()) {
-        //     Toast.makeText(getContext(), "You must be verified to activate", Toast.LENGTH_SHORT).show();
-        //     return;
-        // }
-
-        // Toggle availability
-        // boolean newAvailability = !driver.isAvailable();
-        // driver.setAvailable(newAvailability);
-
-        // TODO: Send to backend API
-        // viewModel.updateDriverAvailability(newAvailability);
-
-        // Show confirmation
         Toast.makeText(getContext(), "Activation toggled", Toast.LENGTH_SHORT).show();
     }
 

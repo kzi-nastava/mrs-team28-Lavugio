@@ -14,12 +14,13 @@ import okhttp3.MultipartBody;
 public class ProfileViewModel extends ViewModel {
 
     private final ProfileRepository repository;
-
     private final MutableLiveData<UserProfileData> profileData = new MutableLiveData<>();
     private final MutableLiveData<byte[]> profilePhotoBytes = new MutableLiveData<>();
     private final MutableLiveData<Boolean> updateSuccess = new MutableLiveData<>();
     private final MutableLiveData<Boolean> uploadPhotoSuccess = new MutableLiveData<>();
     private final MutableLiveData<Boolean> driverEditRequestSuccess = new MutableLiveData<>();
+
+    private final MutableLiveData<String> driverActiveTime = new MutableLiveData<>();
 
     public ProfileViewModel() {
         repository = new ProfileRepository();
@@ -43,6 +44,10 @@ public class ProfileViewModel extends ViewModel {
 
     public LiveData<Boolean> getDriverEditRequestSuccess() {
         return driverEditRequestSuccess;
+    }
+
+    public LiveData<String> getDriverActiveTime() {
+        return driverActiveTime;
     }
 
     public void loadProfile() {
@@ -77,6 +82,14 @@ public class ProfileViewModel extends ViewModel {
             driverEditRequestSuccess.setValue(success);
             if (success) {
                 loadProfile();
+            }
+        });
+    }
+
+    public void loadDriverActiveTime() {
+        repository.getDriverActiveLast24Hours().observeForever(data -> {
+            if (data != null) {
+                driverActiveTime.setValue(data);
             }
         });
     }
