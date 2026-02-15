@@ -101,9 +101,8 @@ public class AuthService {
 
     public void registerWithFile(RegistrationRequest request, File imageFile,
                                  AuthCallback<Void> callback) {
-        String mimeType = getMimeTypeFromFile(imageFile);
         RequestBody fileBody = RequestBody.create(
-                MediaType.parse(mimeType), imageFile);
+                MediaType.parse("image/*"), imageFile);
         MultipartBody.Part filePart = MultipartBody.Part.createFormData(
                 "profilePicture", imageFile.getName(), fileBody);
 
@@ -144,23 +143,6 @@ public class AuthService {
 
     public void verifyEmail(String token, AuthCallback<Void> callback) {
         api.verifyEmail(new VerifyEmailRequest(token)).enqueue(wrapCallback(callback));
-    }
-
-    // ── Forgot Password ───────────────────────────────────
-
-    public void forgotPassword(String email, AuthCallback<Void> callback) {
-        java.util.Map<String, String> request = java.util.Map.of("email", email);
-        api.forgotPassword(request).enqueue(wrapCallback(callback));
-    }
-
-    // ── Reset Password ────────────────────────────────────
-
-    public void resetPassword(String token, String newPassword, AuthCallback<Void> callback) {
-        java.util.Map<String, String> request = java.util.Map.of(
-            "token", token,
-            "newPassword", newPassword
-        );
-        api.resetPassword(request).enqueue(wrapCallback(callback));
     }
 
     // ── Logout ───────────────────────────────────────────
@@ -273,22 +255,5 @@ public class AuthService {
                 callback.onError(-1, t.getMessage());
             }
         };
-    }
-
-    private String getMimeTypeFromFile(File file) {
-        String fileName = file.getName().toLowerCase();
-        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
-            return "image/jpeg";
-        } else if (fileName.endsWith(".png")) {
-            return "image/png";
-        } else if (fileName.endsWith(".webp")) {
-            return "image/webp";
-        } else if (fileName.endsWith(".heic")) {
-            return "image/heic";
-        } else if (fileName.endsWith(".heif")) {
-            return "image/heif";
-        } else {
-            return "image/*"; // fallback
-        }
     }
 }

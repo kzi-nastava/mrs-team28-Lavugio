@@ -1,7 +1,5 @@
 package com.example.lavugio_mobile.ui.auth;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -16,8 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.MainActivity;
@@ -27,8 +23,6 @@ import com.example.lavugio_mobile.services.auth.AuthService;
 import com.example.lavugio_mobile.services.WebSocketService;
 import com.example.lavugio_mobile.models.auth.LoginRequest;
 import com.example.lavugio_mobile.models.auth.LoginResponse;
-import com.example.lavugio_mobile.services.DriverService;
-import com.example.lavugio_mobile.services.LocationService;
 
 public class LoginFragment extends Fragment {
 
@@ -41,8 +35,6 @@ public class LoginFragment extends Fragment {
     private boolean isPasswordVisible = false;
 
     private AuthService authService;
-    private DriverService driverService;
-    private LocationService locationService;
 
     @Nullable
     @Override
@@ -57,8 +49,6 @@ public class LoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         authService = AuthService.getInstance();
-        driverService = new DriverService(new LocationService(requireContext()));
-        locationService = new LocationService(requireContext());
 
         // Initialize views
         emailInput = view.findViewById(R.id.login_email);
@@ -109,8 +99,8 @@ public class LoginFragment extends Fragment {
             return;
         }
 
-        if (password.length() < 8) {
-            Toast.makeText(getContext(), "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
+        if (password.length() < 6) {
+            Toast.makeText(getContext(), "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -120,58 +110,14 @@ public class LoginFragment extends Fragment {
 
         LoginRequest request = new LoginRequest(email, password);
 
-        // Get location permissions if needed
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    100);
-            // Proceed with login without location for now
-            performLogin(request);
-            return;
-        }
-
-        // Get current location
-        locationService.getLocation(new LocationService.LocationCallback() {
-            @Override
-            public void onLocation(com.example.lavugio_mobile.models.Coordinates coordinates) {
-                request.setLatitude(coordinates.getLatitude());
-                request.setLongitude(coordinates.getLongitude());
-                performLogin(request);
-            }
-
-            @Override
-            public void onError(String error) {
-                // Proceed with login without coordinates
-                performLogin(request);
-            }
-        });
-    }
-    private void performLogin(LoginRequest request) {
         authService.login(request, new AuthCallback<LoginResponse>() {
             @Override
             public void onSuccess(LoginResponse result) {
-                if (!isAdded()) return;
+                // Retrofit callbacks come on the main thread when using enqueue
+                if (!isAdded()) return; // Fragment might have been detached
 
                 Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
-
-                // If driver, activate the driver
-                if ("DRIVER".equals(result.getRole())) {
-                    driverService.activateDriver(new DriverService.Callback<Object>() {
-                        @Override
-                        public void onSuccess(Object result) {
-                            navigateBasedOnRole("DRIVER");
-                        }
-
-                        @Override
-                        public void onError(int code, String message) {
-                            // Still navigate even if activation fails
-                            navigateBasedOnRole("DRIVER");
-                        }
-                    });
-                } else {
-                    navigateBasedOnRole(result.getRole());
-                }
+                navigateToProfile();
             }
 
             @Override
@@ -185,20 +131,6 @@ public class LoginFragment extends Fragment {
         });
     }
 
-    private void navigateBasedOnRole(String role) {
-        switch (role) {
-            case "DRIVER":
-                navigateToDriverScheduledRides();
-                break;
-            case "ADMINISTRATOR":
-                navigateToAdminPanel();
-                break;
-            case "REGULAR_USER":
-            default:
-                navigateToFindTrip();
-                break;
-        }
-    }
     private void navigateToRegister() {
         if (getActivity() instanceof MainActivity) {
             getActivity().getSupportFragmentManager()
@@ -214,42 +146,6 @@ public class LoginFragment extends Fragment {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container, new ForgotPasswordFragment())
-                    .addToBackStack(null)
-                    .commit();
-        }
-    }
-
-    private void navigateToFindTrip() {
-        if (getActivity() instanceof MainActivity) {
-            // Navigate to find ride fragment (equivalent to find trip)
-            getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_container,
-                            new com.example.lavugio_mobile.ui.ride.FindRideFragment())
-                    .addToBackStack(null)
-                    .commit();
-        }
-    }
-
-    private void navigateToDriverScheduledRides() {
-        if (getActivity() instanceof MainActivity) {
-            // For now, navigate to driver trip history (closest equivalent)
-            getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_container,
-                            new com.example.lavugio_mobile.ui.driver.TripHistoryFragment())
-                    .addToBackStack(null)
-                    .commit();
-        }
-    }
-
-    private void navigateToAdminPanel() {
-        if (getActivity() instanceof MainActivity) {
-            // Navigate to admin panel fragment
-            getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_container,
-                            new com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment())
                     .addToBackStack(null)
                     .commit();
         }
