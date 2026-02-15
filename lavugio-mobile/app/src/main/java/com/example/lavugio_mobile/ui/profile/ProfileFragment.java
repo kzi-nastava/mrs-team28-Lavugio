@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -36,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -149,6 +152,8 @@ public class ProfileFragment extends Fragment {
                         headerView.setProfileBitmap(bitmap);
                     });
 
+                } else {
+                    loadDefaultAvatar();
                 }
             }
 
@@ -157,6 +162,47 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(requireContext(),
                         "Failed to load image",
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadDefaultAvatar() {
+        String encodedName = Uri.encode(authService.getStoredUser().getName());
+        String avatarUrl = "https://ui-avatars.com/api/?name="
+                + encodedName
+                + "&background=606C38&color=fff&size=200&format=png";
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(avatarUrl)
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+
+            @Override
+            public void onResponse(okhttp3.Call call,
+                                   okhttp3.Response response) throws IOException {
+
+                try {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        return;
+                    }
+
+                    byte[] bytes = response.body().bytes();
+                    final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                    if (bitmap != null && getActivity() != null) {
+                        requireActivity().runOnUiThread(() -> headerView.setProfileBitmap(bitmap));
+                    }
+                } finally {
+                    response.close();
+                }
+            }
+
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                e.printStackTrace();
             }
         });
     }
