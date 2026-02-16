@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
+import com.example.lavugio_mobile.models.RidePriceEstimateDTO;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 
@@ -137,6 +138,7 @@ public class FindRidePage3Fragment extends Fragment {
         loadDestinations();
         loadPassengers();
         loadDistanceAndTimeEstimate();
+        loadPriceEstimate();
     }
 
     private void loadPreferences() {
@@ -239,6 +241,22 @@ public class FindRidePage3Fragment extends Fragment {
             tvRouteDuration.setText(timeStr);
         } else {
             tvRouteDuration.setText("N/A");
+        }
+    }
+
+    private void loadPriceEstimate() {
+        if (ridePreferences != null) {
+            String selectedVehicleType = ridePreferences.getVehicleType().toString();
+            float distanceMeters = (float) (routeDistanceKm * 1000);
+            viewModel.getRidePriceEstimate(selectedVehicleType, distanceMeters).observe(getViewLifecycleOwner(), result -> {
+                if (result != null) {
+                    tvPrice.setText(String.format("%.0f RSD", result));
+                } else {
+                    tvPrice.setText("N/A");
+                }
+            });
+        } else {
+            tvPrice.setText("N/A");
         }
     }
 

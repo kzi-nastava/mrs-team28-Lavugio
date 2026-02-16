@@ -15,23 +15,23 @@ import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 import java.util.List;
 
 public class FindRideViewModel extends ViewModel {
-        private final FindRideRepository repository;
+    private final FindRideRepository repository;
 
-        public FindRideViewModel() {
-            repository = new FindRideRepository();
-        }
+    public FindRideViewModel() {
+        repository = new FindRideRepository();
+    }
 
-        public FindRideRepository getRepository() {
-            return repository;
-        }
+    public FindRideRepository getRepository() {
+        return repository;
+    }
 
-        public LiveData<ResultState> findRide(RideRequestDTO requestDTO) {
-            return repository.findRide(requestDTO);
-        }
+    public LiveData<ResultState> findRide(RideRequestDTO requestDTO) {
+        return repository.findRide(requestDTO);
+    }
 
-        public LiveData<Double> estimatePrice(RidePriceEstimateDTO requestDTO) {
-            return repository.estimatePrice(requestDTO);
-        }
+    public LiveData<Double> estimatePrice(RidePriceEstimateDTO requestDTO) {
+        return repository.estimatePrice(requestDTO);
+    }
 
     public LiveData<ResultState> createFavoriteRoute(
             String name,
@@ -64,4 +64,9 @@ public class FindRideViewModel extends ViewModel {
     public LiveData<FavoriteRoute[]> getFavoriteRoutes() {
             return repository.getFavoriteRoutes();
         }
+
+    public LiveData<Double> getRidePriceEstimate(String vehicleType, float distanceMeters) {
+        RidePriceEstimateDTO request = new RidePriceEstimateDTO(vehicleType, distanceMeters);
+        return repository.estimatePrice(request);
+    }
 }
