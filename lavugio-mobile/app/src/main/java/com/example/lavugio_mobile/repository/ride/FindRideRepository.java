@@ -48,21 +48,41 @@ public class FindRideRepository {
         return result;
     }
 
-    public LiveData<Object> findRide(RideRequestDTO requestDTO) {
-        MutableLiveData<Object> result = new MutableLiveData<>();
+    public LiveData<ResultState> findRide(RideRequestDTO requestDTO) {
+        MutableLiveData<ResultState> result = new MutableLiveData<>();
         rideApi.findRide(requestDTO).enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 if (response.isSuccessful()) {
-                    result.setValue(response.body());
+                    result.setValue(new ResultState.Success());
                 } else {
-                    result.setValue(null);
+                    String errorMessage = "Unknown error";
+
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+
+                            Gson gson = new Gson();
+                            ErrorResponse error =
+                                    gson.fromJson(errorJson, ErrorResponse.class);
+
+                            errorMessage = error.getMessage();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    result.setValue(new ResultState.Error(errorMessage));
                 }
             }
 
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
-                result.setValue(null);
+                result.setValue(
+                        new ResultState.Error(
+                                t.getMessage() != null ? t.getMessage() : "Network error"
+                        )
+                );
             }
         });
         return result;

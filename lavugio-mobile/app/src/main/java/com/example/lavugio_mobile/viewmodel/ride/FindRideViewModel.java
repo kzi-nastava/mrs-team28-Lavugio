@@ -25,7 +25,7 @@ public class FindRideViewModel extends ViewModel {
             return repository;
         }
 
-        public LiveData<Object> findRide(RideRequestDTO requestDTO) {
+        public LiveData<ResultState> findRide(RideRequestDTO requestDTO) {
             return repository.findRide(requestDTO);
         }
 
