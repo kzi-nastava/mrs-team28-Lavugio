@@ -68,7 +68,7 @@ public interface RideApi {
     // ── Ride Booking ─────────────────────────────────────
 
     @POST("api/rides/estimate-price")
-    Call<Object> estimatePrice(@Body RideEstimateRequest request);
+        Call<Double> estimatePrice(@Body com.example.lavugio_mobile.models.RidePriceEstimateDTO request);
 
     @POST("api/rides/schedule")
     Call<Object> scheduleRide(@Body ScheduleRideRequest request);
