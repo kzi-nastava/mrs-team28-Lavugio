@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
+import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +41,17 @@ public class FindRidePage3Fragment extends Fragment {
     private List<GeocodingHelper.GeocodingResult> selectedDestinations;
     private RidePreferences ridePreferences;
 
+    private FindRideViewModel viewModel;
+
     public static FindRidePage3Fragment newInstance(List<GeocodingHelper.GeocodingResult> selectedDestinations, RidePreferences ridePreferences) {
         FindRidePage3Fragment fragment = new FindRidePage3Fragment();
         fragment.setSelectedDestinations(selectedDestinations);
         fragment.setRidePreferences(ridePreferences);
         return fragment;
+    }
+
+    public void setViewModel(FindRideViewModel viewModel) {
+        this.viewModel = viewModel;
     }
 
     @Nullable

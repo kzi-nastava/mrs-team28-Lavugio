@@ -11,7 +11,7 @@ import retrofit2.http.POST;
 
 public interface FavoriteRouteApi {
     @POST("api/favorite-routes/add")
-    Call<Object> createFavoriteRoute(@Body FavoriteRoute request);
+    Call<Void> createFavoriteRoute(@Body FavoriteRoute request);
 
     @GET("api/favorite-routes")
     Call<List<FavoriteRoute>> getFavoriteRoutes();

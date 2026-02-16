@@ -7,8 +7,11 @@ import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.api.FavoriteRouteApi;
 import com.example.lavugio_mobile.api.RideApi;
 import com.example.lavugio_mobile.data.model.route.FavoriteRoute;
+import com.example.lavugio_mobile.data.model.utils.ErrorResponse;
+import com.example.lavugio_mobile.data.model.utils.ResultState;
 import com.example.lavugio_mobile.models.RidePriceEstimateDTO;
 import com.example.lavugio_mobile.models.RideRequestDTO;
+import com.google.gson.Gson;
 
 import java.util.List;
 
@@ -65,29 +68,58 @@ public class FindRideRepository {
         return result;
     }
 
-    public LiveData<Object> createFavoriteRoute(FavoriteRoute newFavoriteRouteRequest) {
-        MutableLiveData<Object> result = new MutableLiveData<>();
-        favoriteRouteApi.createFavoriteRoute(newFavoriteRouteRequest).enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                if (response.isSuccessful()) {
-                    result.setValue(response.body());
-                } else {
-                    result.setValue(null);
-                }
-            }
+    public LiveData<ResultState> createFavoriteRoute(FavoriteRoute request) {
 
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                result.setValue(null);
-            }
-        });
+        MutableLiveData<ResultState> result = new MutableLiveData<>();
+
+        favoriteRouteApi.createFavoriteRoute(request)
+                .enqueue(new Callback<Void>() {
+
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+
+                        if (response.isSuccessful()) {
+                            result.setValue(new ResultState.Success());
+                        } else {
+
+                            String errorMessage = "Unknown error";
+
+                            try {
+                                if (response.errorBody() != null) {
+                                    String errorJson = response.errorBody().string();
+
+                                    Gson gson = new Gson();
+                                    ErrorResponse error =
+                                            gson.fromJson(errorJson, ErrorResponse.class);
+
+                                    errorMessage = error.getMessage();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            result.setValue(new ResultState.Error(errorMessage));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        result.setValue(
+                                new ResultState.Error(
+                                        t.getMessage() != null ? t.getMessage() : "Network error"
+                                )
+                        );
+                    }
+                });
+
         return result;
     }
 
+
+
     public LiveData<FavoriteRoute[]> getFavoriteRoutes() {
         MutableLiveData<FavoriteRoute[]> result = new MutableLiveData<>();
-        favoriteRouteApi.getFavoriteRoutes().enqueue(new Callback<java.util.List<FavoriteRoute>>() {
+        favoriteRouteApi.getFavoriteRoutes().enqueue(new Callback<List<FavoriteRoute>>() {
             @Override
             public void onResponse(Call<List<FavoriteRoute>> call, Response<List<FavoriteRoute>> response) {
                 if (response.isSuccessful() && response.body() != null) {
