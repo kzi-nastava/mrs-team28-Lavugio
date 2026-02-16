@@ -133,7 +133,7 @@ public class RegisterDriverUserFragment extends Fragment {
 
         // Validate phone
         String phone = etPhone.getText().toString().trim();
-        if (phone.isEmpty() || phone.length() < 9) {
+        if (!isValidPhoneNumber(phone)) {
             etPhone.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.text_input_field_error));
             isValid = false;
         } else {
@@ -144,6 +144,13 @@ public class RegisterDriverUserFragment extends Fragment {
         btnNext.setEnabled(isValid);
 
         return isValid;
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        String phoneFormat1Regex = "^06\\d{5,9}$";
+        String phoneFormat2Regex = "^\\+381\\d{6,10}$";
+        return phoneNumber != null &&
+                (phoneNumber.matches(phoneFormat1Regex) || phoneNumber.matches(phoneFormat2Regex));
     }
 
     private void saveData() {
