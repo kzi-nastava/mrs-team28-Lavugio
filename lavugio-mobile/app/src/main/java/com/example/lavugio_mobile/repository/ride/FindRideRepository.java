@@ -59,8 +59,8 @@ public class FindRideRepository {
                     String errorMessage = "Unknown error";
 
                     try {
-                        if (response.body() != null) {
-                            errorMessage = response.body().toString();
+                        if (response.errorBody() != null) {
+                            errorMessage = response.errorBody().string();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
