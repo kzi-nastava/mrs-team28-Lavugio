@@ -58,7 +58,7 @@ public class RideService {
         api.startRide(rideId).enqueue(wrapCallback(callback));
     }
 
-    public void finishRide(FinishRide finish, Callback<FinishRide> callback) {
+    public void finishRide(FinishRide finish, Callback<Void> callback) {
         api.finishRide(finish).enqueue(wrapCallback(callback));
     }
 
