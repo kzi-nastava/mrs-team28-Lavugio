@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.services.user;
 
 import com.example.lavugio_mobile.models.user.BlockUserRequest;
+import com.example.lavugio_mobile.models.user.DriverRegistrationDTO;
 import com.example.lavugio_mobile.models.user.DriverUpdateRequestDiffDTO;
 import com.example.lavugio_mobile.models.user.EmailSuggestion;
 
@@ -29,4 +30,7 @@ public interface AdminApi {
 
     @GET("api/users/email-suggestions")
     Call<List<EmailSuggestion>> getEmailSuggestions(@Query("query") String query);
+
+    @POST("api/drivers/register")
+    Call<ResponseBody> registerDriver(@Body DriverRegistrationDTO driverRegistrationDTO);
 }
