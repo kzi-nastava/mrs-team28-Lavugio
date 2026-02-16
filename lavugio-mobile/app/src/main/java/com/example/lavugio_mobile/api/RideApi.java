@@ -37,7 +37,7 @@ public interface RideApi {
     Call<Void> startRide(@Path("rideId") long rideId);
 
     @PUT("api/rides/finish")
-    Call<FinishRide> finishRide(@Body FinishRide finish);
+    Call<Void> finishRide(@Body FinishRide finish);
 
     @POST("api/rides/{rideId}/cancel-by-passenger")
     Call<Void> cancelRideByPassenger(@Path("rideId") long rideId);

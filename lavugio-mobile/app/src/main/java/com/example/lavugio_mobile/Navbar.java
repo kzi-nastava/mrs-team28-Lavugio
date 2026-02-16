@@ -25,6 +25,7 @@ import com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.driver.history.DriverRideHistoryFragment;
+import com.example.lavugio_mobile.ui.driver.scheduled_rides.DriverScheduledRidesFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 import com.example.lavugio_mobile.ui.ride.CurrentRidesFragment;
@@ -496,8 +497,7 @@ public class Navbar {
     }
 
     private void onDriverRidesClicked() {
-        // TODO: Navigate to driver scheduled rides fragment
-        Toast.makeText(activity, "Scheduled Rides — coming soon", Toast.LENGTH_SHORT).show();
+        navigateToFragment(new DriverScheduledRidesFragment());
     }
 
     private void onReportsClicked() {

@@ -97,4 +97,6 @@ public class ApiClient {
     public static DriverApi getDriverApi() {
         return getInstance().create(DriverApi.class);
     }
+
+    public static UserApi getUserApi() {return getInstance().create(UserApi.class);}
 }

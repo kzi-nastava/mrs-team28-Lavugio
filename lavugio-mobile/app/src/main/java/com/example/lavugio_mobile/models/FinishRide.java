@@ -2,17 +2,33 @@ package com.example.lavugio_mobile.models;
 
 public class FinishRide {
     private long rideId;
-    private Coordinates endCoordinates;
-    private String endAddress;
+    private Coordinates finalDestination;
+    private boolean finishedEarly;
+
+    private Double distance;
 
     public FinishRide() {}
 
     public long getRideId() { return rideId; }
     public void setRideId(long rideId) { this.rideId = rideId; }
 
-    public Coordinates getEndCoordinates() { return endCoordinates; }
-    public void setEndCoordinates(Coordinates endCoordinates) { this.endCoordinates = endCoordinates; }
+    public Coordinates getFinalDestination() { return finalDestination; }
+    public void setFinalDestination(Coordinates finalDestination) { this.finalDestination = finalDestination; }
 
-    public String getEndAddress() { return endAddress; }
-    public void setEndAddress(String endAddress) { this.endAddress = endAddress; }
+
+    public boolean isFinishedEarly() {
+        return finishedEarly;
+    }
+
+    public void setFinishedEarly(boolean finishedEarly) {
+        this.finishedEarly = finishedEarly;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
 }

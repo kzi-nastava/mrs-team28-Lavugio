@@ -6,6 +6,7 @@ import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.services.DriverService;
 import com.example.lavugio_mobile.services.LocationService;
 import com.example.lavugio_mobile.services.RideService;
+import com.example.lavugio_mobile.services.UserService;
 import com.example.lavugio_mobile.services.WebSocketService;
 import com.example.lavugio_mobile.services.auth.AuthService;
 import com.example.lavugio_mobile.services.auth.SessionManager;
@@ -16,6 +17,7 @@ public class LavugioApp extends Application {
     private static LocationService locationService;
     private static RideService rideService;
     private static DriverService driverService;
+    private static UserService userService;
 
     @Override
     public void onCreate() {
@@ -32,6 +34,7 @@ public class LavugioApp extends Application {
 
         rideService = new RideService(webSocketService);
         driverService = new DriverService(locationService);
+        userService = new UserService();
 
         AuthService.init(this, webSocketService);
     }
@@ -53,4 +56,6 @@ public class LavugioApp extends Application {
     public static DriverService getDriverService() {
         return driverService;
     }
+
+    public static UserService getUserService(){return userService;}
 }
