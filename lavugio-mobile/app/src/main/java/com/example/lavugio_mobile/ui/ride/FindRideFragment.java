@@ -62,10 +62,8 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
                 .replace(R.id.mapFragmentContainer, mapFragment)
                 .commit();
 
-        // Setup bottom sheet
         setupBottomSheet();
 
-        // Load first page
         loadPage(0);
 
     }
@@ -85,7 +83,9 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
             }
         });
 
-        bottomSheetHelper.setPeekHeight(200);
+        // Convert 90dp to pixels
+        int peekHeightPx = (int) (90 * getResources().getDisplayMetrics().density);
+        bottomSheetHelper.setPeekHeight(peekHeightPx);
     }
 
     /**
