@@ -37,16 +37,19 @@ public class FindRidePage3Fragment extends Fragment {
     private LinearLayout llDestinationsList, llPassengersList;
     private TextView tvNoDestinations, tvNoPassengers;
     private Spinner spinnerVehicleType;
-
+    private TextView tvRouteDistance, tvRouteDuration, tvPrice;
     private List<GeocodingHelper.GeocodingResult> selectedDestinations;
     private RidePreferences ridePreferences;
+    private double routeDistanceKm;
+    private double routeDurationS;
 
     private FindRideViewModel viewModel;
 
-    public static FindRidePage3Fragment newInstance(List<GeocodingHelper.GeocodingResult> selectedDestinations, RidePreferences ridePreferences) {
+    public static FindRidePage3Fragment newInstance(List<GeocodingHelper.GeocodingResult> selectedDestinations, RidePreferences ridePreferences, double routeDistanceKm, double routeDurationS) {
         FindRidePage3Fragment fragment = new FindRidePage3Fragment();
         fragment.setSelectedDestinations(selectedDestinations);
         fragment.setRidePreferences(ridePreferences);
+        fragment.setDistanceAndDuration(routeDistanceKm, routeDurationS);
         return fragment;
     }
 
@@ -77,6 +80,10 @@ public class FindRidePage3Fragment extends Fragment {
         tvNoDestinations = view.findViewById(R.id.tvNoDestinations);
         tvNoPassengers = view.findViewById(R.id.tvNoPassengers);
         spinnerVehicleType = view.findViewById(R.id.spinnerVehicleType);
+
+        tvPrice = view.findViewById(R.id.tvPrice);
+        tvRouteDistance = view.findViewById(R.id.tvDistance);
+        tvRouteDuration = view.findViewById(R.id.tvTime);
 
         setupButtons();
         setupScrollInterception();
@@ -129,6 +136,7 @@ public class FindRidePage3Fragment extends Fragment {
         loadPreferences();
         loadDestinations();
         loadPassengers();
+        loadDistanceAndTimeEstimate();
     }
 
     private void loadPreferences() {
@@ -216,6 +224,22 @@ public class FindRidePage3Fragment extends Fragment {
 
         constrainScrollViewHeight(svPassengersList, llPassengersList,
                 emails != null ? emails.size() : 0);
+    }
+
+    private void loadDistanceAndTimeEstimate() {
+        if (routeDistanceKm > 0) {
+            tvRouteDistance.setText(String.format("%.1f km", routeDistanceKm));
+        } else {
+            tvRouteDistance.setText("N/A");
+        }
+        if (routeDurationS > 0) {
+            int hours = (int) (routeDurationS / 3600);
+            int minutes = (int) ((routeDurationS % 3600) / 60);
+            String timeStr = hours > 0 ? String.format("%dh %02dm", hours, minutes) : String.format("%dm", minutes);
+            tvRouteDuration.setText(timeStr);
+        } else {
+            tvRouteDuration.setText("N/A");
+        }
     }
 
     private View createListItem(int position, String text) {
@@ -312,5 +336,10 @@ public class FindRidePage3Fragment extends Fragment {
 
     private void setSelectedDestinations(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
         this.selectedDestinations = selectedDestinations;
+    }
+
+    private void setDistanceAndDuration(double routeDistanceKm, double routeDurationS) {
+        this.routeDistanceKm = routeDistanceKm;
+        this.routeDurationS = routeDurationS;
     }
 }

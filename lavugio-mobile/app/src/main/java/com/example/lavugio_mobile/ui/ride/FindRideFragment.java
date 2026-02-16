@@ -41,6 +41,8 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
     private List<GeocodingHelper.GeocodingResult> selectedDestinations;
     private RidePreferences selectedPreferences;
 
+    private double currentRouteDistanceKm = 0.0;
+    private double currentRouteDurationS = 0.0;
     private FindRideViewModel viewModel;
 
     @Nullable
@@ -113,7 +115,7 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
                 ((FindRidePage2Fragment) pageFragment).setViewModel(viewModel);
                 break;
             case 2:
-                pageFragment = FindRidePage3Fragment.newInstance(selectedDestinations, selectedPreferences);
+                pageFragment = FindRidePage3Fragment.newInstance(selectedDestinations, selectedPreferences, currentRouteDistanceKm, currentRouteDurationS);
                 ((FindRidePage3Fragment) pageFragment).setViewModel(viewModel);
                 break;
             default:
@@ -180,7 +182,8 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
 
     @Override
     public void onRouteCalculated(Road road) {
-        // No-op for now.
+        this.currentRouteDistanceKm = road.mLength;
+        this.currentRouteDurationS = road.mDuration;
     }
 
     public void setSelectedDestinations(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
@@ -189,5 +192,10 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
 
     public void setSelectedPreferences(RidePreferences selectedPreferences) {
         this.selectedPreferences = selectedPreferences;
+    }
+
+    public void resetRideEstimation() {
+        this.currentRouteDistanceKm = 0.0;
+        this.currentRouteDurationS = 0.0;
     }
 }

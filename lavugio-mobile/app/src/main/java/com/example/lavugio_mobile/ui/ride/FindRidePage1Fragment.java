@@ -409,6 +409,9 @@ public class FindRidePage1Fragment extends Fragment {
 
             Toast.makeText(getContext(), "Removed: " + removed.getDisplayName(), Toast.LENGTH_SHORT).show();
         }
+        // get reference to parent fragment
+        FindRideFragment parent = (FindRideFragment) getParentFragment();
+        parent.resetRideEstimation();
     }
 
     private void updateDestinationsDisplay() {
