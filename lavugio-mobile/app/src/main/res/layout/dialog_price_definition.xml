@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_bg_cream">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_header_green"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price Definition"
+            android:textColor="#FEFAE0"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/inter_variable_font"
+            android:layout_centerVertical="true" />
+
+        <ImageButton
+            android:id="@+id/btn_close_price_header"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_menu_close"
+            app:tint="#FEFAE0"
+            android:contentDescription="Close" />
+    </RelativeLayout>
+
+    <!-- Loading State -->
+    <LinearLayout
+        android:id="@+id/price_loading_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="48dp"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progress_bar_price"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:indeterminateTint="#606C38" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loading prices..."
+            android:textSize="14sp"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_variable_font"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+
+    <!-- Error State -->
+    <LinearLayout
+        android:id="@+id/price_error_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Failed loading prices"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#BC6C25"
+            android:fontFamily="@font/inter_variable_font"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/btn_retry_price"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:text="Retry"
+            android:textColor="#FEFAE0"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/inter_variable_font"
+            android:background="@drawable/button_green"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp" />
+    </LinearLayout>
+
+    <!-- Success State -->
+    <LinearLayout
+        android:id="@+id/price_success_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings saved!"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1B4332"
+            android:fontFamily="@font/inter_variable_font"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/btn_close_price"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:text="Close"
+            android:textColor="#FEFAE0"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/inter_variable_font"
+            android:background="@drawable/button_green"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp" />
+    </LinearLayout>
+
+    <!-- Form Container -->
+    <LinearLayout
+        android:id="@+id/price_form_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="visible">
+
+        <!-- Vehicle Type -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vehicle Type"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_variable_font"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/spinner_vehicle_type"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/edittext_background_green_stroke"
+            android:spinnerMode="dropdown"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Vehicle Type Price -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vehicle Type Price (RSD)"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_variable_font"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/et_price_per_type"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/edittext_background_green_stroke"
+            android:padding="12dp"
+            android:inputType="numberDecimal"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_brown"
+            android:fontFamily="@font/inter_variable_font"
+            android:hint="Enter price"
+            android:textColorHint="#BC6C25"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Price per Kilometer -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price per Kilometer (RSD)"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#283618"
+            android:fontFamily="@font/inter_variable_font"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Applied to all vehicle types"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:textColor="#606C38"
+            android:alpha="0.7"
+            android:fontFamily="@font/inter_variable_font"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/et_price_per_km"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/edittext_background_green_stroke"
+            android:padding="12dp"
+            android:inputType="numberDecimal"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_brown"
+            android:fontFamily="@font/inter_variable_font"
+            android:hint="Enter price"
+            android:textColorHint="#BC6C25"
+            android:layout_marginBottom="16dp" />
+
+
+
+        <!-- Error Message -->
+        <TextView
+            android:id="@+id/tv_price_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Failed to save prices"
+            android:textSize="14sp"
+            android:textColor="#BC6C25"
+            android:fontFamily="@font/inter_variable_font"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp"
+            android:layout_gravity="center" />
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/btn_save_price"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Save Price"
+            android:textColor="#FEFAE0"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/inter_variable_font"
+            android:background="@drawable/button_green" />
+
+    </LinearLayout>
+
+</LinearLayout>

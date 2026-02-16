@@ -5,6 +5,7 @@ import android.app.Application;
 import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.services.DriverService;
 import com.example.lavugio_mobile.services.LocationService;
+import com.example.lavugio_mobile.services.PriceService;
 import com.example.lavugio_mobile.services.RideService;
 import com.example.lavugio_mobile.services.UserService;
 import com.example.lavugio_mobile.services.WebSocketService;
@@ -18,6 +19,7 @@ public class LavugioApp extends Application {
     private static RideService rideService;
     private static DriverService driverService;
     private static UserService userService;
+    private static PriceService priceService;
 
     @Override
     public void onCreate() {
@@ -35,6 +37,7 @@ public class LavugioApp extends Application {
         rideService = new RideService(webSocketService);
         driverService = new DriverService(locationService);
         userService = new UserService();
+        priceService = new PriceService();
 
         AuthService.init(this, webSocketService);
     }
@@ -58,4 +61,6 @@ public class LavugioApp extends Application {
     }
 
     public static UserService getUserService(){return userService;}
+
+    public static PriceService getPriceService(){return priceService;}
 }
