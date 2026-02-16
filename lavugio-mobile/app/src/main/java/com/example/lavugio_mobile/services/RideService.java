@@ -88,7 +88,7 @@ public class RideService {
 
     // ── Ride Booking ─────────────────────────────────────
 
-    public void estimatePrice(RideEstimateRequest request, Callback<Object> callback) {
+    public void estimatePrice(com.example.lavugio_mobile.models.RidePriceEstimateDTO request, Callback<Double> callback) {
         api.estimatePrice(request).enqueue(wrapCallback(callback));
     }
 

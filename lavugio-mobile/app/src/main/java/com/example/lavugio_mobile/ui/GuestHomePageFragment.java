@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +26,11 @@ import com.example.lavugio_mobile.api.DriverApi;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
+import com.example.lavugio_mobile.services.utils.GeocodingHelper;
+import androidx.appcompat.app.AlertDialog;
+import android.widget.EditText;
+import android.widget.Toast;
+import org.osmdroid.util.GeoPoint;
 
 import org.osmdroid.views.overlay.Marker;
 
@@ -49,6 +56,7 @@ public class GuestHomePageFragment extends Fragment {
     private FrameLayout mapSection;
     private FrameLayout mapFragmentContainer;
     private ScrollView scrollView;
+    private Button btnRoute;
 
     // Map Fragment
     private OSMMapFragment mapFragment;
@@ -74,6 +82,7 @@ public class GuestHomePageFragment extends Fragment {
         initViews(view);
         setupHeroSection();
         setupMap();
+        setupRouteButton();
         setupScrollBehavior();
     }
 
@@ -101,6 +110,7 @@ public class GuestHomePageFragment extends Fragment {
         // Map Section
         mapSection = view.findViewById(R.id.mapSection);
         mapFragmentContainer = view.findViewById(R.id.mapFragmentContainer);
+        btnRoute = view.findViewById(R.id.btnRoute);
 
         // Set hero section and map section height to full screen height
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -162,6 +172,272 @@ public class GuestHomePageFragment extends Fragment {
                 .commit();
 
         android.util.Log.d("GuestHomePage", "Map fragment transaction committed");
+    }
+
+    private void setupRouteButton() {
+        if (btnRoute == null) return;
+        btnRoute.setOnClickListener(v -> showRouteDialog(null, null));
+    }
+
+    private void showRouteDialog(String prefillOrigin, String prefillDestination) {
+        if (getContext() == null) return;
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View dialogView = inflater.inflate(R.layout.dialog_route_input, null);
+
+        AutoCompleteTextView etOrigin = dialogView.findViewById(R.id.etOrigin);
+        AutoCompleteTextView etDestination = dialogView.findViewById(R.id.etDestination);
+        TextView tvRouteEstimate = dialogView.findViewById(R.id.tvRouteEstimate);
+        Button btnShowRoute = dialogView.findViewById(R.id.btnShowRoute);
+        Button btnPickOrigin = dialogView.findViewById(R.id.btnPickOrigin);
+        Button btnPickDestination = dialogView.findViewById(R.id.btnPickDestination);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setNegativeButton("Close", (d, which) -> d.dismiss())
+                .create();
+
+        GeocodingHelper geocodingHelper = new GeocodingHelper();
+
+        ArrayAdapter<GeocodingHelper.GeocodingResult> originAdapter = new ArrayAdapter<>(
+                getContext(), android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+        ArrayAdapter<GeocodingHelper.GeocodingResult> destAdapter = new ArrayAdapter<>(
+                getContext(), android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
+
+        etOrigin.setAdapter(originAdapter);
+        etDestination.setAdapter(destAdapter);
+
+        // Prefill if provided
+        if (prefillOrigin != null) etOrigin.setText(prefillOrigin);
+        if (prefillDestination != null) etDestination.setText(prefillDestination);
+
+        Handler searchHandler = new Handler();
+        final Runnable[] originRunnable = new Runnable[1];
+        final Runnable[] destRunnable = new Runnable[1];
+
+        etOrigin.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(android.text.Editable s) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (originRunnable[0] != null) searchHandler.removeCallbacks(originRunnable[0]);
+                originRunnable[0] = () -> {
+                    String q = s.toString().trim();
+                    if (q.isEmpty()) return;
+                    geocodingHelper.searchAddress(q, new GeocodingHelper.GeocodingCallback() {
+                        @Override
+                        public void onSuccess(List<GeocodingHelper.GeocodingResult> results) {
+                            if (getActivity() == null) return;
+                            getActivity().runOnUiThread(() -> {
+                                ArrayAdapter<GeocodingHelper.GeocodingResult> a = new ArrayAdapter<>(
+                                        getContext(), android.R.layout.simple_dropdown_item_1line, new ArrayList<>(results));
+                                originAdapter.clear();
+                                originAdapter.addAll(results);
+                                etOrigin.setAdapter(originAdapter);
+                                if (!results.isEmpty() && etOrigin.isFocused()) etOrigin.showDropDown();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                        }
+                    });
+                };
+                searchHandler.postDelayed(originRunnable[0], 400);
+            }
+        });
+
+        etDestination.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(android.text.Editable s) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (destRunnable[0] != null) searchHandler.removeCallbacks(destRunnable[0]);
+                destRunnable[0] = () -> {
+                    String q = s.toString().trim();
+                    if (q.isEmpty()) return;
+                    geocodingHelper.searchAddress(q, new GeocodingHelper.GeocodingCallback() {
+                        @Override
+                        public void onSuccess(List<GeocodingHelper.GeocodingResult> results) {
+                            if (getActivity() == null) return;
+                            getActivity().runOnUiThread(() -> {
+                                destAdapter.clear();
+                                destAdapter.addAll(results);
+                                etDestination.setAdapter(destAdapter);
+                                if (!results.isEmpty() && etDestination.isFocused()) etDestination.showDropDown();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                        }
+                    });
+                };
+                searchHandler.postDelayed(destRunnable[0], 400);
+            }
+        });
+
+        etOrigin.setOnItemClickListener((parent, view, position, id) -> {
+            GeocodingHelper.GeocodingResult sel = originAdapter.getItem(position);
+            if (sel != null) etOrigin.setText(sel.getDisplayName());
+        });
+
+        etDestination.setOnItemClickListener((parent, view, position, id) -> {
+            GeocodingHelper.GeocodingResult sel = destAdapter.getItem(position);
+            if (sel != null) etDestination.setText(sel.getDisplayName());
+        });
+
+        // Pick origin on map: dismiss dialog, wait for a single tap, then reverse-geocode and reopen dialog with origin
+        btnPickOrigin.setOnClickListener(v -> {
+            final String storedPrefillDestination = etDestination.getText().toString().trim();
+            dialog.dismiss();
+            if (mapFragment == null) return;
+            mapFragment.setTempSingleTapListener(point -> {
+                GeocodingHelper gh = new GeocodingHelper();
+                gh.reverseGeocode(point.getLatitude(), point.getLongitude(), new GeocodingHelper.GeocodingCallback() {
+                    @Override
+                    public void onSuccess(List<GeocodingHelper.GeocodingResult> results) {
+                        final String resolvedOrigin = (results != null && !results.isEmpty()) ? results.get(0).getDisplayName() : "";
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                            mapFragment.setTempSingleTapListener(null);
+                            showRouteDialog(resolvedOrigin.isEmpty() ? null : resolvedOrigin, storedPrefillDestination.isEmpty() ? null : storedPrefillDestination);
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                            mapFragment.setTempSingleTapListener(null);
+                            showRouteDialog(null, storedPrefillDestination.isEmpty() ? null : storedPrefillDestination);
+                        });
+                    }
+                });
+            });
+        });
+
+        // Pick destination on map: dismiss dialog, wait for a single tap, then reverse-geocode and reopen dialog with destination
+        btnPickDestination.setOnClickListener(v -> {
+            final String storedPrefillOrigin = etOrigin.getText().toString().trim();
+            dialog.dismiss();
+            if (mapFragment == null) return;
+            mapFragment.setTempSingleTapListener(point -> {
+                GeocodingHelper gh = new GeocodingHelper();
+                gh.reverseGeocode(point.getLatitude(), point.getLongitude(), new GeocodingHelper.GeocodingCallback() {
+                    @Override
+                    public void onSuccess(List<GeocodingHelper.GeocodingResult> results) {
+                        final String resolvedDest = (results != null && !results.isEmpty()) ? results.get(0).getDisplayName() : "";
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                            mapFragment.setTempSingleTapListener(null);
+                            showRouteDialog(storedPrefillOrigin.isEmpty() ? null : storedPrefillOrigin, resolvedDest.isEmpty() ? null : resolvedDest);
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                            mapFragment.setTempSingleTapListener(null);
+                            showRouteDialog(storedPrefillOrigin.isEmpty() ? null : storedPrefillOrigin, null);
+                        });
+                    }
+                });
+            });
+        });
+
+        btnShowRoute.setOnClickListener(v -> {
+            String originText = etOrigin.getText().toString().trim();
+            String destText = etDestination.getText().toString().trim();
+            if (originText.isEmpty() || destText.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter both addresses", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            btnShowRoute.setEnabled(false);
+            tvRouteEstimate.setText("Searching...");
+
+            // Resolve origin then destination (use first result)
+            geocodingHelper.searchAddress(originText, new GeocodingHelper.GeocodingCallback() {
+                @Override
+                public void onSuccess(List<GeocodingHelper.GeocodingResult> results) {
+                    if (results.isEmpty()) {
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Origin not found", Toast.LENGTH_SHORT).show());
+                        btnShowRoute.setEnabled(true);
+                        tvRouteEstimate.setText("");
+                        return;
+                    }
+                    GeocodingHelper.GeocodingResult o = results.get(0);
+                    GeoPoint from = new GeoPoint(o.getLatitude(), o.getLongitude());
+
+                    geocodingHelper.searchAddress(destText, new GeocodingHelper.GeocodingCallback() {
+                        @Override
+                        public void onSuccess(List<GeocodingHelper.GeocodingResult> dResults) {
+                            if (dResults.isEmpty()) {
+                                if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Destination not found", Toast.LENGTH_SHORT).show());
+                                btnShowRoute.setEnabled(true);
+                                tvRouteEstimate.setText("");
+                                return;
+                            }
+                            GeocodingHelper.GeocodingResult d = dResults.get(0);
+                            GeoPoint to = new GeoPoint(d.getLatitude(), d.getLongitude());
+
+                            if (mapFragment == null) {
+                                if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Map not ready", Toast.LENGTH_SHORT).show());
+                                btnShowRoute.setEnabled(true);
+                                return;
+                            }
+
+                            // Clear previous
+                            mapFragment.clearWaypoints();
+                            mapFragment.clearRoute();
+
+                            // Add waypoints and calculate route
+                            mapFragment.addWaypoint(from);
+                            mapFragment.addWaypoint(to);
+                            mapFragment.calculateRoute();
+
+                            mapFragment.calculateDuration(from, to, new OSMMapFragment.DurationCallback() {
+                                @Override
+                                public void onDurationCalculated(int durationMinutes, double distanceKm) {
+                                    if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                                        String txt = "Estimated: " + durationMinutes + " min (" + String.format("%.1f", distanceKm) + " km)";
+                                        tvRouteEstimate.setText(txt);
+                                        btnShowRoute.setEnabled(true);
+                                    });
+                                }
+
+                                @Override
+                                public void onDurationError(String error) {
+                                    if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                                        tvRouteEstimate.setText("Error: " + error);
+                                        btnShowRoute.setEnabled(true);
+                                    });
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Destination geocoding error: " + error, Toast.LENGTH_SHORT).show());
+                            btnShowRoute.setEnabled(true);
+                            tvRouteEstimate.setText("");
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Origin geocoding error: " + error, Toast.LENGTH_SHORT).show());
+                    btnShowRoute.setEnabled(true);
+                    tvRouteEstimate.setText("");
+                }
+            });
+        });
+
+        dialog.show();
+
+        // Cleanup: when dialog closes, disable pick mode and remove listener
+        dialog.setOnDismissListener(d -> {
+            if (mapFragment != null) {
+                mapFragment.setAddDestinationMode(false);
+                mapFragment.setMapInteractionListener(null);
+            }
+        });
     }
 
     @SuppressLint("ClickableViewAccessibility")
