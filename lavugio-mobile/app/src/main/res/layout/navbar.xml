@@ -22,6 +22,7 @@
         android:textColor="#FEFAE0"
         android:letterSpacing="0.05"
         android:clickable="true"
+        android:fontFamily="@font/inter_variable_font"
         android:focusable="true" />
 
     <!-- Menu Button -->

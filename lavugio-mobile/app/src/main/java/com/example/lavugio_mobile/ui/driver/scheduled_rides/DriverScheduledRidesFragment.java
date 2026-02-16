@@ -89,6 +89,7 @@ public class DriverScheduledRidesFragment extends Fragment implements
         mapFragment = (OSMMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.mapFragment);
 
+        //loadMockRides();
         loadRides();
     }
 
@@ -455,6 +456,40 @@ public class DriverScheduledRidesFragment extends Fragment implements
             }
         }
     }
+
+    private void loadMockRides() {
+
+        rides.clear();
+
+        for (int i = 1; i <= 5; i++) {
+            ScheduledRideModel ride = new ScheduledRideModel();
+
+            ride.setRideId(i);
+            ride.setStatus(i == 1 ? "ACTIVE" : "SCHEDULED");
+
+            ride.setScheduledTime(
+                    java.time.LocalDateTime.now().plusMinutes(i * 15)
+            );
+
+            ride.setStartAddress("Start Address " + i);
+            ride.setEndAddress("End Address " + i);
+
+            ride.setPrice(500.0 + (i * 100));
+            ride.setDistance(5.0 + i);
+
+            rides.add(ride);
+        }
+
+        sortRidesByStatusAndTime();
+        checkIfAnyActiveRides();
+
+        requireActivity().runOnUiThread(() -> {
+            adapter.setHasActiveRide(hasActiveRide);
+            adapter.notifyDataSetChanged();
+            updateEmptyState();
+        });
+    }
+
 
     @Override
     public void onDestroyView() {

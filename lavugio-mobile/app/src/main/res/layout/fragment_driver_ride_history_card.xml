@@ -6,6 +6,7 @@
     android:padding="16dp"
     android:layout_marginBottom="12dp"
     android:background="@drawable/card_background"
+    android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
     android:elevation="2dp">
@@ -23,36 +24,45 @@
             android:text="Start: "
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#BC6C25"
+            android:textColor="@color/dark_green"
             android:fontFamily="@font/inter_variable_font" />
 
-        <TextView
-            android:id="@+id/tripStartDate"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="15.02.2005."
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="end">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=" - "
-            android:textSize="14sp"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            <TextView
+                android:id="@+id/tripStartDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15.02.2005."
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/dark_brown"
+                android:fontFamily="@font/inter_variable_font" />
 
-        <TextView
-            android:id="@+id/tripStartTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="23:40"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" - "
+                android:textSize="14sp"
+                android:textColor="@color/dark_brown"
+                android:fontFamily="@font/inter_variable_font" />
+
+            <TextView
+                android:id="@+id/tripStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="23:40"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/dark_brown"
+                android:fontFamily="@font/inter_variable_font" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -69,36 +79,45 @@
             android:text="End: "
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#BC6C25"
+            android:textColor="@color/dark_green"
             android:fontFamily="@font/inter_variable_font" />
 
-        <TextView
-            android:id="@+id/tripEndDate"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="16.02.2005."
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="end">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=" - "
-            android:textSize="14sp"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            <TextView
+                android:id="@+id/tripEndDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="16.02.2005."
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/dark_brown"
+                android:fontFamily="@font/inter_variable_font" />
 
-        <TextView
-            android:id="@+id/tripEndTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="00:05"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" - "
+                android:textSize="14sp"
+                android:textColor="@color/dark_brown"
+                android:fontFamily="@font/inter_variable_font" />
+
+            <TextView
+                android:id="@+id/tripEndTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:05"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/dark_brown"
+                android:fontFamily="@font/inter_variable_font" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -115,7 +134,7 @@
             android:text="Departure: "
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#BC6C25"
+            android:textColor="@color/dark_green"
             android:fontFamily="@font/inter_variable_font" />
 
         <TextView
@@ -126,8 +145,9 @@
             android:text="Petra Drapsina 25, Novi Sad"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            android:textColor="@color/dark_brown"
+            android:fontFamily="@font/inter_variable_font"
+            android:gravity="end" />
 
     </LinearLayout>
 
@@ -143,7 +163,7 @@
             android:text="Destination: "
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#BC6C25"
+            android:textColor="@color/dark_green"
             android:fontFamily="@font/inter_variable_font" />
 
         <TextView
@@ -154,8 +174,9 @@
             android:text="Žarka Zrenjanina 4, Novi Sad"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#283618"
-            android:fontFamily="@font/inter_variable_font" />
+            android:textColor="@color/dark_brown"
+            android:fontFamily="@font/inter_variable_font"
+            android:gravity="end" />
 
     </LinearLayout>
 
