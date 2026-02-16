@@ -20,7 +20,7 @@ public class RideDestination {
     }
 
     public String getName() {
-        return name;
+        return this.street + " " + this.houseNumber + ", " + this.city;
     }
 
     public void setName(String name) {
