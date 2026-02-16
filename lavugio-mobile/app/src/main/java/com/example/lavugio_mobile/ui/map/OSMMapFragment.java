@@ -26,6 +26,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
+import android.view.MotionEvent;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
@@ -49,11 +50,20 @@ public class OSMMapFragment extends Fragment {
     private static final double DEFAULT_ZOOM = 15;
 
     private final List<Marker> driverMarkers = new ArrayList<>();
+    private SingleTapListener tempSingleTapListener;
 
     public interface MapInteractionListener {
         void onMapClicked(GeoPoint point);
         void onMarkerClicked(Marker marker, GeoPoint point);
         void onRouteCalculated(Road road);
+    }
+
+    public interface SingleTapListener {
+        void onSingleTap(GeoPoint point);
+    }
+
+    public void setTempSingleTapListener(SingleTapListener l) {
+        this.tempSingleTapListener = l;
     }
 
     /**
@@ -102,6 +112,13 @@ public class OSMMapFragment extends Fragment {
         // This allows the map to handle vertical panning
         mapView.setOnTouchListener((v, event) -> {
             v.getParent().requestDisallowInterceptTouchEvent(true);
+            try {
+                if (tempSingleTapListener != null && event.getAction() == MotionEvent.ACTION_UP) {
+                    GeoPoint p = (GeoPoint) mapView.getProjection().fromPixels((int) event.getX(), (int) event.getY());
+                    tempSingleTapListener.onSingleTap(p);
+                    return true;
+                }
+            } catch (Exception ignored) {}
             return false;
         });
 
