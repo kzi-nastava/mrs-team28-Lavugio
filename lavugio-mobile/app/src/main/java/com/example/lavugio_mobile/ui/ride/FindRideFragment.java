@@ -240,12 +240,12 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
         }
         Log.d("FindRideFragment", "Selected time: " + selectedTime);
 
-        java.time.LocalDateTime localDateTime = null;
+        LocalDateTime localDateTime = null;
         if (selectedTime != null && !selectedTime.isEmpty()) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a", java.util.Locale.ENGLISH);
                 LocalTime selectedLocalTime = LocalTime.parse(selectedTime, formatter);
-                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime now = LocalDateTime.now().minusMinutes(5); // Subtract 5 minutes to account for processing time
                 localDateTime = now.withHour(selectedLocalTime.getHour()).withMinute(selectedLocalTime.getMinute()).withSecond(0).withNano(0);
 
                 // If the selected time is in the past, it must be tomorrow
