@@ -59,14 +59,8 @@ public class FindRideRepository {
                     String errorMessage = "Unknown error";
 
                     try {
-                        if (response.errorBody() != null) {
-                            String errorJson = response.errorBody().string();
-
-                            Gson gson = new Gson();
-                            ErrorResponse error =
-                                    gson.fromJson(errorJson, ErrorResponse.class);
-
-                            errorMessage = error.getMessage();
+                        if (response.body() != null) {
+                            errorMessage = response.body().toString();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -3,6 +3,7 @@ package com.example.lavugio_mobile.ui.ride;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,14 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
+import com.example.lavugio_mobile.data.model.utils.ResultState;
+import com.example.lavugio_mobile.models.RideRequestDTO;
+import com.example.lavugio_mobile.models.ride.RideDestinationDTO;
+import com.example.lavugio_mobile.models.ride.StopBaseDTO;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 import com.example.lavugio_mobile.ui.components.BottomSheetHelper;
+import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
+import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.util.GeoPoint;
@@ -24,6 +31,9 @@ import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.example.lavugio_mobile.R;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -197,5 +207,93 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
     public void resetRideEstimation() {
         this.currentRouteDistanceKm = 0.0;
         this.currentRouteDurationS = 0.0;
+    }
+
+    public void orderRide(String rideType, String selectedTime, double ridePrice) {
+        RideRequestDTO requestDTO = mapToRideRequestDTO(rideType, selectedTime, ridePrice);
+        viewModel.findRide(requestDTO).observe(getViewLifecycleOwner(), result -> {
+            if (result instanceof ResultState.Success) {
+                SuccessDialogFragment.newInstance("Ride Ordered", "Your ride has been successfully ordered!")
+                        .show(getParentFragmentManager(), "success_dialog");
+                new android.os.Handler().postDelayed(() -> {
+                    getParentFragmentManager().popBackStack();
+                }, 3000);
+            } else if (result instanceof ResultState.Error) {
+                String message =
+                        ((ResultState.Error) result).getMessage();
+
+                ErrorDialogFragment
+                        .newInstance("Error", message)
+                        .show(getActivity().getSupportFragmentManager(),
+                                "error_dialog");
+            }
+        });
+    }
+
+    private RideRequestDTO mapToRideRequestDTO(String rideType, String selectedTime, double ridePrice) {
+        RideRequestDTO requestDTO = new RideRequestDTO();
+        if (rideType.equals("ride_now")) {
+            requestDTO.setScheduled(false);
+        } else if (rideType.equals("schedule_ride")) {
+            requestDTO.setScheduled(true);
+
+        }
+        Log.d("FindRideFragment", "Selected time: " + selectedTime);
+
+        java.time.LocalDateTime localDateTime = null;
+        if (selectedTime != null && !selectedTime.isEmpty()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a", java.util.Locale.ENGLISH);
+                LocalTime selectedLocalTime = LocalTime.parse(selectedTime, formatter);
+                LocalDateTime now = LocalDateTime.now();
+                localDateTime = now.withHour(selectedLocalTime.getHour()).withMinute(selectedLocalTime.getMinute()).withSecond(0).withNano(0);
+
+                // If the selected time is in the past, it must be tomorrow
+                if (localDateTime.isBefore(now)) {
+                    localDateTime = localDateTime.plusDays(1);
+                }
+            } catch (Exception e) {
+                Log.e("FindRideFragment", "Error parsing selected time: " + e.getMessage());
+            }
+        }
+
+        requestDTO.setScheduledTime(localDateTime);
+        requestDTO.setBabyFriendly(selectedPreferences.isBabyFriendly());
+        requestDTO.setBabyFriendly(selectedPreferences.isBabyFriendly());
+        requestDTO.setPassengerEmails(selectedPreferences.getPassengerEmails());
+        requestDTO.setDistance((float) currentRouteDistanceKm);
+        requestDTO.setEstimatedDurationSeconds((int) currentRouteDurationS);
+        requestDTO.setPrice((int) ridePrice);
+        requestDTO.setVehicleType(selectedPreferences.getVehicleType());
+
+        List<RideDestinationDTO> destinationDTOs = new ArrayList<>();
+        int i = 0;
+        for (GeocodingHelper.GeocodingResult dest : selectedDestinations) {
+            RideDestinationDTO destDTO = new RideDestinationDTO();
+            destDTO.setCity(dest.getCity());
+            destDTO.setStreetName(dest.getStreet());
+            try {
+                destDTO.setZipCode(Integer.parseInt(dest.getPostcode()));
+            } catch (NumberFormatException e) {
+                destDTO.setZipCode(0);
+            }
+            destDTO.setCountry(dest.getCountry());
+            destDTO.setZipCode(Integer.parseInt(dest.getPostcode()));
+            try {
+                destDTO.setStreetNumber(Integer.parseInt(dest.getHouseNumber()));
+            } catch (NumberFormatException e) {
+                destDTO.setStreetNumber(0);
+            }
+            StopBaseDTO stopBaseDTO = new StopBaseDTO();
+            stopBaseDTO.setLatitude(dest.getLatitude());
+            stopBaseDTO.setLongitude(dest.getLongitude());
+            stopBaseDTO.setOrderIndex(i);
+            destDTO.setLocation(stopBaseDTO);
+            destinationDTOs.add(destDTO);
+            i++;
+        }
+        requestDTO.setDestinations(destinationDTOs);
+
+        return requestDTO;
     }
 }

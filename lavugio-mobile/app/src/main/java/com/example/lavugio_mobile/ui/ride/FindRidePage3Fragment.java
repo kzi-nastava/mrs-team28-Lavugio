@@ -43,6 +43,7 @@ public class FindRidePage3Fragment extends Fragment {
     private RidePreferences ridePreferences;
     private double routeDistanceKm;
     private double routeDurationS;
+    private double ridePrice;
 
     private FindRideViewModel viewModel;
 
@@ -249,6 +250,7 @@ public class FindRidePage3Fragment extends Fragment {
             String selectedVehicleType = ridePreferences.getVehicleType().toString();
             float distanceMeters = (float) (routeDistanceKm * 1000);
             viewModel.getRidePriceEstimate(selectedVehicleType, distanceMeters).observe(getViewLifecycleOwner(), result -> {
+                ridePrice = result != null ? result : 0.0;
                 if (result != null) {
                     tvPrice.setText(String.format("%.0f RSD", result));
                 } else {
@@ -330,7 +332,7 @@ public class FindRidePage3Fragment extends Fragment {
     private void orderRide(String rideType, String selectedTime) {
         Log.d("SCHEDULE", "Ordered Ride type: " + rideType);
         Log.d("SCHEDULE", "Ordered Selected time: " + selectedTime);
-        // TODO: POVEŽI SA BACKEND DODAVANJE VOŽNJE
+        ((FindRideFragment) getParentFragment()).orderRide(rideType, selectedTime, ridePrice);
     }
 
     @Override
