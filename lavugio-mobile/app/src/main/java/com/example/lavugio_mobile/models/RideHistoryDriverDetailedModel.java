@@ -4,40 +4,92 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class RideHistoryDriverDetailedModel {
-    private long rideId;
-    private String status;
-    private String startAddress;
-    private String endAddress;
-    private LocalDateTime departureTime;
-    private LocalDateTime arrivalTime;
+    private String start;
+    private String end;
+    private String departure;
+
+    private String destination;
+
     private double price;
-    private String passengerName;
+
+    private boolean cancelled;
+
+    private boolean panic;
+
+    private List<PassengerTableRow> passengers;
+
     private List<Coordinates> checkpoints;
 
-    public long getRideId() { return rideId; }
-    public void setRideId(long rideId) { this.rideId = rideId; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getStart() {
+        return start;
+    }
 
-    public String getStartAddress() { return startAddress; }
-    public void setStartAddress(String startAddress) { this.startAddress = startAddress; }
+    public void setStart(String start) {
+        this.start = start;
+    }
 
-    public String getEndAddress() { return endAddress; }
-    public void setEndAddress(String endAddress) { this.endAddress = endAddress; }
+    public String getEnd() {
+        return end;
+    }
 
-    public LocalDateTime getDepartureTime() { return departureTime; }
-    public void setDepartureTime(LocalDateTime departureTime) { this.departureTime = departureTime; }
+    public void setEnd(String end) {
+        this.end = end;
+    }
 
-    public LocalDateTime getArrivalTime() { return arrivalTime; }
-    public void setArrivalTime(LocalDateTime arrivalTime) { this.arrivalTime = arrivalTime; }
+    public String getDeparture() {
+        return departure;
+    }
 
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
+    public void setDeparture(String departure) {
+        this.departure = departure;
+    }
 
-    public String getPassengerName() { return passengerName; }
-    public void setPassengerName(String passengerName) { this.passengerName = passengerName; }
+    public String getDestination() {
+        return destination;
+    }
 
-    public List<Coordinates> getCheckpoints() { return checkpoints; }
-    public void setCheckpoints(List<Coordinates> checkpoints) { this.checkpoints = checkpoints; }
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public boolean isPanic() {
+        return panic;
+    }
+
+    public void setPanic(boolean panic) {
+        this.panic = panic;
+    }
+
+    public List<PassengerTableRow> getPassengers() {
+        return passengers;
+    }
+
+    public void setPassengers(List<PassengerTableRow> passengers) {
+        this.passengers = passengers;
+    }
+
+    public List<Coordinates> getCheckpoints() {
+        return checkpoints;
+    }
+
+    public void setCheckpoints(List<Coordinates> checkpoints) {
+        this.checkpoints = checkpoints;
+    }
 }

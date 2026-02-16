@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Horizontalni layout za date pickere -->
+        <!-- Date Pickers Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
             android:paddingBottom="8dp"
             android:gravity="center_vertical">
 
-            <!-- Početni datum (levo) -->
+            <!-- Start Date -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -45,12 +45,12 @@
                     android:padding="12dp"
                     android:textSize="16sp"
                     android:textColor="@color/black"
-                    android:fontFamily="@font/inter_italic_variable_font"
+                    android:fontFamily="@font/inter_variable_font"
                     android:background="@drawable/edittext_background" />
 
             </LinearLayout>
 
-            <!-- Krajnji datum (desno) -->
+            <!-- End Date -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
                     android:textColor="@color/black"
                     android:padding="12dp"
                     android:textSize="16sp"
-                    android:fontFamily="@font/inter_italic_variable_font"
+                    android:fontFamily="@font/inter_variable_font"
                     android:background="@drawable/edittext_background" />
 
             </LinearLayout>
@@ -88,15 +88,14 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp">
 
-            <!-- Sorting Controls in one row -->
+            <!-- Sorting Controls -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="12dp">
 
-                <!-- Sort By Field Spinner -->
-
+                <!-- Sort By Spinner -->
                 <Spinner
                     android:id="@+id/sortBySpinner"
                     android:layout_width="0dp"
@@ -105,8 +104,10 @@
                     android:layout_weight="1"
                     android:background="@drawable/edittext_background"
                     android:entries="@array/trip_history_sort_options"
-                    android:padding="12dp" />
+                    android:padding="12dp"
+                    />
 
+                <!-- Sort Order Button -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -116,7 +117,9 @@
                         android:id="@+id/sortOrderButton"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
-                        android:backgroundTint="@color/off_white"
+                        android:backgroundTint="@color/lavugio_white"
+                        app:strokeColor="@color/dark_brown"
+                        app:strokeWidth="1dp"
                         android:fontFamily="@font/inter_variable_font"
                         app:cornerRadius="8dp"
                         app:icon="@drawable/ic_arrow_long_downward"
@@ -127,15 +130,12 @@
                         android:insetBottom="0dp"
                         android:padding="0dp"
                         android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:textColor="@color/white" />
+                        android:minHeight="0dp" />
                 </LinearLayout>
-
 
             </LinearLayout>
 
-
-            <!-- Confirm Button -->
+            <!-- Apply Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/applyButton"
                 android:layout_width="match_parent"
@@ -144,33 +144,59 @@
                 android:fontFamily="@font/inter_variable_font"
                 android:text="Apply"
                 app:cornerRadius="8dp"
-                android:textColor="@color/white"
+                android:textColor="@color/lavugio_white"
                 android:textSize="16sp" />
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Content Container sa ScrollView -->
-    <ScrollView
+    <!-- Scrollable Content -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_weight="1">
 
-        <!-- Trips Container - ovde se dinamički dodaju redovi vožnji -->
-        <LinearLayout
-            android:id="@+id/tripsContainer"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/ridesRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:paddingBottom="16dp">
+            android:paddingBottom="16dp" />
 
-            <!-- Redovi vožnji će biti dinamički dodati ovde iz Java koda -->
+        <!-- Top Loading Indicator (overlays RecyclerView) -->
+        <ProgressBar
+            android:id="@+id/topLoadingIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_margin="16dp"
+            android:visibility="gone" />
 
-        </LinearLayout>
-    </ScrollView>
+        <!-- Bottom Loading Indicator (overlays RecyclerView) -->
+        <ProgressBar
+            android:id="@+id/bottomLoadingIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_margin="16dp"
+            android:visibility="gone" />
+
+        <!-- End Message -->
+        <TextView
+            android:id="@+id/endMessageText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="You reached the end"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:alpha="0.6"
+            android:gravity="center"
+            android:padding="16dp"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </LinearLayout>

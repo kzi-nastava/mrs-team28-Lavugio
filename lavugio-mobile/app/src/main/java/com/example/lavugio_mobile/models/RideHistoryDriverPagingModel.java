@@ -1,22 +1,61 @@
 package com.example.lavugio_mobile.models;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
+/**
+ * Matches Angular model:
+ *   driverHistory: RideHistoryDriverModel[]
+ *   totalElements: number
+ *   reachedEnd: boolean
+ */
 public class RideHistoryDriverPagingModel {
-    private List<RideHistoryDriverModel> rides;
-    private int totalPages;
-    private long totalElements;
-    private int currentPage;
+    private List<RideHistoryDriverModel> driverHistory;
+    private int totalElements;
+    private boolean reachedEnd;
 
-    public List<RideHistoryDriverModel> getRides() { return rides; }
-    public void setRides(List<RideHistoryDriverModel> rides) { this.rides = rides; }
+    public RideHistoryDriverPagingModel() {
+    }
 
-    public int getTotalPages() { return totalPages; }
-    public void setTotalPages(int totalPages) { this.totalPages = totalPages; }
+    public RideHistoryDriverPagingModel(List<RideHistoryDriverModel> driverHistory,
+                                        int totalElements, boolean reachedEnd) {
+        this.driverHistory = driverHistory;
+        this.totalElements = totalElements;
+        this.reachedEnd = reachedEnd;
+    }
 
-    public long getTotalElements() { return totalElements; }
-    public void setTotalElements(long totalElements) { this.totalElements = totalElements; }
+    public List<RideHistoryDriverModel> getDriverHistory() {
+        return driverHistory;
+    }
 
-    public int getCurrentPage() { return currentPage; }
-    public void setCurrentPage(int currentPage) { this.currentPage = currentPage; }
+    public void setDriverHistory(List<RideHistoryDriverModel> driverHistory) {
+        this.driverHistory = driverHistory;
+    }
+
+    public int getTotalElements() {
+        return totalElements;
+    }
+
+    public void setTotalElements(int totalElements) {
+        this.totalElements = totalElements;
+    }
+
+    public boolean isReachedEnd() {
+        return reachedEnd;
+    }
+
+    public void setReachedEnd(boolean reachedEnd) {
+        this.reachedEnd = reachedEnd;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "RideHistoryDriverPagingModel{" +
+                "driverHistory=" + (driverHistory != null ? driverHistory.size() + " items" : "null") +
+                ", totalElements=" + totalElements +
+                ", reachedEnd=" + reachedEnd +
+                '}';
+    }
 }

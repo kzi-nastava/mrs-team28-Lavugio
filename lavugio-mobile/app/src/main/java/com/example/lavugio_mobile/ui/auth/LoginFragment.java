@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.lavugio_mobile.MainActivity;
 import com.example.lavugio_mobile.R;
@@ -29,6 +30,8 @@ import com.example.lavugio_mobile.models.auth.LoginRequest;
 import com.example.lavugio_mobile.models.auth.LoginResponse;
 import com.example.lavugio_mobile.services.DriverService;
 import com.example.lavugio_mobile.services.LocationService;
+
+import java.util.Objects;
 
 public class LoginFragment extends Fragment {
 
@@ -237,7 +240,7 @@ public class LoginFragment extends Fragment {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container,
-                            new com.example.lavugio_mobile.ui.driver.TripHistoryFragment())
+                            new com.example.lavugio_mobile.ui.driver.history.DriverRideHistoryFragment())
                     .addToBackStack(null)
                     .commit();
         }
@@ -257,11 +260,11 @@ public class LoginFragment extends Fragment {
 
     private void navigateToProfile() {
         if (getActivity() instanceof MainActivity) {
+            getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container,
                             new com.example.lavugio_mobile.ui.profile.ProfileFragment())
-                    .addToBackStack(null)
                     .commit();
         }
     }
