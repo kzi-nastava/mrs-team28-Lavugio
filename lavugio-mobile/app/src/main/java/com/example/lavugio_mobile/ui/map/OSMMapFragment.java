@@ -52,6 +52,13 @@ public class OSMMapFragment extends Fragment {
     private final List<Marker> driverMarkers = new ArrayList<>();
     private SingleTapListener tempSingleTapListener;
 
+    // For tap detection
+    private float touchDownX = 0;
+    private float touchDownY = 0;
+    private long touchDownTime = 0;
+    private static final float TAP_THRESHOLD = 20; // pixels
+    private static final long TAP_TIME_THRESHOLD = 300; // milliseconds
+
     public interface MapInteractionListener {
         void onMapClicked(GeoPoint point);
         void onMarkerClicked(Marker marker, GeoPoint point);
@@ -112,13 +119,31 @@ public class OSMMapFragment extends Fragment {
         // This allows the map to handle vertical panning
         mapView.setOnTouchListener((v, event) -> {
             v.getParent().requestDisallowInterceptTouchEvent(true);
-            try {
-                if (tempSingleTapListener != null && event.getAction() == MotionEvent.ACTION_UP) {
-                    GeoPoint p = (GeoPoint) mapView.getProjection().fromPixels((int) event.getX(), (int) event.getY());
-                    tempSingleTapListener.onSingleTap(p);
-                    return true;
+
+            if (tempSingleTapListener != null) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        touchDownX = event.getX();
+                        touchDownY = event.getY();
+                        touchDownTime = System.currentTimeMillis();
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        float deltaX = Math.abs(event.getX() - touchDownX);
+                        float deltaY = Math.abs(event.getY() - touchDownY);
+                        long deltaTime = System.currentTimeMillis() - touchDownTime;
+
+                        // Only trigger tap if finger didn't move much and touch was quick
+                        if (deltaX < TAP_THRESHOLD && deltaY < TAP_THRESHOLD && deltaTime < TAP_TIME_THRESHOLD) {
+                            try {
+                                GeoPoint p = (GeoPoint) mapView.getProjection().fromPixels((int) event.getX(), (int) event.getY());
+                                tempSingleTapListener.onSingleTap(p);
+                                return true;
+                            } catch (Exception ignored) {}
+                        }
+                        break;
                 }
-            } catch (Exception ignored) {}
+            }
             return false;
         });
 

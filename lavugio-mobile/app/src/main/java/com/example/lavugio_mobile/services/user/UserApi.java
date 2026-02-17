@@ -8,6 +8,8 @@ import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
 
 import java.sql.Blob;
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
@@ -18,8 +20,44 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Query;
 
 public interface UserApi {
+
+    // ── Nested DTOs ──────────────────────────────────────
+
+    class EmailSuggestion {
+        private String email;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+    }
+
+    class BlockStatus {
+        private boolean isBlocked;
+        private String reason;
+
+        public boolean isBlocked() {
+            return isBlocked;
+        }
+
+        public void setBlocked(boolean blocked) {
+            isBlocked = blocked;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        public void setReason(String reason) {
+            this.reason = reason;
+        }
+    }
 
     @GET("api/users/profile")
     Call<UserProfileData> getProfile();
@@ -51,4 +89,56 @@ public interface UserApi {
 
     @GET("api/drivers/{id}")
     Call<ResponseBody> getDriverStatus(@retrofit2.http.Path("id") int driverId);
+
+    // ── Regular User Ride History ────────────────────────
+
+    @GET("api/regularUsers/history")
+    Call<com.example.lavugio_mobile.models.RideHistoryUserPagingModel> getUserRideHistory(
+            @retrofit2.http.Query("page") int page,
+            @retrofit2.http.Query("pageSize") int pageSize,
+            @retrofit2.http.Query("sorting") String sorting,
+            @retrofit2.http.Query("sortBy") String sortBy,
+            @retrofit2.http.Query("startDate") String startDate,
+            @retrofit2.http.Query("endDate") String endDate
+    );
+
+    @GET("api/regularUsers/history/{rideId}")
+    Call<com.example.lavugio_mobile.models.RideHistoryUserDetailedModel> getUserRideHistoryDetailed(
+            @retrofit2.http.Path("rideId") long rideId
+    );
+
+    @GET("api/users/can-order-ride")
+    Call<com.example.lavugio_mobile.models.CanOrderRideResponse> canUserOrderRide();
+
+    // ── Profile Picture ───────────────────────────────────
+
+    @Multipart
+    @POST("api/users/profile-photo")
+    Call<Object> uploadProfilePicture(@Part MultipartBody.Part file);
+
+    // ── Password ──────────────────────────────────────────
+
+    @PUT("api/users/change-password")
+    Call<ResponseBody> changePassword(@Body Map<String, String> passwordData);
+
+    // ── Activation ────────────────────────────────────────
+
+    @POST("api/drivers/activate-account")
+    Call<Object> activateAccount(@Body Map<String, String> activationData);
+
+    @GET("api/drivers/validate-activation-token")
+    Call<Object> validateActivationToken(@Query("token") String token);
+
+    // ── Email Search ──────────────────────────────────────
+
+    @GET("api/users/email-suggestions")
+    Call<List<EmailSuggestion>> searchUserEmails(@Query("query") String query);
+
+    // ── Blocking ──────────────────────────────────────────
+
+    @POST("api/users/block")
+    Call<Object> blockUser(@Body Map<String, String> blockData);
+
+    @GET("api/users/is-blocked")
+    Call<BlockStatus> isUserBlocked();
 }

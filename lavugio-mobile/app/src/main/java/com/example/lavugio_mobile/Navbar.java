@@ -374,7 +374,7 @@ public class Navbar {
             setMenuClickListener(R.id.nav_item_rides,
                     this::onRidesClicked);
             setMenuClickListener(R.id.nav_item_history,
-                    this::onRidesClicked);
+                    () -> navigateToFragment(new HistoryFragment()));
         }
 
         // Driver
@@ -428,22 +428,35 @@ public class Navbar {
         authService.logout(new AuthCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                // Check if activity is still valid
+                if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+                    return;
+                }
 
-                activity.getSupportFragmentManager()
-                        .popBackStack(null,
-                                androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                try {
+                    // Clear back stack
+                    activity.getSupportFragmentManager()
+                            .popBackStack(null,
+                                    androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                activity.getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.content_container, new GuestHomePageFragment())
-                        .commit();
+                    // Navigate to guest home page
+                    activity.getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.content_container, new GuestHomePageFragment())
+                            .commitAllowingStateLoss(); // Use commitAllowingStateLoss to prevent crashes
 
-                Toast.makeText(activity, "Logged out", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Logged out", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    // Fallback: just finish the activity
+                    activity.finish();
+                }
             }
 
             @Override
             public void onError(int code, String message) {
-                Toast.makeText(activity, "Logout failed: " + message, Toast.LENGTH_SHORT).show();
+                if (activity != null && !activity.isFinishing()) {
+                    Toast.makeText(activity, "Logout failed: " + message, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

@@ -6,8 +6,9 @@ import com.example.lavugio_mobile.BuildConfig;
 import com.example.lavugio_mobile.api.AuthApi;
 import com.example.lavugio_mobile.api.DriverApi;
 import com.example.lavugio_mobile.api.LocalDateTimeAdapter;
+import com.example.lavugio_mobile.api.PriceApi;
 import com.example.lavugio_mobile.api.RideApi;
-import com.example.lavugio_mobile.api.AuthApi;
+import com.example.lavugio_mobile.services.user.UserApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -98,7 +99,11 @@ public class ApiClient {
         return getInstance().create(DriverApi.class);
     }
 
-    public static UserApi getUserApi() {return getInstance().create(UserApi.class);}
+    public static UserApi getUserApi() {
+        return getInstance().create(UserApi.class);
+    }
 
-    public static PriceApi getPriceApi() {return getInstance().create(PriceApi.class);}
+    public static PriceApi getPriceApi() {
+        return getInstance().create(PriceApi.class);
+    }
 }
