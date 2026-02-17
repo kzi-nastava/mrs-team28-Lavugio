@@ -3,6 +3,7 @@ package com.example.lavugio_mobile.ui.ride;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,16 +12,28 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
+import com.example.lavugio_mobile.data.model.utils.ResultState;
+import com.example.lavugio_mobile.models.RideRequestDTO;
+import com.example.lavugio_mobile.models.ride.RideDestinationDTO;
+import com.example.lavugio_mobile.models.ride.StopBaseDTO;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 import com.example.lavugio_mobile.ui.components.BottomSheetHelper;
+import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
+import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.util.GeoPoint;
+
+import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.example.lavugio_mobile.R;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +51,10 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
     private List<GeocodingHelper.GeocodingResult> selectedDestinations;
     private RidePreferences selectedPreferences;
 
+    private double currentRouteDistanceKm = 0.0;
+    private double currentRouteDurationS = 0.0;
+    private FindRideViewModel viewModel;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,6 +64,8 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(this).get(FindRideViewModel.class);
 
         selectedDestinations = new ArrayList<>();
         selectedPreferences = new RidePreferences();
@@ -62,10 +81,8 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
                 .replace(R.id.mapFragmentContainer, mapFragment)
                 .commit();
 
-        // Setup bottom sheet
         setupBottomSheet();
 
-        // Load first page
         loadPage(0);
 
     }
@@ -85,7 +102,9 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
             }
         });
 
-        bottomSheetHelper.setPeekHeight(200);
+        // Convert 90dp to pixels
+        int peekHeightPx = (int) (90 * getResources().getDisplayMetrics().density);
+        bottomSheetHelper.setPeekHeight(peekHeightPx);
     }
 
     /**
@@ -99,13 +118,15 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
         switch (pageIndex) {
             case 0:
                 pageFragment = FindRidePage1Fragment.newInstance(selectedDestinations);
-
+                ((FindRidePage1Fragment) pageFragment).setViewModel(viewModel);
                 break;
             case 1:
                 pageFragment = FindRidePage2Fragment.newInstance(selectedPreferences);
+                ((FindRidePage2Fragment) pageFragment).setViewModel(viewModel);
                 break;
             case 2:
-                pageFragment = FindRidePage3Fragment.newInstance(selectedDestinations, selectedPreferences);
+                pageFragment = FindRidePage3Fragment.newInstance(selectedDestinations, selectedPreferences, currentRouteDistanceKm, currentRouteDurationS);
+                ((FindRidePage3Fragment) pageFragment).setViewModel(viewModel);
                 break;
             default:
                 pageFragment = new FindRidePage1Fragment();
@@ -140,21 +161,7 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
         }
     }
 
-    /**
-     * Expand bottom sheet
-     */
-    public void expandBottomSheet() {
-        bottomSheetHelper.expand();
-    }
-
-    /**
-     * Collapse bottom sheet
-     */
-    public void collapseBottomSheet() {
-        bottomSheetHelper.collapse();
-    }
-
-    /**
+    /*
      * Get map fragment for interaction
      */
     public OSMMapFragment getMapFragment() {
@@ -185,7 +192,8 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
 
     @Override
     public void onRouteCalculated(Road road) {
-        // No-op for now.
+        this.currentRouteDistanceKm = road.mLength;
+        this.currentRouteDurationS = road.mDuration;
     }
 
     public void setSelectedDestinations(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
@@ -194,5 +202,107 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
 
     public void setSelectedPreferences(RidePreferences selectedPreferences) {
         this.selectedPreferences = selectedPreferences;
+    }
+
+    public void resetRideEstimation() {
+        this.currentRouteDistanceKm = 0.0;
+        this.currentRouteDurationS = 0.0;
+    }
+
+    public void orderRide(String rideType, String selectedTime, double ridePrice) {
+        RideRequestDTO requestDTO = mapToRideRequestDTO(rideType, selectedTime, ridePrice);
+        viewModel.findRide(requestDTO).observe(getViewLifecycleOwner(), result -> {
+            if (result instanceof ResultState.Success) {
+                SuccessDialogFragment.newInstance("Ride Ordered", "Your ride has been successfully ordered!")
+                        .show(getParentFragmentManager(), "success_dialog");
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    Fragment targetFragment = new CurrentRidesFragment();
+                    requireActivity().getSupportFragmentManager()
+                             .beginTransaction()
+                             .replace(R.id.content_container, targetFragment)
+                             .addToBackStack(null)
+                             .commit();
+                }, 3000);
+            } else if (result instanceof ResultState.Error) {
+                String message =
+                        ((ResultState.Error) result).getMessage();
+
+                ErrorDialogFragment
+                        .newInstance("Error", message)
+                        .show(getActivity().getSupportFragmentManager(),
+                                "error_dialog");
+            }
+        });
+    }
+
+    private RideRequestDTO mapToRideRequestDTO(String rideType, String selectedTime, double ridePrice) {
+        RideRequestDTO requestDTO = new RideRequestDTO();
+        if (rideType.equals("ride_now")) {
+            requestDTO.setScheduled(false);
+        } else if (rideType.equals("schedule_ride")) {
+            requestDTO.setScheduled(true);
+
+        }
+        Log.d("FindRideFragment", "Selected time: " + selectedTime);
+
+        LocalDateTime localDateTime = null;
+        if (selectedTime != null && !selectedTime.isEmpty()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a", java.util.Locale.ENGLISH);
+                LocalTime selectedLocalTime = LocalTime.parse(selectedTime, formatter);
+                LocalDateTime now = LocalDateTime.now().minusMinutes(5); // Subtract 5 minutes to account for processing time
+                localDateTime = now.withHour(selectedLocalTime.getHour()).withMinute(selectedLocalTime.getMinute()).withSecond(0).withNano(0);
+
+                // If the selected time is in the past, it must be tomorrow
+                if (localDateTime.isBefore(now)) {
+                    localDateTime = localDateTime.plusDays(1);
+                }
+            } catch (Exception e) {
+                Log.e("FindRideFragment", "Error parsing selected time: " + e.getMessage());
+            }
+        }
+
+        requestDTO.setScheduledTime(localDateTime);
+        requestDTO.setBabyFriendly(selectedPreferences.isBabyFriendly());
+        requestDTO.setBabyFriendly(selectedPreferences.isBabyFriendly());
+        requestDTO.setPassengerEmails(selectedPreferences.getPassengerEmails());
+        requestDTO.setDistance((float) currentRouteDistanceKm);
+        requestDTO.setEstimatedDurationSeconds((int) currentRouteDurationS);
+        requestDTO.setPrice((int) ridePrice);
+        requestDTO.setVehicleType(selectedPreferences.getVehicleType());
+
+        List<RideDestinationDTO> destinationDTOs = new ArrayList<>();
+        int i = 0;
+        for (GeocodingHelper.GeocodingResult dest : selectedDestinations) {
+            RideDestinationDTO destDTO = new RideDestinationDTO();
+            destDTO.setCity(dest.getCity());
+            destDTO.setStreetName(dest.getStreet());
+            try {
+                destDTO.setZipCode(Integer.parseInt(dest.getPostcode()));
+            } catch (NumberFormatException e) {
+                destDTO.setZipCode(0);
+            }
+            destDTO.setCountry(dest.getCountry());
+            if (dest.getPostcode() != "") {
+                destDTO.setZipCode(Integer.parseInt(dest.getPostcode()));
+            } else {
+                destDTO.setZipCode(11000);
+            }
+            try {
+                destDTO.setStreetNumber(Integer.parseInt(dest.getHouseNumber()));
+            } catch (NumberFormatException e) {
+                destDTO.setStreetNumber(0);
+            }
+            StopBaseDTO stopBaseDTO = new StopBaseDTO();
+            stopBaseDTO.setLatitude(dest.getLatitude());
+            stopBaseDTO.setLongitude(dest.getLongitude());
+            stopBaseDTO.setOrderIndex(i);
+            destDTO.setLocation(stopBaseDTO);
+            destinationDTOs.add(destDTO);
+            i++;
+        }
+        requestDTO.setDestinations(destinationDTOs);
+
+        return requestDTO;
     }
 }
