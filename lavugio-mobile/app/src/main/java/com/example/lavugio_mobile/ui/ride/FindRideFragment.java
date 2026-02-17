@@ -283,7 +283,11 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
                 destDTO.setZipCode(0);
             }
             destDTO.setCountry(dest.getCountry());
-            destDTO.setZipCode(Integer.parseInt(dest.getPostcode()));
+            if (dest.getPostcode() != "") {
+                destDTO.setZipCode(Integer.parseInt(dest.getPostcode()));
+            } else {
+                destDTO.setZipCode(11000);
+            }
             try {
                 destDTO.setStreetNumber(Integer.parseInt(dest.getHouseNumber()));
             } catch (NumberFormatException e) {
