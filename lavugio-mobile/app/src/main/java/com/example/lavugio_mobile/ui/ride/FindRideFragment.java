@@ -215,8 +215,13 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
             if (result instanceof ResultState.Success) {
                 SuccessDialogFragment.newInstance("Ride Ordered", "Your ride has been successfully ordered!")
                         .show(getParentFragmentManager(), "success_dialog");
-                new android.os.Handler().postDelayed(() -> {
-                    getParentFragmentManager().popBackStack();
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    Fragment targetFragment = new CurrentRidesFragment();
+                    requireActivity().getSupportFragmentManager()
+                             .beginTransaction()
+                             .replace(R.id.content_container, targetFragment)
+                             .addToBackStack(null)
+                             .commit();
                 }, 3000);
             } else if (result instanceof ResultState.Error) {
                 String message =
