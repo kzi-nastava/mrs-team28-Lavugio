@@ -31,8 +31,8 @@ public class RegisterDriverVehicleFragment extends Fragment {
 
     private DriverRegistrationData registrationData;
 
-    // License plate pattern: AB-12345-CD
-    private static final Pattern LICENSE_PLATE_PATTERN = Pattern.compile("^[A-Z]{2}-\\d{5}-[A-Z]{2}$");
+    // License plate pattern: AB-123-CD, AB-1234-CD, AB-12345-CD
+    private static final Pattern LICENSE_PLATE_PATTERN = Pattern.compile("^[A-Z]{2}-\\d{3,5}-[A-Z]{2}$");
 
     public static RegisterDriverVehicleFragment newInstance(DriverRegistrationData data) {
         RegisterDriverVehicleFragment fragment = new RegisterDriverVehicleFragment();

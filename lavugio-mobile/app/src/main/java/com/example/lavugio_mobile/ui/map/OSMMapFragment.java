@@ -1,8 +1,6 @@
 package com.example.lavugio_mobile.ui.map;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,11 +10,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.models.enums.DriverStatusEnum;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
@@ -28,6 +26,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
+import android.view.MotionEvent;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
@@ -35,6 +34,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OSMMapFragment extends Fragment {
     private boolean addDestinationMode = false;
@@ -49,10 +49,28 @@ public class OSMMapFragment extends Fragment {
     private static final double DEFAULT_LON = 19.84250;
     private static final double DEFAULT_ZOOM = 15;
 
+    private final List<Marker> driverMarkers = new ArrayList<>();
+    private SingleTapListener tempSingleTapListener;
+
     public interface MapInteractionListener {
         void onMapClicked(GeoPoint point);
         void onMarkerClicked(Marker marker, GeoPoint point);
         void onRouteCalculated(Road road);
+    }
+
+    public interface SingleTapListener {
+        void onSingleTap(GeoPoint point);
+    }
+
+    public void setTempSingleTapListener(SingleTapListener l) {
+        this.tempSingleTapListener = l;
+    }
+
+    /**
+     * Set the map interaction listener explicitly
+     */
+    public void setMapInteractionListener(MapInteractionListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -90,14 +108,25 @@ public class OSMMapFragment extends Fragment {
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
+        // Prevent parent views from intercepting touch events
+        // This allows the map to handle vertical panning
+        mapView.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            try {
+                if (tempSingleTapListener != null && event.getAction() == MotionEvent.ACTION_UP) {
+                    GeoPoint p = (GeoPoint) mapView.getProjection().fromPixels((int) event.getX(), (int) event.getY());
+                    tempSingleTapListener.onSingleTap(p);
+                    return true;
+                }
+            } catch (Exception ignored) {}
+            return false;
+        });
+
         // Set initial position
         IMapController mapController = mapView.getController();
         mapController.setZoom(DEFAULT_ZOOM);
         GeoPoint startPoint = new GeoPoint(DEFAULT_LAT, DEFAULT_LON);
         mapController.setCenter(startPoint);
-
-        // Add my location overlay
-        setupMyLocationOverlay();
 
         // Add map click listener
         setupMapClickListener();
@@ -113,8 +142,9 @@ public class OSMMapFragment extends Fragment {
         MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
+                // Note: Don't add waypoint here - let the listener handle it
+                // This prevents duplicate markers when using map pick mode
                 if (addDestinationMode) {
-                    addWaypoint(p);
                     addDestinationMode = false;
                 }
 
@@ -161,6 +191,10 @@ public class OSMMapFragment extends Fragment {
         mapView.getOverlays().add(marker);
         mapView.invalidate();
 
+        android.util.Log.d("OSMMapFragment", "addWaypoint: marker=" + marker +
+                ", waypoints size=" + waypoints.size() +
+                ", overlays size=" + mapView.getOverlays().size());
+
         return marker;
     }
 
@@ -168,8 +202,19 @@ public class OSMMapFragment extends Fragment {
      * Remove a specific waypoint
      */
     public void removeWaypoint(Marker marker) {
-        waypoints.remove(marker);
-        mapView.getOverlays().remove(marker);
+        if (marker == null) {
+            android.util.Log.e("OSMMapFragment", "removeWaypoint: marker is null");
+            return;
+        }
+
+        boolean removedFromWaypoints = waypoints.remove(marker);
+        boolean removedFromOverlays = mapView.getOverlays().remove(marker);
+
+        android.util.Log.d("OSMMapFragment", "removeWaypoint: removedFromWaypoints=" + removedFromWaypoints +
+                ", removedFromOverlays=" + removedFromOverlays +
+                ", waypoints size=" + waypoints.size() +
+                ", overlays size=" + mapView.getOverlays().size());
+
         mapView.invalidate();
     }
 
@@ -194,18 +239,21 @@ public class OSMMapFragment extends Fragment {
 
         new Thread(() -> {
             try {
-                // Create waypoints list
                 ArrayList<GeoPoint> routePoints = new ArrayList<>();
                 for (Marker marker : waypoints) {
                     routePoints.add(marker.getPosition());
                 }
 
-                // Get road using OSRM
-                RoadManager roadManager = new OSRMRoadManager(getContext(), getActivity().getPackageName());
+                OSRMRoadManager roadManager = new OSRMRoadManager(getContext(), getActivity().getPackageName());
+                roadManager.setMean(OSRMRoadManager.MEAN_BY_CAR);
                 Road road = roadManager.getRoad(routePoints);
 
-                // Update UI on main thread
+                // OVDE DODAJ PROVERU
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded() || getContext() == null) {
+                        return; // Fragment više nije aktivan
+                    }
+
                     if (road.mStatus == Road.STATUS_OK) {
                         drawRoute(road);
                         if (listener != null) {
@@ -224,6 +272,10 @@ public class OSMMapFragment extends Fragment {
      * Draw route on map
      */
     private void drawRoute(Road road) {
+        if (!isAdded() || getContext() == null) {
+            return;
+        }
+
         // Remove old route if exists
         if (routeOverlay != null) {
             mapView.getOverlays().remove(routeOverlay);
@@ -321,5 +373,143 @@ public class OSMMapFragment extends Fragment {
         if (mapView != null) {
             mapView.onDetach();
         }
+    }
+
+    public void clearDriverMarkers() {
+        if (mapView == null) return;
+        for (Marker marker : driverMarkers) {
+            mapView.getOverlays().remove(marker);
+        }
+        driverMarkers.clear();
+        mapView.invalidate();
+    }
+
+    public Marker addDriverMarker(GeoPoint point, String title, DriverStatusEnum status) {
+        if (mapView == null) return null;
+        Marker marker = new Marker(mapView);
+        marker.setPosition(point);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        marker.setTitle(title);
+
+        Drawable icon = null;
+
+        if (status.equals(DriverStatusEnum.AVAILABLE)) {
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_available);
+        } else if (status.equals(DriverStatusEnum.BUSY)) {
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_busy);
+        } else if (status.equals(DriverStatusEnum.RESERVED)) {
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_reserved);
+        }
+        if (icon != null) marker.setIcon(icon);
+
+        mapView.getOverlays().add(marker);
+        driverMarkers.add(marker);
+        mapView.invalidate();
+        return marker;
+    }
+
+    public Marker addClientMarker(GeoPoint point){
+        if (mapView == null) return null;
+        Marker marker = new Marker(mapView);
+        marker.setPosition(point);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        marker.setTitle("Your location");
+
+        Drawable icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_available);
+
+        marker.setIcon(icon);
+
+        mapView.getOverlays().add(marker);
+        driverMarkers.add(marker);
+        mapView.invalidate();
+        return marker;
+    }
+
+    public interface DurationCallback {
+        void onDurationCalculated(int durationMinutes, double distanceKm);
+        void onDurationError(String error);
+    }
+
+    /**
+     * Calculate route duration between two points using OSRM.
+     */
+    public void calculateDuration(GeoPoint from, GeoPoint to, DurationCallback callback) {
+        if (!isAdded() || getContext() == null) {
+            callback.onDurationError("Fragment not attached");
+            return;
+        }
+
+        // Capture context on main thread before going to background
+        Context ctx = requireContext().getApplicationContext();
+        String userAgent = requireActivity().getPackageName();
+
+        new Thread(() -> {
+            try {
+                ArrayList<GeoPoint> points = new ArrayList<>();
+                points.add(from);
+                points.add(to);
+
+                RoadManager roadManager = new OSRMRoadManager(ctx, userAgent);
+                Road road = roadManager.getRoad(points);
+
+                if (road == null) {
+                    postDurationError(callback, "Road calculation returned null");
+                    return;
+                }
+
+                if (road.mStatus != Road.STATUS_OK) {
+                    postDurationError(callback, "Road status: " + road.mStatus);
+                    return;
+                }
+
+                int minutes = (int) Math.ceil(road.mDuration / 60.0);
+                double km = road.mLength;
+
+                android.util.Log.d("OSMMapFragment",
+                        "Duration calculated: " + minutes + " min, " + km + " km");
+
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> callback.onDurationCalculated(minutes, km));
+                }
+
+            } catch (Exception e) {
+                android.util.Log.e("OSMMapFragment", "Duration calculation failed", e);
+                postDurationError(callback, e.getMessage());
+            }
+        }).start();
+    }
+
+    private void postDurationError(DurationCallback callback, String error) {
+        android.util.Log.e("OSMMapFragment", "Duration error: " + error);
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> callback.onDurationError(error));
+        }
+    }
+
+    public void createRoute(List<com.example.lavugio_mobile.models.Coordinates> coordinates) {
+        if (coordinates == null || coordinates.isEmpty()) {
+            android.util.Log.w("OSMMapFragment", "createRoute: coordinates list is null or empty");
+            return;
+        }
+
+        clearWaypoints();
+        clearRoute();
+
+        for (com.example.lavugio_mobile.models.Coordinates coord : coordinates) {
+            GeoPoint geoPoint = new GeoPoint(coord.getLatitude(), coord.getLongitude());
+            addWaypoint(geoPoint);
+        }
+
+        if (coordinates.size() >= 2) {
+            calculateRoute();
+
+            GeoPoint firstPoint = new GeoPoint(
+                    coordinates.get(0).getLatitude(),
+                    coordinates.get(0).getLongitude()
+            );
+            centerMap(firstPoint, DEFAULT_ZOOM);
+        }
+
+        android.util.Log.d("OSMMapFragment", "createRoute: added " + coordinates.size() + " waypoints");
     }
 }

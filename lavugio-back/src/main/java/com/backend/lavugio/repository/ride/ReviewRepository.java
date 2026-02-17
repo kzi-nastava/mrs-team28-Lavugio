@@ -20,6 +20,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByReviewer(com.backend.lavugio.model.user.RegularUser user);
     List<Review> findByReviewerId(Long userId);
 
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.reviewedRide.id = :rideId " +
+            "AND r.reviewer.id = :userId")
+    Review findReviewByRideIdAndUserId(@Param("rideId") Long rideId,
+                                                 @Param("userId") Long userId);
     // Find by ratings
     List<Review> findByDriverRating(int rating);
     List<Review> findByCarRating(int rating);

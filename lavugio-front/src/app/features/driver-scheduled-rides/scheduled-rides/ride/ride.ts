@@ -15,6 +15,8 @@ export class Ride {
   canStart = input<boolean>();
   rideActionOutput = output<{action: string, rideId: number}>();
 
+  readonly = input(false);
+
   clicked(){
     if (this.ride()?.checkpoints != null){
       this.clickedOutput.emit(this.ride()?.checkpoints!);

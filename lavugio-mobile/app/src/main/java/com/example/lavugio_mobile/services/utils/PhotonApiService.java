@@ -11,6 +11,15 @@ public interface PhotonApiService {
     @GET("api/")
     Call<PhotonResponse> searchAddress(
             @Query("q") String query,
-            @Query("limit") int limit
+            @Query("limit") int limit,
+            @Query("lat") Double lat,
+            @Query("lon") Double lon,
+            @Query("lang") String language
+    );
+
+    @GET("reverse")
+    Call<PhotonResponse> reverseGeocode(
+            @Query("lat") double latitude,
+            @Query("lon") double longitude
     );
 }

@@ -45,8 +45,8 @@ public class RideQueryServiceImpl implements RideQueryService {
     }
 
     @Override
-    public List<Ride> getActiveRides() {
-        return rideRepository.findAllActiveRides();
+    public List<Ride> getActiveOrScheduledRides() {
+        return rideRepository.findAllActiveOrScheduledRides();
     }
 
     @Override

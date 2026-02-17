@@ -10,6 +10,7 @@ import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.user.DriverAvailabilityService;
 import com.backend.lavugio.service.user.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +24,13 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
     private final RideQueryService rideQueryService;
     private final DriverService driverService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public DriverAvailabilityServiceImpl(RideQueryService rideQueryService, DriverService driverService) {
+    public DriverAvailabilityServiceImpl(RideQueryService rideQueryService, DriverService driverService, SimpMessagingTemplate simpMessagingTemplate) {
         this.rideQueryService = rideQueryService;
         this.driverService = driverService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -36,9 +39,7 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
         if (location == null) {
             throw new NoSuchElementException("Cannot update location: Driver with id " + id + " is not active.");
         }
-        location.setLongitude(driverCoords.getLongitude());
-        location.setLatitude(driverCoords.getLatitude());
-        return location;
+        return this.putDriverLocation(id, new DriverLocation(id, driverCoords.getLongitude(), driverCoords.getLatitude()));
     }
 
     @Override
@@ -122,7 +123,7 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
 
     private DriverLocation addActiveDriverLocation(Long driverId, double longitude, double latitude) {
         DriverLocation driverLocation = new DriverLocation(driverId, longitude, latitude);
-        activeDriverLocations.put(driverId, driverLocation);
+        this.putDriverLocation(driverId, driverLocation);
         return driverLocation;
     }
 
@@ -134,6 +135,15 @@ public class DriverAvailabilityServiceImpl implements DriverAvailabilityService 
     public CompletableFuture<List<DriverLocationDTO>> getDriverLocationsDTOAsync() {
         List<DriverLocationDTO> locationsDTO = getDriverLocationsDTO();
         return CompletableFuture.completedFuture(locationsDTO);
+    }
+
+    private DriverLocation putDriverLocation(Long driverId, DriverLocation driverLocation){
+        activeDriverLocations.put(driverId, driverLocation);
+        this.simpMessagingTemplate.convertAndSend(
+                "/socket-publisher/location/" + driverId,
+                new CoordinatesDTO(driverLocation.getLatitude(), driverLocation.getLongitude())
+        );
+        return driverLocation;
     }
 
 }

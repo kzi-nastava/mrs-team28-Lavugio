@@ -14,10 +14,11 @@ import { DialogService } from '@app/core/services/dialog-service';
 import { RideService } from '@app/core/services/ride-service';
 import { RideRequestDTO } from '@app/shared/models/ride/rideRequestDTO';
 import { VehicleType } from '@app/shared/models/vehicleType';
+import { ReviewForm } from "@app/shared/components/review-form/review-form";
 
 @Component({
   selector: 'app-trip-history-user-detailed',
-  imports: [BaseInfoPage, DriverInfo, TripInfo, ReportsSection, ReviewSection, MapComponent, CommonModule],
+  imports: [BaseInfoPage, DriverInfo, TripInfo, ReportsSection, ReviewSection, MapComponent, CommonModule, ReviewForm],
   templateUrl: './trip-history-user-detailed.html',
   styleUrl: './trip-history-user-detailed.css',
 })
@@ -170,6 +171,28 @@ export class TripHistoryUserDetailed implements AfterViewInit, OnDestroy {
       },
     });
   }
+
+  showReview = signal(false);
+
+  openReview() {
+    this.showReview.set(true);
+  }
+
+  onReviewSuccess(updatedReview: { driverRating: number, carRating: number, reviewComment: string }) {
+    const currentRide = this.ride();
+    if (!currentRide) return;
+
+    this.ride.set({
+      ...currentRide,
+      hasReview: true,
+      driverRating: updatedReview.driverRating,
+      carRating: updatedReview.carRating,
+      reviewComment: updatedReview.reviewComment,
+    });
+
+    this.showReview.set(false);
+  }
+
 
   ngOnDestroy(): void {
     if (this.sub) {

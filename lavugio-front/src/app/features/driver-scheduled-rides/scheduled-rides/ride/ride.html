@@ -39,48 +39,50 @@
     </div>
 
     <!-- Desna kolona sa dugmadi -->
-    <div class="flex flex-row w-full md:w-auto md:flex-row md:grow gap-2 md:px-4 items-center">
-        @if (ride()?.status == "ACTIVE"){
-            @if (!ride()?.panicked) {
+     @if (!readonly()){
+        <div class="flex flex-row w-full md:w-auto md:flex-row md:grow gap-2 md:px-4 items-center">
+            @if (ride()?.status == "ACTIVE"){
+                @if (!ride()?.panicked) {
+                    <button 
+                        class="flex-1 h-12 md:h-3/4 bg-red-600 text-white rounded-md p-2 shadow
+                            hover:bg-red-700 hover:cursor-pointer text-xs md:text-sm animate-pulse font-bold"
+                        (click)="onPanic($event)">
+                        🚨 PANIC
+                    </button>
+                } @else {
+                    <div class="flex-1 h-12 md:h-3/4 bg-red-800 text-white rounded-md p-2 shadow
+                                text-xs md:text-sm flex items-center justify-center font-bold">
+                        ✓ ALERT SENT
+                    </div>
+                }
                 <button 
-                    class="flex-1 h-12 md:h-3/4 bg-red-600 text-white rounded-md p-2 shadow
-                           hover:bg-red-700 hover:cursor-pointer text-xs md:text-sm animate-pulse font-bold"
-                    (click)="onPanic($event)">
-                    🚨 PANIC
+                    class="flex-1 h-12 md:h-3/4 bg-[#DDA15E] text-[#283618] rounded-md p-2 shadow
+                        hover:bg-[#ce9657] hover:cursor-pointer text-xs md:text-sm"
+                    (click)="onFinishEarly($event)">
+                    Finish early
                 </button>
-            } @else {
-                <div class="flex-1 h-12 md:h-3/4 bg-red-800 text-white rounded-md p-2 shadow
-                            text-xs md:text-sm flex items-center justify-center font-bold">
-                    ✓ ALERT SENT
-                </div>
-            }
-            <button 
-                class="flex-1 h-12 md:h-3/4 bg-[#DDA15E] text-[#283618] rounded-md p-2 shadow
-                       hover:bg-[#ce9657] hover:cursor-pointer text-xs md:text-sm"
-                (click)="onFinishEarly($event)">
-                Finish early
-            </button>
-            <button 
-                class="flex-1 h-12 md:h-3/4 bg-[#606C38] text-[#FEFAE0] rounded-md p-2 shadow
-                       hover:bg-[#505634] hover:cursor-pointer text-xs md:text-sm"
-                (click)="onFinish($event)">
-                Finish
-            </button>
-        } @else {
-            <button 
-                class="flex-1 h-12 md:h-3/4 bg-[#BC6C25] text-[#283618] rounded-md p-2 shadow
-                       hover:bg-[#ac6222] hover:cursor-pointer text-xs md:text-sm"
-                (click)="onDeny($event)">
-                Deny
-            </button>
-            @if (!hasActiveRide() && canStart()){
                 <button 
                     class="flex-1 h-12 md:h-3/4 bg-[#606C38] text-[#FEFAE0] rounded-md p-2 shadow
-                           hover:bg-[#44492c] hover:cursor-pointer text-xs md:text-sm"
-                    (click)="onStart($event)">
-                    Start
+                        hover:bg-[#505634] hover:cursor-pointer text-xs md:text-sm"
+                    (click)="onFinish($event)">
+                    Finish
                 </button>
+            } @else {
+                <button 
+                    class="flex-1 h-12 md:h-3/4 bg-[#BC6C25] text-[#283618] rounded-md p-2 shadow
+                        hover:bg-[#ac6222] hover:cursor-pointer text-xs md:text-sm"
+                    (click)="onDeny($event)">
+                    Deny
+                </button>
+                @if (!hasActiveRide() && canStart()){
+                    <button 
+                        class="flex-1 h-12 md:h-3/4 bg-[#606C38] text-[#FEFAE0] rounded-md p-2 shadow
+                            hover:bg-[#44492c] hover:cursor-pointer text-xs md:text-sm"
+                        (click)="onStart($event)">
+                        Start
+                    </button>
+                }
             }
-        }
-    </div>
+        </div>
+    }
 </div>

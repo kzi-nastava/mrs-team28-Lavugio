@@ -15,18 +15,18 @@ public class FavoriteRoute {
         this.destinations = destinations;
     }
 
-    public String getFirstDestination() {
+    public RideDestination getFirstDestination() {
         if (destinations == null || destinations.length == 0) {
-            return "";
+            return null;
         }
-        return this.destinations[0].getName();
+        return this.destinations[0];
     }
 
-    public String getLastDestination() {
+    public RideDestination getLastDestination() {
         if (destinations == null || destinations.length == 0) {
-            return "";
+            return null;
         }
-        return this.destinations[this.destinations.length - 1].getName();
+        return this.destinations[this.destinations.length - 1];
     }
 
     public String getId() {
@@ -34,11 +34,21 @@ public class FavoriteRoute {
     }
 
     public String getFromAddress() {
-        return getFirstDestination();
+        RideDestination firstDestination = getFirstDestination();
+        if (firstDestination != null) {
+            return firstDestination.getStreet() + " " + firstDestination.getHouseNumber() + ", " + firstDestination.getCity();
+        } else {
+            return "";
+        }
     }
 
     public String getToAddress() {
-        return getLastDestination();
+        RideDestination lastDestination = getLastDestination();
+        if (lastDestination != null) {
+            return lastDestination.getStreet() + " " + lastDestination.getHouseNumber() + ", " + lastDestination.getCity();
+        } else {
+            return "";
+        }
     }
 
     public int getDestinationsCount() {

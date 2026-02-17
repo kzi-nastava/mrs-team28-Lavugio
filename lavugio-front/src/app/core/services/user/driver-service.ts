@@ -110,7 +110,7 @@ export class DriverService {
 
     this.sendCurrentLocation();
 
-    this.trackingSubscription = interval(10000).subscribe(() => {
+    this.trackingSubscription = interval(3000).subscribe(() => {
       this.updateLocation();
     });
   }

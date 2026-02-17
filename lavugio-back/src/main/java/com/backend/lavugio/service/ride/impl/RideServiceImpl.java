@@ -24,7 +24,6 @@ import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.user.Driver;
-import com.backend.lavugio.model.user.DriverLocation;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.repository.ride.RideRepository;
@@ -32,6 +31,7 @@ import com.backend.lavugio.repository.ride.ReviewRepository;
 import com.backend.lavugio.repository.ride.RideReportRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.pricing.PricingService;
+import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -46,9 +46,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -77,6 +77,7 @@ public class RideServiceImpl implements RideService {
     private final com.backend.lavugio.service.notification.NotificationService notificationService;
     private final ReviewRepository reviewRepository;
     private final RideReportRepository rideReportRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -91,7 +92,8 @@ public class RideServiceImpl implements RideService {
                            EmailService emailService,
                            com.backend.lavugio.service.notification.NotificationService notificationService,
                            ReviewRepository reviewRepository,
-                           RideReportRepository rideReportRepository) {
+                           RideReportRepository rideReportRepository,
+                           SimpMessagingTemplate simpMessagingTemplate) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -105,6 +107,7 @@ public class RideServiceImpl implements RideService {
         this.notificationService = notificationService;
         this.reviewRepository = reviewRepository;
         this.rideReportRepository = rideReportRepository;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -173,8 +176,13 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public List<Ride> getActiveRides() {
-        return rideQueryService.getActiveRides();
+    public List<Ride> getActiveOrScheduledRides() {
+        return rideQueryService.getActiveOrScheduledRides();
+    }
+
+    @Override
+    public List<RideMonitoringDTO> getActiveRides() {
+        return this.rideRepository.findAllActiveRides().stream().map(RideMonitoringDTO::new).toList();
     }
 
     public List<Ride> getScheduledRidesForDriver(Long driverId){
@@ -236,27 +244,6 @@ public class RideServiceImpl implements RideService {
         Ride ride = getRideById(rideId);
         ride.setHasPanic(true);
         rideRepository.save(ride);
-    }
-
-    @Override
-    public double estimateRidePrice(RideEstimateRequestDTO request) {
-        // TODO: Implement a more sophisticated pricing algorithm
-        double priceForDistance = 200*(request.getDistanceMeters() / 1000);
-        BigDecimal bd = BigDecimal.valueOf(priceForDistance).setScale(2, BigDecimal.ROUND_HALF_UP);
-        priceForDistance = bd.doubleValue();
-        if (request.getSelectedVehicleType() == null) {
-            throw new IllegalArgumentException("Vehicle type cannot be null");
-        }
-        switch (request.getSelectedVehicleType().toUpperCase()) {
-            case "STANDARD":
-                return priceForDistance;
-            case "LUXURY":
-                return priceForDistance * 1.5f;
-            case "COMBI":
-                return priceForDistance * 2.0f;
-            default:
-                throw new IllegalArgumentException("Unknown vehicle type: " + request.getSelectedVehicleType());
-        }
     }
 
     @Override
@@ -838,6 +825,9 @@ public class RideServiceImpl implements RideService {
         rideCreator.setCanOrder(false);
         regularUserRepository.save(rideCreator);
         driverService.updateDriverDriving(ride.getDriver().getId(), true);
+        notifySocket(ride);
+        RideOverviewUpdateDTO rideOverviewUpdateDTO = new RideOverviewUpdateDTO(ride.getEndAddress(), new CoordinatesDTO(ride.getCheckpoints().getLast().getAddress()), ride);
+        simpMessagingTemplate.convertAndSend("/socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
     }
 
     @Override
@@ -847,6 +837,13 @@ public class RideServiceImpl implements RideService {
             throw new NoSuchElementException(String.format("Cannot find ride for user id %d", userId));
         }
         return new LatestRideDTO(ride.getId(), ride.getRideStatus());
+    }
+
+    private void notifySocket(Ride ride){
+        this.simpMessagingTemplate.convertAndSend(
+                "/socket-publisher/ride/start",
+                new RideMonitoringDTO(ride)
+        );
     }
 
     @Override
@@ -880,9 +877,8 @@ public class RideServiceImpl implements RideService {
         UserHistoryDetailedDTO dto = new UserHistoryDetailedDTO(ride);
         
         // Get reviews for this ride
-        List<Review> reviews = reviewRepository.findByReviewedRideId(rideId);
-        if (!reviews.isEmpty()) {
-            Review review = reviews.get(0); // Get the first review (user's review)
+        Review review = reviewRepository.findReviewByRideIdAndUserId(rideId, userId);
+        if (review != null) {
             dto.setHasReview(true);
             dto.setDriverRating(review.getDriverRating());
             dto.setCarRating(review.getCarRating());

@@ -140,8 +140,12 @@ public class AccountServiceImpl implements AccountService {
             String contentType = file.getContentType();
 
             if (!contentType.equals("image/jpeg") &&
-                    !contentType.equals("image/png")) {
-                throw new RuntimeException("Only JPG and PNG allowed");
+                    !contentType.equals("image/png") &&
+                    !contentType.equals("image/jpg") &&
+                    !contentType.equals("image/webp") &&
+                    !contentType.equals("image/heic") &&
+                    !contentType.equals("image/heif")) {
+                throw new RuntimeException("Only JPG, PNG, WebP, HEIC, and HEIF images are allowed");
             }
 
             File directory = new File(uploadDir);

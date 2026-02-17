@@ -29,6 +29,5 @@ export class Message implements OnInit{
     else if (this.senderId() == this.userId){
       this.isSender = true;
     }
-    console.log(this.senderId());
   }
 }

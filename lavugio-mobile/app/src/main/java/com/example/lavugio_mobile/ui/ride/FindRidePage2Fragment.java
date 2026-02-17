@@ -26,6 +26,7 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
 import com.example.lavugio_mobile.data.model.vehicle.VehicleType;
 import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
+import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,10 +54,16 @@ public class FindRidePage2Fragment extends Fragment {
     private RidePreferences ridePreferences;
     private Spinner spinnerVehicleType;
 
+    private FindRideViewModel viewModel;
+
     public static FindRidePage2Fragment newInstance(RidePreferences ridePreferences) {
         FindRidePage2Fragment fragment = new FindRidePage2Fragment();
         fragment.ridePreferences = ridePreferences;
         return fragment;
+    }
+
+    public void setViewModel(FindRideViewModel viewModel) {
+        this.viewModel = viewModel;
     }
 
     private void setRidePreferences(RidePreferences ridePreferences) {

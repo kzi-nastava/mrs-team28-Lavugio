@@ -21,6 +21,7 @@ import com.example.lavugio_mobile.R;
 
 public class ResetPasswordFragment extends Fragment {
 
+    private EditText tokenInput;
     private EditText passwordInput;
     private EditText confirmPasswordInput;
     private ImageButton passwordToggle;
@@ -29,6 +30,8 @@ public class ResetPasswordFragment extends Fragment {
     private TextView registerLink;
     private boolean isPasswordVisible = false;
     private boolean isConfirmPasswordVisible = false;
+
+    private com.example.lavugio_mobile.services.auth.AuthService authService;
 
     @Nullable
     @Override
@@ -42,7 +45,11 @@ public class ResetPasswordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize AuthService
+        authService = com.example.lavugio_mobile.services.auth.AuthService.getInstance();
+
         // Initialize views
+        tokenInput = view.findViewById(R.id.reset_token);
         passwordInput = view.findViewById(R.id.reset_password);
         confirmPasswordInput = view.findViewById(R.id.reset_confirm_password);
         passwordToggle = view.findViewById(R.id.password_toggle);
@@ -94,11 +101,12 @@ public class ResetPasswordFragment extends Fragment {
     }
 
     private void handleResetPassword() {
+        String token = tokenInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
         String confirmPassword = confirmPasswordInput.getText().toString().trim();
 
         // Validation
-        if (password.isEmpty() || confirmPassword.isEmpty()) {
+        if (token.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -113,11 +121,33 @@ public class ResetPasswordFragment extends Fragment {
             return;
         }
 
-        // TODO: Send password reset request to backend
-        Toast.makeText(getContext(), "Password reset successful!", Toast.LENGTH_SHORT).show();
+        // Disable button to prevent double-tap
+        resetButton.setEnabled(false);
+        resetButton.setText("Resetting...");
 
-        // Navigate to login
-        navigateToLogin();
+        // Send password reset request to backend
+        authService.resetPassword(token, password, new com.example.lavugio_mobile.models.auth.AuthCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                if (!isAdded()) return;
+
+                resetButton.setEnabled(true);
+                resetButton.setText("Reset Password");
+                Toast.makeText(getContext(), "Password reset successful!", Toast.LENGTH_SHORT).show();
+
+                // Navigate to login
+                navigateToLogin();
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                if (!isAdded()) return;
+
+                resetButton.setEnabled(true);
+                resetButton.setText("Reset Password");
+                Toast.makeText(getContext(), "Failed to reset password: " + message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void navigateToRegister() {

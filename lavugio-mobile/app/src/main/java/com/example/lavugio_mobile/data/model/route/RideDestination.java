@@ -1,6 +1,5 @@
 package com.example.lavugio_mobile.data.model.route;
 public class RideDestination {
-    private Long id;
     private String name;
     private String street;
     private String houseNumber;
@@ -11,8 +10,7 @@ public class RideDestination {
     public RideDestination() {
     }
 
-    public RideDestination(Long id, String name, String street, String houseNumber, String city, String country, Coordinates coordinates) {
-        this.id = id;
+    public RideDestination(String name, String street, String houseNumber, String city, String country, Coordinates coordinates) {
         this.name = name;
         this.street = street;
         this.houseNumber = houseNumber;
@@ -21,16 +19,8 @@ public class RideDestination {
         this.coordinates = coordinates;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
-        return name;
+        return this.street + " " + this.houseNumber + ", " + this.city;
     }
 
     public void setName(String name) {

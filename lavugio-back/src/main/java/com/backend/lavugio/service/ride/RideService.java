@@ -13,7 +13,6 @@ import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 
-import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,7 +31,8 @@ public interface RideService {
     List<Ride> getRidesByStatus(RideStatus status);
     List<Ride> getUpcomingRidesForDriver(Long driverId);
     List<Ride> getRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
-    List<Ride> getActiveRides();
+    List<Ride> getActiveOrScheduledRides();
+    List<RideMonitoringDTO> getActiveRides();
     List<Ride> getScheduledRidesForDriver(Long driverId);
     List<Ride> getFinishedRidesForDriver(Long driverId);
     List<Ride> getFinishedRidesInDateRange(LocalDateTime startDate, LocalDateTime endDate);
@@ -59,7 +59,6 @@ public interface RideService {
     Float calculateTotalDistanceForDriver(Long driverId);
     Float calculateAverageFareForDriver(Long driverId);
     List<Ride> applyParametersToRides(List<Ride> rides, boolean ascending, DriverHistorySortFieldEnum sortBy, String dateRangeStart, String dateRangeEnd);
-    double estimateRidePrice(RideEstimateRequestDTO request);
     Double calculatePrice(VehicleType vehicleType, Double distance);
     DriverHistoryPagingDTO getDriverHistory(Long driverId, LocalDateTime startDate, LocalDateTime endDate, String sortBy, String sorting, int pageSize, int pageNumber);
     DriverHistoryDetailedDTO getDriverHistoryDetailed(Long driverId, Long rideId);

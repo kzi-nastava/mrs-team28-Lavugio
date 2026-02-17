@@ -2,7 +2,6 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '@environments/environment';
-import { ChatService } from './chat-service';
 import { WebSocketService } from './web-socket-service';
 
 export interface RegistrationRequest {
@@ -134,7 +133,6 @@ export class AuthService {
 
   getUserRole(): string | null {
     const user = this.getStoredUser();
-    console.log(user?.role);
     return user?.role || null;
   }
 

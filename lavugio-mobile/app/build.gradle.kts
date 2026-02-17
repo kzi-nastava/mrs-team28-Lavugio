@@ -1,7 +1,14 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+val configProps = Properties().apply {
+    load(FileInputStream(rootProject.file("local.properties")))
 }
 
 android {
@@ -9,6 +16,7 @@ android {
     compileSdk {
         version = release(36)
     }
+
 
     defaultConfig {
         applicationId = "com.example.lavugio_mobile"
@@ -20,18 +28,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
     buildTypes {
+        debug {
+            buildConfigField("String", "SERVER_IP", "\"${configProps["SERVER_IP"]}\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "SERVER_IP", "\"${configProps["SERVER_IP"]}\"")
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -39,11 +54,12 @@ android {
     buildFeatures {
         viewBinding = true
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -57,6 +73,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -64,11 +81,22 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("org.osmdroid:osmdroid-android:6.1.18")
-    implementation("com.github.MKergall:osmbonuspack:6.9.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmbonuspack)
+    implementation(libs.gson)
+    implementation(libs.material)
+    implementation(libs.logging.interceptor)
+    implementation(libs.stompprotocolandroid)
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.mpandroidchart)
+    implementation(libs.location)
+    implementation(libs.play.services.base)
+    implementation(libs.base)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }

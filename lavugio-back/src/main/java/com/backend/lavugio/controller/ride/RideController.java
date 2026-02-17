@@ -88,7 +88,9 @@ public class RideController {
         }
     }
 
-    // 3. Create scheduled ride (for future)
+    /*
+* Endpoint for creating a new ride request. Depending on the "scheduled" flag in the request, * it will either create an instant ride or a scheduled ride.
+     */
     @PostMapping("/find-ride")
     public ResponseEntity<?> findRide(
             @Valid @RequestBody RideRequestDTO request) {
@@ -502,7 +504,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('REGULAR_USER')")
     @GetMapping(value = "/{rideId}/access")
-    public ResponseEntity<Boolean> accessRide(@PathVariable Long rideId) {
+    public ResponseEntity<Boolean> canAccessRide(@PathVariable Long rideId) {
         try{
             Long userId =  SecurityUtils.getCurrentUserId();
             return ResponseEntity.ok(rideOverviewService.canAccessRideOverview(userId, rideId));
@@ -545,6 +547,7 @@ public class RideController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/prices")
     public ResponseEntity<?> getPrices(){
         try{
@@ -554,12 +557,23 @@ public class RideController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/prices")
     public ResponseEntity<?> postPrices(@RequestBody PricingDTO pricing){
         try{
             pricingService.updatePricing(pricing);
             return new ResponseEntity<>(HttpStatus.OK);
         }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/active")
+    public ResponseEntity<List<RideMonitoringDTO>> getAllActiveRides(){
+        try{
+            return new ResponseEntity<>(rideService.getActiveRides(), HttpStatus.OK);
+        } catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -1,0 +1,37 @@
+<div class="font-[Inter] bg-[#FEFAE0] w-full font-semibold rounded-2xl p-3
+            text-sm md:text-md shadow hover:cursor-pointer hover:bg-[#f0ecd5]
+            flex flex-col md:flex-row gap-2 h-auto relative"
+     (click)="clicked()">
+
+    <div class="w-full flex flex-col justify-between select-none">
+        <div class="flex flex-col gap-2">
+            <div class="flex flex-row items-center justify-between">
+                <span class="text-[#283618]">Start time:</span>
+                <span class="text-[#BC6C25] text-right wrap-break-words">
+                    {{formatDateTime(ride()?.startTime) || "Loading..."}}
+                </span>
+            </div>
+
+            <div class="flex flex-row items-center justify-between">
+                <span class="text-[#283618]">Start address:</span>
+                <span class="text-[#BC6C25] text-right wrap-break-words">
+                    {{ride()?.startAddress || "Loading..."}}
+                </span>
+            </div>
+
+            <div class="flex flex-row items-center justify-between">
+                <span class="text-[#283618]">End address:</span>
+                <span class="text-[#BC6C25] text-right wrap-break-words">
+                    {{ride()?.endAddress || "Loading..."}}
+                </span>
+            </div>
+
+            <div class="flex flex-row items-center justify-between">
+                <span class="text-[#283618]">Driver name:</span>
+                <span class="text-[#BC6C25] text-right wrap-break-words">
+                    {{ride()?.driverName || "Loading..."}}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -27,7 +27,7 @@ export class ProfileInfoSection implements OnDestroy {
   @Input() profile!: UserProfile;
   updatedProfile!: UserProfile;
   showPasswordDialog = false;
-  vehicleTypeOptions = ['Standard', 'Luxury', 'Combi'];
+  vehicleTypeOptions = ["Standard", "Luxury", "Combi"];
   timeActive = signal<string>('');
   timeActiveDuration = signal<number>(0); // Duration in minutes
   isDriverActive = signal<boolean>(false);
@@ -93,7 +93,6 @@ export class ProfileInfoSection implements OnDestroy {
   }
 
   onEditClick() {
-    console.log("aaa");
     if (this.editService.isEditMode()) {
       console.log('Validating and saving profile:', this.updatedProfile);
       var validateProfileUpdate = this.validateProfileUpdate();
@@ -272,13 +271,13 @@ export class ProfileInfoSection implements OnDestroy {
     if (!type) return '';
     switch (type) {
       case 'STANDARD':
-        return 'Standard';
+        return "Standard";
       case 'LUXURY':
-        return 'Luxury';
+        return "Luxury";
       case 'COMBI':
-        return 'Combi';
+        return "Combi";
       default:
-        return '';
+        return "";
     }
   }
 

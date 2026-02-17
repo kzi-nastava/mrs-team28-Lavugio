@@ -292,9 +292,9 @@ INSERT INTO ride_reports (report_id, ride_id, report_message, account_id) VALUES
 -- ====================================
 INSERT INTO favorite_routes (id, name, user_id) VALUES
                                                     (1, 'Posao - Kuća', 1),
-                                                    (2, 'Teretana - Kuća', 1),
-                                                    (3, 'Fakultet - Stan', 2),
-                                                    (4, 'Aerodrom - Hotel', 3),
+                                                   (2, 'Teretana - Kuća', 1),
+                                                   (3, 'Fakultet - Stan', 2),
+                                                   (4, 'Aerodrom - Hotel', 3),
                                                     (5, 'Centar - Kuća', 9);
 
 SELECT setval('favorite_routes_id_seq', 5, true);

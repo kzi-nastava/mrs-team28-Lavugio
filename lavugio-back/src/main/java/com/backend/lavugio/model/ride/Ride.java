@@ -79,6 +79,7 @@ public class Ride {
     private boolean hasPanic;
 
     @OneToMany(mappedBy = "ride", fetch = FetchType.LAZY)
+    @OrderBy("destinationOrder ASC")
     @JsonIgnore
     private List<RideDestination> checkpoints;
 

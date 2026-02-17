@@ -9,6 +9,7 @@ import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.route.Address;
 import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.RegularUser;
+import com.backend.lavugio.repository.route.RideDestinationRepository;
 import com.backend.lavugio.repository.user.DriverRepository;
 import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.ride.RideCompletionService;
@@ -17,6 +18,7 @@ import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
 import com.backend.lavugio.service.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,15 +38,23 @@ public class RideCompletionServiceImpl implements RideCompletionService {
     private final EmailService emailService;
     private final NotificationService notificationService;
     private final DriverRepository driverRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public RideCompletionServiceImpl(NotificationService notificationService, RideDestinationService rideDestinationService, RideService rideService, EmailService emailService, RideOverviewService rideOverviewService, DriverRepository driverRepository) {
+    public RideCompletionServiceImpl(NotificationService notificationService,
+                                     RideDestinationService rideDestinationService,
+                                     RideService rideService,
+                                     EmailService emailService,
+                                     RideOverviewService rideOverviewService,
+                                     DriverRepository driverRepository,
+                                     SimpMessagingTemplate simpMessagingTemplate, RideDestinationRepository rideDestinationRepository) {
         this.rideDestinationService = rideDestinationService;
         this.rideService = rideService;
         this.emailService = emailService;
         this.notificationService = notificationService;
         this.rideOverviewService = rideOverviewService;
         this.driverRepository = driverRepository;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Transactional
@@ -56,6 +66,9 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         Ride ride = rideService.getRideById(rideDTO.getRideId());
         if (ride==null){
             throw new NoSuchElementException("Cannot find ride for ride "+rideDTO.getRideId());
+        }
+        if (ride.getRideStatus() == RideStatus.FINISHED){
+            throw new IllegalStateException("This ride is already finished: " + rideDTO.getRideId());
         }
 
         CoordinatesDTO finalDestinationCoords;
@@ -99,6 +112,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         ride.setEndDateTime(LocalDateTime.now());
         ride.getDriver().setDriving(false);
         driverRepository.save(ride.getDriver());
+        notifySocket(ride.getId());
 
         // Reset can_order flag for the creator (passenger)
         if (ride.getCreator() != null) {
@@ -120,7 +134,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
 
     private void sendEmailsToPassengers(Collection<RegularUser> passengers, Long rideId){
         String subject = "Your ride has been finished";
-        String body = "Link to the ride: http/localhost:4200/" + rideId + "/ride-overview";
+        String body = "Link to the ride: http://localhost:4200/" + rideId + "/ride-overview";
         for (RegularUser passenger : passengers) {
             emailService.sendEmail(passenger.getEmail(), subject, body);
         }
@@ -131,6 +145,12 @@ public class RideCompletionServiceImpl implements RideCompletionService {
             Notification notification = notificationService.createWebRideFinishedNotification(rideId, passenger.getId());
             notificationService.sendNotificationToSocket(notification);
         }
+    }
 
+    private void notifySocket(Long rideId){
+        this.simpMessagingTemplate.convertAndSend(
+                "/socket-publisher/ride/finish",
+                rideId
+        );
     }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '@app/core/services/auth-service';
@@ -21,7 +21,7 @@ export class AdminChatComponent implements OnInit {
 
   isAdmin = false;
 
-  users: UserChatModel[] = [];
+  users = signal<UserChatModel[]>([]);
 
   selectedUserId: number | null = null;
 
@@ -44,7 +44,7 @@ export class AdminChatComponent implements OnInit {
     )
     .subscribe({
       next: (users) => {
-        this.users = users;
+        this.users.set(users);
       },
       error: (err) => {
         console.error('Request failed or timed out', err);
