@@ -39,7 +39,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     List<Ride> findByPassengerId(@Param("passengerId") Long passengerId);
 
     // Find by next notification time and status (for scheduler)
-    List<Ride> findByNextNotificationTimeBeforeAndStatus(LocalDateTime localDateTime, RideStatus status);
+    List<Ride> findByNextNotificationTimeBeforeAndRideStatus(LocalDateTime dateTime, RideStatus status);
 
     // Count queries
     long countByRideStatus(RideStatus status);

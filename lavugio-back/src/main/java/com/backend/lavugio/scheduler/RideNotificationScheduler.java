@@ -1,6 +1,7 @@
 package com.backend.lavugio.scheduler;
 
 import com.backend.lavugio.model.enums.RideStatus;
+import com.backend.lavugio.model.notification.Notification;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.service.notification.NotificationService;
@@ -25,14 +26,16 @@ public class RideNotificationScheduler {
         LocalDateTime now = LocalDateTime.now();
 
         List<Ride> rides = rideRepository
-                .findByNextNotificationTimeBeforeAndStatus(
+                .findByNextNotificationTimeBeforeAndRideStatus(
                         now,
                         RideStatus.SCHEDULED
                 );
 
         for (Ride ride : rides) {
 
-            notificationService.createWebRideReminderNotification(ride.getId(), ride.getCreator().getId());
+            Notification notification = notificationService.createWebRideReminderNotification(ride.getId(), ride.getCreator().getId());
+
+            notificationService.sendNotificationToSocket(notification);
 
             updateNextNotificationTime(ride, now);
 
