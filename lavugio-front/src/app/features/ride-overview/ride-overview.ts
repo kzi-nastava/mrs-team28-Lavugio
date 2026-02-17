@@ -39,6 +39,8 @@ export class RideOverview implements AfterViewInit {
   showReview = signal(false);
   isRated = signal(false);
   isReported = signal(false);
+  rideOverview = signal<RideOverviewModel | null>(null);
+  rideId!: number;
   canRateRide = computed(() => {
     const overview = this.rideOverview();
     if (!overview) return false;
@@ -55,8 +57,7 @@ export class RideOverview implements AfterViewInit {
     return diffInDays <= 3;
   });
 
-  rideOverview = signal<RideOverviewModel | null>(null);
-  rideId!: number;
+  
 
   private intervalId: any;
   private subscription: Subscription | null = null;
@@ -182,15 +183,8 @@ export class RideOverview implements AfterViewInit {
 
     this.cancelSub = this.webSocketService.subscribe(
       `/socket-publisher/rides/${rideId}/cancel`,
-      (message: IMessage) => {
-        const update = JSON.parse(message.body);
-        const current = this.rideOverview();
-        if (current) {
-          this.rideOverview.set({
-            ...current,
-            status: update.status ?? 'CANCELLED'
-          });
-        }
+      () => {
+        this.cancelRide();
       }
     );
   }
