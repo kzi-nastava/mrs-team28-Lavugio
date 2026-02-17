@@ -513,10 +513,23 @@ public class Navbar {
     // ── Navigation helper ────────────────────────────────
 
     private void navigateToFragment(Fragment fragment) {
+        Fragment currentFragment = activity.getSupportFragmentManager()
+                .findFragmentById(R.id.content_container);
+
+        if (currentFragment != null &&
+                currentFragment.getClass().equals(fragment.getClass())) {
+            activity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, fragment)
+                    .commit();
+            return;
+        }
+
         activity.getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }
+
 }

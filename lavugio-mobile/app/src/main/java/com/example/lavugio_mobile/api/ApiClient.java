@@ -99,4 +99,6 @@ public class ApiClient {
     }
 
     public static UserApi getUserApi() {return getInstance().create(UserApi.class);}
+
+    public static PriceApi getPriceApi() {return getInstance().create(PriceApi.class);}
 }

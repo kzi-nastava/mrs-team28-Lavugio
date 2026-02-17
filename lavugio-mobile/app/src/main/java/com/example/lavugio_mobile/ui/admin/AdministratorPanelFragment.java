@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.ui.dialog.PriceDefinitionDialogFragment;
 
 public class AdministratorPanelFragment extends Fragment {
     private Button btnRegisterDriver;
@@ -16,6 +17,7 @@ public class AdministratorPanelFragment extends Fragment {
     private Button btnBlockUser;
     private Button btnSeeReports;
     private Button btnPanicAlerts;
+    private Button btnPriceDefinition;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -27,6 +29,12 @@ public class AdministratorPanelFragment extends Fragment {
         btnBlockUser = view.findViewById(R.id.btnBlockUser);
         btnSeeReports = view.findViewById(R.id.btnSeeReports);
         btnPanicAlerts = view.findViewById(R.id.btnPanicAlerts);
+        btnPriceDefinition = view.findViewById(R.id.btnPriceDefinition);
+
+        btnPriceDefinition.setOnClickListener(v -> {
+            PriceDefinitionDialogFragment dialog = PriceDefinitionDialogFragment.newInstance();
+            dialog.show(getChildFragmentManager(), "price_definition");
+        });
 
         // Set click listeners
         btnRegisterDriver.setOnClickListener(v -> {
