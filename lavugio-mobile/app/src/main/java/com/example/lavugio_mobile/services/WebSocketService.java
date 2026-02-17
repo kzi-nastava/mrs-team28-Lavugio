@@ -6,10 +6,14 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.example.lavugio_mobile.BuildConfig;
+import com.example.lavugio_mobile.api.LocalDateTimeAdapter;
 import com.example.lavugio_mobile.services.auth.SessionManager;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +52,13 @@ public class WebSocketService {
     private final List<PendingSubscription> pendingSubscriptions = new ArrayList<>();
 
     private Runnable onConnectCallback;
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
+
+    public interface ParsedMessageCallback<T> {
+        void onMessage(T body);
+    }
 
     // ── Inner classes ────────────────────────────────────
 
@@ -289,5 +300,18 @@ public class WebSocketService {
                         connect(onConnectCallback);
                     }
                 }, RECONNECT_DELAY_MS);
+    }
+
+    @Nullable
+    public <T> StompSubscription subscribeJson(String destination, Class<T> clazz,
+                                               ParsedMessageCallback<T> callback) {
+        return subscribe(destination, body -> {
+            try {
+                T parsed = gson.fromJson(body, clazz);
+                callback.onMessage(parsed);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to parse message on " + destination, e);
+            }
+        });
     }
 }

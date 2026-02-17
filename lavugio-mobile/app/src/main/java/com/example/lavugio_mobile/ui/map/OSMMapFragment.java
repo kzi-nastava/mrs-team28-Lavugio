@@ -43,10 +43,8 @@ public class OSMMapFragment extends Fragment {
     private List<Marker> waypoints = new ArrayList<>();
     private Polyline routeOverlay;
     private MapInteractionListener listener;
-
-    // Default start position (Belgrade)
-    private static final double DEFAULT_LAT =  45.25417;
-    private static final double DEFAULT_LON = 19.84250;
+    private static final double DEFAULT_LAT = 45.2671;
+    private static final double DEFAULT_LON = 19.8335;
     private static final double DEFAULT_ZOOM = 15;
 
     private final List<Marker> driverMarkers = new ArrayList<>();

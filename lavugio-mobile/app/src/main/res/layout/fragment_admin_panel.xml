@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center_vertical"
     android:padding="24dp"
     android:background="#FFFFFF">
 
-    <!-- Administrator Panel Header TextView -->
+    <!-- Administrator Panel Header -->
     <TextView
         android:id="@+id/tvAdminPanel"
         android:layout_width="match_parent"
@@ -22,100 +20,122 @@
         android:gravity="center"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Register Driver Button -->
-    <Button
-        android:id="@+id/btnRegisterDriver"
+    <!-- Scrollable dugmad -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Register Driver"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:background="@drawable/admin_panel_button"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp"
-        android:textAllCaps="false"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-    <!-- Driver Update Requests Button -->
-    <Button
-        android:id="@+id/btnDriverUpdateRequests"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Driver Update Requests"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:background="@drawable/admin_panel_button"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp"
-        android:textAllCaps="false"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <!-- Block User Button -->
-    <Button
-        android:id="@+id/btnBlockUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Block User"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:background="@drawable/admin_panel_button"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp"
-        android:textAllCaps="false"/>
+            <Button
+                android:id="@+id/btnRegisterDriver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Register Driver"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:textAllCaps="false"/>
 
-    <!-- User Ride History Button -->
-    <Button
-        android:id="@+id/btnUserHistory"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="User Ride History"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:background="@drawable/admin_panel_button"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp"
-        android:textAllCaps="false"/>
+            <Button
+                android:id="@+id/btnDriverUpdateRequests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Driver Update Requests"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:textAllCaps="false"/>
 
-    <!-- See Reports Button -->
-    <Button
-        android:id="@+id/btnSeeReports"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="See Reports"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:background="@drawable/admin_panel_button"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp"
-        android:textAllCaps="false"/>
+            <Button
+                android:id="@+id/btnBlockUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Block User"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:textAllCaps="false"/>
 
-    <Button
-        android:id="@+id/btnPriceDefinition"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Price definition"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:background="@drawable/admin_panel_button"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp"
-        android:textAllCaps="false"/>
+            <Button
+                android:id="@+id/btnUserHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="User Ride History"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:textAllCaps="false"/>
 
-    <!-- Panic Alerts Button -->
-    <Button
-        android:id="@+id/btnPanicAlerts"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🚨 Panic Alerts"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:background="@drawable/admin_panel_button"
-        android:padding="16dp"
-        android:textAllCaps="false"/>
+            <Button
+                android:id="@+id/btnSeeReports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="See Reports"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:textAllCaps="false"/>
+
+            <Button
+                android:id="@+id/btnPriceDefinition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Price definition"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:textAllCaps="false"/>
+
+            <Button
+                android:id="@+id/btnRideMonitoring"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ride monitoring"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp"
+                android:textAllCaps="false"/>
+
+            <Button
+                android:id="@+id/btnPanicAlerts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🚨 Panic Alerts"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@drawable/admin_panel_button"
+                android:padding="16dp"
+                android:textAllCaps="false"/>
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

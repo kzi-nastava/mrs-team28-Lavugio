@@ -1,12 +1,13 @@
 package com.example.lavugio_mobile.models;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class RideMonitoringModel {
     private long rideId;
-    private String status;
+    private long driverId;
     private String driverName;
-    private String passengerName;
+    private LocalDateTime startTime;
     private String startAddress;
     private String endAddress;
     private List<Coordinates> checkpoints;
@@ -14,14 +15,14 @@ public class RideMonitoringModel {
     public long getRideId() { return rideId; }
     public void setRideId(long rideId) { this.rideId = rideId; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public long getDriverId() { return driverId; }
+    public void setDriverId(long driverId) { this.driverId = driverId; }
 
     public String getDriverName() { return driverName; }
     public void setDriverName(String driverName) { this.driverName = driverName; }
 
-    public String getPassengerName() { return passengerName; }
-    public void setPassengerName(String passengerName) { this.passengerName = passengerName; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
 
     public String getStartAddress() { return startAddress; }
     public void setStartAddress(String startAddress) { this.startAddress = startAddress; }
