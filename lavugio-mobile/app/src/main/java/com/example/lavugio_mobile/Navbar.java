@@ -25,6 +25,7 @@ import com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment;
 import com.example.lavugio_mobile.ui.auth.LoginFragment;
 import com.example.lavugio_mobile.ui.auth.RegisterFragment;
 import com.example.lavugio_mobile.ui.driver.history.DriverRideHistoryFragment;
+import com.example.lavugio_mobile.ui.driver.scheduled_rides.DriverScheduledRidesFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 import com.example.lavugio_mobile.ui.ride.CurrentRidesFragment;
@@ -427,22 +428,35 @@ public class Navbar {
         authService.logout(new AuthCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                // Check if activity is still valid
+                if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+                    return;
+                }
 
-                activity.getSupportFragmentManager()
-                        .popBackStack(null,
-                                androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                try {
+                    // Clear back stack
+                    activity.getSupportFragmentManager()
+                            .popBackStack(null,
+                                    androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                activity.getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.content_container, new GuestHomePageFragment())
-                        .commit();
+                    // Navigate to guest home page
+                    activity.getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.content_container, new GuestHomePageFragment())
+                            .commitAllowingStateLoss(); // Use commitAllowingStateLoss to prevent crashes
 
-                Toast.makeText(activity, "Logged out", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Logged out", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    // Fallback: just finish the activity
+                    activity.finish();
+                }
             }
 
             @Override
             public void onError(int code, String message) {
-                Toast.makeText(activity, "Logout failed: " + message, Toast.LENGTH_SHORT).show();
+                if (activity != null && !activity.isFinishing()) {
+                    Toast.makeText(activity, "Logout failed: " + message, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -496,8 +510,7 @@ public class Navbar {
     }
 
     private void onDriverRidesClicked() {
-        // TODO: Navigate to driver scheduled rides fragment
-        Toast.makeText(activity, "Scheduled Rides — coming soon", Toast.LENGTH_SHORT).show();
+        navigateToFragment(new DriverScheduledRidesFragment());
     }
 
     private void onReportsClicked() {
@@ -513,10 +526,23 @@ public class Navbar {
     // ── Navigation helper ────────────────────────────────
 
     private void navigateToFragment(Fragment fragment) {
+        Fragment currentFragment = activity.getSupportFragmentManager()
+                .findFragmentById(R.id.content_container);
+
+        if (currentFragment != null &&
+                currentFragment.getClass().equals(fragment.getClass())) {
+            activity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, fragment)
+                    .commit();
+            return;
+        }
+
         activity.getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }
+
 }

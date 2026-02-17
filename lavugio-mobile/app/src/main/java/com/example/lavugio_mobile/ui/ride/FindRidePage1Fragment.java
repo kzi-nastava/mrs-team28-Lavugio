@@ -1,5 +1,6 @@
 package com.example.lavugio_mobile.ui.ride;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -26,17 +27,22 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.data.model.route.FavoriteRoute;
 import com.example.lavugio_mobile.data.model.route.RideDestination;
 import com.example.lavugio_mobile.data.model.user.DriverRegistrationData;
+import com.example.lavugio_mobile.data.model.utils.ResultState;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 import com.example.lavugio_mobile.ui.admin.RegisterDriverVehicleFragment;
 import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
+import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
+import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,12 +65,18 @@ public class FindRidePage1Fragment extends Fragment {
     private Handler searchHandler;
     private Runnable searchRunnable;
 
+    private FindRideViewModel viewModel;
+
     private List<GeocodingHelper.GeocodingResult> selectedDestinations = new ArrayList<>();
 
     public static FindRidePage1Fragment newInstance(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
         FindRidePage1Fragment fragment = new FindRidePage1Fragment();
         fragment.selectedDestinations = selectedDestinations;
         return fragment;
+    }
+
+    public void setViewModel(FindRideViewModel viewModel) {
+        this.viewModel = viewModel;
     }
 
     @Nullable
@@ -296,9 +308,34 @@ public class FindRidePage1Fragment extends Fragment {
                     .show(getActivity().getSupportFragmentManager(), "error_dialog");
             return;
         }
-        etFavoriteRoute.setText("");
         Log.d("SCHEDULE", "Added favorite route" + etFavoriteRoute.getText().toString());
-        // TODO: POZOVI ENDPOINT ZA DODAVANJE OMILJENE RUTE
+        FavoriteRoute favoriteRoute = new FavoriteRoute();
+        String favoriteRouteName = etFavoriteRoute.getText().toString();
+        viewModel.createFavoriteRoute(favoriteRouteName, selectedDestinations)
+                .observe(getViewLifecycleOwner(), result -> {
+
+                    if (result instanceof ResultState.Success) {
+
+                        SuccessDialogFragment
+                                .newInstance("Success",
+                                        "Favorite route saved successfully.")
+                                .show(getActivity().getSupportFragmentManager(),
+                                        "success_dialog");
+
+                        etFavoriteRoute.setText("");
+
+                    } else if (result instanceof ResultState.Error) {
+
+                        String message =
+                                ((ResultState.Error) result).getMessage();
+
+                        ErrorDialogFragment
+                                .newInstance("Error", message)
+                                .show(getActivity().getSupportFragmentManager(),
+                                        "error_dialog");
+                    }
+                });
+
     }
 
     public void addDestinationFromMap(GeoPoint point) {
@@ -372,6 +409,9 @@ public class FindRidePage1Fragment extends Fragment {
 
             Toast.makeText(getContext(), "Removed: " + removed.getDisplayName(), Toast.LENGTH_SHORT).show();
         }
+        // get reference to parent fragment
+        FindRideFragment parent = (FindRideFragment) getParentFragment();
+        parent.resetRideEstimation();
     }
 
     private void updateDestinationsDisplay() {
@@ -506,18 +546,19 @@ public class FindRidePage1Fragment extends Fragment {
     }
 
     public void openFavoriteRoutesDialog(View view) {
-        FavoriteRoutesDialogFragment fragment = new FavoriteRoutesDialogFragment();
 
-        fragment.setOnRouteSelectedListener(new FavoriteRoutesDialogFragment.OnRouteSelectedListener() {
-            @Override
-            public void onRouteSelected(RideDestination[] destinations, String routeName) {
-                // Dobijaš podatke
-                //updateRouteInfo(routeName, fromAddress, toAddress);
-                Log.d("SCHEDULE", "Odabrana ruta" + routeName);
+        viewModel.getFavoriteRoutes().observe(getViewLifecycleOwner(), routes -> {
+
+            FavoriteRoutesDialogFragment fragment = FavoriteRoutesDialogFragment.newInstance(new ArrayList<>(Arrays.asList(routes)));
+
+            fragment.setOnRouteSelectedListener((destinations, routeName) -> {
+                Log.d("SCHEDULE", "Odabrana ruta " + routeName);
                 getFavoriteRouteDestinations(destinations);
-            }
+            });
+
+            fragment.show(getParentFragmentManager(),
+                    "FavoriteRoutesDialogFragment");
         });
-        fragment.show(getParentFragmentManager(), "FavoriteRoutesDialogFragment");
     }
 
     private void getFavoriteRouteDestinations(RideDestination[] destinations) {

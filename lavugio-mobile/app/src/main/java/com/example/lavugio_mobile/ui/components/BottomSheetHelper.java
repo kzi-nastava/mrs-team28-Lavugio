@@ -26,9 +26,7 @@ public class BottomSheetHelper {
         bottomSheetBehavior.setFitToContents(false);
         bottomSheetBehavior.setHideable(false);
         bottomSheetBehavior.setSkipCollapsed(false);
-
-        // Set peek height (collapsed height)
-        bottomSheetBehavior.setPeekHeight(200); // Adjust as needed
+        bottomSheetBehavior.setDraggable(true);
 
         // Start collapsed
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);

@@ -20,7 +20,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
+import com.example.lavugio_mobile.models.RidePriceEstimateDTO;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
+import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +38,25 @@ public class FindRidePage3Fragment extends Fragment {
     private LinearLayout llDestinationsList, llPassengersList;
     private TextView tvNoDestinations, tvNoPassengers;
     private Spinner spinnerVehicleType;
-
+    private TextView tvRouteDistance, tvRouteDuration, tvPrice;
     private List<GeocodingHelper.GeocodingResult> selectedDestinations;
     private RidePreferences ridePreferences;
+    private double routeDistanceKm;
+    private double routeDurationS;
+    private double ridePrice;
 
-    public static FindRidePage3Fragment newInstance(List<GeocodingHelper.GeocodingResult> selectedDestinations, RidePreferences ridePreferences) {
+    private FindRideViewModel viewModel;
+
+    public static FindRidePage3Fragment newInstance(List<GeocodingHelper.GeocodingResult> selectedDestinations, RidePreferences ridePreferences, double routeDistanceKm, double routeDurationS) {
         FindRidePage3Fragment fragment = new FindRidePage3Fragment();
         fragment.setSelectedDestinations(selectedDestinations);
         fragment.setRidePreferences(ridePreferences);
+        fragment.setDistanceAndDuration(routeDistanceKm, routeDurationS);
         return fragment;
+    }
+
+    public void setViewModel(FindRideViewModel viewModel) {
+        this.viewModel = viewModel;
     }
 
     @Nullable
@@ -70,6 +82,10 @@ public class FindRidePage3Fragment extends Fragment {
         tvNoDestinations = view.findViewById(R.id.tvNoDestinations);
         tvNoPassengers = view.findViewById(R.id.tvNoPassengers);
         spinnerVehicleType = view.findViewById(R.id.spinnerVehicleType);
+
+        tvPrice = view.findViewById(R.id.tvPrice);
+        tvRouteDistance = view.findViewById(R.id.tvDistance);
+        tvRouteDuration = view.findViewById(R.id.tvTime);
 
         setupButtons();
         setupScrollInterception();
@@ -122,6 +138,8 @@ public class FindRidePage3Fragment extends Fragment {
         loadPreferences();
         loadDestinations();
         loadPassengers();
+        loadDistanceAndTimeEstimate();
+        loadPriceEstimate();
     }
 
     private void loadPreferences() {
@@ -211,6 +229,39 @@ public class FindRidePage3Fragment extends Fragment {
                 emails != null ? emails.size() : 0);
     }
 
+    private void loadDistanceAndTimeEstimate() {
+        if (routeDistanceKm > 0) {
+            tvRouteDistance.setText(String.format("%.1f km", routeDistanceKm));
+        } else {
+            tvRouteDistance.setText("N/A");
+        }
+        if (routeDurationS > 0) {
+            int hours = (int) (routeDurationS / 3600);
+            int minutes = (int) ((routeDurationS % 3600) / 60);
+            String timeStr = hours > 0 ? String.format("%dh %02dm", hours, minutes) : String.format("%dm", minutes);
+            tvRouteDuration.setText(timeStr);
+        } else {
+            tvRouteDuration.setText("N/A");
+        }
+    }
+
+    private void loadPriceEstimate() {
+        if (ridePreferences != null) {
+            String selectedVehicleType = ridePreferences.getVehicleType().toString();
+            float distanceMeters = (float) (routeDistanceKm * 1000);
+            viewModel.getRidePriceEstimate(selectedVehicleType, distanceMeters).observe(getViewLifecycleOwner(), result -> {
+                ridePrice = result != null ? result : 0.0;
+                if (result != null) {
+                    tvPrice.setText(String.format("%.0f RSD", result));
+                } else {
+                    tvPrice.setText("N/A");
+                }
+            });
+        } else {
+            tvPrice.setText("N/A");
+        }
+    }
+
     private View createListItem(int position, String text) {
         View itemView = LayoutInflater.from(getContext()).inflate(
                 R.layout.scrollable_list_item, llDestinationsList, false);
@@ -281,7 +332,7 @@ public class FindRidePage3Fragment extends Fragment {
     private void orderRide(String rideType, String selectedTime) {
         Log.d("SCHEDULE", "Ordered Ride type: " + rideType);
         Log.d("SCHEDULE", "Ordered Selected time: " + selectedTime);
-        // TODO: POVEŽI SA BACKEND DODAVANJE VOŽNJE
+        ((FindRideFragment) getParentFragment()).orderRide(rideType, selectedTime, ridePrice);
     }
 
     @Override
@@ -305,5 +356,10 @@ public class FindRidePage3Fragment extends Fragment {
 
     private void setSelectedDestinations(List<GeocodingHelper.GeocodingResult> selectedDestinations) {
         this.selectedDestinations = selectedDestinations;
+    }
+
+    private void setDistanceAndDuration(double routeDistanceKm, double routeDurationS) {
+        this.routeDistanceKm = routeDistanceKm;
+        this.routeDurationS = routeDurationS;
     }
 }

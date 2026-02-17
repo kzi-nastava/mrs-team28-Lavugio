@@ -260,11 +260,11 @@ public class UserRideHistoryDetailedFragment extends Fragment implements OSMMapF
         RideRequestDTO rideRequest = new RideRequestDTO();
 
         // Convert destinations
-        List<RideRequestDTO.DestinationDTO> destinations = new ArrayList<>();
+        List<com.example.lavugio_mobile.models.ride.RideDestinationDTO> destinations = new ArrayList<>();
         for (RideHistoryUserDetailedModel.DestinationDetail d : ride.getDestinations()) {
-            RideRequestDTO.DestinationDTO dest = new RideRequestDTO.DestinationDTO();
+            com.example.lavugio_mobile.models.ride.RideDestinationDTO dest = new com.example.lavugio_mobile.models.ride.RideDestinationDTO();
 
-            RideRequestDTO.LocationDTO location = new RideRequestDTO.LocationDTO();
+            com.example.lavugio_mobile.models.ride.StopBaseDTO location = new com.example.lavugio_mobile.models.ride.StopBaseDTO();
             location.setOrderIndex(d.getOrderIndex());
             location.setLatitude(d.getLatitude());
             location.setLongitude(d.getLongitude());
@@ -274,7 +274,18 @@ public class UserRideHistoryDetailedFragment extends Fragment implements OSMMapF
             dest.setStreetName(d.getStreetName());
             dest.setCity(d.getCity());
             dest.setCountry(d.getCountry());
-            dest.setStreetNumber(d.getStreetNumber());
+
+            // Parse street number from String to int
+            try {
+                if (d.getStreetNumber() != null && !d.getStreetNumber().isEmpty()) {
+                    dest.setStreetNumber(Integer.parseInt(d.getStreetNumber()));
+                } else {
+                    dest.setStreetNumber(0);
+                }
+            } catch (NumberFormatException e) {
+                dest.setStreetNumber(0);
+            }
+
             dest.setZipCode(d.getZipCode());
 
             destinations.add(dest);
@@ -282,14 +293,14 @@ public class UserRideHistoryDetailedFragment extends Fragment implements OSMMapF
         rideRequest.setDestinations(destinations);
 
         rideRequest.setPassengerEmails(new ArrayList<>()); // Current user only
-        rideRequest.setVehicleType("STANDARD");
+        rideRequest.setVehicleType(com.example.lavugio_mobile.data.model.vehicle.VehicleType.STANDARD);
         rideRequest.setBabyFriendly(false);
         rideRequest.setPetFriendly(false);
-        rideRequest.setScheduledTime("");
+        rideRequest.setScheduledTime(null);
         rideRequest.setScheduled(false);
         rideRequest.setEstimatedDurationSeconds(0);
         rideRequest.setDistance(0);
-        rideRequest.setPrice(ride.getPrice());
+        rideRequest.setPrice((int) ride.getPrice());
 
         // Make API call
         rideApi.findRide(rideRequest).enqueue(new Callback<Object>() {

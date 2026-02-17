@@ -92,6 +92,19 @@
         android:layout_marginBottom="12dp"
         android:textAllCaps="false"/>
 
+    <Button
+        android:id="@+id/btnPriceDefinition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Price definition"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/admin_panel_button"
+        android:padding="16dp"
+        android:layout_marginBottom="12dp"
+        android:textAllCaps="false"/>
+
     <!-- Panic Alerts Button -->
     <Button
         android:id="@+id/btnPanicAlerts"

@@ -67,6 +67,9 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         if (ride==null){
             throw new NoSuchElementException("Cannot find ride for ride "+rideDTO.getRideId());
         }
+        if (ride.getRideStatus() == RideStatus.FINISHED){
+            throw new IllegalStateException("This ride is already finished: " + rideDTO.getRideId());
+        }
 
         CoordinatesDTO finalDestinationCoords;
         String finalDestinationAddress;

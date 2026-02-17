@@ -37,7 +37,7 @@ public interface RideApi {
     Call<Void> startRide(@Path("rideId") long rideId);
 
     @PUT("api/rides/finish")
-    Call<FinishRide> finishRide(@Body FinishRide finish);
+    Call<Void> finishRide(@Body FinishRide finish);
 
     @POST("api/rides/{rideId}/cancel-by-passenger")
     Call<Void> cancelRideByPassenger(@Path("rideId") long rideId);
@@ -68,7 +68,7 @@ public interface RideApi {
     // ── Ride Booking ─────────────────────────────────────
 
     @POST("api/rides/estimate-price")
-        Call<Double> estimatePrice(@Body com.example.lavugio_mobile.models.RidePriceEstimateDTO request);
+    Call<Double> estimatePrice(@Body com.example.lavugio_mobile.models.RidePriceEstimateDTO request);
 
     @POST("api/rides/schedule")
     Call<Object> scheduleRide(@Body ScheduleRideRequest request);

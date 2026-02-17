@@ -8,6 +8,8 @@ import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
 
 import java.sql.Blob;
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
@@ -18,8 +20,44 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Query;
 
 public interface UserApi {
+
+    // ── Nested DTOs ──────────────────────────────────────
+
+    class EmailSuggestion {
+        private String email;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+    }
+
+    class BlockStatus {
+        private boolean isBlocked;
+        private String reason;
+
+        public boolean isBlocked() {
+            return isBlocked;
+        }
+
+        public void setBlocked(boolean blocked) {
+            isBlocked = blocked;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        public void setReason(String reason) {
+            this.reason = reason;
+        }
+    }
 
     @GET("api/users/profile")
     Call<UserProfileData> getProfile();
@@ -71,4 +109,36 @@ public interface UserApi {
 
     @GET("api/users/can-order-ride")
     Call<com.example.lavugio_mobile.models.CanOrderRideResponse> canUserOrderRide();
+
+    // ── Profile Picture ───────────────────────────────────
+
+    @Multipart
+    @POST("api/users/profile-photo")
+    Call<Object> uploadProfilePicture(@Part MultipartBody.Part file);
+
+    // ── Password ──────────────────────────────────────────
+
+    @PUT("api/users/change-password")
+    Call<ResponseBody> changePassword(@Body Map<String, String> passwordData);
+
+    // ── Activation ────────────────────────────────────────
+
+    @POST("api/drivers/activate-account")
+    Call<Object> activateAccount(@Body Map<String, String> activationData);
+
+    @GET("api/drivers/validate-activation-token")
+    Call<Object> validateActivationToken(@Query("token") String token);
+
+    // ── Email Search ──────────────────────────────────────
+
+    @GET("api/users/email-suggestions")
+    Call<List<EmailSuggestion>> searchUserEmails(@Query("query") String query);
+
+    // ── Blocking ──────────────────────────────────────────
+
+    @POST("api/users/block")
+    Call<Object> blockUser(@Body Map<String, String> blockData);
+
+    @GET("api/users/is-blocked")
+    Call<BlockStatus> isUserBlocked();
 }

@@ -13,6 +13,7 @@
     <TextView
         android:id="@+id/nav_item_notifications"
         style="@style/NavMenuItem"
+        android:background="@drawable/nav_item_border_top"
         android:text="Notifications" />
 
     <TextView

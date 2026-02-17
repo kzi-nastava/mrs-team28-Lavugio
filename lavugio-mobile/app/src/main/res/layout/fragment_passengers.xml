@@ -10,14 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Passengers"
-        android:textColor="#606C38"
+        android:textColor="@color/dark_green"
         android:padding="8dp"
-        android:textSize="16sp"
-        android:fontFamily="sans-serif-medium"/>
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/inter_variable_font"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerPassengers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        />
 </LinearLayout>

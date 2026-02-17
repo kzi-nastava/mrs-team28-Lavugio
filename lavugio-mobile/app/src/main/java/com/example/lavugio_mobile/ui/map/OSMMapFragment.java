@@ -264,19 +264,21 @@ public class OSMMapFragment extends Fragment {
 
         new Thread(() -> {
             try {
-                // Create waypoints list
                 ArrayList<GeoPoint> routePoints = new ArrayList<>();
                 for (Marker marker : waypoints) {
                     routePoints.add(marker.getPosition());
                 }
 
-                // Get road using OSRM
                 OSRMRoadManager roadManager = new OSRMRoadManager(getContext(), getActivity().getPackageName());
                 roadManager.setMean(OSRMRoadManager.MEAN_BY_CAR);
                 Road road = roadManager.getRoad(routePoints);
 
-                // Update UI on main thread
+                // OVDE DODAJ PROVERU
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded() || getContext() == null) {
+                        return; // Fragment više nije aktivan
+                    }
+
                     if (road.mStatus == Road.STATUS_OK) {
                         drawRoute(road);
                         if (listener != null) {
@@ -295,6 +297,10 @@ public class OSMMapFragment extends Fragment {
      * Draw route on map
      */
     private void drawRoute(Road road) {
+        if (!isAdded() || getContext() == null) {
+            return;
+        }
+
         // Remove old route if exists
         if (routeOverlay != null) {
             mapView.getOverlays().remove(routeOverlay);
@@ -503,5 +509,32 @@ public class OSMMapFragment extends Fragment {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> callback.onDurationError(error));
         }
+    }
+
+    public void createRoute(List<com.example.lavugio_mobile.models.Coordinates> coordinates) {
+        if (coordinates == null || coordinates.isEmpty()) {
+            android.util.Log.w("OSMMapFragment", "createRoute: coordinates list is null or empty");
+            return;
+        }
+
+        clearWaypoints();
+        clearRoute();
+
+        for (com.example.lavugio_mobile.models.Coordinates coord : coordinates) {
+            GeoPoint geoPoint = new GeoPoint(coord.getLatitude(), coord.getLongitude());
+            addWaypoint(geoPoint);
+        }
+
+        if (coordinates.size() >= 2) {
+            calculateRoute();
+
+            GeoPoint firstPoint = new GeoPoint(
+                    coordinates.get(0).getLatitude(),
+                    coordinates.get(0).getLongitude()
+            );
+            centerMap(firstPoint, DEFAULT_ZOOM);
+        }
+
+        android.util.Log.d("OSMMapFragment", "createRoute: added " + coordinates.size() + " waypoints");
     }
 }
