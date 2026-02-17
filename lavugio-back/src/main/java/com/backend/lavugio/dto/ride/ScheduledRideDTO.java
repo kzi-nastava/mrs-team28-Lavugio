@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -20,7 +21,7 @@ public class ScheduledRideDTO {
     private String startAddress;
     private String endAddress;
     private LocalDateTime scheduledTime;
-    private CoordinatesDTO[] checkpoints;
+    private List<CoordinatesDTO> checkpoints;
     private Float price;
     private Float distance;
     private RideStatus status;
@@ -31,7 +32,24 @@ public class ScheduledRideDTO {
         this.startAddress = start;
         this.endAddress = end;
         this.scheduledTime = ride.getStartDateTime();
-        this.checkpoints = checkpoints.toArray(new CoordinatesDTO[0]);
+        this.checkpoints = checkpoints;
+        this.price = ride.getPrice();
+        this.distance = ride.getDistance();
+        this.status = ride.getRideStatus();
+        this.isPanicked = ride.isHasPanic();
+    }
+
+    public ScheduledRideDTO(Ride ride, RideRequestDTO request){
+        this.rideId = ride.getId();
+        this.startAddress = request.getStartAddress().getAddress();
+        this.endAddress = request.getEndAddress().getAddress();
+        this.scheduledTime = ride.getStartDateTime();
+        this.checkpoints = new ArrayList<>();
+        List<RideDestinationDTO> destinations = request.getDestinations();
+        for (RideDestinationDTO destination : destinations){
+            CoordinatesDTO coords = new CoordinatesDTO(destination.getLocation().getLatitude(), destination.getLocation().getLongitude());
+            this.checkpoints.add(coords);
+        }
         this.price = ride.getPrice();
         this.distance = ride.getDistance();
         this.status = ride.getRideStatus();
