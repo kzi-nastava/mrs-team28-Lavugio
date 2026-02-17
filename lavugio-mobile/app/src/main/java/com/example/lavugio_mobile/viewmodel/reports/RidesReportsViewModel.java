@@ -24,6 +24,11 @@ public class RidesReportsViewModel extends ViewModel {
         return reportData;
     }
 
+    public String getLoggedInUserType() {
+        AuthService authService = AuthService.getInstance();
+        return authService.getUserRole();
+    }
+
     public void generateReport(String startDate, String endDate, String filterType, String userEmail) {
 
         AuthService authService = AuthService.getInstance();

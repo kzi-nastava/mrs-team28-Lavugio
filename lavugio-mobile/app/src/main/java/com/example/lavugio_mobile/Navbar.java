@@ -502,7 +502,6 @@ public class Navbar {
 
     private void onReportsClicked() {
         navigateToFragment(new RidesReportsFragment());
-        Toast.makeText(activity, "Reports — coming soon", Toast.LENGTH_SHORT).show();
     }
 
     private void onNotificationsClicked() {

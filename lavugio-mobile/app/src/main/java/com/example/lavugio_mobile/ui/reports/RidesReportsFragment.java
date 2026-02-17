@@ -75,6 +75,9 @@ public class RidesReportsFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(RidesReportsViewModel.class);
         observeViewModel();
+
+        // Hide admin-only filters for non-admin users
+        setupFiltersVisibility(view);
     }
 
     private void observeViewModel() {
@@ -89,6 +92,29 @@ public class RidesReportsFragment extends Fragment {
             setupChart(getView().findViewById(R.id.chart2), report.getCharts().get(1));
             setupChart(getView().findViewById(R.id.chart3), report.getCharts().get(2));
         });
+    }
+
+    private void setupFiltersVisibility(View view) {
+        String userType = viewModel.getLoggedInUserType();
+        boolean isAdmin = "ADMIN".equals(userType);
+
+        // Hide email section for non-admins
+        View emailTitleView = view.findViewById(R.id.tvEmailTitle);
+        View emailInputContainer = view.findViewById(R.id.emailInputContainer);
+        View filterByTitle = view.findViewById(R.id.tvFilterByTitle);
+
+        if (!isAdmin) {
+            if (emailTitleView != null) {
+                emailTitleView.setVisibility(View.GONE);
+            }
+            if (emailInputContainer != null) {
+                emailInputContainer.setVisibility(View.GONE);
+            }
+            if (filterByTitle != null) {
+                filterByTitle.setVisibility(View.GONE);
+            }
+            rgFilterType.setVisibility(View.GONE);
+        }
     }
 
     private void initViews(View view) {
@@ -266,26 +292,26 @@ public class RidesReportsFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(chartData.getLabels()));
         xAxis.setGranularity(1f);
-        xAxis.setGranularityEnabled(true);  // DODAJ
+        xAxis.setGranularityEnabled(true);
         xAxis.setTextSize(10f);
-        xAxis.setTextColor(Color.BLACK);  // Promeni u BLACK
+        xAxis.setTextColor(Color.BLACK);
         xAxis.setDrawGridLines(true);
         xAxis.setGridColor(Color.LTGRAY);
-        xAxis.setLabelCount(chartData.getLabels().size(), false);  // PROMENI - dodaj false
+        xAxis.setLabelCount(chartData.getLabels().size(), false);
         xAxis.setDrawLabels(true);
-        xAxis.setAvoidFirstLastClipping(true);  // DODAJ
-        xAxis.setYOffset(5f);  // DODAJ - space between axis and labels
+        xAxis.setAvoidFirstLastClipping(true);
+        xAxis.setYOffset(5f);
 
         // Customize Y-Axis (Left)
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setTextSize(10f);
-        leftAxis.setTextColor(Color.BLACK);  // Promeni u BLACK
+        leftAxis.setTextColor(Color.BLACK);
         leftAxis.setDrawGridLines(true);
         leftAxis.setGridColor(Color.LTGRAY);
         leftAxis.setDrawLabels(true);
-        leftAxis.setXOffset(5f);  // DODAJ - space between axis and labels
-        leftAxis.setGranularityEnabled(true);  // DODAJ
-        leftAxis.setGranularity(1f);  // DODAJ
+        leftAxis.setXOffset(5f);
+        leftAxis.setGranularityEnabled(true);
+        leftAxis.setGranularity(1f);
 
         // Disable right Y-Axis
         lineChart.getAxisRight().setEnabled(false);
