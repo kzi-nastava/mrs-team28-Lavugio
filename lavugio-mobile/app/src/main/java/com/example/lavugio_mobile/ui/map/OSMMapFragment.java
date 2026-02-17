@@ -535,4 +535,10 @@ public class OSMMapFragment extends Fragment {
 
         android.util.Log.d("OSMMapFragment", "createRoute: added " + coordinates.size() + " waypoints");
     }
+
+    public void clearMap(){
+        clearWaypoints();
+        clearRoute();
+        clearDriverMarkers();
+    }
 }

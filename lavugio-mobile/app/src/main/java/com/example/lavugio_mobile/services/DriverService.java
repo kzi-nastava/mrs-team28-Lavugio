@@ -53,7 +53,7 @@ public class DriverService {
         api.getDriverLocation(driverId).enqueue(wrapCallback(callback));
     }
 
-    public void putDriverCoordinates(Coordinates coords, Callback<DriverLocation> callback) {
+    public void putDriverCoordinates(Coordinates coords, Callback<Void> callback) {
         api.putDriverCoordinates(coords).enqueue(wrapCallback(callback));
     }
 
@@ -198,9 +198,9 @@ public class DriverService {
         locationService.getLocation(new LocationService.LocationCallback() {
             @Override
             public void onLocation(Coordinates coordinates) {
-                putDriverCoordinates(coordinates, new Callback<DriverLocation>() {
+                putDriverCoordinates(coordinates, new Callback<Void>() {
                     @Override
-                    public void onSuccess(DriverLocation result) {
+                    public void onSuccess(Void result) {
                         Log.d(TAG, "Coordinates sent: " +
                                 coordinates.getLatitude() + ", " + coordinates.getLongitude());
                     }

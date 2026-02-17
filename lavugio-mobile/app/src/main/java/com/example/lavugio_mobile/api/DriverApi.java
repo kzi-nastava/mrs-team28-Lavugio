@@ -31,7 +31,7 @@ public interface DriverApi {
     Call<DriverLocation> getDriverLocation(@Path("driverId") long driverId);
 
     @PUT("api/drivers/location")
-    Call<DriverLocation> putDriverCoordinates(@Body Coordinates coords);
+    Call<Void> putDriverCoordinates(@Body Coordinates coords);
 
     // ── Registration ─────────────────────────────────────
 

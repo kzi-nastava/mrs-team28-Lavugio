@@ -298,6 +298,7 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
             stopBaseDTO.setLongitude(dest.getLongitude());
             stopBaseDTO.setOrderIndex(i);
             destDTO.setLocation(stopBaseDTO);
+            destDTO.setAddress(String.format("%s %s %s %s", dest.getStreet(), dest.getHouseNumber(), dest.getCity(), dest.getCountry()));
             destinationDTOs.add(destDTO);
             i++;
         }

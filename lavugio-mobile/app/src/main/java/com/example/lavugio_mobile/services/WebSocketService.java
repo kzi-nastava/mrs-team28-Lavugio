@@ -52,6 +52,7 @@ public class WebSocketService {
     private final List<PendingSubscription> pendingSubscriptions = new ArrayList<>();
 
     private Runnable onConnectCallback;
+    private Runnable onReconnectCallback; // čuva se za automatski reconnect
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
@@ -152,8 +153,14 @@ public class WebSocketService {
 
                             // Run connect callback AFTER real connection
                             if (onConnectCallback != null) {
+                                // Sačuvaj za reconnect prije nego što se nulluje
+                                onReconnectCallback = onConnectCallback;
                                 onConnectCallback.run();
                                 onConnectCallback = null;
+                            } else if (onReconnectCallback != null) {
+                                // Ovo je reconnect — ponovo postavi subscriptions
+                                Log.d(TAG, "Reconnected — re-running subscriptions");
+                                onReconnectCallback.run();
                             }
                             break;
 
@@ -176,7 +183,7 @@ public class WebSocketService {
 
         // Connect
         stompClient.connect(headers);
-        isConnectedFlag = true;
+        // isConnectedFlag se postavlja tek u OPENED lifecycle eventu, ne ovdje
 
     }
 
@@ -188,7 +195,7 @@ public class WebSocketService {
 
     @Nullable
     public StompSubscription subscribe(String destination, MessageCallback callback) {
-        if (stompClient == null || !stompClient.isConnected()) {
+        if (!isConnectedFlag || stompClient == null) {
             Log.d(TAG, "Not connected yet — queueing subscription to: " + destination);
             pendingSubscriptions.add(new PendingSubscription(destination, callback));
 
@@ -275,6 +282,7 @@ public class WebSocketService {
         pendingSubscriptions.clear();
         isConnectedFlag = false;
         onConnectCallback = null;
+        onReconnectCallback = null;
 
         Log.d(TAG, "Disconnected and cleared all subscriptions");
     }
@@ -297,7 +305,7 @@ public class WebSocketService {
                 .postDelayed(() -> {
                     if (!isConnected()) {
                         Log.d(TAG, "Attempting reconnect...");
-                        connect(onConnectCallback);
+                        connect(null); // onReconnectCallback se poziva iz OPENED case-a
                     }
                 }, RECONNECT_DELAY_MS);
     }
