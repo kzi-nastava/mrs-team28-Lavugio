@@ -38,6 +38,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     @Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId")
     List<Ride> findByPassengerId(@Param("passengerId") Long passengerId);
 
+    // Find by next notification time and status (for scheduler)
+    List<Ride> findByNextNotificationTimeBeforeAndStatus(LocalDateTime localDateTime, RideStatus status);
+
     // Count queries
     long countByRideStatus(RideStatus status);
 
