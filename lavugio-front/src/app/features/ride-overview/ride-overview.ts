@@ -14,6 +14,8 @@ import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
 import { LocationService } from '@app/core/services/location-service';
 import { computed } from '@angular/core';
+import { IMessage, StompSubscription } from '@stomp/stompjs';
+import { WebSocketService } from '@app/core/services/web-socket-service';
 
 
 @Component({
@@ -28,6 +30,8 @@ export class RideOverview implements AfterViewInit {
   private driverService = inject(DriverService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private cancelSub: StompSubscription | null = null;
+  private webSocketService = inject(WebSocketService);
 
   isInfoOpen = signal(false);
   isDesktop = signal(window.innerWidth >= 1024);
@@ -172,10 +176,23 @@ export class RideOverview implements AfterViewInit {
     this.rideService.listenToRideUpdates(rideId).subscribe(update => {
       const currentOverview = this.rideOverview();
       if (currentOverview) {
-        const updatedOverview = this.applyRideOverviewUpdate(currentOverview, update);
-        this.rideOverview.set(updatedOverview);
+        this.rideOverview.set(this.applyRideOverviewUpdate(currentOverview, update));
       }
     });
+
+    this.cancelSub = this.webSocketService.subscribe(
+      `/socket-publisher/rides/${rideId}/cancel`,
+      (message: IMessage) => {
+        const update = JSON.parse(message.body);
+        const current = this.rideOverview();
+        if (current) {
+          this.rideOverview.set({
+            ...current,
+            status: update.status ?? 'CANCELLED'
+          });
+        }
+      }
+    );
   }
 
   applyRideOverviewUpdate(current: RideOverviewModel, update: any): RideOverviewModel {
@@ -264,6 +281,7 @@ export class RideOverview implements AfterViewInit {
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
+    this.cancelSub?.unsubscribe(); 
     clearInterval(this.intervalId);
     clearInterval(this.clientLocationInterval);
     this.rideService.closeConnection();
