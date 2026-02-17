@@ -190,10 +190,10 @@ public class GuestHomePageFragment extends Fragment {
         Button btnShowRoute = dialogView.findViewById(R.id.btnShowRoute);
         Button btnPickOrigin = dialogView.findViewById(R.id.btnPickOrigin);
         Button btnPickDestination = dialogView.findViewById(R.id.btnPickDestination);
+        Button btnCloseDialog = dialogView.findViewById(R.id.btnCloseDialog);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setView(dialogView)
-                .setNegativeButton("Close", (d, which) -> d.dismiss())
                 .create();
 
         GeocodingHelper geocodingHelper = new GeocodingHelper();
@@ -349,16 +349,19 @@ public class GuestHomePageFragment extends Fragment {
             }
 
             btnShowRoute.setEnabled(false);
-            tvRouteEstimate.setText("Searching...");
+            tvRouteEstimate.setVisibility(View.VISIBLE);
+            tvRouteEstimate.setText("Calculating route...");
 
             // Resolve origin then destination (use first result)
             geocodingHelper.searchAddress(originText, new GeocodingHelper.GeocodingCallback() {
                 @Override
                 public void onSuccess(List<GeocodingHelper.GeocodingResult> results) {
                     if (results.isEmpty()) {
-                        if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Origin not found", Toast.LENGTH_SHORT).show());
+                        if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Origin not found", Toast.LENGTH_SHORT).show();
+                            tvRouteEstimate.setVisibility(View.GONE);
+                        });
                         btnShowRoute.setEnabled(true);
-                        tvRouteEstimate.setText("");
                         return;
                     }
                     GeocodingHelper.GeocodingResult o = results.get(0);
@@ -368,9 +371,11 @@ public class GuestHomePageFragment extends Fragment {
                         @Override
                         public void onSuccess(List<GeocodingHelper.GeocodingResult> dResults) {
                             if (dResults.isEmpty()) {
-                                if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Destination not found", Toast.LENGTH_SHORT).show());
+                                if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                                    Toast.makeText(getContext(), "Destination not found", Toast.LENGTH_SHORT).show();
+                                    tvRouteEstimate.setVisibility(View.GONE);
+                                });
                                 btnShowRoute.setEnabled(true);
-                                tvRouteEstimate.setText("");
                                 return;
                             }
                             GeocodingHelper.GeocodingResult d = dResults.get(0);
@@ -413,23 +418,35 @@ public class GuestHomePageFragment extends Fragment {
 
                         @Override
                         public void onError(String error) {
-                            if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Destination geocoding error: " + error, Toast.LENGTH_SHORT).show());
+                            if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), "Destination geocoding error: " + error, Toast.LENGTH_SHORT).show();
+                                tvRouteEstimate.setVisibility(View.GONE);
+                            });
                             btnShowRoute.setEnabled(true);
-                            tvRouteEstimate.setText("");
                         }
                     });
                 }
 
                 @Override
                 public void onError(String error) {
-                    if (getActivity() != null) getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Origin geocoding error: " + error, Toast.LENGTH_SHORT).show());
+                    if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Origin geocoding error: " + error, Toast.LENGTH_SHORT).show();
+                        tvRouteEstimate.setVisibility(View.GONE);
+                    });
                     btnShowRoute.setEnabled(true);
-                    tvRouteEstimate.setText("");
                 }
             });
         });
 
+        // Close button listener
+        btnCloseDialog.setOnClickListener(v -> dialog.dismiss());
+
         dialog.show();
+
+        // Make dialog background transparent to show our custom background
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
 
         // Cleanup: when dialog closes, disable pick mode and remove listener
         dialog.setOnDismissListener(d -> {

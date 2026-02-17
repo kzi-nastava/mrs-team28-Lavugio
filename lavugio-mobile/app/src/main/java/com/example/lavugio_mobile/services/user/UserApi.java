@@ -51,4 +51,24 @@ public interface UserApi {
 
     @GET("api/drivers/{id}")
     Call<ResponseBody> getDriverStatus(@retrofit2.http.Path("id") int driverId);
+
+    // ── Regular User Ride History ────────────────────────
+
+    @GET("api/regularUsers/history")
+    Call<com.example.lavugio_mobile.models.RideHistoryUserPagingModel> getUserRideHistory(
+            @retrofit2.http.Query("page") int page,
+            @retrofit2.http.Query("pageSize") int pageSize,
+            @retrofit2.http.Query("sorting") String sorting,
+            @retrofit2.http.Query("sortBy") String sortBy,
+            @retrofit2.http.Query("startDate") String startDate,
+            @retrofit2.http.Query("endDate") String endDate
+    );
+
+    @GET("api/regularUsers/history/{rideId}")
+    Call<com.example.lavugio_mobile.models.RideHistoryUserDetailedModel> getUserRideHistoryDetailed(
+            @retrofit2.http.Path("rideId") long rideId
+    );
+
+    @GET("api/users/can-order-ride")
+    Call<com.example.lavugio_mobile.models.CanOrderRideResponse> canUserOrderRide();
 }

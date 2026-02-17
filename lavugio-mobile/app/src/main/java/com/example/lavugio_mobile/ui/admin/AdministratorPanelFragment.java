@@ -9,11 +9,13 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.ui.admin.history.AdminRideHistoryFragment;
 
 public class AdministratorPanelFragment extends Fragment {
     private Button btnRegisterDriver;
     private Button btnDriverUpdateRequests;
     private Button btnBlockUser;
+    private Button btnUserHistory;
     private Button btnSeeReports;
     private Button btnPanicAlerts;
 
@@ -25,6 +27,7 @@ public class AdministratorPanelFragment extends Fragment {
         btnRegisterDriver = view.findViewById(R.id.btnRegisterDriver);
         btnDriverUpdateRequests = view.findViewById(R.id.btnDriverUpdateRequests);
         btnBlockUser = view.findViewById(R.id.btnBlockUser);
+        btnUserHistory = view.findViewById(R.id.btnUserHistory);
         btnSeeReports = view.findViewById(R.id.btnSeeReports);
         btnPanicAlerts = view.findViewById(R.id.btnPanicAlerts);
 
@@ -49,6 +52,14 @@ public class AdministratorPanelFragment extends Fragment {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container, new BlockUserFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        btnUserHistory.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, AdminRideHistoryFragment.newInstance())
                     .addToBackStack(null)
                     .commit();
         });

@@ -152,51 +152,52 @@
                     android:layout_height="match_parent" />
 
                 <!-- Floating bottom controls (scroll to top + route) -->
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/bottomControls"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_gravity="bottom|center"
                     android:layout_margin="16dp"
-                    android:padding="4dp"
-                    android:gravity="center">
+                    android:padding="4dp">
 
+                    <!-- Scroll to Top Button - Aligned to left -->
                     <Button
                         android:id="@+id/btnScrollToTop"
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
-                        android:text="back to top"
-                        android:textSize="14sp"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentLeft="true"
+                        android:text="Back to Top"
+                        android:textSize="13sp"
                         android:textStyle="bold"
+                        android:textAllCaps="false"
                         android:background="@drawable/rounded_button_bg"
-                        app:backgroundTint="@color/light_green"
-                        android:textColor="@color/lavugio_white"
+                        app:backgroundTint="@color/lavugio_dark_orange"
+                        android:textColor="@color/text_white"
                         android:elevation="10dp"
                         android:visibility="visible"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp" />
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp" />
 
-                    <!-- Spacer pushes buttons apart -->
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
+                    <!-- Route Estimation Button - Aligned to right -->
                     <Button
                         android:id="@+id/btnRoute"
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Route"
-                        android:textSize="14sp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:text="Estimate Route"
+                        android:textSize="13sp"
                         android:textStyle="bold"
+                        android:textAllCaps="false"
                         android:background="@drawable/rounded_button_bg"
                         app:backgroundTint="@color/lavugio_light_green"
-                        android:textColor="@color/lavugio_white"
-                        android:elevation="8dp" />
+                        android:textColor="@color/text_white"
+                        android:elevation="10dp"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp" />
 
-                </LinearLayout>
+                </RelativeLayout>
 
         </FrameLayout>
 

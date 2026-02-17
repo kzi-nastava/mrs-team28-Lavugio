@@ -373,7 +373,7 @@ public class Navbar {
             setMenuClickListener(R.id.nav_item_rides,
                     this::onRidesClicked);
             setMenuClickListener(R.id.nav_item_history,
-                    this::onRidesClicked);
+                    () -> navigateToFragment(new HistoryFragment()));
         }
 
         // Driver
