@@ -501,7 +501,7 @@ public class Navbar {
     }
 
     private void onReportsClicked() {
-        // TODO: Navigate to reports fragment
+        navigateToFragment(new RidesReportsFragment());
         Toast.makeText(activity, "Reports — coming soon", Toast.LENGTH_SHORT).show();
     }
 

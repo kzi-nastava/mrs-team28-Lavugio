@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.ui.dialog.PriceDefinitionDialogFragment;
+import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 
 public class AdministratorPanelFragment extends Fragment {
     private Button btnRegisterDriver;
@@ -62,7 +63,11 @@ public class AdministratorPanelFragment extends Fragment {
         });
 
         btnSeeReports.setOnClickListener(v -> {
-            // TODO: Navigate to Reports screen when implemented
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, new RidesReportsFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         btnPanicAlerts.setOnClickListener(v -> {
