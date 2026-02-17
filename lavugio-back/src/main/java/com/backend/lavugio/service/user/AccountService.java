@@ -25,4 +25,5 @@ public interface AccountService {
     IsAccountBlockedDTO isBlocked(Long userId);
     CanOrderRideDTO canOrderRide(Long userId);
     List<UserChatDTO> getChattableUsers();
+    void updateFcmToken(Long accountId, String fcmToken);
 }

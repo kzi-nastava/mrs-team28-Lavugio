@@ -1,0 +1,35 @@
+package com.backend.lavugio.service.notification.impl;
+
+import com.backend.lavugio.service.notification.FirebaseService;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
+import org.springframework.stereotype.Service;
+
+@Service
+public class FirebaseServiceImpl implements FirebaseService {
+
+    @Override
+    public void sendPushNotification(String token, String message, String title) {
+        if (token == null || token.isEmpty()) {
+            System.err.println("FCM token is null or empty");
+            return;
+        }
+        Message firebaseMessage = Message.builder()
+                .setToken(token)
+                .setNotification(
+                        Notification.builder()
+                                .setTitle(title)
+                                .setBody(message)
+                                .build()
+                )
+                .build();
+
+        try {
+            FirebaseMessaging.getInstance().send(firebaseMessage);
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
+    }
+}

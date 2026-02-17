@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "19656261971",
+    "project_id": "lavugio",
+    "storage_bucket": "lavugio.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:19656261971:android:0a4dcf3649acdee766e1a6",
+        "android_client_info": {
+          "package_name": "com.example.lavugio_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4cHcLY48G6xMR9WraaZR8CtnuyeCcb-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
