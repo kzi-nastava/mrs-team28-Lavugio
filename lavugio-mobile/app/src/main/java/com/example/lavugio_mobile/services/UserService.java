@@ -4,10 +4,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.lavugio_mobile.LavugioApp;
 import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.models.CanOrderRideResponse;
 import com.example.lavugio_mobile.models.RideHistoryUserDetailedModel;
 import com.example.lavugio_mobile.models.RideHistoryUserPagingModel;
+import com.example.lavugio_mobile.services.auth.AuthService;
 import com.example.lavugio_mobile.services.user.UserApi;
 
 import java.io.File;
@@ -152,8 +154,7 @@ public class UserService {
      * Implement according to your authentication strategy.
      */
     public long getCurrentUserId() {
-        // TODO: Implement - get from SharedPreferences or AuthService
-        return 0;
+        return AuthService.getInstance().getUserId();
     }
 
     /**
@@ -161,8 +162,7 @@ public class UserService {
      * Implement according to your authentication strategy.
      */
     public String getCurrentUserName() {
-        // TODO: Implement - get from SharedPreferences or AuthService
-        return "Driver";
+        return AuthService.getInstance().getStoredUser().getName();
     }
 
     // ── Internal ─────────────────────────────────────────────────────

@@ -21,6 +21,7 @@ public class AdministratorPanelFragment extends Fragment {
     private Button btnSeeReports;
     private Button btnPanicAlerts;
     private Button btnPriceDefinition;
+    private Button btnRideMonitoring;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,6 +35,7 @@ public class AdministratorPanelFragment extends Fragment {
         btnSeeReports = view.findViewById(R.id.btnSeeReports);
         btnPanicAlerts = view.findViewById(R.id.btnPanicAlerts);
         btnPriceDefinition = view.findViewById(R.id.btnPriceDefinition);
+        btnRideMonitoring = view.findViewById(R.id.btnRideMonitoring);
 
         btnPriceDefinition.setOnClickListener(v -> {
             PriceDefinitionDialogFragment dialog = PriceDefinitionDialogFragment.newInstance();
@@ -83,6 +85,14 @@ public class AdministratorPanelFragment extends Fragment {
 
         btnPanicAlerts.setOnClickListener(v -> {
             // TODO: Navigate to Panic Alerts screen when implemented
+        });
+
+        btnRideMonitoring.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, new RideMonitoringFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return view;

@@ -425,6 +425,7 @@ public class ProfileFragment extends Fragment {
 
     private String getUserTypeDisplay() {
         String role = authService.getUserRole();
+        if (role == null) return "Unknown";
         switch (role) {
             case "DRIVER":
                 return "Driver";

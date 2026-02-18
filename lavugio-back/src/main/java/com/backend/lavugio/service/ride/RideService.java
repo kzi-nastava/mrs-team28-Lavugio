@@ -1,7 +1,6 @@
 package com.backend.lavugio.service.ride;
 
 import com.backend.lavugio.dto.ride.*;
-import com.backend.lavugio.dto.ride.FinishRideDTO;
 import com.backend.lavugio.dto.user.AdminHistoryDetailedDTO;
 import com.backend.lavugio.dto.user.AdminHistoryPagingDTO;
 import com.backend.lavugio.dto.user.DriverHistoryDetailedDTO;
@@ -72,8 +71,9 @@ public interface RideService {
     AdminHistoryDetailedDTO getAdminHistoryDetailed(Long rideId);
     
     // Instant Ride Creation
-    RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request);
-    RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request);
+    Ride createInstantRide(Long creatorID, RideRequestDTO request);
+    Ride createScheduledRide(Long creatorID, RideRequestDTO request);
+    RideResponseDTO createRide(Long creatorID, RideRequestDTO request);
     LatestRideDTO getLatestRide(Long userId);
 
     void startRide(Long rideId);

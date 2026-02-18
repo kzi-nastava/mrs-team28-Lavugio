@@ -14,6 +14,8 @@ import { RideOverviewModel } from '@app/shared/models/ride/rideOverview';
 import { catchError, EMPTY, timeout, Subscription } from 'rxjs';
 import { LocationService } from '@app/core/services/location-service';
 import { computed } from '@angular/core';
+import { IMessage, StompSubscription } from '@stomp/stompjs';
+import { WebSocketService } from '@app/core/services/web-socket-service';
 
 
 @Component({
@@ -28,6 +30,8 @@ export class RideOverview implements AfterViewInit {
   private driverService = inject(DriverService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private cancelSub: StompSubscription | null = null;
+  private webSocketService = inject(WebSocketService);
 
   isInfoOpen = signal(false);
   isDesktop = signal(window.innerWidth >= 1024);
@@ -35,6 +39,8 @@ export class RideOverview implements AfterViewInit {
   showReview = signal(false);
   isRated = signal(false);
   isReported = signal(false);
+  rideOverview = signal<RideOverviewModel | null>(null);
+  rideId!: number;
   canRateRide = computed(() => {
     const overview = this.rideOverview();
     if (!overview) return false;
@@ -51,8 +57,7 @@ export class RideOverview implements AfterViewInit {
     return diffInDays <= 3;
   });
 
-  rideOverview = signal<RideOverviewModel | null>(null);
-  rideId!: number;
+  
 
   private intervalId: any;
   private subscription: Subscription | null = null;
@@ -172,10 +177,16 @@ export class RideOverview implements AfterViewInit {
     this.rideService.listenToRideUpdates(rideId).subscribe(update => {
       const currentOverview = this.rideOverview();
       if (currentOverview) {
-        const updatedOverview = this.applyRideOverviewUpdate(currentOverview, update);
-        this.rideOverview.set(updatedOverview);
+        this.rideOverview.set(this.applyRideOverviewUpdate(currentOverview, update));
       }
     });
+
+    this.cancelSub = this.webSocketService.subscribe(
+      `/socket-publisher/rides/${rideId}/cancel`,
+      () => {
+        this.cancelRide();
+      }
+    );
   }
 
   applyRideOverviewUpdate(current: RideOverviewModel, update: any): RideOverviewModel {
@@ -264,6 +275,7 @@ export class RideOverview implements AfterViewInit {
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
+    this.cancelSub?.unsubscribe(); 
     clearInterval(this.intervalId);
     clearInterval(this.clientLocationInterval);
     this.rideService.closeConnection();

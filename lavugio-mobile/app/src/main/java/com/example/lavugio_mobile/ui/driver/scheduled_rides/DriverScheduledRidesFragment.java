@@ -28,6 +28,7 @@ import com.example.lavugio_mobile.models.ScheduledRideModel;
 import com.example.lavugio_mobile.services.DriverService;
 import com.example.lavugio_mobile.services.RideService;
 import com.example.lavugio_mobile.services.UserService;
+import com.example.lavugio_mobile.services.WebSocketService;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -52,10 +53,16 @@ public class DriverScheduledRidesFragment extends Fragment implements
     private RideService rideService;
     private DriverService driverService;
     private UserService userService;
+    private WebSocketService webSocketService;
     private FusedLocationProviderClient fusedLocationClient;
 
     private List<ScheduledRideModel> rides = new ArrayList<>();
     private boolean hasActiveRide = false;
+    private long selectedRideId = -1;
+
+    // WebSocket subscriptions — tracked for cleanup
+    private WebSocketService.StompSubscription rideStartSubscription;
+    private WebSocketService.StompSubscription rideCancelSubscription;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +71,7 @@ public class DriverScheduledRidesFragment extends Fragment implements
         rideService = LavugioApp.getRideService();
         driverService = LavugioApp.getDriverService();
         userService = LavugioApp.getUserService();
+        webSocketService = LavugioApp.getWebSocketService();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
@@ -89,9 +97,102 @@ public class DriverScheduledRidesFragment extends Fragment implements
         mapFragment = (OSMMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.mapFragment);
 
-        //loadMockRides();
         loadRides();
+        subscribeToWebSocketUpdates();
     }
+
+    // ── WebSocket subscriptions ──────────────────────────
+
+    private void subscribeToWebSocketUpdates() {
+        long driverId = userService.getCurrentUserId();
+
+        webSocketService.connect(() -> {
+            // 1) New ride assigned to this driver
+            rideStartSubscription = webSocketService.subscribeJson(
+                    "/socket-publisher/drivers/" + driverId + "/ride/start",
+                    ScheduledRideModel.class,
+                    newRide -> {
+                        if (!isAdded()) return;
+                        Log.d(TAG, "WebSocket: new ride assigned — id=" + newRide.getRideId());
+                        requireActivity().runOnUiThread(() -> onNewRideReceived(newRide));
+                    }
+            );
+
+            // 2) Ride cancelled by passenger
+            rideCancelSubscription = webSocketService.subscribe(
+                    "/socket-publisher/drivers/" + driverId + "/ride/cancel",
+                    body -> {
+                        if (!isAdded()) return;
+                        try {
+                            long cancelledRideId = Long.parseLong(body.trim().replace("\"", ""));
+                            Log.d(TAG, "WebSocket: ride cancelled — id=" + cancelledRideId);
+                            requireActivity().runOnUiThread(() -> onRideCancelled(cancelledRideId));
+                        } catch (NumberFormatException e) {
+                            Log.e(TAG, "Failed to parse cancelled ride id: " + body, e);
+                        }
+                    }
+            );
+
+            Log.d(TAG, "WebSocket subscriptions active for driver " + driverId);
+        });
+    }
+
+    private void onNewRideReceived(ScheduledRideModel newRide) {
+        // Avoid duplicates
+        for (ScheduledRideModel existing : rides) {
+            if (existing.getRideId() == newRide.getRideId()) {
+                Log.d(TAG, "Ride " + newRide.getRideId() + " already in list, skipping");
+                return;
+            }
+        }
+
+        rides.add(newRide);
+        sortRidesByStatusAndTime();
+        checkIfAnyActiveRides();
+
+        adapter.setHasActiveRide(hasActiveRide);
+        adapter.notifyDataSetChanged();
+        updateEmptyState();
+
+        Toast.makeText(requireContext(), "New ride assigned!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void onRideCancelled(long rideId) {
+        boolean removed = false;
+        for (int i = 0; i < rides.size(); i++) {
+            if (rides.get(i).getRideId() == rideId) {
+                rides.remove(i);
+                removed = true;
+                break;
+            }
+        }
+
+        if (!removed) {
+            Log.d(TAG, "Cancelled ride " + rideId + " was not in list");
+            return;
+        }
+
+        checkIfAnyActiveRides();
+        adapter.setHasActiveRide(hasActiveRide);
+        adapter.notifyDataSetChanged();
+        updateEmptyState();
+
+        Toast.makeText(requireContext(), "A ride has been cancelled by the passenger.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void unsubscribeFromWebSocket() {
+        if (rideStartSubscription != null) {
+            rideStartSubscription.unsubscribe();
+            rideStartSubscription = null;
+        }
+        if (rideCancelSubscription != null) {
+            rideCancelSubscription.unsubscribe();
+            rideCancelSubscription = null;
+        }
+        Log.d(TAG, "WebSocket subscriptions cleared");
+    }
+
+    // ── Load rides ───────────────────────────────────────
 
     private void loadRides() {
         driverService.getScheduledRides(new DriverService.Callback<List<ScheduledRideModel>>() {
@@ -156,6 +257,8 @@ public class DriverScheduledRidesFragment extends Fragment implements
             }
         }
     }
+
+    // ── Ride actions (unchanged) ─────────────────────────
 
     @Override
     public void onStartRide(long rideId) {
@@ -376,6 +479,7 @@ public class DriverScheduledRidesFragment extends Fragment implements
     @Override
     public void onRideClicked(ScheduledRideModel ride) {
         if (ride.getCheckpoints() != null && !ride.getCheckpoints().isEmpty() && mapFragment != null) {
+            selectedRideId = ride.getRideId();
             mapFragment.createRoute(ride.getCheckpoints());
         }
     }
@@ -405,6 +509,11 @@ public class DriverScheduledRidesFragment extends Fragment implements
                 rides.remove(i);
                 break;
             }
+        }
+
+        if (selectedRideId == rideId) {
+            selectedRideId = -1;
+            if (mapFragment != null) mapFragment.clearMap();
         }
 
         checkIfAnyActiveRides();
@@ -457,43 +566,12 @@ public class DriverScheduledRidesFragment extends Fragment implements
         }
     }
 
-    private void loadMockRides() {
-
-        rides.clear();
-
-        for (int i = 1; i <= 5; i++) {
-            ScheduledRideModel ride = new ScheduledRideModel();
-
-            ride.setRideId(i);
-            ride.setStatus(i == 1 ? "ACTIVE" : "SCHEDULED");
-
-            ride.setScheduledTime(
-                    java.time.LocalDateTime.now().plusMinutes(i * 15)
-            );
-
-            ride.setStartAddress("Start Address " + i);
-            ride.setEndAddress("End Address " + i);
-
-            ride.setPrice(500.0 + (i * 100));
-            ride.setDistance(5.0 + i);
-
-            rides.add(ride);
-        }
-
-        sortRidesByStatusAndTime();
-        checkIfAnyActiveRides();
-
-        requireActivity().runOnUiThread(() -> {
-            adapter.setHasActiveRide(hasActiveRide);
-            adapter.notifyDataSetChanged();
-            updateEmptyState();
-        });
-    }
-
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+        unsubscribeFromWebSocket();
+
         recyclerView = null;
         emptyTextView = null;
         adapter = null;
