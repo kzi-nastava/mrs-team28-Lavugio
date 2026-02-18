@@ -49,7 +49,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="24dp"
         android:contentDescription="Live support chat"
-        android:src="@android:drawable/ic_dialog_email"
+        android:src="@drawable/ic_chat_button"
         android:visibility="gone"
         app:backgroundTint="#606C38"
         app:tint="#FEFAE0"
