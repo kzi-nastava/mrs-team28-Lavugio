@@ -138,6 +138,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
+    @Transactional
     public NewFavoriteRouteDTO createFavoriteRoute(Long accountId, NewFavoriteRouteDTO request) {
         // Check if user exists
         RegularUser user = regularUserRepository.findById(accountId)
@@ -181,6 +182,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public NewFavoriteRouteDTO getFavoriteRouteDTOById(Long id) {
         FavoriteRoute favoriteRoute = favoriteRouteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Favorite route not found with id: " + id));
@@ -188,6 +190,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<NewFavoriteRouteDTO> getFavoriteRoutesDTOByUser(Long userId) {
         // Check if user exists
         if (!regularUserRepository.existsById(userId)) {
@@ -201,6 +204,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<NewFavoriteRouteDTO> getAllFavoriteRoutesDTO() {
         List<FavoriteRoute> favoriteRoutes = favoriteRouteRepository.findAll();
         return favoriteRoutes.stream()

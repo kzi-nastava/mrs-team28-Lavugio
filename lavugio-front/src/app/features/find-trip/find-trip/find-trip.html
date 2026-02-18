@@ -41,6 +41,7 @@
                     [value]="favoriteRouteName"
                     (input)="favoriteRouteName = $any($event.target).value"
                     placeholder="Enter favorite route name..."
+                    id="favorite-route-name-input"
                     class="w-full py-3 px-3 text-[#606C38] text-opacity-70 focus:outline-none"
                   />
                   </div>
@@ -49,6 +50,7 @@
                 <button
                   type="button"
                   (click)="saveFavoriteRoute()"
+                  id="save-favorite-route-button"
                   class="h-11 w-11 flex items-center justify-center border border-[#606C38] rounded-md bg-white hover:bg-[#DDA15E] hover:bg-opacity-20 text-[#606C38] font-medium"
                 >
                   <svg class="w-5 h-5 text-[#BC6C25]" viewBox="0 0 24 24" fill="currentColor">

@@ -8,16 +8,52 @@ describe('DriverForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DriverForm]
-    })
-    .compileComponents();
+      imports: [DriverForm],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DriverForm);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should be invalid when empty', () => {
+    expect(component.isFormValid()).toBeFalse();
+  });
+
+  it('should validate correct email', () => {
+    component.email.set('test@test.com');
+    component.name.set('Marko');
+    component.surname.set('Markovic');
+    component.address.set('Adresa 1');
+    component.phoneNumber.set('123456');
+
+    expect(component.isFormValid()).toBeTrue();
+  });
+
+  it('should emit data when signals change', () => {
+    spyOn(component.dataChange, 'emit');
+
+    component.email.set('a@a.com');
+    fixture.detectChanges();
+
+    expect(component.dataChange.emit).toHaveBeenCalled();
+  });
+
+  it('should invalidate incorrect email format', () => {
+    component.email.set('invalid-email');
+    component.name.set('Marko');
+    component.surname.set('Markovic');
+    component.address.set('Adresa 1');
+    component.phoneNumber.set('123456');
+
+    expect(component.isFormValid()).toBeFalse();
+  });
+
+  it('should set submitted to true on submit', () => {
+    expect(component.submitted()).toBeFalse();
+    
+    component.onSubmit();
+    
+    expect(component.submitted()).toBeTrue();
   });
 });
