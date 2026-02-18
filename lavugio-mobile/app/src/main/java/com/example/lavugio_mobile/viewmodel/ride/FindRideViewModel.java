@@ -65,6 +65,10 @@ public class FindRideViewModel extends ViewModel {
             return repository.getFavoriteRoutes();
         }
 
+    public LiveData<ResultState> deleteFavoriteRoute(String routeId) {
+        return repository.deleteFavoriteRoute(routeId);
+    }
+
     public LiveData<Double> getRidePriceEstimate(String vehicleType, float distanceMeters) {
         RidePriceEstimateDTO request = new RidePriceEstimateDTO(vehicleType, distanceMeters);
         return repository.estimatePrice(request);

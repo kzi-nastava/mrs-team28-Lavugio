@@ -274,18 +274,11 @@ public class UserRideHistoryDetailedFragment extends Fragment implements OSMMapF
             dest.setStreetName(d.getStreetName());
             dest.setCity(d.getCity());
             dest.setCountry(d.getCountry());
-
-            // Parse street number from String to int
-            try {
-                if (d.getStreetNumber() != null && !d.getStreetNumber().isEmpty()) {
-                    dest.setStreetNumber(Integer.parseInt(d.getStreetNumber()));
-                } else {
-                    dest.setStreetNumber(0);
-                }
-            } catch (NumberFormatException e) {
-                dest.setStreetNumber(0);
+            if (d.getStreetNumber() != null && !d.getStreetNumber().isEmpty()) {
+                dest.setStreetNumber(d.getStreetNumber());
+            } else {
+                dest.setStreetNumber("0");
             }
-
             dest.setZipCode(d.getZipCode());
 
             destinations.add(dest);

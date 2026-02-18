@@ -106,7 +106,7 @@ public class FavoriteRouteController {
     public ResponseEntity<?> deleteFavoriteRoute(@PathVariable Long id) {
         try {
             favoriteRouteService.deleteFavoriteRoute(id);
-            return ResponseEntity.ok("Favorite route deleted successfully");
+            return ResponseEntity.ok(Map.of("message", "Favorite route deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
