@@ -14,6 +14,7 @@ import static org.testng.AssertJUnit.assertTrue;
 public class PickFavoriteRouteTest extends TestBase {
 
     private static final String EMAIL = "marko.markovic@gmail.com";
+    private static final String EMAIL_NO_FAVORITE_ROUTES = "no.favorite.routes@gmail.com";
     private static final String PASSWORD = "perapera";
 
     private static final String FAVORITE_ROUTE_NAME_1 = "Route 1";
@@ -32,16 +33,25 @@ public class PickFavoriteRouteTest extends TestBase {
         HomePage home = new HomePage(driver);
         home.goToLoginPage();
         LoginPage login = new LoginPage(driver);
-        login.insertEmail(EMAIL);
+        login.insertEmail(EMAIL_NO_FAVORITE_ROUTES);
         login.insertPassword(PASSWORD);
         login.clickSubmit();
 
 
         FindTripPage findTrip = new FindTripPage(driver);
-        // CHECKING IF NO DESTINATIONS ARE ADDED BEFORE PICKING FAVORITE ROUTE
-        Thread.sleep(3000);
-        assertTrue(findTrip.isNoDestinationsAdded());
 
+        // CHECKING IF NO DESTINATIONS ARE ADDED BEFORE PICKING FAVORITE ROUTE
+        assertTrue(findTrip.isNoDestinationsAdded());
+        findTrip.clickOpenFavoriteRoutesBtn();
+        assertTrue(findTrip.noFavoriteRoutes());
+        findTrip.closeFavoriteRouteDialog();
+
+        findTrip.logout();
+        // LOGGING IN WITH USER THAT HAS FAVORITE ROUTES
+        home.goToLoginPage();
+        login.insertEmail(EMAIL);
+        login.insertPassword(PASSWORD);
+        login.clickSubmit();
 
         // PICKING FAVORITE ROUTE FOR THE FIRST TIME
         findTrip.clickOpenFavoriteRoutesBtn();

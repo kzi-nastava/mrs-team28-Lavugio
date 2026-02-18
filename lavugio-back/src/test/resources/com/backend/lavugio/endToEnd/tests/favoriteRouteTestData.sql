@@ -22,15 +22,16 @@ INSERT INTO addresses (id, street_name, city, country, street_number, zip_code, 
 -- ====================================
 -- 2. ACCOUNTS
 -- ====================================
-INSERT INTO accounts (id, name, last_name, email, password, profile_photo_path, phone_number, address, email_verified, fcm_token, fcm_token_updated_at) VALUES (1, 'Marko', 'Marković', 'marko.markovic@gmail.com', '$2a$12$DvYeLDvQeXaDerGFoypiBOZGyiuAXeDYVQjjNF1..krm7fUAEHoOS', '/photos/marko.jpg', '+381641234567', 'Bulevar kralja Aleksandra 73', true, null, null);
+INSERT INTO accounts (id, name, last_name, email, password, profile_photo_path, phone_number, address, email_verified, fcm_token, fcm_token_updated_at) VALUES (1, 'Marko', 'Marković', 'marko.markovic@gmail.com', '$2a$12$DvYeLDvQeXaDerGFoypiBOZGyiuAXeDYVQjjNF1..krm7fUAEHoOS', '/photos/marko.jpg', '+381641234567', 'Bulevar kralja Aleksandra 73', true, null, null),
+                                                                                                                                                               (2, 'Marko', 'Marković', 'no.favorite.routes@gmail.com', '$2a$12$DvYeLDvQeXaDerGFoypiBOZGyiuAXeDYVQjjNF1..krm7fUAEHoOS', '/photos/marko.jpg', '+381641234567', 'Bulevar kralja Aleksandra 73', true, null, null);
 -- ====================================
 -- 3. BLOCKABLE_ACCOUNTS
 -- ====================================
-INSERT INTO blockable_accounts (id, blocked, block_reason) VALUES (1, false, NULL);
+INSERT INTO blockable_accounts (id, blocked, block_reason) VALUES (1, false, NULL), (2, false, NULL);
 -- ====================================
 -- 4. REGULAR_USERS
 -- ====================================
-INSERT INTO regular_users (id, can_order) VALUES (1, true);
+INSERT INTO regular_users (id, can_order) VALUES (1, true), (2, true);
 -- 5. FAVORITE_ROUTES
 -- ====================================
 INSERT INTO favorite_routes (id, name, user_id) VALUES

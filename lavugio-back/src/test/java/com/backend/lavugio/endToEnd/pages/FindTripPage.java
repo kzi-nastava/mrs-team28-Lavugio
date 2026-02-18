@@ -26,6 +26,12 @@ public class FindTripPage {
     @FindBy(xpath = "//button[text()=' Select ']")
     WebElement selectFavoriteRouteBtn;
 
+    @FindBy(xpath = "//button[text()=' Cancel ']")
+    WebElement cancelSelectFavoriteRouteBtn;
+
+    @FindBy(xpath = "//button[text()=' Delete ']")
+    WebElement deleteFavoriteRouteBtn;
+
     @FindBy(tagName = "app-destinations-display")
     WebElement destinationsDisplay;
 
@@ -39,6 +45,17 @@ public class FindTripPage {
         this.driver = driver;
         PageFactory.initElements(this.driver, this);
         waitForPageToLoad();
+    }
+
+    public void logout() {
+        By logoutBtnLocator = By.xpath("//button[contains(text(),'Logout')]");
+
+        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds(10));
+        WebElement logoutBtn = wait.until(ExpectedConditions.elementToBeClickable(logoutBtnLocator));
+        logoutBtn.click();
+
+        // Optional: wait until we're actually logged out (login button or route changes)
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(logoutBtnLocator));
     }
 
     private void waitForPageToLoad(){
@@ -75,6 +92,10 @@ public class FindTripPage {
         }
     }
 
+    public void closeFavoriteRouteDialog() {
+        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(cancelSelectFavoriteRouteBtn)).click();
+    }
+
     public boolean selectFavoriteRoute(String favoriteRouteName) {
         WebElement firstFavoriteRoute = this.destinationsDisplay.findElement(By.xpath("//p[contains(text(),'" + favoriteRouteName + "')]"));
         if (firstFavoriteRoute != null) {
@@ -105,6 +126,18 @@ public class FindTripPage {
     public boolean isDestinationAdded(String destination) {
         try {
             new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(destinationsDisplay.findElement(By.xpath("//p[contains(text(),'" + destination + "')]"))));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean noFavoriteRoutes() {
+        try {
+            new WebDriverWait(this.driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.visibilityOfElementLocated(
+                            By.xpath("//div[contains(text(),'No favorite routes available')]")
+                    ));
             return true;
         } catch (Exception e) {
             return false;
