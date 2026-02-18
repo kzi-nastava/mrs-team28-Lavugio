@@ -7,7 +7,7 @@ public class RideDestinationDTO {
     private String streetName;
     private String city;
     private String country;
-    private int streetNumber;
+    private String streetNumber;
     private int zipCode;
 
     public RideDestinationDTO() {
@@ -58,11 +58,11 @@ public class RideDestinationDTO {
         this.country = country;
     }
 
-    public int getStreetNumber() {
+    public String getStreetNumber() {
         return streetNumber;
     }
 
-    public void setStreetNumber(int streetNumber) {
+    public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
     }
 

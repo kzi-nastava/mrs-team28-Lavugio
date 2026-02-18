@@ -288,11 +288,7 @@ public class FindRideFragment extends Fragment implements OSMMapFragment.MapInte
             } else {
                 destDTO.setZipCode(11000);
             }
-            try {
-                destDTO.setStreetNumber(Integer.parseInt(dest.getHouseNumber()));
-            } catch (NumberFormatException e) {
-                destDTO.setStreetNumber(0);
-            }
+            destDTO.setStreetNumber(dest.getHouseNumber());
             StopBaseDTO stopBaseDTO = new StopBaseDTO();
             stopBaseDTO.setLatitude(dest.getLatitude());
             stopBaseDTO.setLongitude(dest.getLongitude());

@@ -252,7 +252,7 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
             streetName: d.street,
             city: d.city,
             country: d.country,
-            streetNumber: parseInt(d.houseNumber) || 0,
+            streetNumber: d.houseNumber,
             zipCode: 0,
           })),
           passengerEmails: this.passengers.map((p) => p.email),

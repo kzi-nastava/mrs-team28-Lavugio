@@ -10,6 +10,6 @@ export interface RideDestinationDTO {
   streetName: string;
   city: string;
   country: string;
-  streetNumber: number;
+  streetNumber: string;
   zipCode: number;
 }

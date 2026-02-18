@@ -114,7 +114,7 @@ export class TripHistoryUserDetailed implements AfterViewInit, OnDestroy {
             streetName: d.streetName,
             city: d.city,
             country: d.country,
-            streetNumber: parseInt(d.streetNumber) || 0,
+            streetNumber: d.streetNumber,
             zipCode: d.zipCode,
           })),
           passengerEmails: [], // Current user only, backend handles this
