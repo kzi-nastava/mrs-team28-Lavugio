@@ -837,7 +837,7 @@ public class RideServiceImpl implements RideService {
                             destDTO.setStreetName(addr.getStreetName());
                             destDTO.setCity(addr.getCity());
                             destDTO.setCountry(addr.getCountry());
-                            destDTO.setStreetNumber(Integer.parseInt(addr.getStreetNumber()));
+                            destDTO.setStreetNumber(addr.getStreetNumber());
                             destDTO.setZipCode(addr.getZipCode());
                         }
                         return destDTO;

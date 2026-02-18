@@ -40,7 +40,7 @@ public class RideRequestDTO {
     }
 
     public RideDestinationDTO getEndAddress() {
-        return destinations.getLast();
+        return destinations.isEmpty() ? null : destinations.getLast();
     }
 
     private int estimatedDurationSeconds;

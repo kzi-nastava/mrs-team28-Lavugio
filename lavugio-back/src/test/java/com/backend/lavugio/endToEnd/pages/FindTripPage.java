@@ -64,8 +64,15 @@ public class FindTripPage {
     }
 
     public boolean isNoDestinationsAdded() {
-        System.out.println(this.destinationsDisplay.findElement(By.tagName("p")).getText());
-        return this.destinationsDisplay.findElement(By.tagName("p")).getText().equals("No destinations added yet");
+        try {
+            new WebDriverWait(this.driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.visibilityOfElementLocated(
+                            By.xpath("//app-destinations-display//p[contains(text(),'No destinations added yet')]")
+                    ));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean selectFavoriteRoute(String favoriteRouteName) {

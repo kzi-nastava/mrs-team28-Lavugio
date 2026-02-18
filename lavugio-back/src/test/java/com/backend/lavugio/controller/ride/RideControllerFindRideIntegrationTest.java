@@ -143,7 +143,7 @@ class RideControllerFindRideIntegrationTest {
         start.setLocation(new StopBaseDTO(0, 45.2671, 19.8335));
         start.setAddress("Bulevar oslobodjenja 46, Novi Sad");
         start.setStreetName("Bulevar oslobodjenja");
-        start.setStreetNumber(46);
+        start.setStreetNumber("46");
         start.setCity("Novi Sad");
         start.setCountry("Serbia");
         start.setZipCode(21000);
@@ -153,7 +153,7 @@ class RideControllerFindRideIntegrationTest {
         end.setLocation(new StopBaseDTO(1, 45.2557, 19.8451));
         end.setAddress("Narodnog fronta 23, Novi Sad");
         end.setStreetName("Narodnog fronta");
-        end.setStreetNumber(23);
+        end.setStreetNumber("23");
         end.setCity("Novi Sad");
         end.setCountry("Serbia");
         end.setZipCode(21000);

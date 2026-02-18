@@ -4,10 +4,12 @@ import com.backend.lavugio.endToEnd.pages.FindTripPage;
 import com.backend.lavugio.endToEnd.pages.HomePage;
 import com.backend.lavugio.endToEnd.pages.LoginPage;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.assertTrue;
+
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class PickFavoriteRouteTest extends TestBase {
 
@@ -24,7 +26,8 @@ public class PickFavoriteRouteTest extends TestBase {
     private static final String FAVORITE_ROUTE_2_DESTINATION_3 = "Skadarska 22, Beograd";
 
     @Test
-    @Sql("favoriteRouteTestData.sql")
+    @Sql(scripts = "favoriteRouteTestData.sql",
+         config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void pickFavoriteRoute() throws InterruptedException {
         HomePage home = new HomePage(driver);
         home.goToLoginPage();
@@ -32,10 +35,13 @@ public class PickFavoriteRouteTest extends TestBase {
         login.insertEmail(EMAIL);
         login.insertPassword(PASSWORD);
         login.clickSubmit();
-        FindTripPage findTrip = new FindTripPage(driver);
 
+
+        FindTripPage findTrip = new FindTripPage(driver);
         // CHECKING IF NO DESTINATIONS ARE ADDED BEFORE PICKING FAVORITE ROUTE
+        Thread.sleep(3000);
         assertTrue(findTrip.isNoDestinationsAdded());
+
 
         // PICKING FAVORITE ROUTE FOR THE FIRST TIME
         findTrip.clickOpenFavoriteRoutesBtn();
