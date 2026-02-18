@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/rides-reports")
 public class RidesReportsController {
@@ -22,7 +24,7 @@ public class RidesReportsController {
 
     @PostMapping("/driver")
     @PreAuthorize("hasRole('DRIVER')")
-    public ResponseEntity<?> generateDriverReport(@RequestBody RidesReportsDateRangeDTO dateRange) {
+    public ResponseEntity<?> generateDriverReport(@Valid @RequestBody RidesReportsDateRangeDTO dateRange) {
         Long driverId = SecurityUtils.getCurrentUserId();
         try {
             RidesReportsResponseDTO report = ridesReportsService.getRidesReportsDriver(dateRange, driverId);
@@ -34,7 +36,7 @@ public class RidesReportsController {
 
     @PostMapping("/regular-user")
     @PreAuthorize("hasRole('REGULAR_USER')")
-    public ResponseEntity<?> generateRegularUserReport(@RequestBody RidesReportsDateRangeDTO dateRange) {
+    public ResponseEntity<?> generateRegularUserReport(@Valid @RequestBody RidesReportsDateRangeDTO dateRange) {
         Long userId = SecurityUtils.getCurrentUserId();
         try {
             RidesReportsResponseDTO report = ridesReportsService.getRidesReportsRegularUser(dateRange, userId);
@@ -46,7 +48,7 @@ public class RidesReportsController {
 
     @PostMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> generateAdministratorReport(@RequestBody RidesReportsAdminFiltersDTO adminFilters) {
+    public ResponseEntity<?> generateAdministratorReport(@Valid @RequestBody RidesReportsAdminFiltersDTO adminFilters) {
         try {
             RidesReportsResponseDTO report = ridesReportsService.getRidesReportsAdmin(adminFilters);
             return ResponseEntity.ok(report);
