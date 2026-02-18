@@ -15,10 +15,22 @@ export class ProfileView {
   
   userProfile = signal<UserProfile | null>(null);
   isDriver = signal<boolean>(false);
+  isBlocked = signal<boolean>(false);
+  blockReason = signal<string>("");
 
   constructor(private userService: UserService) {}
 
   ngOnInit() {
+    this.userService.isUserBlocked().subscribe({
+      next: (response) => {
+        this.isBlocked.set(response.blocked);
+        this.blockReason.set(response.reason || "No reason provided");
+      },
+      error: (err) => {
+        console.error("Failed to check block status:", err);
+        this.isBlocked.set(false);
+      }
+    });
     this.userService.getUserProfile().subscribe({
       next: (profile) => {
         console.log("Loaded profile:", profile);

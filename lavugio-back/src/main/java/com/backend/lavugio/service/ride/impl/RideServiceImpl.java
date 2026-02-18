@@ -454,6 +454,9 @@ public class RideServiceImpl implements RideService {
     public Ride createInstantRide(Long creatorID, RideRequestDTO request) {
         RegularUser creator = regularUserRepository.findById(creatorID)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
+        if (creator.isBlocked()) {
+            throw new RuntimeException("Your account is blocked. You cannot create a scheduled ride.");
+        }
         System.out.println("Found creator: " + creator.getEmail());
         // Find an available driver
         List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
@@ -527,6 +530,10 @@ public class RideServiceImpl implements RideService {
         RegularUser creator = regularUserRepository.findById(creatorID)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
 
+        if (creator.isBlocked()) {
+            throw new RuntimeException("Your account is blocked. You cannot create a scheduled ride.");
+        }
+
         System.out.println("Found creator: " + creator.getEmail());
 
         List<Driver> allDrivers = this.driverService.getAllDrivers();
@@ -537,6 +544,9 @@ public class RideServiceImpl implements RideService {
         System.out.println("Got all drivers: " + allDrivers.size());
 
         for (Driver driver : allDrivers) {
+            if (driver.isBlocked()) {
+                continue;
+            }
             boolean isVehicleSuitable = this.isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
             boolean isDriverUnderDailyLimitScheduled = this.isDriverUnderDailyLimitScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());
             boolean driverHasScheduledRideSoonScheduled = this.driverHasScheduledRideSoonScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());

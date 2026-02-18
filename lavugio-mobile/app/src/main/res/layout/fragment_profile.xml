@@ -16,6 +16,42 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- Blocked Banner -->
+        <LinearLayout
+            android:id="@+id/llBlockedBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFEBEE"
+            android:padding="16dp"
+            android:layout_margin="16dp"
+            android:visibility="visible"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="You have been blocked!"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#D32F2F"
+                android:gravity="center"
+                android:paddingVertical="4dp" />
+
+            <TextView
+                android:id="@+id/tvBlockReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reason: Violation of terms"
+                android:textSize="14sp"
+                android:textColor="#B71C1C"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:paddingVertical="4dp"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
         <!-- Info Rows Container -->
         <LinearLayout
             android:id="@+id/info_container"

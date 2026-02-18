@@ -22,6 +22,7 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.ride.RidePreferences;
 import com.example.lavugio_mobile.models.RidePriceEstimateDTO;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
+import com.example.lavugio_mobile.ui.dialog.BlockedDialogFragment;
 import com.example.lavugio_mobile.viewmodel.ride.FindRideViewModel;
 
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class FindRidePage3Fragment extends Fragment {
             btnFinish.setAlpha(1);
             btnFinish.setEnabled(true);
             btnFinish.setOnClickListener(v -> {
-                openScheduleDialog();
+                checkUserBlocked();
             });
         }
 
@@ -313,7 +314,20 @@ public class FindRidePage3Fragment extends Fragment {
         }
     }
 
+    private void checkUserBlocked() {
+        viewModel.checkUserBlockStatus().observe(getViewLifecycleOwner(), blockStatus -> {
+            if (blockStatus != null && blockStatus.isBlocked()) {
+                // Show block reason dialog
+                BlockedDialogFragment.newInstance(blockStatus.getReason()).show(getActivity().getSupportFragmentManager(), "BlockedUserDialog");
+            } else {
+                openScheduleDialog();
+            }
+        });
+    }
+
     private void openScheduleDialog() {
+
+
         FindRideScheduleFragment fragment = new FindRideScheduleFragment();
 
         fragment.setOnRideScheduledListener(new FindRideScheduleFragment.OnRideScheduledListener() {

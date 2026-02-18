@@ -35,6 +35,7 @@ import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;
 import com.example.lavugio_mobile.models.user.EditProfileDTO;
 import com.example.lavugio_mobile.models.user.UserProfileData;
 import com.example.lavugio_mobile.services.auth.AuthService;
+import com.example.lavugio_mobile.services.user.UserApi;
 import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
 import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
 import com.example.lavugio_mobile.ui.profile.views.ProfileButtonRowView;
@@ -66,6 +67,8 @@ public class ProfileFragment extends Fragment {
     private ProfileInfoRowView activeTimeRow;
     private boolean isDriverActive = false;
     private int driverActiveTotalMinutes = 0;
+    private LinearLayout llBlockedBanner;
+    private TextView tvBlockReason;
 
     @Nullable
     @Override
@@ -82,6 +85,9 @@ public class ProfileFragment extends Fragment {
         // Initialize views
         headerView = view.findViewById(R.id.profile_header);
         infoContainer = view.findViewById(R.id.info_container);
+        llBlockedBanner = view.findViewById(R.id.llBlockedBanner);
+        tvBlockReason = view.findViewById(R.id.tvBlockReason);
+
 
         this.authService = AuthService.getInstance();
         viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
@@ -92,6 +98,15 @@ public class ProfileFragment extends Fragment {
                 fillData(profileData);
             } else {
                 Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        viewModel.getBlockStatus().observe(getViewLifecycleOwner(), blockStatus -> {
+            if (blockStatus != null) {
+                updateBlockedStatus(blockStatus);
+            } else {
+                // API failed or returned null - hide the banner
+                llBlockedBanner.setVisibility(View.GONE);
             }
         });
 
@@ -210,6 +225,7 @@ public class ProfileFragment extends Fragment {
 
         // Load profile data
         viewModel.loadProfile();
+        viewModel.isBlocked();
         viewModel.loadProfilePhoto();
 
         headerView.getProfileImage().setOnClickListener(v -> {
@@ -251,6 +267,21 @@ public class ProfileFragment extends Fragment {
             viewModel.loadDriverActiveStatus(authService.getUserId());
         }
         addButtonRow();
+    }
+
+    private void updateBlockedStatus(UserApi.BlockStatus blockStatus) {
+        if (blockStatus.isBlocked()) {
+            llBlockedBanner.setVisibility(View.VISIBLE);
+
+            if (blockStatus.getReason() != null && !blockStatus.getReason().isEmpty()) {
+                tvBlockReason.setText(blockStatus.getReason());
+                tvBlockReason.setVisibility(View.VISIBLE);
+            } else {
+                tvBlockReason.setVisibility(View.GONE);
+            }
+        } else {
+            llBlockedBanner.setVisibility(View.GONE);
+        }
     }
 
     private final ActivityResultLauncher<String> imagePickerLauncher =

@@ -11,6 +11,7 @@ import com.example.lavugio_mobile.data.model.utils.ErrorResponse;
 import com.example.lavugio_mobile.data.model.utils.ResultState;
 import com.example.lavugio_mobile.models.RidePriceEstimateDTO;
 import com.example.lavugio_mobile.models.RideRequestDTO;
+import com.example.lavugio_mobile.services.user.UserApi;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -21,11 +22,13 @@ import retrofit2.Response;
 
 public class FindRideRepository {
     private final RideApi rideApi;
+    private final UserApi userApi;
     private final FavoriteRouteApi favoriteRouteApi;
 
     public FindRideRepository() {
         rideApi = ApiClient.getInstance().create(RideApi.class);
         favoriteRouteApi = ApiClient.getInstance().create(FavoriteRouteApi.class);
+        userApi = ApiClient.getInstance().create(UserApi.class);
     }
 
     public LiveData<Double> estimatePrice(RidePriceEstimateDTO request) {
@@ -174,6 +177,29 @@ public class FindRideRepository {
             }
         });
         return result;
+    }
+
+    public LiveData<UserApi.BlockStatus> getBlockStatus() {
+        MutableLiveData<UserApi.BlockStatus> data = new MutableLiveData<>();
+
+        userApi.isUserBlocked().enqueue(new Callback<UserApi.BlockStatus>() {
+            @Override
+            public void onResponse(Call<UserApi.BlockStatus> call,
+                                   Response<UserApi.BlockStatus> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    data.setValue(response.body());
+                } else {
+                    data.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserApi.BlockStatus> call, Throwable t) {
+                data.setValue(null);
+            }
+        });
+
+        return data;
     }
 
 }
