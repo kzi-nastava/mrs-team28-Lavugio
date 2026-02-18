@@ -278,6 +278,22 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
   }
 
   findRide(rideRequest: RideRequestDTO) {
+    this.userService.isUserBlocked().subscribe({
+      next: (response) => {
+        if (response.blocked) {
+          this.dialogService.openBlocked(response.reason);
+          return;
+        };
+      },
+      error: (error) => {
+        console.error('Error checking if user is blocked:', error);
+        this.dialogService.open(
+          'Error',
+          'Unable to verify user status. Please try again later.',
+          true,
+        );
+        return;
+      }});
     this.rideService.findRide(rideRequest).subscribe({
       next: (response) => {
         console.log('Ride found:', response);
