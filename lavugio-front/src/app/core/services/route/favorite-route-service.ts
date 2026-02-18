@@ -16,6 +16,10 @@ export class FavoriteRouteService {
     return this.http.post<any>(`${this.apiUrl}/favorite-routes/add`, favoriteRoute);
   }
 
+  deleteFavoriteRoute(routeId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/favorite-routes/${routeId}`);
+  }
+
   getFavoriteRoutes(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/favorite-routes`);
   }

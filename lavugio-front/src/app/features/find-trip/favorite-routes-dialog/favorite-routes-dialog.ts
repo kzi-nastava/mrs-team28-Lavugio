@@ -12,6 +12,7 @@ export class FavoriteRoutesDialog {
 
   @Output() cancel = new EventEmitter<void>();
   @Output() routeSelected = new EventEmitter<FavoriteRoute>();
+  @Output() routeDeleted = new EventEmitter<FavoriteRoute>();
 
   selectedRoute: FavoriteRoute | null = null;
 
@@ -22,6 +23,12 @@ export class FavoriteRoutesDialog {
   confirm() {
     if (this.selectedRoute) {
       this.routeSelected.emit(this.selectedRoute);
+    }
+  }
+
+  delete() {
+    if (this.selectedRoute) {
+      this.routeDeleted.emit(this.selectedRoute);
     }
   }
 

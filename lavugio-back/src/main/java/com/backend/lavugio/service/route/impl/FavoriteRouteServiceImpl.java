@@ -208,54 +208,6 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
                 .collect(Collectors.toList());
     }
 
-    // DEPRECATED - NO FAVORITE ROUTE UPDATE
-    /*@Override
-    public NewFavoriteRouteDTO updateFavoriteRouteDTO(Long id, UpdateFavoriteRouteDTO request) {
-        FavoriteRoute favoriteRoute = favoriteRouteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Favorite route not found with id: " + id));
-
-        // Update name
-        if (request.getName() != null && !request.getName().trim().isEmpty()) {
-            favoriteRoute.setName(request.getName());
-        }
-
-        // Update destinations if provided
-        if (request.getDestinations() != null) {
-            // Delete existing destinations
-            List<FavoriteRouteDestination> existingDestinations =
-                    favoriteRouteDestinationRepository.findByFavoriteRouteId(id);
-            favoriteRouteDestinationRepository.deleteAll(existingDestinations);
-
-            // Create new destinations
-            for (int i = 0; i < request.getDestinations().size(); i++) {
-                DestinationDTO destDto = request.getDestinations().get(i);
-
-                // Create address
-                Address address = new Address();
-                address.setStreetName(destDto.getStreetName());
-                address.setCity(destDto.getCity());
-                address.setCountry(destDto.getCountry());
-                address.setStreetNumber(destDto.getStreetNumber());
-                address.setZipCode(destDto.getZipCode());
-                address.setLongitude(destDto.getLongitude());
-                address.setLatitude(destDto.getLatitude());
-
-                Address savedAddress = addressRepository.save(address);
-
-                // Create destination
-                FavoriteRouteDestination destination = new FavoriteRouteDestination();
-                destination.setFavoriteRoute(favoriteRoute);
-                destination.setAddress(savedAddress);
-                destination.setDestinationOrder(destDto.getOrder() != null ? destDto.getOrder() : i + 1);
-
-                favoriteRouteDestinationRepository.save(destination);
-            }
-        }
-
-        FavoriteRoute updatedRoute = favoriteRouteRepository.save(favoriteRoute);
-        return mapToDTO(updatedRoute);
-    }*/
-
     @Override
     public void deleteFavoriteRoute(Long id) {
         if (!favoriteRouteRepository.existsById(id)) {

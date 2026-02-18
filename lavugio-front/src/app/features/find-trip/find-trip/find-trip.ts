@@ -542,6 +542,39 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
     this.updateRoute();
   }
 
+  deleteFavoriteRoute(route: FavoriteRoute) {
+    console.log('Deleting route:', route);
+
+    this.dialogService.openConfirm(
+      'Delete Favorite Route',
+      `Are you sure you want to delete "${route.name}"?`
+    ).subscribe({
+      next: (confirmed) => {
+        if (confirmed) {
+          this.favoriteRouteService.deleteFavoriteRoute(route.id).subscribe({
+            next: () => {
+              this.dialogService.open(
+                'Route Deleted',
+                'Your favorite route has been deleted successfully.',
+                false
+              );
+              // Refresh the favorites list
+              this.favoriteRoutes = this.favoriteRoutes.filter(r => r.id !== route.id);
+            },
+            error: (err) => {
+              this.dialogService.open(
+                'Delete Failed',
+                err.error?.message || 'Unable to delete the favorite route.',
+                true
+              );
+            }
+          });
+        }
+      }
+    });
+
+  }
+
   saveFavoriteRoute() {
     if (this.destinations.length < 2) {
       this.dialogService.open(
