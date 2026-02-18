@@ -49,6 +49,29 @@ public class ProfileRepository {
         return data;
     }
 
+    public LiveData<UserApi.BlockStatus> getBlockStatus() {
+        MutableLiveData<UserApi.BlockStatus> data = new MutableLiveData<>();
+
+        userApi.isUserBlocked().enqueue(new Callback<UserApi.BlockStatus>() {
+            @Override
+            public void onResponse(Call<UserApi.BlockStatus> call,
+                                   Response<UserApi.BlockStatus> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    data.setValue(response.body());
+                } else {
+                    data.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserApi.BlockStatus> call, Throwable t) {
+                data.setValue(null);
+            }
+        });
+
+        return data;
+    }
+
     public LiveData<byte[]> getProfilePhoto() {
         MutableLiveData<byte[]> data = new MutableLiveData<>();
 

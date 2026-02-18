@@ -39,15 +39,15 @@ public interface UserApi {
     }
 
     class BlockStatus {
-        private boolean isBlocked;
+        private boolean blocked;
         private String reason;
 
         public boolean isBlocked() {
-            return isBlocked;
+            return blocked;
         }
 
         public void setBlocked(boolean blocked) {
-            isBlocked = blocked;
+            this.blocked = blocked;
         }
 
         public String getReason() {

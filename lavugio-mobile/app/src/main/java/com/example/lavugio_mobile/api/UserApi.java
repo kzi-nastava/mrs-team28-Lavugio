@@ -91,8 +91,24 @@ public interface UserApi {
     }
 
     class BlockStatus {
-        public boolean blocked;
+        public boolean isBlocked;
         public String reason;
+
+        public BlockStatus() {
+        }
+
+        public BlockStatus(boolean isBlocked, String reason) {
+            this.isBlocked = isBlocked;
+            this.reason = reason;
+        }
+
+        private boolean isBlocked() {
+            return isBlocked;
+        }
+
+        private String getReason() {
+            return reason;
+        }
     }
 
     class CanOrderRideStatus {
