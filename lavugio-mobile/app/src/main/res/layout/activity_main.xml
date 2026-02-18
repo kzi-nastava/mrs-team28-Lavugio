@@ -1,36 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <!-- Include Navbar -->
-    <include
-        layout="@layout/navbar"
+    <!-- Navbar + content stacked vertically -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <!-- Main Content Area -->
-    <!-- The dropdown menu will be inserted here dynamically -->
-    <FrameLayout
-        android:id="@+id/content_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFF">
+        <!-- Include Navbar -->
+        <include
+            layout="@layout/navbar"
+            android:layout_width="match_parent"
+            android:layout_height="80dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/welcome_message"
-            android:textColor="#283618"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+        <!-- Main Content Area -->
+        <FrameLayout
+            android:id="@+id/content_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#FFFFFF">
 
-    </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/welcome_message"
+                android:textColor="#283618"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-</LinearLayout>
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <!-- FAB floats over everything, anchored bottom-end -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="Live support chat"
+        android:src="@android:drawable/ic_dialog_email"
+        android:visibility="gone"
+        app:backgroundTint="#606C38"
+        app:tint="#FEFAE0"
+        app:elevation="6dp" />
+
+</FrameLayout>

@@ -106,4 +106,8 @@ public class ApiClient {
     public static PriceApi getPriceApi() {
         return getInstance().create(PriceApi.class);
     }
+
+    public static ChatApi getChatApi() {
+        return retrofit.create(ChatApi.class);
+    }
 }
