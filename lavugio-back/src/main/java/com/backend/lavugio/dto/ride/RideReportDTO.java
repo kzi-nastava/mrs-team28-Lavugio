@@ -1,6 +1,5 @@
 package com.backend.lavugio.dto.ride;
 
-import com.backend.lavugio.model.ride.RideReport;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,10 @@ import lombok.Setter;
 public class RideReportDTO {
     @NotNull(message = "Ride ID is required")
     Long rideId;
+
+    @NotNull
     Long reporterId;
+
     @NotBlank(message = "Report comment cannot be blank")
     String comment;
 }

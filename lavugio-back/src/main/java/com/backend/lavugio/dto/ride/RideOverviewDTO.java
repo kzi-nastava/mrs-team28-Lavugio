@@ -3,6 +3,7 @@ package com.backend.lavugio.dto.ride;
 import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.Ride;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,22 +17,31 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RideOverviewDTO {
+    @NotNull
     private Long rideId;
 
+    @NotNull
     private Long driverId;
 
+    @Positive
     private double price;
 
+    @NotEmpty
     private CoordinatesDTO[] checkpoints;
 
+    @NotNull
     private RideStatus status;
 
+    @NotBlank
     private String driverName;
 
+    @NotBlank
     private String startAddress;
 
     private String endAddress;
 
+    @PastOrPresent
+    @NotNull
     private LocalDateTime departureTime;
 
     private LocalDateTime arrivalTime;

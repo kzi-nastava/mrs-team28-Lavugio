@@ -1,6 +1,8 @@
 package com.backend.lavugio.dto.user;
 
 import com.backend.lavugio.model.ride.Ride;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,10 +15,19 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DriverHistoryDTO {
+    @NotNull
     private Long rideId;
+
+    @NotBlank
     private String startAddress;
+
+    @NotBlank
     private String endAddress;
+
+    @NotBlank
     private String startDate;
+
+    @NotBlank
     private String endDate;
 
     public DriverHistoryDTO(Ride ride){

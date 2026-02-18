@@ -3,6 +3,10 @@ package com.backend.lavugio.dto.ride;
 import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.Ride;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,12 +20,25 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RideMonitoringDTO {
+    @NotNull
     private Long rideId;
+
+    @NotNull
     private Long driverId;
+
+    @NotBlank
     private String driverName;
+
+    @Past
     private LocalDateTime startTime;
+
+    @NotBlank
     private String startAddress;
+    
+    @NotBlank
     private String endAddress;
+
+    @NotEmpty
     private CoordinatesDTO[] checkpoints;
 
     public RideMonitoringDTO(Ride ride) {

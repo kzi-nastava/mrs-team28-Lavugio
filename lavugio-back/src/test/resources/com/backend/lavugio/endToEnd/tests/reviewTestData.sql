@@ -257,8 +257,8 @@ INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, estim
 -- Vožnje za test korisnika (ID 12)
 INSERT INTO rides (id, driver_id, user_id, start_date_time, end_date_time, estimated_duration_seconds, price, distance, ride_status, has_panic) VALUES
                                                                                                                                                     (127, 5, 12, '2026-02-05 10:00:00', '2026-02-05 10:35:00', 2100, 550.00, 7.5, 'FINISHED', false),
-                                                                                                                                                    (128, 7, 12, '2026-02-09 14:30:00', '2026-02-09 15:15:00', 2700, 680.00, 9.2, 'FINISHED', false),
-                                                                                                                                                    (129, 8, 12, '2026-02-10 16:00:00', NULL, 1800, 450.00, 5.5, 'CANCELLED', false);
+                                                                                                                                                    (128, 7, 12, '2026-02-17 14:30:00', '2026-02-17 15:15:00', 2700, 680.00, 9.2, 'FINISHED', false),
+                                                                                                                                                    (129, 8, 12, '2026-02-18 16:00:00', NULL, 1800, 450.00, 5.5, 'CANCELLED', false);
 
 -- ====================================
 -- 10. RIDE_PASSENGERS
