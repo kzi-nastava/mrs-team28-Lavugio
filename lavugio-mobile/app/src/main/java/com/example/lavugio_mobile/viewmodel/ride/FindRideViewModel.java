@@ -10,6 +10,7 @@ import com.example.lavugio_mobile.data.model.utils.ResultState;
 import com.example.lavugio_mobile.models.RidePriceEstimateDTO;
 import com.example.lavugio_mobile.models.RideRequestDTO;
 import com.example.lavugio_mobile.repository.ride.FindRideRepository;
+import com.example.lavugio_mobile.services.user.UserApi;
 import com.example.lavugio_mobile.services.utils.GeocodingHelper;
 
 import java.util.List;
@@ -72,5 +73,9 @@ public class FindRideViewModel extends ViewModel {
     public LiveData<Double> getRidePriceEstimate(String vehicleType, float distanceMeters) {
         RidePriceEstimateDTO request = new RidePriceEstimateDTO(vehicleType, distanceMeters);
         return repository.estimatePrice(request);
+    }
+
+    public LiveData<UserApi.BlockStatus> checkUserBlockStatus() {
+        return repository.getBlockStatus();
     }
 }
