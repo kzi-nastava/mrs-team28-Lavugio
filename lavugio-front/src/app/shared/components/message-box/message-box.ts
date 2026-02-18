@@ -78,11 +78,14 @@ export class MessageBox implements OnInit, AfterViewInit {
   sendMessage() {
     if (!this.newMessage.trim()) return;
 
+    const timestamp = new Date();
+    timestamp.setHours(timestamp.getHours() + 1);
+
     const message: ChatMessageModel = {
       senderId: this.userId,
       receiverId: this.receiverId,
       text: this.newMessage.trim(),
-      timestamp: new Date()
+      timestamp: timestamp
     };
 
     this.chatService.sendMessage(message);
