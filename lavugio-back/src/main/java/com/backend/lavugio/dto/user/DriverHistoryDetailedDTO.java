@@ -4,6 +4,9 @@ import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.route.RideDestination;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,14 +21,29 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DriverHistoryDetailedDTO {
+    @NotBlank
     private String start;
+
+    @NotBlank
     private String end;
+
+    @NotBlank
     private String departure;
+
+    @NotBlank
     private String destination;
+
+    @Positive
     private double price;
+
     private boolean cancelled;
+
     private boolean panic;
+
+    @NotEmpty
     private List<PassengerTableRowDTO> passengers;
+
+    @NotEmpty
     private CoordinatesDTO[] checkpoints;
 
     public DriverHistoryDetailedDTO(Ride ride, RideDestination departure, RideDestination destination, CoordinatesDTO[] checkpoints){

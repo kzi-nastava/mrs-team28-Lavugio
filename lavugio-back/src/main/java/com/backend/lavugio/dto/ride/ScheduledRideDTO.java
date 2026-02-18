@@ -3,6 +3,7 @@ package com.backend.lavugio.dto.ride;
 import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.model.enums.RideStatus;
 import com.backend.lavugio.model.ride.Ride;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,14 +18,30 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScheduledRideDTO {
+    @NotNull
     private Long rideId;
+
+    @NotBlank
     private String startAddress;
+
+    @NotBlank
     private String endAddress;
+
+    @PastOrPresent
     private LocalDateTime scheduledTime;
+
+    @NotEmpty
     private List<CoordinatesDTO> checkpoints;
+
+    @Positive
     private Float price;
+
+    @Positive
     private Float distance;
+
+    @NotNull
     private RideStatus status;
+
     private boolean isPanicked;
 
     public ScheduledRideDTO(Ride ride, List<CoordinatesDTO> checkpoints, String start, String end) {

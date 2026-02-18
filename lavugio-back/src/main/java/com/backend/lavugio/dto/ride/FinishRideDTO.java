@@ -15,6 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FinishRideDTO {
+    @NotNull
     private Long rideId;
     @Valid
     private CoordinatesDTO finalDestination;
