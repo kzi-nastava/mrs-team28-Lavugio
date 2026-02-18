@@ -185,7 +185,7 @@ public class DriverController {
     @PostMapping("/edit-request")
     @PreAuthorize("hasRole('DRIVER')")
     public ResponseEntity<?> createDriverEditRequest(
-            @RequestBody DriverUpdateRequestDTO request) {
+            @Valid @RequestBody DriverUpdateRequestDTO request) {
         Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
         Long creatorId = JwtUtil.extractAccountId(authentication);
         try {

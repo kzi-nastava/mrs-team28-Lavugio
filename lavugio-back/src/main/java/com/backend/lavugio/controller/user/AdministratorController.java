@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.backend.lavugio.service.user.AdministratorService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -41,7 +43,7 @@ public class AdministratorController {
     
     @PostMapping("/register")
     public ResponseEntity<?> registerAdministrator(
-            @RequestBody AdministratorRegistrationDTO request) {
+            @Valid @RequestBody AdministratorRegistrationDTO request) {
             // , @AuthenticationPrincipal UserDetails userDetails
         try {
             // String currentEmail = userDetails.getUsername();

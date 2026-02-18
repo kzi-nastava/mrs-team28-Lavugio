@@ -7,6 +7,8 @@ import com.backend.lavugio.dto.user.AccountUpdateDTO;
 import com.backend.lavugio.dto.user.UserDTO;
 import com.backend.lavugio.dto.user.UserRegistrationDTO;
 import com.backend.lavugio.dto.user.EmailVerificationDTO;
+import com.backend.lavugio.dto.user.ForgotPasswordDTO;
+import com.backend.lavugio.dto.user.ResetPasswordDTO;
 import com.backend.lavugio.dto.user.UserHistoryDetailedDTO;
 import com.backend.lavugio.dto.user.UserHistoryPagingDTO;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
@@ -480,9 +482,9 @@ public class RegularUserController {
     // PASSWORD RESET
     
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody java.util.Map<String, String> request) {
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordDTO request) {
         try {
-            String email = request.get("email");
+            String email = request.getEmail();
             
             // Find user by email
             Account account = accountService.getAccountByEmail(email);
@@ -524,10 +526,10 @@ public class RegularUserController {
     }
     
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody java.util.Map<String, String> request) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordDTO request) {
         try {
-            String token = request.get("token");
-            String newPassword = request.get("newPassword");
+            String token = request.getToken();
+            String newPassword = request.getNewPassword();
             
             // Find reset token
             com.backend.lavugio.model.user.PasswordResetToken resetToken = 

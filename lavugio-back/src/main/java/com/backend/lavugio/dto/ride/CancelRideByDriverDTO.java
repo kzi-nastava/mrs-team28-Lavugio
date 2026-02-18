@@ -1,8 +1,7 @@
 package com.backend.lavugio.dto.ride;
 
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,13 +11,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RideReportDTO {
-    @NotNull(message = "Ride ID is required")
-    Long rideId;
-
-    @NotNull
-    Long reporterId;
-
-    @NotBlank(message = "Report comment cannot be blank")
-    String comment;
+public class CancelRideByDriverDTO {
+    @NotBlank(message = "Cancellation reason is required")
+    @Size(max = 500, message = "Reason cannot exceed 500 characters")
+    private String reason;
 }

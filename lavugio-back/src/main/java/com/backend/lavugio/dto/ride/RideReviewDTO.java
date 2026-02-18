@@ -12,12 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RideReviewDTO {
-    @Max(value = 5)
-    @Min(value = 1)
+    @Min(value = 1, message = "Driver rating must be at least 0")
+    @Max(value = 5, message = "Driver rating must be at most 5")
     private int driverRating;
 
-    @Max(value = 5)
-    @Min(value = 1)
+    @Min(value = 1, message = "Vehicle rating must be at least 0")
+    @Max(value = 5, message = "Vehicle rating must be at most 5")
     private int vehicleRating;
 
     private String comment;
