@@ -3,7 +3,6 @@ package com.backend.lavugio.service.ride;
 import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.RideRequestDTO;
 import com.backend.lavugio.dto.ride.RideDestinationDTO;
-import com.backend.lavugio.dto.ride.RideResponseDTO;
 import com.backend.lavugio.dto.ride.StopBaseDTO;
 import com.backend.lavugio.dto.user.DriverLocationDTO;
 import com.backend.lavugio.model.enums.DriverStatusEnum;
@@ -184,12 +183,12 @@ class RideCreationServiceUnitTest {
         when(addressService.createAddress(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(regularUserRepository.findByEmail("passenger@test.com")).thenReturn(Optional.of(new RegularUser()));
 
-        /*RideResponseDTO response = rideService.createInstantRide(1L, testRequest);
+        Ride response = rideService.createInstantRide(1L, testRequest);
 
         assertNotNull(response);
         assertEquals(100L, response.getId());
-        assertEquals(RideStatus.SCHEDULED, response.getStatus());
-        verify(rideRepository, atLeastOnce()).save(any(Ride.class));*/
+        assertEquals(RideStatus.SCHEDULED, response.getRideStatus());
+        verify(rideRepository, atLeastOnce()).save(any(Ride.class));
     }
 
     @Test
@@ -388,10 +387,10 @@ class RideCreationServiceUnitTest {
         when(addressService.createAddress(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(regularUserRepository.findByEmail("passenger@test.com")).thenReturn(Optional.of(new RegularUser()));
 
-        /*RideResponseDTO response = rideService.createInstantRide(1L, testRequest);
+        Ride response = rideService.createInstantRide(1L, testRequest);
 
         assertNotNull(response);
-        verify(driverService).getDriverById(1L);*/
+        verify(driverService).getDriverById(1L);
     }
 
     // SCHEDULED RIDE TESTS
@@ -420,12 +419,12 @@ class RideCreationServiceUnitTest {
         when(addressService.createAddress(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(regularUserRepository.findByEmail("passenger@test.com")).thenReturn(Optional.of(new RegularUser()));
 
-        /*RideResponseDTO response = rideService.createScheduledRide(1L, testRequest);
+        Ride response = rideService.createScheduledRide(1L, testRequest);
 
         assertNotNull(response);
         assertEquals(100L, response.getId());
-        assertEquals(RideStatus.SCHEDULED, response.getStatus());
-        verify(rideRepository, atLeastOnce()).save(any(Ride.class));*/
+        assertEquals(RideStatus.SCHEDULED, response.getRideStatus());
+        verify(rideRepository, atLeastOnce()).save(any(Ride.class));
     }
 
     @Test
@@ -610,10 +609,10 @@ class RideCreationServiceUnitTest {
         when(addressService.createAddress(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(regularUserRepository.findByEmail("passenger@test.com")).thenReturn(Optional.of(new RegularUser()));
 
-        /*RideResponseDTO response = rideService.createScheduledRide(1L, testRequest);
+        Ride response = rideService.createScheduledRide(1L, testRequest);
 
         assertNotNull(response);
-        assertEquals(100L, response.getId());*/
+        assertEquals(100L, response.getId());
     }
 
 }
