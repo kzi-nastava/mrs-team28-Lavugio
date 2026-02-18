@@ -15,6 +15,6 @@ public class RideDestinationDTO {
     private String streetName;
     private String city;
     private String country;
-    private int streetNumber;
+    private String streetNumber;
     private int zipCode;
 }

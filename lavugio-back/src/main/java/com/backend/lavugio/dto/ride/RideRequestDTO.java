@@ -39,6 +39,10 @@ public class RideRequestDTO {
         return destinations.isEmpty() ? null : destinations.getFirst();
     }
 
+    public RideDestinationDTO getEndAddress() {
+        return destinations.getLast();
+    }
+
     private int estimatedDurationSeconds;
 
     private int price;

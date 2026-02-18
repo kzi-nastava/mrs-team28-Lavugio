@@ -152,7 +152,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center" >
 
         <Button
             android:id="@+id/btnCancel"
@@ -166,7 +166,22 @@
             app:backgroundTint="#FFFFFF"
             android:padding="14dp"
             android:layout_marginEnd="8dp"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:layout_marginHorizontal="3dp"/>
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Delete"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_bg"
+            app:backgroundTint="@color/error_red"
+            android:padding="14dp"
+            android:textAllCaps="false"
+            android:layout_marginHorizontal="3dp"/>
 
         <Button
             android:id="@+id/btnSelect"
@@ -179,7 +194,8 @@
             android:background="@drawable/button_bg"
             app:backgroundTint="@color/light_green"
             android:padding="14dp"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:layout_marginHorizontal="3dp"/>
 
     </LinearLayout>
 

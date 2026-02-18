@@ -17,6 +17,10 @@ public class GeocodingHelper {
     private PhotonApiService apiService;
     private Handler mainHandler;
 
+    // Center of Serbia (around Belgrade) for biasing results
+    private static final double SERBIA_CENTER_LAT = 44.8;
+    private static final double SERBIA_CENTER_LON = 20.5;
+
     public interface GeocodingCallback {
         void onSuccess(List<GeocodingResult> results);
         void onError(String error);
@@ -28,7 +32,7 @@ public class GeocodingHelper {
     }
 
     /**
-     * Search for addresses using Photon API
+     * Search for addresses using Photon API (biased toward Serbia)
      */
     public void searchAddress(String query, GeocodingCallback callback) {
         if (query == null || query.trim().isEmpty()) {
@@ -36,7 +40,37 @@ public class GeocodingHelper {
             return;
         }
 
-        Call<PhotonResponse> call = apiService.searchAddress(query, 5);
+        Call<PhotonResponse> call = apiService.searchAddress(
+                query,
+                5,
+                SERBIA_CENTER_LAT,
+                SERBIA_CENTER_LON,
+                "en"
+        );
+
+        call.enqueue(new Callback<PhotonResponse>() {
+            @Override
+            public void onResponse(Call<PhotonResponse> call, Response<PhotonResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<GeocodingResult> results = parsePhotonResponse(response.body());
+                    mainHandler.post(() -> callback.onSuccess(results));
+                } else {
+                    mainHandler.post(() -> callback.onError("Request failed: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PhotonResponse> call, Throwable t) {
+                mainHandler.post(() -> callback.onError("Network error: " + t.getMessage()));
+            }
+        });
+    }
+
+    /**
+     * Reverse geocode coordinates to get place name
+     */
+    public void reverseGeocode(double latitude, double longitude, GeocodingCallback callback) {
+        Call<PhotonResponse> call = apiService.reverseGeocode(latitude, longitude);
 
         call.enqueue(new Callback<PhotonResponse>() {
             @Override

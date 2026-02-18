@@ -22,6 +22,7 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.route.Coordinates;
 import com.example.lavugio_mobile.data.model.route.FavoriteRoute;
 import com.example.lavugio_mobile.data.model.route.RideDestination;
+import com.example.lavugio_mobile.ui.dialog.ConfirmDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
     // Interface for callback
     public interface OnRouteSelectedListener {
         void onRouteSelected(RideDestination[] destinations, String routeName);
+        void onRouteDeleted(String routeId);
     }
 
     private OnRouteSelectedListener listener;
@@ -40,7 +42,14 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
     private LinearLayout llRoutesList;
     private TextView tvNoRoutes;
     private Button btnCancel;
+    private Button btnDelete;
     private Button btnSelect;
+
+    public static FavoriteRoutesDialogFragment newInstance(List<FavoriteRoute> routes) {
+        FavoriteRoutesDialogFragment fragment = new FavoriteRoutesDialogFragment();
+        fragment.favoriteRoutes = routes;
+        return fragment;
+    }
 
     @Override
     public void onStart() {
@@ -71,8 +80,6 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
 
         view.findViewById(R.id.cvRouteItem).setVisibility(View.GONE);
 
-        loadTestRoutes();
-
         updateRoutesUI();
     }
 
@@ -80,6 +87,7 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
         llRoutesList = view.findViewById(R.id.llRoutesList);
         tvNoRoutes = view.findViewById(R.id.tvNoRoutes);
         btnCancel = view.findViewById(R.id.btnCancel);
+        btnDelete = view.findViewById(R.id.btnDelete);
         btnSelect = view.findViewById(R.id.btnSelect);
     }
 
@@ -109,145 +117,45 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
                 dismissFragment();
             }
         });
-    }
 
-    private void loadTestRoutes() {
-        // Test route 1: Home to Work
-        RideDestination home = new RideDestination(
-                1L,
-                "Home",
-                "Bulevar oslobodjenja",
-                "46",
-                "Novi Sad",
-                "Serbia",
-                new Coordinates(19.847400d, 45.267100d)
-        );
-        RideDestination work = new RideDestination(
-                2L,
-                "Office",
-                "Trg Dositeja Obradovica",
-                "6",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.8492d, 45.2551d)
-        );
-        favoriteRoutes.add(new FavoriteRoute(1L, "Home to Work", new RideDestination[]{home, work}));
-
-        // Test route 2: Shopping route
-        RideDestination start = new RideDestination(
-                3L,
-                "Apartment",
-                "Bulevar Cara Lazara",
-                "10",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.842d, 45.265d)
-        );
-        RideDestination mall = new RideDestination(
-                4L,
-                "BIG Shopping Center",
-                "Bulevar oslobodjenja",
-                "119",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.8052d, 45.2398d)
-        );
-        RideDestination groceryStore = new RideDestination(
-                5L,
-                "Mercator",
-                "Sutjeska",
-                "2",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.8335d, 45.259d)
-        );
-        favoriteRoutes.add(new FavoriteRoute(2L, "Shopping Route", new RideDestination[]{start, mall, groceryStore}));
-
-        // Test route 3: University
-        RideDestination dorm = new RideDestination(
-                6L,
-                "Student Dorm",
-                "Narodnih heroja",
-                "23",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.845d, 45.258d)
-        );
-        RideDestination university = new RideDestination(
-                7L,
-                "Faculty of Technical Sciences",
-                "Trg Dositeja Obradovica",
-                "6",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.8492d, 45.2551d)
-        );
-        favoriteRoutes.add(new FavoriteRoute(3L, "To University", new RideDestination[]{dorm, university}));
-
-        // Test route 4: Weekend trip
-        RideDestination city = new RideDestination(
-                8L,
-                "City Center",
-                "Zmaj Jovina",
-                "5",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.8432d, 45.2555d)
-        );
-        RideDestination fortress = new RideDestination(
-                9L,
-                "Petrovaradin Fortress",
-                "Petrovaradinska tvrdava",
-                "bb",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.8634d, 45.2515d)
-        );
-        RideDestination beach = new RideDestination(
-                10L,
-                "Štrand Beach",
-                "Ribarsko ostrvo",
-                "bb",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.849d, 45.251d)
-        );
-        favoriteRoutes.add(new FavoriteRoute(4L, "Weekend Sightseeing", new RideDestination[]{city, fortress, beach}));
-
-        // Test route 5: Airport run
-        RideDestination hotel = new RideDestination(
-                11L,
-                "Hotel Park",
-                "Bulevar oslobodjenja",
-                "23",
-                "Novi Sad",
-                "Serbia",
-            new Coordinates(19.84d, 45.26d)
-        );
-        RideDestination airport = new RideDestination(
-                12L,
-                "Belgrade Airport",
-                "Airport Road",
-                "1",
-                "Belgrade",
-                "Serbia",
-                new Coordinates(20.309000, 44.818500)
-        );
-        favoriteRoutes.add(new FavoriteRoute(5L, "To Airport", new RideDestination[]{hotel, airport}));
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selectedRouteId != null) {
+                    ConfirmDialogFragment.newInstance(
+                            "Delete Route",
+                            "Are you sure you want to delete this favorite route?",
+                            new ConfirmDialogFragment.ConfirmDialogListener() {
+                        @Override
+                        public void onConfirm() {
+                            if (listener != null) {
+                                listener.onRouteDeleted(selectedRouteId);
+                            }
+                        }
+                        @Override
+                        public void onCancel() {
+                        }
+                    }).show(getActivity().getSupportFragmentManager(), "confirm_dialog");
+                }
+            }
+        });
     }
 
     private void updateRoutesUI() {
+        displayRoutes(favoriteRoutes);
         if (favoriteRoutes.isEmpty()) {
             tvNoRoutes.setVisibility(View.VISIBLE);
             btnSelect.setEnabled(false);
             btnSelect.setAlpha(0.5f);
+            btnDelete.setEnabled(false);
+            btnDelete.setAlpha(0.5f);
         } else {
             tvNoRoutes.setVisibility(View.GONE);
-            displayRoutes(favoriteRoutes);
-
             selectedRouteId = null;
             btnSelect.setEnabled(false);
             btnSelect.setAlpha(0.5f);
+            btnDelete.setEnabled(false);
+            btnDelete.setAlpha(0.5f);
         }
     }
 
@@ -280,9 +188,12 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
                     selectedRouteId = routeId;
                     updateSelection(routeId);
 
-                    // Omogući Select dugme
+                    // ENABLE BUTTONS
                     btnSelect.setEnabled(true);
                     btnSelect.setAlpha(1f);
+                    btnDelete.setEnabled(true);
+                    btnDelete.setAlpha(1f);
+
                 }
             });
 
@@ -305,5 +216,27 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
 
     public void setOnRouteSelectedListener(OnRouteSelectedListener listener) {
         this.listener = listener;
+    }
+
+    public void removeRouteFromList(String routeId) {
+        FavoriteRoute routeToRemove = null;
+        for (FavoriteRoute route : favoriteRoutes) {
+            if (route.getId().equals(routeId)) {
+                routeToRemove = route;
+                break;
+            }
+        }
+        if (routeToRemove != null) {
+            favoriteRoutes.remove(routeToRemove);
+        }
+
+        selectedRouteId = null;
+
+        // Clear the list view first
+        if (llRoutesList != null) {
+            llRoutesList.removeAllViews();
+        }
+
+        updateRoutesUI();
     }
 }

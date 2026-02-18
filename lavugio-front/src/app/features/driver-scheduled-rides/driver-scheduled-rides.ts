@@ -14,10 +14,12 @@ import { AuthService } from '@app/core/services/auth-service';
 import { LocationService } from '@app/core/services/location-service';
 import { DialogService } from '@app/core/services/dialog-service';
 import { LiveSupportButtonComponent } from "@app/shared/components/live-support-button/live-support-button";
+import { IMessage, StompSubscription } from '@stomp/stompjs';
+import { WebSocketService } from '@app/core/services/web-socket-service';
 
 @Component({
   selector: 'app-driver-scheduled-rides',
-  imports: [ScheduledRides, MapComponent, Navbar, LiveSupportButtonComponent],
+  imports: [ScheduledRides, MapComponent, Navbar],
   templateUrl: './driver-scheduled-rides.html',
   styleUrl: './driver-scheduled-rides.css',
 })
@@ -29,6 +31,9 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
   private dialogService = inject(DialogService);
   private subscription : Subscription | null = null;
   private injector = inject(Injector);
+  private rideStartSub: StompSubscription | null = null;
+  private rideCancelSub: StompSubscription | null = null;
+  private webSocketService = inject(WebSocketService);
   rides = signal<ScheduledRideDTO[] | null>(null);
   coordinates = signal<Coordinates[] | null>(null);
   @ViewChild("map") map! : MapComponent;
@@ -37,6 +42,32 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
 
   ngAfterViewInit(): void {
     this.loadRides();
+
+  const driverId = this.authService.getStoredUser()?.userId;
+
+    this.webSocketService.connect(() => {
+    
+    // Nova vožnja od putnika
+      this.rideStartSub = this.webSocketService.subscribe(
+        `/socket-publisher/drivers/${driverId}/ride/start`,
+        (message: IMessage) => {
+          const newRide: ScheduledRideDTO = JSON.parse(message.body);
+          const current = this.rides() || [];
+          this.rides.set([...current, newRide]);
+          this.sortRidesByStatusAndTime(this.rides()!);
+          this.checkIfAnyActiveRides(this.rides()!);
+        }
+      );
+
+      // Putnik otkazao vožnju
+      this.rideCancelSub = this.webSocketService.subscribe(
+        `/socket-publisher/drivers/${driverId}/ride/cancel`,
+        (message: IMessage) => {
+          const cancelledRideId: number = JSON.parse(message.body);
+          this.removeRideFromList(cancelledRideId);
+        }
+      );
+    });
 
     effect(()=>{
       let coords = this.coordinates(); 
@@ -67,8 +98,10 @@ export class DriverScheduledRides implements AfterViewInit, OnDestroy{
     this.coordinates.set(coordinates);
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.subscription?.unsubscribe();
+    this.rideStartSub?.unsubscribe();
+    this.rideCancelSub?.unsubscribe();
   }
 
   checkIfAnyActiveRides(rides: ScheduledRideDTO[]){

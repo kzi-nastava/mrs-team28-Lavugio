@@ -252,7 +252,7 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
             streetName: d.street,
             city: d.city,
             country: d.country,
-            streetNumber: parseInt(d.houseNumber) || 0,
+            streetNumber: d.houseNumber,
             zipCode: 0,
           })),
           passengerEmails: this.passengers.map((p) => p.email),
@@ -278,6 +278,22 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
   }
 
   findRide(rideRequest: RideRequestDTO) {
+    this.userService.isUserBlocked().subscribe({
+      next: (response) => {
+        if (response.blocked) {
+          this.dialogService.openBlocked(response.reason);
+          return;
+        };
+      },
+      error: (error) => {
+        console.error('Error checking if user is blocked:', error);
+        this.dialogService.open(
+          'Error',
+          'Unable to verify user status. Please try again later.',
+          true,
+        );
+        return;
+      }});
     this.rideService.findRide(rideRequest).subscribe({
       next: (response) => {
         console.log('Ride found:', response);
@@ -540,6 +556,39 @@ export class FindTrip implements OnInit, OnDestroy, AfterViewInit{
     this.showFavoritesDialog = false;
 
     this.updateRoute();
+  }
+
+  deleteFavoriteRoute(route: FavoriteRoute) {
+    console.log('Deleting route:', route);
+
+    this.dialogService.openConfirm(
+      'Delete Favorite Route',
+      `Are you sure you want to delete "${route.name}"?`
+    ).subscribe({
+      next: (confirmed) => {
+        if (confirmed) {
+          this.favoriteRouteService.deleteFavoriteRoute(route.id).subscribe({
+            next: () => {
+              this.dialogService.open(
+                'Route Deleted',
+                'Your favorite route has been deleted successfully.',
+                false
+              );
+              // Refresh the favorites list
+              this.favoriteRoutes = this.favoriteRoutes.filter(r => r.id !== route.id);
+            },
+            error: (err) => {
+              this.dialogService.open(
+                'Delete Failed',
+                err.error?.message || 'Unable to delete the favorite route.',
+                true
+              );
+            }
+          });
+        }
+      }
+    });
+
   }
 
   saveFavoriteRoute() {

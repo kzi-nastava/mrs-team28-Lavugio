@@ -78,6 +78,9 @@ public class Ride {
     @Column(nullable = false)
     private boolean hasPanic;
 
+    @Column
+    private LocalDateTime nextNotificationTime;
+
     @OneToMany(mappedBy = "ride", fetch = FetchType.LAZY)
     @OrderBy("destinationOrder ASC")
     @JsonIgnore

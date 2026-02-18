@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.ui.profile.views;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -41,6 +42,10 @@ public class ProfileHeaderView extends LinearLayout {
         profileName = findViewById(R.id.profile_name);
         profileUserType = findViewById(R.id.profile_user_type);
         profileEmail = findViewById(R.id.profile_email);
+    }
+
+    public ImageView getProfileImage() {
+        return this.profileImage;
     }
 
     // Setter methods for updating the view
@@ -85,5 +90,9 @@ public class ProfileHeaderView extends LinearLayout {
         setName(name);
         setUserType(userType);
         setEmail(email);
+    }
+
+    public void setProfileBitmap(Bitmap bitmap) {
+        profileImage.setImageBitmap(bitmap);
     }
 }

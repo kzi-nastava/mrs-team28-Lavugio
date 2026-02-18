@@ -6,19 +6,6 @@
     android:orientation="vertical"
     android:background="@android:color/white">
 
-    <!-- Header - Van ScrollView, uvek vidljiv -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="RIDES REPORTS"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:background="@drawable/title_text_view"
-        android:padding="16dp"
-        android:gravity="center"
-        android:layout_margin="24dp"/>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -36,6 +23,19 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="24dp">
+
+                <!-- Header  -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RIDES REPORTS"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/title_text_view"
+                    android:padding="16dp"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp" />
 
                 <!-- Title -->
                 <TextView
@@ -83,6 +83,7 @@
 
                 <!-- Select User Email -->
                 <TextView
+                    android:id="@+id/tvEmailTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Select User Email"
@@ -93,6 +94,7 @@
 
                 <!-- Email Input -->
                 <LinearLayout
+                    android:id="@+id/emailInputContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -126,6 +128,7 @@
 
                 <!-- Filter By Title -->
                 <TextView
+                    android:id="@+id/tvFilterByTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Filter By:"

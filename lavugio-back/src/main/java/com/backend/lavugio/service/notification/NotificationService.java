@@ -19,6 +19,8 @@ public interface NotificationService {
     Notification createWebCancelledRideNotification(Long rideId, Long SentToId);
     void sendNotificationToSocket(Notification notification);
 
+    Notification createWebRideReminderNotification(Long rideId, Long sentToId);
+
     Notification updateNotification(Long id, Notification notification);
     void deleteNotification(Long id);
     Notification getNotificationById(Long id);

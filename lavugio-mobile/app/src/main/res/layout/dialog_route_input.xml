@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_route_dialog"
+    android:padding="24dp">
+
+    <!-- Dialog Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Route Estimation"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_accent"
+        android:gravity="center"
+        android:paddingBottom="16dp"/>
+
+    <!-- Origin Input Field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Origin"
+            android:textSize="12sp"
+            android:textColor="@color/text_gray"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_bg"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/etOrigin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter origin address"
+                android:inputType="text"
+                android:background="@null"
+                android:textColor="@color/text_dark"
+                android:textColorHint="@color/text_light_gray"
+                android:textSize="14sp"
+                android:completionThreshold="1"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Destination Input Field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Destination"
+            android:textSize="12sp"
+            android:textColor="@color/text_gray"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_bg"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/etDestination"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter destination address"
+                android:inputType="text"
+                android:background="@null"
+                android:textColor="@color/text_dark"
+                android:textColorHint="@color/text_light_gray"
+                android:textSize="14sp"
+                android:completionThreshold="1"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Pick Location Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnPickOrigin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="44dp"
+            android:layout_weight="1"
+            android:text="Pick Origin\nfrom Map"
+            android:textSize="11sp"
+            android:background="@drawable/rounded_button_outline"
+            android:textColor="@color/lavugio_light_green"
+            android:textAllCaps="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginEnd="6dp"/>
+
+        <Button
+            android:id="@+id/btnPickDestination"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="44dp"
+            android:layout_weight="1"
+            android:text="Pick Destination\nfrom Map"
+            android:textSize="11sp"
+            android:background="@drawable/rounded_button_outline"
+            android:textColor="@color/lavugio_light_green"
+            android:textAllCaps="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginStart="6dp"/>
+
+    </LinearLayout>
+
+    <!-- Show Route Button -->
+    <Button
+        android:id="@+id/btnShowRoute"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Calculate Route"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/rounded_button_bg"
+        android:backgroundTint="@color/lavugio_light_green"
+        android:textColor="@color/text_white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"/>
+
+    <!-- Route Estimate Result -->
+    <TextView
+        android:id="@+id/tvRouteEstimate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="@color/text_dark"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:padding="8dp"
+        android:background="@drawable/edit_text_bg"
+        android:minHeight="40dp"
+        android:visibility="gone"/>
+
+    <!-- Close Button -->
+    <Button
+        android:id="@+id/btnCloseDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="Close"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_button_outline"
+        android:textColor="@color/lavugio_light_green"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"/>
+
+</LinearLayout>

@@ -1,5 +1,6 @@
 package com.backend.lavugio.service.ride.impl;
 
+import com.backend.lavugio.dto.CoordinatesDTO;
 import com.backend.lavugio.dto.ride.*;
 import com.backend.lavugio.dto.user.*;
 import com.backend.lavugio.model.enums.DriverHistorySortFieldEnum;
@@ -20,6 +21,7 @@ import com.backend.lavugio.repository.ride.ReviewRepository;
 import com.backend.lavugio.repository.ride.RideReportRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
 import com.backend.lavugio.service.pricing.PricingService;
+import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -46,10 +48,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class RideServiceImpl implements RideService {
 
     private final RideRepository rideRepository;
@@ -334,6 +337,10 @@ public class RideServiceImpl implements RideService {
         
         // Send notifications to passengers with cancellation reason
         notificationService.notifyPassengersAboutCancellation(ride, reason, true);
+        this.simpMessagingTemplate.convertAndSend(
+                "/socket-publisher/rides/" + ride.getId() + "/cancel",
+                new RideOverviewUpdateDTO(ride)
+        );
     }
 
     @Override
@@ -380,6 +387,14 @@ public class RideServiceImpl implements RideService {
         
         // Notify driver about cancellation
         notificationService.notifyDriverAboutPassengerCancellation(ride);
+        this.simpMessagingTemplate.convertAndSend(
+                "/socket-publisher/drivers/" + ride.getDriver().getId() + "/ride/cancel",
+                ride.getId()
+        );
+        this.simpMessagingTemplate.convertAndSend(
+                "/socket-publisher/rides/" + ride.getId() + "/cancel",
+                new RideOverviewUpdateDTO(ride)
+        );
     }
 
     @Override
@@ -425,9 +440,12 @@ public class RideServiceImpl implements RideService {
 
     @Override
     @Transactional
-    public RideResponseDTO createInstantRide(Long creatorID, RideRequestDTO request) {
+    public Ride createInstantRide(Long creatorID, RideRequestDTO request) {
         RegularUser creator = regularUserRepository.findById(creatorID)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
+        if (creator.isBlocked()) {
+            throw new RuntimeException("Your account is blocked. You cannot create a scheduled ride.");
+        }
         System.out.println("Found creator: " + creator.getEmail());
         // Find an available driver
         List<DriverLocationDTO> availableDrivers = this.driverAvailabilityService.getDriverLocationsDTO();
@@ -486,8 +504,7 @@ public class RideServiceImpl implements RideService {
             
             if (isVehicleSuitable && isDriverUnderDailyLimit && !driverHasScheduledRideSoon) {
                 System.out.println("Assigning driver: " + driver.getId());
-                Ride ride = createInstantRide(driver, creator, request);
-                return mapToRideResponseDTO(ride);
+                return createInstantRide(driver, creator, request);
             }
         }
         
@@ -498,9 +515,13 @@ public class RideServiceImpl implements RideService {
     }
 
     @Transactional
-    public RideResponseDTO createScheduledRide(Long creatorID, RideRequestDTO request) {
+    public Ride createScheduledRide(Long creatorID, RideRequestDTO request) {
         RegularUser creator = regularUserRepository.findById(creatorID)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + creatorID));
+
+        if (creator.isBlocked()) {
+            throw new RuntimeException("Your account is blocked. You cannot create a scheduled ride.");
+        }
 
         System.out.println("Found creator: " + creator.getEmail());
 
@@ -512,17 +533,40 @@ public class RideServiceImpl implements RideService {
         System.out.println("Got all drivers: " + allDrivers.size());
 
         for (Driver driver : allDrivers) {
+            if (driver.isBlocked()) {
+                continue;
+            }
             boolean isVehicleSuitable = this.isVehicleSuitable(driver.getVehicle(), request.isBabyFriendly(), request.isPetFriendly(), request.getPassengerEmails().size(), request.getVehicleType());
             boolean isDriverUnderDailyLimitScheduled = this.isDriverUnderDailyLimitScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());
             boolean driverHasScheduledRideSoonScheduled = this.driverHasScheduledRideSoonScheduled(driver.getId(), request.getEstimatedDurationSeconds(), request.getScheduledTime());
             System.out.println("Is vehicle suitable: " + isVehicleSuitable + ", Under daily limit for scheduled: " + isDriverUnderDailyLimitScheduled + ", Has scheduled ride soon for scheduled: " + driverHasScheduledRideSoonScheduled);
             if (isVehicleSuitable && isDriverUnderDailyLimitScheduled && !driverHasScheduledRideSoonScheduled) {
                 System.out.println("Assigning driver for scheduled ride: " + driver.getId());
-                Ride ride = createScheduledRide(driver, creator, request);
-                return mapToRideResponseDTO(ride);
+                return createScheduledRide(driver, creator, request);
             }
         }
         throw new RuntimeException("There are no available drivers for the scheduled ride at the moment");
+    }
+
+    @Override
+    public RideResponseDTO createRide(Long creatorId, RideRequestDTO request) {
+        Ride ride;
+        if (request.isScheduled()) {
+            ride = createScheduledRide(creatorId, request);
+        } else {
+            System.out.println("Creating instant ride");
+            ride = createInstantRide(creatorId, request);
+        }
+        try{
+            this.simpMessagingTemplate.convertAndSend(
+                    "/socket-publisher/drivers/" + ride.getDriver().getId() + "/ride/start",
+                    new ScheduledRideDTO(ride, request)
+            );
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        return mapToRideResponseDTO(ride);
     }
 
     private boolean isVehicleSuitable(Vehicle vehicle, boolean requestBabyFriendly, boolean requestPetFriendly, int passangersNum, VehicleType vehicleType) {
@@ -679,7 +723,7 @@ public class RideServiceImpl implements RideService {
         return ride;
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     protected Ride createScheduledRide(Driver driver, RegularUser creator, RideRequestDTO request) {
         Ride ride = new Ride();
         ride.setCreator(creator);
@@ -691,6 +735,8 @@ public class RideServiceImpl implements RideService {
         ride.setDistance(request.getDistance());
         ride.setRideStatus(RideStatus.SCHEDULED);
         ride.setHasPanic(false);
+
+        ride.setNextNotificationTime(LocalDateTime.now().plusMinutes(15));
 
         // Save the ride
         rideRepository.save(ride);
@@ -876,6 +922,8 @@ public class RideServiceImpl implements RideService {
         regularUserRepository.save(rideCreator);
         driverService.updateDriverDriving(ride.getDriver().getId(), true);
         notifySocket(ride);
+        RideOverviewUpdateDTO rideOverviewUpdateDTO = new RideOverviewUpdateDTO(ride.getEndAddress(), new CoordinatesDTO(ride.getCheckpoints().getLast().getAddress()), ride);
+        simpMessagingTemplate.convertAndSend("/socket-publisher/rides/" + rideId + "/update", rideOverviewUpdateDTO);
     }
 
     @Override

@@ -44,6 +44,16 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
+    public void updateFcmToken(Long accountId, String fcmToken) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found with id: " + accountId));
+        account.setFcmToken(fcmToken);
+        account.setFcmTokenUpdatedAt(java.time.LocalDateTime.now());
+        accountRepository.save(account);
+    }
+
+    @Override
+    @Transactional
     public Account createAccount(Account account) {
         logger.info("Creating account for email: {}", account.getEmail());
         
@@ -140,8 +150,12 @@ public class AccountServiceImpl implements AccountService {
             String contentType = file.getContentType();
 
             if (!contentType.equals("image/jpeg") &&
-                    !contentType.equals("image/png")) {
-                throw new RuntimeException("Only JPG and PNG allowed");
+                    !contentType.equals("image/png") &&
+                    !contentType.equals("image/jpg") &&
+                    !contentType.equals("image/webp") &&
+                    !contentType.equals("image/heic") &&
+                    !contentType.equals("image/heif")) {
+                throw new RuntimeException("Only JPG, PNG, WebP, HEIC, and HEIF images are allowed");
             }
 
             File directory = new File(uploadDir);

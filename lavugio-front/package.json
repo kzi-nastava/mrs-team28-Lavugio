@@ -53,6 +53,7 @@
     "process": "process/browser"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "^21.0.3",
     "@angular/build": "^21.0.3",
     "@angular/cli": "^21.0.3",
     "@angular/compiler-cli": "^21.0.0",

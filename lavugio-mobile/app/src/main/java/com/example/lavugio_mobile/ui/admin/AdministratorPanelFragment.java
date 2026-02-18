@@ -9,13 +9,19 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.R;
+import com.example.lavugio_mobile.ui.admin.history.AdminRideHistoryFragment;
+import com.example.lavugio_mobile.ui.dialog.PriceDefinitionDialogFragment;
+import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 
 public class AdministratorPanelFragment extends Fragment {
     private Button btnRegisterDriver;
     private Button btnDriverUpdateRequests;
     private Button btnBlockUser;
+    private Button btnUserHistory;
     private Button btnSeeReports;
     private Button btnPanicAlerts;
+    private Button btnPriceDefinition;
+    private Button btnRideMonitoring;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -25,8 +31,16 @@ public class AdministratorPanelFragment extends Fragment {
         btnRegisterDriver = view.findViewById(R.id.btnRegisterDriver);
         btnDriverUpdateRequests = view.findViewById(R.id.btnDriverUpdateRequests);
         btnBlockUser = view.findViewById(R.id.btnBlockUser);
+        btnUserHistory = view.findViewById(R.id.btnUserHistory);
         btnSeeReports = view.findViewById(R.id.btnSeeReports);
         btnPanicAlerts = view.findViewById(R.id.btnPanicAlerts);
+        btnPriceDefinition = view.findViewById(R.id.btnPriceDefinition);
+        btnRideMonitoring = view.findViewById(R.id.btnRideMonitoring);
+
+        btnPriceDefinition.setOnClickListener(v -> {
+            PriceDefinitionDialogFragment dialog = PriceDefinitionDialogFragment.newInstance();
+            dialog.show(getChildFragmentManager(), "price_definition");
+        });
 
         // Set click listeners
         btnRegisterDriver.setOnClickListener(v -> {
@@ -53,12 +67,32 @@ public class AdministratorPanelFragment extends Fragment {
                     .commit();
         });
 
+        btnUserHistory.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, AdminRideHistoryFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         btnSeeReports.setOnClickListener(v -> {
-            // TODO: Navigate to Reports screen when implemented
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, new RidesReportsFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         btnPanicAlerts.setOnClickListener(v -> {
             // TODO: Navigate to Panic Alerts screen when implemented
+        });
+
+        btnRideMonitoring.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, new RideMonitoringFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         return view;

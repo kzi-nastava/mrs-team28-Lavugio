@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Map Container -->
+            <FrameLayout
+                android:id="@+id/map_container"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/card_background"
+                android:elevation="2dp"/>
+
+            <!-- Trip Info Card -->
+            <LinearLayout
+                android:id="@+id/trip_info_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/card_background"
+                android:padding="16dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Trip Information"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#BC6C25"
+                    android:fontFamily="@font/inter_variable_font"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="Start:"
+                        android:textStyle="bold"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                    <TextView
+                        android:id="@+id/tripStart"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="End:"
+                        android:textStyle="bold"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                    <TextView
+                        android:id="@+id/tripEnd"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="From:"
+                        android:textStyle="bold"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                    <TextView
+                        android:id="@+id/tripDeparture"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="To:"
+                        android:textStyle="bold"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                    <TextView
+                        android:id="@+id/tripDestination"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="Price:"
+                        android:textStyle="bold"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                    <TextView
+                        android:id="@+id/tripPrice"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Driver Info Card -->
+            <LinearLayout
+                android:id="@+id/driver_info_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/card_background"
+                android:padding="16dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Driver Information"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#BC6C25"
+                    android:fontFamily="@font/inter_variable_font"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:id="@+id/driverName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#283618"
+                    android:fontFamily="@font/inter_variable_font"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/driverPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#283618"
+                    android:fontFamily="@font/inter_variable_font"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/vehicleInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#283618"
+                    android:fontFamily="@font/inter_variable_font"/>
+            </LinearLayout>
+
+            <!-- Review Section -->
+            <LinearLayout
+                android:id="@+id/review_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/card_background"
+                android:padding="16dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Review"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#BC6C25"
+                    android:fontFamily="@font/inter_variable_font"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:id="@+id/existing_review_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/reviewRatings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/reviewComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#283618"
+                        android:fontFamily="@font/inter_variable_font"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/no_review_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No review yet"
+                    android:textColor="#283618"
+                    android:alpha="0.6"
+                    android:fontFamily="@font/inter_variable_font"/>
+            </LinearLayout>
+
+            <!-- Reports Section -->
+            <LinearLayout
+                android:id="@+id/reports_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/card_background"
+                android:padding="16dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reports"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#BC6C25"
+                    android:fontFamily="@font/inter_variable_font"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:id="@+id/reports_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+                <TextView
+                    android:id="@+id/no_reports_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No reports filed"
+                    android:textColor="#283618"
+                    android:alpha="0.6"
+                    android:fontFamily="@font/inter_variable_font"/>
+            </LinearLayout>
+
+            <!-- Reorder Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reorderButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:backgroundTint="@color/dark_brown"
+                android:fontFamily="@font/inter_variable_font"
+                android:text="Reorder This Route"
+                app:cornerRadius="8dp"
+                android:textColor="@color/lavugio_white"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

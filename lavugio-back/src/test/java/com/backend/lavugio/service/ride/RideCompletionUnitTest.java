@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class RideCompletionServiceImplTest {
+class RideCompletionUnitTest {
 
     @Mock
     private RideDestinationService rideDestinationService;
@@ -358,5 +358,26 @@ class RideCompletionServiceImplTest {
 
         assertFalse(testDriver.isDriving());
         verify(driverRepository, times(1)).save(testDriver);
+    }
+
+    @Test
+    void finishRide_AlreadyFinished_ThrowsIllegalStateException() {
+        testRide.setRideStatus(RideStatus.FINISHED);
+
+        when(rideDestinationService.getOrderedDestinationsByRideId(100L)).thenReturn(testRoute);
+        when(rideService.getRideById(100L)).thenReturn(testRide);
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> rideCompletionService.finishRide(1L, finishRideDTO)
+        );
+
+        assertEquals("This ride is already finished: 100", exception.getMessage());
+
+        verify(emailService, never()).sendEmail(anyString(), anyString(), anyString());
+        verify(notificationService, never()).createWebRideFinishedNotification(anyLong(), anyLong());
+        verify(notificationService, never()).sendNotificationToSocket(any(Notification.class));
+        verify(driverRepository, never()).save(any());
+        verify(simpMessagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
     }
 }

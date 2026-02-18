@@ -66,6 +66,7 @@
             [routes]="favoriteRoutes"
             (cancel)="closeFavorites()"
             (routeSelected)="applyFavoriteRoute($event)"
+            (routeDeleted)="deleteFavoriteRoute($event)"
           >
           </app-favorite-routes-dialog>
           } } @if (currentStep === 1) {

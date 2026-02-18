@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "accounts")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -34,4 +36,11 @@ public class Account {
 	private String address;
 	@Column(columnDefinition = "boolean default false")
 	private boolean emailVerified = false;
+
+	// FIREBASE TOKEN
+	@Column(name = "fcm_token")
+	private String fcmToken;
+
+	@Column(name = "fcm_token_updated_at")
+	private LocalDateTime fcmTokenUpdatedAt;
 }

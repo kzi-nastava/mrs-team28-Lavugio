@@ -8,12 +8,14 @@ import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.model.vehicle.Vehicle;
 import com.backend.lavugio.security.JwtUtil;
 import com.backend.lavugio.security.SecurityUtils;
+import com.backend.lavugio.security.UserPrincipal;
 import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.user.AccountService;
 import com.backend.lavugio.service.user.AdministratorService;
 import com.backend.lavugio.service.user.DriverService;
 import com.backend.lavugio.service.user.RegularUserService;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 import org.springframework.core.io.Resource;
@@ -249,5 +251,24 @@ public class    AccountController {
     public ResponseEntity<?> getNotifications(){
         Long userId = SecurityUtils.getCurrentUserId();
         return new ResponseEntity<>(notificationService.getNotificationDTOsByUserId(userId), HttpStatus.OK);
+    }
+
+    @PostMapping("/token")
+    @Transactional
+    public ResponseEntity<?> saveToken(@RequestBody FcmTokenDTO tokenDTO) {
+        Long accountId = SecurityUtils.getCurrentUserId();
+        String token = tokenDTO.getToken();
+
+        if (accountId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (token == null || token.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Token is required");
+        }
+
+        accountService.updateFcmToken(accountId, token);
+
+        return ResponseEntity.ok("Token saved successfully");
     }
 }

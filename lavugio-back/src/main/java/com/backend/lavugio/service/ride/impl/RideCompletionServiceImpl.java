@@ -67,6 +67,9 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         if (ride==null){
             throw new NoSuchElementException("Cannot find ride for ride "+rideDTO.getRideId());
         }
+        if (ride.getRideStatus() == RideStatus.FINISHED){
+            throw new IllegalStateException("This ride is already finished: " + rideDTO.getRideId());
+        }
 
         CoordinatesDTO finalDestinationCoords;
         String finalDestinationAddress;
@@ -131,7 +134,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
 
     private void sendEmailsToPassengers(Collection<RegularUser> passengers, Long rideId){
         String subject = "Your ride has been finished";
-        String body = "Link to the ride: http/localhost:4200/" + rideId + "/ride-overview";
+        String body = "Link to the ride: http://localhost:4200/" + rideId + "/ride-overview";
         for (RegularUser passenger : passengers) {
             emailService.sendEmail(passenger.getEmail(), subject, body);
         }

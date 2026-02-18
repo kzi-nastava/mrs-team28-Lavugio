@@ -314,8 +314,8 @@ public class DriverController {
         try {
             Authentication authentication = (Authentication) SecurityContextHolder.getContext().getAuthentication();
             Long accountId = JwtUtil.extractAccountId(authentication);
-            driverAvailabilityService.activateDriver(accountId, coordinates.getLongitude(), coordinates.getLatitude());
             Driver driver = driverService.activateDriver(accountId);
+            driverAvailabilityService.activateDriver(accountId, coordinates.getLongitude(), coordinates.getLatitude());
             System.out.println("Driver ID:" + accountId + " activated in controller");
             return ResponseEntity.ok().body(Map.of("message", "Driver activated successfully"));
         } catch (Exception e) {

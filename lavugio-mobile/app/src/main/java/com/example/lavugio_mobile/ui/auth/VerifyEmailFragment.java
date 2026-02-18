@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.lavugio_mobile.MainActivity;
 import com.example.lavugio_mobile.R;
@@ -74,7 +75,8 @@ public class VerifyEmailFragment extends Fragment {
         // TODO: Send verification code to backend
         Toast.makeText(getContext(), "Email verified successfully!", Toast.LENGTH_SHORT).show();
 
-        // Navigate to login
+        FragmentManager fm = requireActivity().getSupportFragmentManager();
+        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         navigateToLogin();
     }
 

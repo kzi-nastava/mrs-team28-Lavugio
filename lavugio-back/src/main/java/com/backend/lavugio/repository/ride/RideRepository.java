@@ -38,6 +38,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     @Query("SELECT r FROM Ride r JOIN r.passengers p WHERE p.id = :passengerId")
     List<Ride> findByPassengerId(@Param("passengerId") Long passengerId);
 
+    // Find by next notification time and status (for scheduler)
+    List<Ride> findByNextNotificationTimeBeforeAndRideStatus(LocalDateTime dateTime, RideStatus status);
+
     // Count queries
     long countByRideStatus(RideStatus status);
 
@@ -182,7 +185,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     @Query("SELECT r FROM Ride r WHERE r.creator.id = :creatorId")
     List<Ride> findByCreatorId(@Param("creatorId") Long creatorId);
 
-    @Query("SELECT DISTINCT r FROM Ride r WHERE (r.creator.id = :userId OR EXISTS (SELECT p FROM r.passengers p WHERE p.id = :userId)) AND r.rideStatus = :status")
+
+
+    @Query("SELECT DISTINCT r FROM Ride r LEFT JOIN FETCH r.checkpoints WHERE (r.creator.id = :userId OR EXISTS (SELECT p FROM r.passengers p WHERE p.id = :userId)) AND r.rideStatus = :status")
     List<Ride> findByCreatorIdAndStatus(@Param("userId") Long userId, @Param("status") RideStatus status);
 
         @Query("SELECT r FROM Ride r WHERE r.driver.id = :driverId " +

@@ -17,9 +17,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.reports.ChartData;
+import com.example.lavugio_mobile.viewmodel.reports.RidesReportsViewModel;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -56,6 +58,8 @@ public class RidesReportsFragment extends Fragment {
     // Date format
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
+    private RidesReportsViewModel viewModel;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,25 +73,48 @@ public class RidesReportsFragment extends Fragment {
         initViews(view);
         setupListeners();
 
-        List<ChartData> chartsData = getHardcodedChartData();
+        viewModel = new ViewModelProvider(this).get(RidesReportsViewModel.class);
+        observeViewModel();
 
-        // Setup Chart 1
-        setupChart(
-                view.findViewById(R.id.chart1),
-                chartsData.get(0)
-        );
+        // Hide admin-only filters for non-admin users
+        setupFiltersVisibility(view);
+    }
 
-        // Setup Chart 2
-        setupChart(
-                view.findViewById(R.id.chart2),
-                chartsData.get(1)
-        );
+    private void observeViewModel() {
+        viewModel.getReportData().observe(getViewLifecycleOwner(), report -> {
+            if (report == null) {
+                Toast.makeText(requireContext(),
+                        "Failed to load report",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+            setupChart(getView().findViewById(R.id.chart1), report.getCharts().get(0));
+            setupChart(getView().findViewById(R.id.chart2), report.getCharts().get(1));
+            setupChart(getView().findViewById(R.id.chart3), report.getCharts().get(2));
+        });
+    }
 
-        // Setup Chart 3
-        setupChart(
-                view.findViewById(R.id.chart3),
-                chartsData.get(2)
-        );
+    private void setupFiltersVisibility(View view) {
+        String userType = viewModel.getLoggedInUserType();
+        boolean isAdmin = "ADMIN".equals(userType);
+
+        // Hide email section for non-admins
+        View emailTitleView = view.findViewById(R.id.tvEmailTitle);
+        View emailInputContainer = view.findViewById(R.id.emailInputContainer);
+        View filterByTitle = view.findViewById(R.id.tvFilterByTitle);
+
+        if (!isAdmin) {
+            if (emailTitleView != null) {
+                emailTitleView.setVisibility(View.GONE);
+            }
+            if (emailInputContainer != null) {
+                emailInputContainer.setVisibility(View.GONE);
+            }
+            if (filterByTitle != null) {
+                filterByTitle.setVisibility(View.GONE);
+            }
+            rgFilterType.setVisibility(View.GONE);
+        }
     }
 
     private void initViews(View view) {
@@ -189,11 +216,11 @@ public class RidesReportsFragment extends Fragment {
         String userEmail = null;
 
         if (selectedFilterId == R.id.rbAllDrivers) {
-            filterType = "all_drivers";
+            filterType = "allDrivers";
         } else if (selectedFilterId == R.id.rbAllRegularUsers) {
-            filterType = "all_regular_users";
+            filterType = "allRegularUsers";
         } else if (selectedFilterId == R.id.rbOneUserOnly) {
-            filterType = "one_user";
+            filterType = "oneUser";
             userEmail = etUserEmail.getText().toString().trim();
 
             if (TextUtils.isEmpty(userEmail)) {
@@ -210,7 +237,6 @@ public class RidesReportsFragment extends Fragment {
         String startDateStr = dateFormat.format(startDate.getTime());
         String endDateStr = dateFormat.format(endDate.getTime());
 
-        // TODO: Implementiraj filtriranje izveštaja
         performFiltering(startDateStr, endDateStr, filterType, userEmail);
     }
 
@@ -222,6 +248,8 @@ public class RidesReportsFragment extends Fragment {
         if (userEmail != null) {
             message += "\nEmail: " + userEmail;
         }
+
+        viewModel.generateReport(startDate, endDate, filterType, userEmail);
 
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
     }
@@ -243,7 +271,7 @@ public class RidesReportsFragment extends Fragment {
         // Create chart entries
         List<Entry> entries = new ArrayList<>();
         for (int i = 0; i < chartData.getData().size(); i++) {
-            entries.add(new Entry(i, chartData.getData().get(i)));
+            entries.add(new Entry(i, chartData.getData().get(i).floatValue()));
         }
 
         // Create dataset
@@ -264,26 +292,26 @@ public class RidesReportsFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(chartData.getLabels()));
         xAxis.setGranularity(1f);
-        xAxis.setGranularityEnabled(true);  // DODAJ
+        xAxis.setGranularityEnabled(true);
         xAxis.setTextSize(10f);
-        xAxis.setTextColor(Color.BLACK);  // Promeni u BLACK
+        xAxis.setTextColor(Color.BLACK);
         xAxis.setDrawGridLines(true);
         xAxis.setGridColor(Color.LTGRAY);
-        xAxis.setLabelCount(chartData.getLabels().size(), false);  // PROMENI - dodaj false
+        xAxis.setLabelCount(chartData.getLabels().size(), false);
         xAxis.setDrawLabels(true);
-        xAxis.setAvoidFirstLastClipping(true);  // DODAJ
-        xAxis.setYOffset(5f);  // DODAJ - space between axis and labels
+        xAxis.setAvoidFirstLastClipping(true);
+        xAxis.setYOffset(5f);
 
         // Customize Y-Axis (Left)
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setTextSize(10f);
-        leftAxis.setTextColor(Color.BLACK);  // Promeni u BLACK
+        leftAxis.setTextColor(Color.BLACK);
         leftAxis.setDrawGridLines(true);
         leftAxis.setGridColor(Color.LTGRAY);
         leftAxis.setDrawLabels(true);
-        leftAxis.setXOffset(5f);  // DODAJ - space between axis and labels
-        leftAxis.setGranularityEnabled(true);  // DODAJ
-        leftAxis.setGranularity(1f);  // DODAJ
+        leftAxis.setXOffset(5f);
+        leftAxis.setGranularityEnabled(true);
+        leftAxis.setGranularity(1f);
 
         // Disable right Y-Axis
         lineChart.getAxisRight().setEnabled(false);
@@ -300,44 +328,5 @@ public class RidesReportsFragment extends Fragment {
 
         // Refresh chart
         lineChart.invalidate();
-    }
-
-    private List<ChartData> getHardcodedChartData() {
-        List<ChartData> charts = new ArrayList<>();
-
-        // Chart 1: Rides Per Day
-        charts.add(new ChartData(
-                "Rides Per Day",
-                "Date",
-                "Rides",
-                Arrays.asList("07/10", "08/10", "09/10", "10/10", "11/10", "12/10"),
-                Arrays.asList(2.5f, 6f, 14f, 19f, 5.5f, 0.5f),
-                47.5f,
-                7.92f
-        ));
-
-        // Chart 2: Mileage Covered Per Day
-        charts.add(new ChartData(
-                "Total Mileage",
-                "Date",
-                "Mileage (km)",
-                Arrays.asList("07/10", "08/10", "09/10", "10/10", "11/10", "12/10"),
-                Arrays.asList(2.5f, 6f, 14f, 19f, 5.5f, 0.5f),
-                47.31f,
-                7.88f
-        ));
-
-        // Chart 3: Daily Financial Report
-        charts.add(new ChartData(
-                "Daily Revenue",
-                "Date",
-                "Revenue (RSD)",
-                Arrays.asList("07/10", "08/10", "09/10", "10/10", "11/10", "12/10"),
-                Arrays.asList(2500f, 3600f, 7400f, 9500f, 5500f, 1200f),
-                29700f,
-                4950f
-        ));
-
-        return charts;
     }
 }

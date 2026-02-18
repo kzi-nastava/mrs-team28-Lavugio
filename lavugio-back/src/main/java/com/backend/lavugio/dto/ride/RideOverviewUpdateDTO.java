@@ -35,4 +35,13 @@ public class RideOverviewUpdateDTO {
         this.status = ride.getRideStatus();
         this.price = (double) ride.getPrice();
     }
+
+    public RideOverviewUpdateDTO(Ride ride){
+        this.endAddress = ride.getEndAddress();
+        this.destinationCoordinates = new CoordinatesDTO(ride.getCheckpoints().getLast().getAddress());
+        this.departureTime = ride.getStartDateTime();
+        this.arrivalTime = ride.getEndDateTime();
+        this.status = ride.getRideStatus();
+        this.price = (double) ride.getPrice();
+    }
 }

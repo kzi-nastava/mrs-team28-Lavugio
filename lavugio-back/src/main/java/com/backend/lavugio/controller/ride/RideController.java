@@ -99,12 +99,7 @@ public class RideController {
         System.out.println("Trying to find ride for account with id: " + creatorId);
         try {
             RideResponseDTO ride;
-            if (request.isScheduled()) {
-                ride = rideService.createScheduledRide(creatorId, request);
-            } else {
-                System.out.println("Creating instant ride");
-                ride = rideService.createInstantRide(creatorId, request);
-            }
+            ride = rideService.createRide(creatorId, request);
             return ResponseEntity.status(HttpStatus.CREATED).body(ride);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

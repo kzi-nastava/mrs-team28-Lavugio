@@ -31,6 +31,9 @@ public class FindTripPage {
 
     @FindBy(id = "map")
     WebElement map;
+    // Navbar element to verify page loaded
+    @FindBy(xpath = "//app-navbar")
+    WebElement navbar;
 
     public FindTripPage(WebDriver driver){
         this.driver = driver;
@@ -39,7 +42,13 @@ public class FindTripPage {
     }
 
     private void waitForPageToLoad(){
-        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(map));
+        // Wait for navbar to appear (indicates logged-in page loaded)
+        new WebDriverWait(this.driver, Duration.ofSeconds(15)).until(
+                ExpectedConditions.or(
+                        ExpectedConditions.visibilityOfElementLocated(By.xpath("//app-navbar")),
+                        ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(text(),'Logout')]"))
+                )
+        );
     }
 
     public void clickHistoryBtn(){
