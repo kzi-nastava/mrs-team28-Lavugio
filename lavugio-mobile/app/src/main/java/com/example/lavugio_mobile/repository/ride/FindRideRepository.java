@@ -152,4 +152,28 @@ public class FindRideRepository {
         return result;
     }
 
+    public LiveData<ResultState> deleteFavoriteRoute(String routeId) {
+        MutableLiveData<ResultState> result = new MutableLiveData<>();
+        favoriteRouteApi.deleteFavoriteRoute(routeId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    result.setValue(new ResultState.Success());
+                } else {
+                    result.setValue(new ResultState.Error("Failed to delete route"));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                result.setValue(
+                        new ResultState.Error(
+                                t.getMessage() != null ? t.getMessage() : "Network error"
+                        )
+                );
+            }
+        });
+        return result;
+    }
+
 }

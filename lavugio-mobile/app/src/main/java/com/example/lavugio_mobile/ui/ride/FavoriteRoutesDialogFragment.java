@@ -22,6 +22,7 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.data.model.route.Coordinates;
 import com.example.lavugio_mobile.data.model.route.FavoriteRoute;
 import com.example.lavugio_mobile.data.model.route.RideDestination;
+import com.example.lavugio_mobile.ui.dialog.ConfirmDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
     // Interface for callback
     public interface OnRouteSelectedListener {
         void onRouteSelected(RideDestination[] destinations, String routeName);
+        void onRouteDeleted(String routeId);
     }
 
     private OnRouteSelectedListener listener;
@@ -40,6 +42,7 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
     private LinearLayout llRoutesList;
     private TextView tvNoRoutes;
     private Button btnCancel;
+    private Button btnDelete;
     private Button btnSelect;
 
     public static FavoriteRoutesDialogFragment newInstance(List<FavoriteRoute> routes) {
@@ -84,6 +87,7 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
         llRoutesList = view.findViewById(R.id.llRoutesList);
         tvNoRoutes = view.findViewById(R.id.tvNoRoutes);
         btnCancel = view.findViewById(R.id.btnCancel);
+        btnDelete = view.findViewById(R.id.btnDelete);
         btnSelect = view.findViewById(R.id.btnSelect);
     }
 
@@ -113,6 +117,28 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
                 dismissFragment();
             }
         });
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selectedRouteId != null) {
+                    ConfirmDialogFragment.newInstance(
+                            "Delete Route",
+                            "Are you sure you want to delete this favorite route?",
+                            new ConfirmDialogFragment.ConfirmDialogListener() {
+                        @Override
+                        public void onConfirm() {
+                            if (listener != null) {
+                                listener.onRouteDeleted(selectedRouteId);
+                            }
+                        }
+                        @Override
+                        public void onCancel() {
+                        }
+                    }).show(getActivity().getSupportFragmentManager(), "confirm_dialog");
+                }
+            }
+        });
     }
 
     private void updateRoutesUI() {
@@ -120,6 +146,8 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
             tvNoRoutes.setVisibility(View.VISIBLE);
             btnSelect.setEnabled(false);
             btnSelect.setAlpha(0.5f);
+            btnDelete.setEnabled(false);
+            btnDelete.setAlpha(0.5f);
         } else {
             tvNoRoutes.setVisibility(View.GONE);
             displayRoutes(favoriteRoutes);
@@ -127,6 +155,8 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
             selectedRouteId = null;
             btnSelect.setEnabled(false);
             btnSelect.setAlpha(0.5f);
+            btnDelete.setEnabled(false);
+            btnDelete.setAlpha(0.5f);
         }
     }
 
@@ -159,9 +189,12 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
                     selectedRouteId = routeId;
                     updateSelection(routeId);
 
-                    // Omogući Select dugme
+                    // ENABLE BUTTONS
                     btnSelect.setEnabled(true);
                     btnSelect.setAlpha(1f);
+                    btnDelete.setEnabled(true);
+                    btnDelete.setAlpha(1f);
+
                 }
             });
 
