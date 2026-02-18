@@ -737,6 +737,8 @@ public class RideServiceImpl implements RideService {
         ride.setRideStatus(RideStatus.SCHEDULED);
         ride.setHasPanic(false);
 
+        ride.setNextNotificationTime(LocalDateTime.now().plusMinutes(15));
+
         // Save the ride
         rideRepository.save(ride);
 

@@ -44,6 +44,16 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
+    public void updateFcmToken(Long accountId, String fcmToken) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found with id: " + accountId));
+        account.setFcmToken(fcmToken);
+        account.setFcmTokenUpdatedAt(java.time.LocalDateTime.now());
+        accountRepository.save(account);
+    }
+
+    @Override
+    @Transactional
     public Account createAccount(Account account) {
         logger.info("Creating account for email: {}", account.getEmail());
         

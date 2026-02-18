@@ -30,6 +30,7 @@ import com.example.lavugio_mobile.ui.profile.ProfileFragment;
 import com.example.lavugio_mobile.ui.reports.RidesReportsFragment;
 import com.example.lavugio_mobile.ui.ride.CurrentRidesFragment;
 import com.example.lavugio_mobile.ui.ride.FindRideFragment;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class Navbar {
 
@@ -429,6 +430,7 @@ public class Navbar {
             @Override
             public void onSuccess(Void result) {
                 // Check if activity is still valid
+                FirebaseMessaging.getInstance().deleteToken();
                 if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
                     return;
                 }

@@ -152,6 +152,21 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public Notification createWebRideReminderNotification(Long rideId, Long sentToId) {
+        String linkToRide = rideId + "/ride-overview";
+        String title = "Ride Reminder";
+        Optional<Ride> rideOptional = rideRepository.findById(rideId);
+        if (rideOptional.isEmpty()){
+            throw new NoSuchElementException(String.format("Ride with id: %d not found", rideId));
+        }
+        Ride ride = rideOptional.get();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formattedDateTime = ride.getStartDateTime().format(formatter);
+        String text = String.format("You have a ride scheduled at %s",
+                formattedDateTime);
+        return createNotification(title, text, linkToRide, sentToId, NotificationType.LINKED);
+    }
 
     @Override
     @Transactional

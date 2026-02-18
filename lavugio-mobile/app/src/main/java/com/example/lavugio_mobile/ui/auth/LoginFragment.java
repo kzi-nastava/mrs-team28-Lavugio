@@ -2,6 +2,7 @@ package com.example.lavugio_mobile.ui.auth;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -30,6 +31,7 @@ import com.example.lavugio_mobile.models.auth.LoginRequest;
 import com.example.lavugio_mobile.models.auth.LoginResponse;
 import com.example.lavugio_mobile.services.DriverService;
 import com.example.lavugio_mobile.services.LocationService;
+import com.example.lavugio_mobile.services.firebase.LavugioFirebaseMessagingService;
 
 import java.util.Objects;
 
@@ -155,8 +157,21 @@ public class LoginFragment extends Fragment {
             @Override
             public void onSuccess(LoginResponse result) {
                 if (!isAdded()) return;
-
                 Toast.makeText(getContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+
+                LavugioFirebaseMessagingService.requestAndSendToken(getContext());
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.POST_NOTIFICATIONS)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                        ActivityCompat.requestPermissions(
+                                getActivity(),
+                                new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                                101
+                        );
+                    }
+                }
 
                 // If driver, activate the driver
                 if ("DRIVER".equals(result.getRole())) {
