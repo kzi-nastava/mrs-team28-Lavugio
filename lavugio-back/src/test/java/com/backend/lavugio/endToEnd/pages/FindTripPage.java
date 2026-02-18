@@ -35,11 +35,26 @@ public class FindTripPage {
     @FindBy(tagName = "app-destinations-display")
     WebElement destinationsDisplay;
 
+    @FindBy(id = "save-favorite-route-button")
+    WebElement saveFavoriteRouteBtn;
+
+    @FindBy(id = "favorite-route-name-input")
+    WebElement favoriteRouteNameInput;
+
     @FindBy(id = "map")
     WebElement map;
     // Navbar element to verify page loaded
     @FindBy(xpath = "//app-navbar")
     WebElement navbar;
+
+    @FindBy(id="error-dialog")
+    WebElement errorDialog;
+
+    @FindBy(id="success-dialog")
+    WebElement successDialog;
+
+    @FindBy(id="confirm-dialog")
+    WebElement confirmDialog;
 
     public FindTripPage(WebDriver driver){
         this.driver = driver;
@@ -98,11 +113,8 @@ public class FindTripPage {
 
     public boolean selectFavoriteRoute(String favoriteRouteName) {
         WebElement firstFavoriteRoute = this.destinationsDisplay.findElement(By.xpath("//p[contains(text(),'" + favoriteRouteName + "')]"));
-        if (firstFavoriteRoute != null) {
-            firstFavoriteRoute.click();
-            return true;
-        }
-        return false;
+        firstFavoriteRoute.click();
+        return true;
     }
 
     public boolean isSelectFavoriteRouteBtnEnabled() {
@@ -141,6 +153,63 @@ public class FindTripPage {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public void saveFavoriteRoute() {
+        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(saveFavoriteRouteBtn)).click();
+    }
+
+    public boolean errorDialogDisplayed(String expectedMessage) {
+        try {
+            WebElement dialog = new WebDriverWait(this.driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.visibilityOf(errorDialog))
+                    .findElement(By.xpath("//p[contains(text(),'" + expectedMessage + "')]"));
+            return dialog.getText().contains(expectedMessage);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void closeErrorDialog() {
+        try {
+            WebElement closeBtn = new WebDriverWait(this.driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.visibilityOf(errorDialog))
+                    .findElement(By.xpath(".//button[contains(text(),'OK')]"));
+            closeBtn.click();
+        } catch (Exception e) {
+                // If the dialog isn't found or the button isn't found, we can ignore it
+        }
+    }
+
+    public void closeSuccessDialog() {
+        try {
+            WebElement closeBtn = new WebDriverWait(this.driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.visibilityOf(successDialog))
+                    .findElement(By.xpath(".//button[contains(text(),'OK')]"));
+            closeBtn.click();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+                // If the dialog isn't found or the button isn't found, we can ignore it
+        }
+    }
+
+    public void enterNewFavoriteRouteName(String favoriteRouteName) {
+        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(favoriteRouteNameInput)).sendKeys(favoriteRouteName);
+    }
+
+    public void deleteSelectedFavoriteRoute() {
+        new WebDriverWait(this.driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(deleteFavoriteRouteBtn)).click();
+    }
+
+    public void confirmConfirmDialog() {
+        try {
+            WebElement confirmBtn = new WebDriverWait(this.driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.visibilityOf(confirmDialog))
+                    .findElement(By.xpath(".//button[contains(text(),'Confirm')]"));
+            confirmBtn.click();
+        } catch (Exception e) {
+                // If the dialog isn't found or the button isn't found, we can ignore it
         }
     }
 

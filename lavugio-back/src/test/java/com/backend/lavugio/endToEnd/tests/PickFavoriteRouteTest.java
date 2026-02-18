@@ -5,11 +5,13 @@ import com.backend.lavugio.endToEnd.pages.HomePage;
 import com.backend.lavugio.endToEnd.pages.LoginPage;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.assertThrows;
 
 public class PickFavoriteRouteTest extends TestBase {
 
@@ -25,6 +27,9 @@ public class PickFavoriteRouteTest extends TestBase {
     private static final String FAVORITE_ROUTE_2_DESTINATION_1 = "Njegoševa 45, Beograd";
     private static final String FAVORITE_ROUTE_2_DESTINATION_2 = "Terazije 5, Beograd";
     private static final String FAVORITE_ROUTE_2_DESTINATION_3 = "Skadarska 22, Beograd";
+
+    private static final String NO_FAVORITE_ROUTE_NAME = "Please enter a name for the favorite route.";
+    private static final String FAVORITE_ROUTE_NAME_3 = "Route 3";
 
     @Test
     @Sql(scripts = "favoriteRouteTestData.sql",
@@ -76,5 +81,40 @@ public class PickFavoriteRouteTest extends TestBase {
 
         assertFalse(findTrip.isDestinationAdded(FAVORITE_ROUTE_1_DESTINATION_1));
         assertFalse(findTrip.isDestinationAdded(FAVORITE_ROUTE_1_DESTINATION_2));
+
+        findTrip.saveFavoriteRoute();
+        assertTrue(findTrip.errorDialogDisplayed(NO_FAVORITE_ROUTE_NAME));
+        findTrip.closeErrorDialog();
+
+        findTrip.enterNewFavoriteRouteName(FAVORITE_ROUTE_NAME_3);
+        findTrip.saveFavoriteRoute();
+        findTrip.closeSuccessDialog();
+
+        // SELECTING OTHER ROUTE SO WE CAN DELETE THE NEWLY CREATED ONE
+        findTrip.clickOpenFavoriteRoutesBtn();
+        findTrip.selectFavoriteRoute(FAVORITE_ROUTE_NAME_1);
+        findTrip.isSelectFavoriteRouteBtnEnabled();
+        findTrip.clickSelectFavoriteRouteBtn();
+
+        findTrip.clickOpenFavoriteRoutesBtn();
+        findTrip.selectFavoriteRoute(FAVORITE_ROUTE_NAME_3);
+        findTrip.isSelectFavoriteRouteBtnEnabled();
+        findTrip.clickSelectFavoriteRouteBtn();
+
+        assertTrue(findTrip.isDestinationAdded(FAVORITE_ROUTE_2_DESTINATION_1));
+        assertTrue(findTrip.isDestinationAdded(FAVORITE_ROUTE_2_DESTINATION_2));
+        assertTrue(findTrip.isDestinationAdded(FAVORITE_ROUTE_2_DESTINATION_3));
+
+        findTrip.clickOpenFavoriteRoutesBtn();
+        assertTrue(findTrip.selectFavoriteRoute(FAVORITE_ROUTE_NAME_3));
+        findTrip.deleteSelectedFavoriteRoute();
+        findTrip.confirmConfirmDialog();
+        findTrip.closeSuccessDialog();
+
+        assertThrows(org.openqa.selenium.NoSuchElementException.class, () -> findTrip.selectFavoriteRoute(FAVORITE_ROUTE_NAME_3));
+        findTrip.closeFavoriteRouteDialog();
+
+        findTrip.clickOpenFavoriteRoutesBtn();
+        assertThrows(org.openqa.selenium.NoSuchElementException.class, () -> findTrip.selectFavoriteRoute(FAVORITE_ROUTE_NAME_3));
     }
 }

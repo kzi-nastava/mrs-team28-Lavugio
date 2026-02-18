@@ -138,6 +138,7 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     }
 
     @Override
+    @Transactional
     public NewFavoriteRouteDTO createFavoriteRoute(Long accountId, NewFavoriteRouteDTO request) {
         // Check if user exists
         RegularUser user = regularUserRepository.findById(accountId)
