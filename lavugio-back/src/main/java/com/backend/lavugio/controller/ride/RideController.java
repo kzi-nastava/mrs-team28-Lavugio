@@ -3,6 +3,7 @@ package com.backend.lavugio.controller.ride;
 import com.backend.lavugio.dto.*;
 import com.backend.lavugio.dto.pricing.PricingDTO;
 import com.backend.lavugio.dto.ride.*;
+import com.backend.lavugio.dto.ride.CancelRideByDriverDTO;
 import com.backend.lavugio.model.enums.VehicleType;
 import com.backend.lavugio.model.ride.Ride;
 import com.backend.lavugio.model.enums.RideStatus;
@@ -344,7 +345,7 @@ public class RideController {
 
     @PostMapping("/{id}/panic")
     @Transactional
-    public ResponseEntity<?> panicRide(@PathVariable Long id, @RequestBody PanicNotificationDTO panicAlert) {
+    public ResponseEntity<?> panicRide(@PathVariable Long id, @Valid @RequestBody PanicNotificationDTO panicAlert) {
         try {
             // Get ride details
             Ride ride = rideService.getRideById(id);
@@ -447,7 +448,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> postRideReport(@RequestBody RideReportDTO reportDTO){
+    public ResponseEntity<?> postRideReport(@Valid @RequestBody RideReportDTO reportDTO){
         try {
             Long userId = SecurityUtils.getCurrentUserId();
             RideReport report = rideReportService.createReport(userId, reportDTO);
@@ -467,7 +468,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('REGULAR_USER')")
     @PostMapping("/{rideId}/review")
-    public ResponseEntity<?> reviewRide(@PathVariable Long rideId, @RequestBody RideReviewDTO rideReviewDTO){
+    public ResponseEntity<?> reviewRide(@PathVariable Long rideId, @Valid @RequestBody RideReviewDTO rideReviewDTO){
         try{
             Long userId = SecurityUtils.getCurrentUserId();
             reviewService.createReview(rideId, userId, rideReviewDTO);
@@ -483,7 +484,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('DRIVER')")
     @PutMapping("/finish")
-    public ResponseEntity<?> finishRide(@RequestBody FinishRideDTO finishRideDTO) {
+    public ResponseEntity<?> finishRide(@Valid @RequestBody FinishRideDTO finishRideDTO) {
         try{
             Long driverId = SecurityUtils.getCurrentUserId();
             rideCompletionService.finishRide(driverId, finishRideDTO);
@@ -512,12 +513,9 @@ public class RideController {
     }
 
     @PostMapping("/{rideId}/cancel-by-driver")
-    public ResponseEntity<?> cancelRideByDriver(@PathVariable Long rideId, @RequestBody Map<String, String> request) {
+    public ResponseEntity<?> cancelRideByDriver(@PathVariable Long rideId, @Valid @RequestBody CancelRideByDriverDTO request) {
         try {
-            String reason = request.get("reason");
-            if (reason == null || reason.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Cancellation reason is required"));
-            }
+            String reason = request.getReason();
 
             rideService.cancelRideByDriver(rideId, reason);
             return ResponseEntity.ok(Map.of("message", "Ride cancelled successfully"));
@@ -554,7 +552,7 @@ public class RideController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/prices")
-    public ResponseEntity<?> postPrices(@RequestBody PricingDTO pricing){
+    public ResponseEntity<?> postPrices(@Valid @RequestBody PricingDTO pricing){
         try{
             pricingService.updatePricing(pricing);
             return new ResponseEntity<>(HttpStatus.OK);

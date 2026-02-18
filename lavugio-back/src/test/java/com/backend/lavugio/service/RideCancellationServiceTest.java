@@ -28,8 +28,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import com.backend.lavugio.model.route.Address;
+import com.backend.lavugio.model.route.RideDestination;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -217,6 +221,10 @@ public class RideCancellationServiceTest {
         Set<RegularUser> passengers = new HashSet<>();
         passengers.add(testUser);
         futureRide.setPassengers(passengers);
+
+        Address address = new Address(null, "Main St", "Novi Sad", "Serbia", "1", 21000, 19.84, 45.25);
+        RideDestination destination = new RideDestination(null, futureRide, address, 1);
+        futureRide.setCheckpoints(List.of(destination));
 
         when(rideQueryService.getRideById(10L)).thenReturn(futureRide);
         when(rideRepository.save(any(Ride.class))).thenReturn(futureRide);
