@@ -142,6 +142,7 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
     }
 
     private void updateRoutesUI() {
+        displayRoutes(favoriteRoutes);
         if (favoriteRoutes.isEmpty()) {
             tvNoRoutes.setVisibility(View.VISIBLE);
             btnSelect.setEnabled(false);
@@ -150,8 +151,6 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
             btnDelete.setAlpha(0.5f);
         } else {
             tvNoRoutes.setVisibility(View.GONE);
-            displayRoutes(favoriteRoutes);
-
             selectedRouteId = null;
             btnSelect.setEnabled(false);
             btnSelect.setAlpha(0.5f);
@@ -217,5 +216,27 @@ public class FavoriteRoutesDialogFragment extends DialogFragment {
 
     public void setOnRouteSelectedListener(OnRouteSelectedListener listener) {
         this.listener = listener;
+    }
+
+    public void removeRouteFromList(String routeId) {
+        FavoriteRoute routeToRemove = null;
+        for (FavoriteRoute route : favoriteRoutes) {
+            if (route.getId().equals(routeId)) {
+                routeToRemove = route;
+                break;
+            }
+        }
+        if (routeToRemove != null) {
+            favoriteRoutes.remove(routeToRemove);
+        }
+
+        selectedRouteId = null;
+
+        // Clear the list view first
+        if (llRoutesList != null) {
+            llRoutesList.removeAllViews();
+        }
+
+        updateRoutesUI();
     }
 }

@@ -561,7 +561,7 @@ public class FindRidePage1Fragment extends Fragment {
                 @Override
                 public void onRouteDeleted(String routeId) {
                     Log.d("SCHEDULE", "Route deleted: " + routeId);
-                    deleteFavoriteRoute(routeId);
+                    deleteFavoriteRoute(routeId, fragment);
                 }
             });
 
@@ -586,11 +586,14 @@ public class FindRidePage1Fragment extends Fragment {
         updateMapWithAllDestinations();
     }
 
-    private void deleteFavoriteRoute(String routeId) {
+    private void deleteFavoriteRoute(String routeId, FavoriteRoutesDialogFragment dialogFragment) {
         viewModel.deleteFavoriteRoute(routeId)
                 .observe(getViewLifecycleOwner(), result -> {
                     if (result instanceof ResultState.Success) {
                         Toast.makeText(getContext(), "Favorite route deleted successfully.", Toast.LENGTH_SHORT).show();
+                        if (dialogFragment != null) {
+                            dialogFragment.removeRouteFromList(routeId);
+                        }
                     } else if (result instanceof ResultState.Error) {
                         String message = ((ResultState.Error) result).getMessage();
                         Toast.makeText(getContext(), "Error deleting favorite route: " + message, Toast.LENGTH_SHORT).show();
