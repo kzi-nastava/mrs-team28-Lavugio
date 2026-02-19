@@ -27,7 +27,7 @@ public class ScheduledRidesAdapter extends RecyclerView.Adapter<ScheduledRidesAd
         void onPanicRide(long rideId);
         void onFinishRide(long rideId);
         void onFinishEarly(long rideId);
-        void onDenyRide(long rideId);
+        void onCancelRide(long rideId);
         void onRideClicked(ScheduledRideModel ride);
     }
 
@@ -145,7 +145,7 @@ public class ScheduledRidesAdapter extends RecyclerView.Adapter<ScheduledRidesAd
             buttonPanic.setOnClickListener(v -> listener.onPanicRide(ride.getRideId()));
             buttonFinish.setOnClickListener(v -> listener.onFinishRide(ride.getRideId()));
             buttonFinishEarly.setOnClickListener(v -> listener.onFinishEarly(ride.getRideId()));
-            buttonDeny.setOnClickListener(v -> listener.onDenyRide(ride.getRideId()));
+            buttonDeny.setOnClickListener(v -> listener.onCancelRide(ride.getRideId()));
         }
 
         private String formatDateTime(LocalDateTime dateTime) {

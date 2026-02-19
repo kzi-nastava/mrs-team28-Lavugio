@@ -19,6 +19,15 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
+        <!-- Panic indicator bar -->
+        <View
+            android:id="@+id/panic_indicator"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#DC2626"
+            android:layout_marginEnd="12dp"
+            android:visibility="gone" />
+
         <!-- Sadrzaj kartice -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -129,6 +138,21 @@
                     android:fontFamily="sans-serif-medium"
                     android:gravity="end" />
             </LinearLayout>
+
+            <!-- Panic badge -->
+            <TextView
+                android:id="@+id/tv_panic_badge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🚨 PANIC ALERT"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center"
+                android:padding="6dp"
+                android:layout_marginBottom="8dp"
+                android:background="#DC2626"
+                android:visibility="gone" />
 
             <!-- Driver name -->
             <LinearLayout
