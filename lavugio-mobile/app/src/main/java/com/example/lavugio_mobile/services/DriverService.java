@@ -103,10 +103,6 @@ public class DriverService {
 
     // ── Activation / Deactivation ────────────────────────
 
-    /**
-     * Activate the driver: get current location, send to backend, then start tracking.
-     * Mirrors Angular: activateDriver() which chains getLocation → POST /activate → startTracking.
-     */
     public void activateDriver(Callback<Object> callback) {
         locationService.getLocation(new LocationService.LocationCallback() {
             @Override
@@ -136,9 +132,6 @@ public class DriverService {
         });
     }
 
-    /**
-     * Deactivate the driver: stop tracking, then tell backend.
-     */
     public void deactivateDriver(Callback<Object> callback) {
         stopTracking();
         api.deactivateDriver().enqueue(wrapCallback(callback));
@@ -179,20 +172,14 @@ public class DriverService {
 
     // ── Location Tracking ────────────────────────────────
 
-    /**
-     * Start sending location to the backend every 3 seconds.
-     * Mirrors Angular's startTracking() with interval(3000).
-     */
     public void startTracking() {
         if (isTracking) return;
         isTracking = true;
 
         trackingHandler = new Handler(Looper.getMainLooper());
 
-        // Send immediately
         updateLocation();
 
-        // Then every 3 seconds
         trackingRunnable = new Runnable() {
             @Override
             public void run() {
@@ -206,9 +193,6 @@ public class DriverService {
         Log.d(TAG, "Location tracking started (interval: " + TRACKING_INTERVAL_MS + "ms)");
     }
 
-    /**
-     * Stop sending location updates.
-     */
     public void stopTracking() {
         isTracking = false;
         if (trackingHandler != null && trackingRunnable != null) {

@@ -119,7 +119,6 @@ public class LoginFragment extends Fragment {
             return;
         }
 
-        // Disable button to prevent double-tap while request is in flight
         loginButton.setEnabled(false);
         loginButton.setText("Logging in...");
 
@@ -173,7 +172,6 @@ public class LoginFragment extends Fragment {
                     }
                 }
 
-                // If driver, activate the driver
                 if ("DRIVER".equals(result.getRole())) {
                     driverService.activateDriver(new DriverService.Callback<Object>() {
                         @Override
@@ -183,7 +181,6 @@ public class LoginFragment extends Fragment {
 
                         @Override
                         public void onError(int code, String message) {
-                            // Still navigate even if activation fails
                             navigateBasedOnRole("DRIVER");
                         }
                     });
@@ -239,7 +236,6 @@ public class LoginFragment extends Fragment {
 
     private void navigateToFindTrip() {
         if (getActivity() instanceof MainActivity) {
-            // Navigate to find ride fragment (equivalent to find trip)
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container,
@@ -251,7 +247,6 @@ public class LoginFragment extends Fragment {
 
     private void navigateToDriverScheduledRides() {
         if (getActivity() instanceof MainActivity) {
-            // For now, navigate to driver trip history (closest equivalent)
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container,
@@ -263,7 +258,6 @@ public class LoginFragment extends Fragment {
 
     private void navigateToAdminPanel() {
         if (getActivity() instanceof MainActivity) {
-            // Navigate to admin panel fragment
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_container,

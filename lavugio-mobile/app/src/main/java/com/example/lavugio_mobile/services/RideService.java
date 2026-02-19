@@ -119,10 +119,6 @@ public class RideService {
 
     // ── WebSocket: Listen to ride updates ────────────────
 
-    /**
-     * Subscribe to real-time ride updates via STOMP WebSocket.
-     * Mirrors Angular's listenToRideUpdates().
-     */
     public void listenToRideUpdates(long rideId, Callback<RideOverviewUpdate> callback) {
         String destination = "/socket-publisher/rides/" + rideId + "/update";
 
@@ -143,16 +139,11 @@ public class RideService {
         );
     }
 
-    /**
-     * Unsubscribe from ride updates.
-     */
     public void closeConnection() {
         if (rideUpdateSubscription != null) {
             rideUpdateSubscription.unsubscribe();
             rideUpdateSubscription = null;
         }
-        // Note: don't disconnect the shared WebSocketService here —
-        // other parts of the app may still be using it.
         Log.d(TAG, "Ride update subscription closed");
     }
 
@@ -164,7 +155,6 @@ public class RideService {
             public void onResponse(@NonNull retrofit2.Call<T> call,
                                    @NonNull retrofit2.Response<T> response) {
                 if (response.isSuccessful()) {
-                    // Allow null body for 200/204 responses
                     callback.onSuccess(response.body());
                 } else {
                     String errorMsg = "Error";

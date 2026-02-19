@@ -125,15 +125,12 @@ public class Navbar {
             if (newRole != null && !newRole.equals(lastKnownRole)) {
                 lastKnownRole = newRole;
 
-                // Fetch driver status when driver logs in
                 if ("DRIVER".equals(newRole)) {
                     fetchDriverActiveStatus();
                 }
 
-                // If the menu is currently open, rebuild it with the new role's layout
                 if (isMenuOpen) {
                     forceCloseMenu();
-                    // Small delay so the close finishes before reopening
                     new android.os.Handler(android.os.Looper.getMainLooper())
                             .postDelayed(this::openMenu, 50);
                 }
@@ -225,7 +222,6 @@ public class Navbar {
                     applyDynamicState();
                     updateMenuButtonIcon();
 
-                    // Fetch fresh driver status when menu opens
                     if ("DRIVER".equals(authService.getUserRole())) {
                         fetchDriverActiveStatus();
                     }
@@ -446,7 +442,6 @@ public class Navbar {
         statusLoading.setValue(true);
 
         if (!Boolean.TRUE.equals(driverActive.getValue())) {
-            // Activate driver
             driverService.activateDriver(new DriverService.Callback<Object>() {
                 @Override
                 public void onSuccess(Object result) {
@@ -462,7 +457,6 @@ public class Navbar {
                 }
             });
         } else {
-            // Deactivate driver
             driverService.deactivateDriver(new DriverService.Callback<Object>() {
                 @Override
                 public void onSuccess(Object result) {
@@ -494,15 +488,13 @@ public class Navbar {
                             .popBackStack(null,
                                     androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                    // Navigate to guest home page
                     activity.getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.content_container, new GuestHomePageFragment())
-                            .commitAllowingStateLoss(); // Use commitAllowingStateLoss to prevent crashes
+                            .commitAllowingStateLoss();
 
                     Toast.makeText(activity, "Logged out", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    // Fallback: just finish the activity
                     activity.finish();
                 }
             }
@@ -528,11 +520,9 @@ public class Navbar {
                 navigateToFragment(new RidesReportsFragment());
                 break;
             case "Profile":
-                // Navigate to Profile screen
                 navigateToFragment(new ProfileFragment());
                 break;
             case "Login":
-                // Navigate to Login screen
                 navigateToFragment(new LoginFragment());
         }
     }
@@ -543,7 +533,6 @@ public class Navbar {
 
         switch (role) {
             case "DRIVER":
-                // TODO: navigate to driver home
                 break;
             case "ADMIN":
                 navigateToFragment(new AdministratorPanelFragment());
@@ -556,7 +545,6 @@ public class Navbar {
     }
 
     private void onLatestRideClicked(long rideId) {
-        // TODO: Navigate to ride overview fragment
         Toast.makeText(activity, "Latest Ride #" + rideId, Toast.LENGTH_SHORT).show();
     }
 
