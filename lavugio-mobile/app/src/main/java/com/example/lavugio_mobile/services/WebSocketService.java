@@ -129,7 +129,6 @@ public class WebSocketService {
             return;
         }
 
-        // FIX: Ako je konekcija u toku, samo dodaj callback u listu
         if (stompClient != null && !isConnectedFlag) {
             if (onConnect != null) reconnectCallbacks.add(onConnect);
             return;
@@ -161,15 +160,13 @@ public class WebSocketService {
                             isConnectedFlag = true;
                             isReconnecting = false;
 
-                            // Flush pending subscriptions i postavi im id
                             List<PendingSubscription> pending = new ArrayList<>(pendingSubscriptions);
                             pendingSubscriptions.clear();
                             for (PendingSubscription sub : pending) {
                                 StompSubscription handle = doSubscribe(sub.destination, sub.callback);
-                                sub.subscription.setId(handle.id); // FIX: povežemo placeholder sa pravim id-em
+                                sub.subscription.setId(handle.id);
                             }
 
-                            // FIX: Pozovi sve registrovane callback-ove
                             List<Runnable> callbacks = new ArrayList<>(reconnectCallbacks);
                             reconnectCallbacks.clear();
                             for (Runnable cb : callbacks) {
