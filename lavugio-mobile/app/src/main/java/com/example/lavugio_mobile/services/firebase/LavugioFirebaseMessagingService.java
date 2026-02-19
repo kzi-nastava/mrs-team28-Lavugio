@@ -2,12 +2,16 @@ package com.example.lavugio_mobile.services.firebase;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.example.lavugio_mobile.MainActivity;
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.api.ApiClient;
 import com.example.lavugio_mobile.api.NotificationApi;
@@ -18,6 +22,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,16 +33,24 @@ public class LavugioFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "FCMService";
 
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
+    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        Log.d(TAG, "Primljena notifikacija");
+        Log.d(TAG, "Notification received");
+
+        String title = null;
+        String body = null;
 
         if (remoteMessage.getNotification() != null) {
-            String title = remoteMessage.getNotification().getTitle();
-            String body = remoteMessage.getNotification().getBody();
-
-            showNotification(title, body);
+            title = remoteMessage.getNotification().getTitle();
+            body = remoteMessage.getNotification().getBody();
         }
+
+        Map<String, String> data = remoteMessage.getData();
+
+        String type = data.get("type");
+        String rideId = data.get("rideId");
+
+        showNotification(title, body, type, rideId);
     }
 
     @Override
@@ -68,13 +82,13 @@ public class LavugioFirebaseMessagingService extends FirebaseMessagingService {
         });
     }
 
-    private void showNotification(String title, String body) {
+    private void showNotification(String title, String body, String type, String rideId) {
+
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         String channelId = "lavugio_channel";
 
-        // ANDROID CHANNEL FOR NOTIFICATIONS (REQUIRED FOR ANDROID 8.0+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     channelId,
@@ -84,15 +98,36 @@ public class LavugioFirebaseMessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(channel);
         }
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.email_icon)
-                .setContentTitle(title)
-                .setContentText(body)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        notificationManager.notify(0, builder.build());
+        if (type != null) {
+            intent.putExtra("type", type);
+        }
+
+        if (rideId != null) {
+            intent.putExtra("rideId", rideId);
+        }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, channelId)
+                        .setSmallIcon(R.drawable.email_icon)
+                        .setContentTitle(title)
+                        .setContentText(body)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true)
+                        .setContentIntent(pendingIntent); // 🔥 OVO JE KLJUČNO
+
+        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
     }
+
 
     public static void requestAndSendToken(Context context) {
         FirebaseMessaging.getInstance().getToken()
@@ -105,7 +140,6 @@ public class LavugioFirebaseMessagingService extends FirebaseMessagingService {
                     String token = task.getResult();
                     Log.d(TAG, "FCM Token: " + token);
 
-                    // Pošalji na backend
                     NotificationApi api = ApiClient.getInstance().create(NotificationApi.class);
                     FcmTokenRequest request = new FcmTokenRequest(token);
 
