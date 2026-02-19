@@ -46,18 +46,16 @@ public class FirebaseServiceImpl implements FirebaseService {
             return;
         }
 
-        Message.Builder builder = Message.builder()
-                .setToken(token)
-                .setNotification(
-                        Notification.builder()
-                                .setTitle(title)
-                                .setBody(message)
-                                .build()
-                );
+        data.put("title", title);
+        data.put("body", message);
+
+        Message.Builder builder = Message.builder().setToken(token);
 
         if (data != null) {
             data.forEach(builder::putData);
         }
+
+
 
         Message firebaseMessage = builder.build();
 

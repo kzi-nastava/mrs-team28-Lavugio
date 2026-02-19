@@ -51,7 +51,7 @@ public class RideNotificationScheduler {
             if (updateNextNotificationTime(ride, now)) {
                 Long creatorId = ride.getCreator().getId();
                 String fcmToken = ride.getCreator().getFcmToken();
-                Notification notification = notificationService.createWebRideReminderNotification(creatorId, ride.getCreator().getId());
+                Notification notification = notificationService.createWebRideReminderNotification(ride.getId(), ride.getCreator().getId());
                 notificationService.sendNotificationToSocket(notification);
                 Map<String, String> data = new HashMap<>();
                 data.put("type", "RIDE_OVERVIEW");
