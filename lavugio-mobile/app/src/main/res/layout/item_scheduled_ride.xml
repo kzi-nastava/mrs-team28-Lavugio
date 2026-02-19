@@ -255,18 +255,17 @@
                     android:visibility="gone"
                     />
 
-                <!-- Deny Button -->
+                <!-- Cancel Button -->
                 <Button
                     android:id="@+id/buttonDeny"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="48dp"
                     android:layout_marginEnd="4dp"
-                    android:text="Deny"
+                    android:text="Cancel"
                     android:textSize="11sp"
-                    android:textColor="#283618"
-                    android:background="@drawable/button_deny"
-                    app:backgroundTint="@null"
+                    android:textColor="#FEFAE0"
+                    android:backgroundTint="#DC2626"
                     android:textAllCaps="false"
                     android:visibility="gone"
                     />

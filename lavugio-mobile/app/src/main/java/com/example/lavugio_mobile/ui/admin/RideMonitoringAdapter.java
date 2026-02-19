@@ -63,6 +63,8 @@ public class RideMonitoringAdapter
         private final TextView tvStartAddress;
         private final TextView tvEndAddress;
         private final TextView tvDriverName;
+        private final View panicIndicator;
+        private final TextView tvPanicBadge;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -70,6 +72,8 @@ public class RideMonitoringAdapter
             tvStartAddress = itemView.findViewById(R.id.tv_start_address);
             tvEndAddress   = itemView.findViewById(R.id.tv_end_address);
             tvDriverName   = itemView.findViewById(R.id.tv_driver_name);
+            panicIndicator = itemView.findViewById(R.id.panic_indicator);
+            tvPanicBadge   = itemView.findViewById(R.id.tv_panic_badge);
         }
 
         void bind(RideMonitoringModel ride, OnRideClickListener listener) {
@@ -77,6 +81,10 @@ public class RideMonitoringAdapter
             tvStartAddress.setText(ride.getStartAddress() != null ? ride.getStartAddress() : "Loading...");
             tvEndAddress.setText(ride.getEndAddress() != null ? ride.getEndAddress() : "Loading...");
             tvDriverName.setText(ride.getDriverName() != null ? ride.getDriverName() : "Loading...");
+
+            boolean panicked = ride.isPanicked();
+            panicIndicator.setVisibility(panicked ? View.VISIBLE : View.GONE);
+            tvPanicBadge.setVisibility(panicked ? View.VISIBLE : View.GONE);
 
             itemView.setOnClickListener(v -> listener.onRideClick(ride));
         }

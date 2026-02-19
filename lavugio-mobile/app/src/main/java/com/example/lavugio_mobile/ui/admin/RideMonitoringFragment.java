@@ -62,6 +62,7 @@ public class RideMonitoringFragment extends Fragment {
     private WebSocketService.StompSubscription rideStartSub = null;
     private WebSocketService.StompSubscription rideFinishSub = null;
     private WebSocketService.StompSubscription locationSub = null;
+    private WebSocketService.StompSubscription panicSub = null;
 
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
@@ -107,6 +108,7 @@ public class RideMonitoringFragment extends Fragment {
         webSocketService.connect(() -> {
             subscribeToRideStart();
             subscribeToRideFinish();
+            subscribeToPanic();
         });
     }
 
@@ -115,6 +117,7 @@ public class RideMonitoringFragment extends Fragment {
         super.onDestroyView();
         if (rideStartSub != null) rideStartSub.unsubscribe();
         if (rideFinishSub != null) rideFinishSub.unsubscribe();
+        if (panicSub != null) panicSub.unsubscribe();
         unsubscribeFromLocation();
     }
 
@@ -137,15 +140,19 @@ public class RideMonitoringFragment extends Fragment {
         if (mapFragment == null) return;
         GeoPoint point = new GeoPoint(coords.getLatitude(), coords.getLongitude());
 
-        if (driverMarker != null) {
-            driverMarker.setPosition(point);
-            mapFragment.clearDriverMarkers();
-            driverMarker = mapFragment.addDriverMarker(
-                    point, "Driver", DriverStatusEnum.AVAILABLE);
-        } else {
-            driverMarker = mapFragment.addDriverMarker(
-                    point, "Driver", DriverStatusEnum.AVAILABLE);
+        // Determine status: use PANIC if the selected ride has panic active
+        DriverStatusEnum status = DriverStatusEnum.AVAILABLE;
+        if (selectedDriverId != null) {
+            for (RideMonitoringModel r : allRides) {
+                if (r.getDriverId() == selectedDriverId && r.isPanicked()) {
+                    status = DriverStatusEnum.PANIC;
+                    break;
+                }
+            }
         }
+
+        mapFragment.clearDriverMarkers();
+        driverMarker = mapFragment.addDriverMarker(point, "Driver", status);
     }
 
     private void removeDriverMarker() {
@@ -264,6 +271,49 @@ public class RideMonitoringFragment extends Fragment {
                         allRides.removeIf(r -> r.getRideId() == rideId);
                         Log.d(TAG, "rides after=" + allRides.size());
                         applyFilter(filterInput.getText().toString());
+                    });
+                }
+        );
+    }
+
+    private void subscribeToPanic() {
+        panicSub = webSocketService.subscribe(
+                "/socket-publisher/admin/panic",
+                body -> {
+                    if (!isAdded()) return;
+                    long panicRideId = -1;
+                    try {
+                        org.json.JSONObject json = new org.json.JSONObject(body);
+                        panicRideId = json.optLong("rideId", -1);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to parse panic alert: " + body, e);
+                        return;
+                    }
+
+                    final long finalRideId = panicRideId;
+                    requireActivity().runOnUiThread(() -> {
+                        for (RideMonitoringModel ride : allRides) {
+                            if (ride.getRideId() == finalRideId) {
+                                ride.setPanicked(true);
+                                break;
+                            }
+                        }
+                        applyFilter(filterInput.getText().toString());
+
+                        // If the panicked ride's driver is currently selected, update marker
+                        if (selectedDriverId != null) {
+                            for (RideMonitoringModel ride : allRides) {
+                                if (ride.getRideId() == finalRideId
+                                        && ride.getDriverId() == selectedDriverId
+                                        && driverMarker != null) {
+                                    GeoPoint pos = driverMarker.getPosition();
+                                    mapFragment.clearDriverMarkers();
+                                    driverMarker = mapFragment.addDriverMarker(
+                                            pos, "Driver", DriverStatusEnum.PANIC);
+                                    break;
+                                }
+                            }
+                        }
                     });
                 }
         );

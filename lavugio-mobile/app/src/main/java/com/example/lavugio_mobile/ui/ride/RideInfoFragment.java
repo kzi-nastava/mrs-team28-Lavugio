@@ -1,6 +1,7 @@
 package com.example.lavugio_mobile.ui.ride;
 
 import android.app.AlertDialog;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.lavugio_mobile.LavugioApp;
@@ -24,8 +26,11 @@ import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.models.RideOverviewModel;
 import com.example.lavugio_mobile.models.enums.RideStatus;
 import com.example.lavugio_mobile.services.RideService;
+import com.example.lavugio_mobile.services.UserService;
 import com.example.lavugio_mobile.ui.dialog.ReportDialogFragment;
 import com.example.lavugio_mobile.ui.dialog.ReviewDialogFragment;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -43,6 +48,9 @@ public class RideInfoFragment extends Fragment {
     private boolean isPanicLoading = false;
 
     private RideService rideService;
+    private UserService userService;
+    private FusedLocationProviderClient fusedLocationClient;
+    private static final int LOCATION_PERMISSION_REQUEST = 101;
     private int lastCalculatedDuration = -1;
 
     private Handler elapsedHandler;
@@ -70,6 +78,8 @@ public class RideInfoFragment extends Fragment {
             rideId = getArguments().getLong(ARG_RIDE_ID);
         }
         rideService = LavugioApp.getRideService();
+        userService = LavugioApp.getUserService();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         elapsedHandler = new Handler(Looper.getMainLooper());
     }
 
@@ -369,13 +379,66 @@ public class RideInfoFragment extends Fragment {
         isPanicLoading = true;
         refreshActionButton();
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (!isAdded()) return;
+        if (ActivityCompat.checkSelfPermission(requireContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST);
             isPanicLoading = false;
-            hasPanicBeenTriggered = true;
             refreshActionButton();
-            Toast.makeText(getContext(), "PANIC ALERT SENT!", Toast.LENGTH_LONG).show();
-        }, 1000);
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+                    java.util.Map<String, Object> panicAlert = new java.util.HashMap<>();
+                    java.util.Map<String, Double> locationMap = new java.util.HashMap<>();
+
+                    locationMap.put("latitude", location != null ? location.getLatitude() : 0.0);
+                    locationMap.put("longitude", location != null ? location.getLongitude() : 0.0);
+
+                    panicAlert.put("rideId", rideId);
+                    panicAlert.put("passengerId", userService.getCurrentUserId());
+                    panicAlert.put("passengerName", userService.getCurrentUserName());
+                    panicAlert.put("driverName", rideOverview != null && rideOverview.getDriverName() != null
+                            ? rideOverview.getDriverName() : "Unknown Driver");
+                    panicAlert.put("location", locationMap);
+                    panicAlert.put("vehicleType", "Check Driver Profile");
+                    panicAlert.put("vehicleLicensePlate", "Check Driver Profile");
+                    panicAlert.put("message", "EMERGENCY: Passenger triggered panic button during active ride");
+
+                    rideService.triggerPanic(rideId, panicAlert, new RideService.Callback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            if (!isAdded()) return;
+                            requireActivity().runOnUiThread(() -> {
+                                isPanicLoading = false;
+                                hasPanicBeenTriggered = true;
+                                refreshActionButton();
+                                Toast.makeText(getContext(), "PANIC ALERT SENT!", Toast.LENGTH_LONG).show();
+                            });
+                        }
+
+                        @Override
+                        public void onError(int code, String message) {
+                            if (!isAdded()) return;
+                            requireActivity().runOnUiThread(() -> {
+                                isPanicLoading = false;
+                                refreshActionButton();
+                                Toast.makeText(getContext(), "Failed to send panic alert: " + message,
+                                        Toast.LENGTH_LONG).show();
+                            });
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() -> {
+                        isPanicLoading = false;
+                        refreshActionButton();
+                        Toast.makeText(getContext(), "Unable to get location for panic alert",
+                                Toast.LENGTH_SHORT).show();
+                    });
+                });
     }
 
     private boolean canRateRide() {

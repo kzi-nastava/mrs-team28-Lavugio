@@ -11,6 +11,7 @@ public class RideMonitoringModel {
     private String startAddress;
     private String endAddress;
     private List<Coordinates> checkpoints;
+    private boolean panicked;
 
     public long getRideId() { return rideId; }
     public void setRideId(long rideId) { this.rideId = rideId; }
@@ -32,4 +33,7 @@ public class RideMonitoringModel {
 
     public List<Coordinates> getCheckpoints() { return checkpoints; }
     public void setCheckpoints(List<Coordinates> checkpoints) { this.checkpoints = checkpoints; }
+
+    public boolean isPanicked() { return panicked; }
+    public void setPanicked(boolean panicked) { this.panicked = panicked; }
 }
