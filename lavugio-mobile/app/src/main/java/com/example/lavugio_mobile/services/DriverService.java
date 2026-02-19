@@ -144,6 +144,33 @@ public class DriverService {
         api.deactivateDriver().enqueue(wrapCallback(callback));
     }
 
+
+    public void getDriverActiveStatus(int driverId, Callback<Boolean> callback) {
+        api.getDriverStatus(driverId).enqueue(new retrofit2.Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, retrofit2.Response<Object> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String json = new com.google.gson.Gson().toJson(response.body());
+                        com.google.gson.JsonObject obj =
+                                com.google.gson.JsonParser.parseString(json).getAsJsonObject();
+                        boolean active = obj.has("active") && obj.get("active").getAsBoolean();
+                        callback.onSuccess(active);
+                    } catch (Exception e) {
+                        callback.onSuccess(false);
+                    }
+                } else {
+                    callback.onSuccess(false);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                callback.onError(-1, t.getMessage());
+            }
+        });
+    }
+
     // ── Active Time ──────────────────────────────────────
 
     public void getDriverActiveLast24Hours(Callback<DriverActiveTimeDTO> callback) {
