@@ -199,7 +199,14 @@ export class Navbar implements OnInit {
   logout() {
     if (this.isDriver && this.driverActive) {
       this.driverService.deactivateDriver().subscribe({
-        next: () => {
+        next: (response: any) => {
+          if (response.pending) {
+            this.notificationService.showNotification(
+              response.message || 'Cannot logout while on an active ride.',
+              'error'
+            );
+            return;
+          }
           this.driverActive = false;
           this.driverStatusService.updateLocalStatus(false);
           this.proceedLogout();
