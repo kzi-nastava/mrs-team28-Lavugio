@@ -21,12 +21,6 @@ import com.example.lavugio_mobile.services.ChatService;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Admin-only chat fragment.
- * Shows a Spinner to pick a user, then loads MessageBoxFragment for that user.
- *
- * Mirrors Angular's AdminChatComponent.
- */
 public class AdminChatFragment extends Fragment {
 
     private Spinner spinnerUsers;
@@ -120,10 +114,6 @@ public class AdminChatFragment extends Fragment {
         });
     }
 
-    /**
-     * Replace the chat container with a fresh MessageBoxFragment for the selected user.
-     * Mirrors Angular's onUserChange() which destroys and recreates the MessageBox.
-     */
     private void openChat(int userId) {
         tvNoSelection.setVisibility(View.GONE);
 
@@ -136,7 +126,6 @@ public class AdminChatFragment extends Fragment {
     private void showPlaceholder() {
         tvNoSelection.setVisibility(View.VISIBLE);
 
-        // Remove any existing chat fragment
         Fragment existing = getChildFragmentManager().findFragmentById(R.id.chatContainer);
         if (existing != null) {
             getChildFragmentManager()

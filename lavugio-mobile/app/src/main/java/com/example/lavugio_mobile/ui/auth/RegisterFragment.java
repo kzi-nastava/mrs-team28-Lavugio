@@ -75,11 +75,9 @@ public class RegisterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize AuthService here where requireContext() is safe
         WebSocketService wsService = new WebSocketService();
         authService = AuthService.getInstance();
 
-        // Initialize views
         emailInput = view.findViewById(R.id.register_email);
         passwordInput = view.findViewById(R.id.register_password);
         confirmPasswordInput = view.findViewById(R.id.register_confirm_password);
@@ -144,7 +142,6 @@ public class RegisterFragment extends Fragment {
         String address = addressInput.getText().toString().trim();
         String phone = phoneInput.getText().toString().trim();
 
-        // Validation
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || name.isEmpty() ||
                 surname.isEmpty() || address.isEmpty() || phone.isEmpty()) {
             Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
@@ -171,7 +168,6 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
-        // Disable button to prevent double-tap
         registerButton.setEnabled(false);
         registerButton.setText("Registering...");
 
@@ -179,7 +175,6 @@ public class RegisterFragment extends Fragment {
                 email, password, name, surname, phone, address
         );
 
-        // Use registerWithFile if profile picture is selected
         if (profilePictureFile != null) {
             authService.registerWithFile(request, profilePictureFile, new AuthCallback<Void>() {
                 @Override
@@ -189,7 +184,6 @@ public class RegisterFragment extends Fragment {
                     Toast.makeText(getContext(), "Registration successful! Please check your email for verification.",
                             Toast.LENGTH_SHORT).show();
 
-                    // Navigate to login after 3 seconds
                     registerButton.postDelayed(() -> {
                         if (isAdded()) {
                             navigateToLogin();
@@ -216,7 +210,6 @@ public class RegisterFragment extends Fragment {
                     Toast.makeText(getContext(), "Registration successful! Please check your email for verification.",
                             Toast.LENGTH_SHORT).show();
 
-                    // Navigate to login after 3 seconds
                     registerButton.postDelayed(() -> {
                         if (isAdded()) {
                             navigateToLogin();
@@ -248,9 +241,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void selectProfilePicture() {
-        // Check permissions for Android 13+ (API 33+)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ uses READ_MEDIA_IMAGES instead of READ_EXTERNAL_STORAGE
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(requireActivity(),
@@ -259,7 +250,6 @@ public class RegisterFragment extends Fragment {
                 return;
             }
         } else {
-            // Older Android versions
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(requireActivity(),
@@ -275,7 +265,6 @@ public class RegisterFragment extends Fragment {
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
-        // Specify accepted MIME types
         String[] mimeTypes = {"image/jpeg", "image/jpg", "image/png", "image/webp", "image/heic", "image/heif"};
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         try {
@@ -301,18 +290,15 @@ public class RegisterFragment extends Fragment {
                 Uri selectedImageUri = data.getData();
                 if (selectedImageUri != null) {
                     try {
-                        // Get file from URI
                         String filePath = getFilePathFromUri(selectedImageUri);
                         if (filePath != null) {
                             profilePictureFile = new File(filePath);
 
-                            // Validate file size (max 5MB)
                             if (profilePictureFile.length() > 5 * 1024 * 1024) {
                                 Toast.makeText(getContext(), "Image size must be less than 5MB", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
-                            // Validate file type by extension
                             String fileName = profilePictureFile.getName().toLowerCase();
                             if (!fileName.endsWith(".jpg") && !fileName.endsWith(".jpeg") &&
                                 !fileName.endsWith(".png") && !fileName.endsWith(".webp") &&
@@ -321,7 +307,6 @@ public class RegisterFragment extends Fragment {
                                 return;
                             }
 
-                            // Show preview
                             Bitmap bitmap = BitmapFactory.decodeFile(filePath);
                             profilePicturePreview.setImageBitmap(bitmap);
                             profilePicturePreview.setVisibility(View.VISIBLE);

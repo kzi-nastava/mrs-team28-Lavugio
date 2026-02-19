@@ -19,6 +19,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.lavugio_mobile.models.auth.AuthCallback;
+import com.example.lavugio_mobile.services.DriverService;
+import com.example.lavugio_mobile.services.LocationService;
 import com.example.lavugio_mobile.services.auth.AuthService;
 import com.example.lavugio_mobile.ui.GuestHomePageFragment;
 import com.example.lavugio_mobile.ui.admin.AdministratorPanelFragment;
@@ -41,6 +43,7 @@ public class Navbar {
     private final TextView logoView;
     private final AppCompatActivity activity;
     private final AuthService authService;
+    private final DriverService driverService;
 
     private LinearLayout menuDropdown;
     private boolean isMenuOpen = false;
@@ -60,6 +63,7 @@ public class Navbar {
     public Navbar(AppCompatActivity activity, View parentView) {
         this.activity = activity;
         this.authService = AuthService.getInstance();
+        this.driverService = new DriverService(new LocationService(activity));
         this.navbarContainer = parentView.findViewById(R.id.navbar);
         this.menuButton = parentView.findViewById(R.id.navbar_menu_button);
         this.rootLayout = (ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content);
@@ -121,10 +125,12 @@ public class Navbar {
             if (newRole != null && !newRole.equals(lastKnownRole)) {
                 lastKnownRole = newRole;
 
-                // If the menu is currently open, rebuild it with the new role's layout
+                if ("DRIVER".equals(newRole)) {
+                    fetchDriverActiveStatus();
+                }
+
                 if (isMenuOpen) {
                     forceCloseMenu();
-                    // Small delay so the close finishes before reopening
                     new android.os.Handler(android.os.Looper.getMainLooper())
                             .postDelayed(this::openMenu, 50);
                 }
@@ -215,6 +221,10 @@ public class Navbar {
                     setupMenuItemListeners();
                     applyDynamicState();
                     updateMenuButtonIcon();
+
+                    if ("DRIVER".equals(authService.getUserRole())) {
+                        fetchDriverActiveStatus();
+                    }
                 })
                 .start();
     }
@@ -411,46 +421,80 @@ public class Navbar {
 
     // ── Actions ──────────────────────────────────────────
 
+    private void fetchDriverActiveStatus() {
+        Integer userId = authService.getUserId();
+        if (userId == null) return;
+
+        driverService.getDriverActiveStatus(userId, new DriverService.Callback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean active) {
+                driverActive.setValue(active);
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                driverActive.setValue(false);
+            }
+        });
+    }
+
     private void toggleDriverStatus() {
         statusLoading.setValue(true);
 
-        // TODO: Replace with actual API call to toggle driver status
-        new android.os.Handler(android.os.Looper.getMainLooper())
-                .postDelayed(() -> {
-                    boolean current = Boolean.TRUE.equals(driverActive.getValue());
-                    driverActive.setValue(!current);
+        if (!Boolean.TRUE.equals(driverActive.getValue())) {
+            driverService.activateDriver(new DriverService.Callback<Object>() {
+                @Override
+                public void onSuccess(Object result) {
+                    driverActive.setValue(true);
                     statusLoading.setValue(false);
+                    Toast.makeText(activity, "Status: Online", Toast.LENGTH_SHORT).show();
+                }
 
-                    String status = Boolean.TRUE.equals(driverActive.getValue()) ? "Online" : "Offline";
-                    Toast.makeText(activity, "Status: " + status, Toast.LENGTH_SHORT).show();
-                }, 500);
+                @Override
+                public void onError(int code, String message) {
+                    statusLoading.setValue(false);
+                    Toast.makeText(activity, "Failed to activate: " + message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            driverService.deactivateDriver(new DriverService.Callback<Object>() {
+                @Override
+                public void onSuccess(Object result) {
+                    driverActive.setValue(false);
+                    statusLoading.setValue(false);
+                    Toast.makeText(activity, "Status: Offline", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(int code, String message) {
+                    statusLoading.setValue(false);
+                    Toast.makeText(activity, "Failed to deactivate: " + message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void handleLogout() {
         authService.logout(new AuthCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                // Check if activity is still valid
                 FirebaseMessaging.getInstance().deleteToken();
                 if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
                     return;
                 }
 
                 try {
-                    // Clear back stack
                     activity.getSupportFragmentManager()
                             .popBackStack(null,
                                     androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                    // Navigate to guest home page
                     activity.getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.content_container, new GuestHomePageFragment())
-                            .commitAllowingStateLoss(); // Use commitAllowingStateLoss to prevent crashes
+                            .commitAllowingStateLoss();
 
                     Toast.makeText(activity, "Logged out", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    // Fallback: just finish the activity
                     activity.finish();
                 }
             }
@@ -476,11 +520,9 @@ public class Navbar {
                 navigateToFragment(new RidesReportsFragment());
                 break;
             case "Profile":
-                // Navigate to Profile screen
                 navigateToFragment(new ProfileFragment());
                 break;
             case "Login":
-                // Navigate to Login screen
                 navigateToFragment(new LoginFragment());
         }
     }
@@ -491,7 +533,6 @@ public class Navbar {
 
         switch (role) {
             case "DRIVER":
-                // TODO: navigate to driver home
                 break;
             case "ADMIN":
                 navigateToFragment(new AdministratorPanelFragment());
@@ -504,7 +545,6 @@ public class Navbar {
     }
 
     private void onLatestRideClicked(long rideId) {
-        // TODO: Navigate to ride overview fragment
         Toast.makeText(activity, "Latest Ride #" + rideId, Toast.LENGTH_SHORT).show();
     }
 

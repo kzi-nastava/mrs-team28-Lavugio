@@ -28,9 +28,6 @@ public class PriceService {
 
     // ── Get Prices ───────────────────────────────────────
 
-    /**
-     * Get current ride pricing configuration from backend.
-     */
     public void getPrices(Callback<RidePriceModel> callback) {
         Log.d(TAG, "getPrices: Fetching prices from server");
         api.getPrices().enqueue(wrapCallback(callback));
@@ -38,12 +35,7 @@ public class PriceService {
 
     // ── Post Prices ──────────────────────────────────────
 
-    /**
-     * Update ride pricing configuration on backend.
-     * Validates prices before sending.
-     */
     public void postPrices(RidePriceModel prices, Callback<Void> callback) {
-        // Client-side validation
         if (!prices.isValid()) {
             String error = prices.getValidationError();
             Log.e(TAG, "postPrices: Validation failed - " + error);
@@ -64,7 +56,6 @@ public class PriceService {
                                    @NonNull Response<T> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG, "Request successful: " + call.request().url());
-                    // Allow null body for 200/204 responses
                     callback.onSuccess(response.body());
                 } else {
                     String errorMsg = parseErrorMessage(response);

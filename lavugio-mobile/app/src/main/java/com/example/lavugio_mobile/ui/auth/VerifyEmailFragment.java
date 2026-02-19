@@ -37,22 +37,18 @@ public class VerifyEmailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize views
         codeInput = view.findViewById(R.id.verify_code);
         confirmButton = view.findViewById(R.id.confirm_button);
         loginLink = view.findViewById(R.id.login_link);
 
-        // Get email from arguments
         if (getArguments() != null) {
             userEmail = getArguments().getString("email");
         }
 
-        // Set up confirm button
         if (confirmButton != null) {
             confirmButton.setOnClickListener(v -> handleConfirm());
         }
 
-        // Set up navigation links
         if (loginLink != null) {
             loginLink.setOnClickListener(v -> navigateToLogin());
         }
@@ -61,7 +57,6 @@ public class VerifyEmailFragment extends Fragment {
     private void handleConfirm() {
         String code = codeInput.getText().toString().trim();
 
-        // Validation
         if (code.isEmpty()) {
             Toast.makeText(getContext(), "Please enter the verification code", Toast.LENGTH_SHORT).show();
             return;

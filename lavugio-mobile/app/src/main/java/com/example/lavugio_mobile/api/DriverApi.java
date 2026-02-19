@@ -82,6 +82,9 @@ public interface DriverApi {
     @POST("api/drivers/deactivate")
     Call<Object> deactivateDriver();
 
+    @GET("api/drivers/{id}")
+    Call<Object> getDriverStatus(@Path("id") int driverId);
+
     // ── Active Time ──────────────────────────────────────
 
     @GET("api/drivers/active-24h")

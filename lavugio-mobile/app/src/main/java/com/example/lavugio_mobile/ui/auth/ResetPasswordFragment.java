@@ -45,10 +45,8 @@ public class ResetPasswordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize AuthService
         authService = com.example.lavugio_mobile.services.auth.AuthService.getInstance();
 
-        // Initialize views
         tokenInput = view.findViewById(R.id.reset_token);
         passwordInput = view.findViewById(R.id.reset_password);
         confirmPasswordInput = view.findViewById(R.id.reset_confirm_password);
@@ -56,8 +54,6 @@ public class ResetPasswordFragment extends Fragment {
         confirmPasswordToggle = view.findViewById(R.id.confirm_password_toggle);
         resetButton = view.findViewById(R.id.reset_button);
         registerLink = view.findViewById(R.id.register_link);
-
-        // Set up password toggles
         if (passwordToggle != null) {
             passwordToggle.setOnClickListener(v -> togglePasswordVisibility());
         }
@@ -65,12 +61,10 @@ public class ResetPasswordFragment extends Fragment {
             confirmPasswordToggle.setOnClickListener(v -> toggleConfirmPasswordVisibility());
         }
 
-        // Set up reset button
         if (resetButton != null) {
             resetButton.setOnClickListener(v -> handleResetPassword());
         }
 
-        // Set up navigation links
         if (registerLink != null) {
             registerLink.setOnClickListener(v -> navigateToRegister());
         }
@@ -105,7 +99,6 @@ public class ResetPasswordFragment extends Fragment {
         String password = passwordInput.getText().toString().trim();
         String confirmPassword = confirmPasswordInput.getText().toString().trim();
 
-        // Validation
         if (token.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
@@ -121,7 +114,6 @@ public class ResetPasswordFragment extends Fragment {
             return;
         }
 
-        // Disable button to prevent double-tap
         resetButton.setEnabled(false);
         resetButton.setText("Resetting...");
 
@@ -135,7 +127,6 @@ public class ResetPasswordFragment extends Fragment {
                 resetButton.setText("Reset Password");
                 Toast.makeText(getContext(), "Password reset successful!", Toast.LENGTH_SHORT).show();
 
-                // Navigate to login
                 navigateToLogin();
             }
 

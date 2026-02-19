@@ -92,18 +92,9 @@ public class ChatService {
 
     // ── WebSocket ─────────────────────────────────────────────────────────────
 
-    /**
-     * Mirrors Angular's connectToChat():
-     *   1. explicitly connect the WebSocket
-     *   2. subscribe only after connection is confirmed (OPENED)
-     *
-     * Topic: /socket-publisher/chat/{userId}
-     */
     public void connectToChat(int userId, Callback<ChatMessageModel> onMessage) {
         String topic = "/socket-publisher/chat/" + userId;
 
-        // Connect first (no-op if already connected), then subscribe in the callback.
-        // This guarantees the subscription runs after OPENED – same as Angular's wsService.connect() + trySubscribe().
         webSocketService.connect(() -> {
             chatSubscription = webSocketService.subscribe(topic, body -> {
                 try {
@@ -117,18 +108,11 @@ public class ChatService {
         });
     }
 
-    /**
-     * Send a message via WebSocket.
-     */
     public void sendMessage(ChatMessageModel message) {
         String json = gson.toJson(message);
         webSocketService.publish("/socket-subscriber/chat/send", json);
     }
 
-    /**
-     * Unsubscribe from the current chat topic.
-     * Call when leaving the chat screen.
-     */
     public void disconnectFromChat() {
         if (chatSubscription != null) {
             chatSubscription.unsubscribe();

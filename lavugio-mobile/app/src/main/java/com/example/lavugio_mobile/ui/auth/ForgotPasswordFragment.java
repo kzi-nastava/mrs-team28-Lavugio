@@ -37,20 +37,16 @@ public class ForgotPasswordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize AuthService
         authService = com.example.lavugio_mobile.services.auth.AuthService.getInstance();
 
-        // Initialize views
         emailInput = view.findViewById(R.id.forgot_password_email);
         sendLinkButton = view.findViewById(R.id.send_link_button);
         registerLink = view.findViewById(R.id.register_link);
 
-        // Set up send link button
         if (sendLinkButton != null) {
             sendLinkButton.setOnClickListener(v -> handleSendLink());
         }
 
-        // Set up navigation links
         if (registerLink != null) {
             registerLink.setOnClickListener(v -> navigateToRegister());
         }
@@ -70,7 +66,6 @@ public class ForgotPasswordFragment extends Fragment {
             return;
         }
 
-        // Disable button to prevent double-tap
         sendLinkButton.setEnabled(false);
         sendLinkButton.setText("Sending...");
 
