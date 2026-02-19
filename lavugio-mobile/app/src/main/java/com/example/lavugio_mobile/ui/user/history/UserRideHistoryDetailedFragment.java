@@ -23,6 +23,9 @@ import com.example.lavugio_mobile.services.UserService;
 import com.example.lavugio_mobile.ui.dialog.ErrorDialogFragment;
 import com.example.lavugio_mobile.ui.dialog.SuccessDialogFragment;
 import com.example.lavugio_mobile.ui.map.OSMMapFragment;
+import com.example.lavugio_mobile.ui.ride.FindRideScheduleFragment;
+
+import java.time.LocalDateTime;
 import com.google.android.material.button.MaterialButton;
 
 import org.osmdroid.util.GeoPoint;
@@ -239,7 +242,7 @@ public class UserRideHistoryDetailedFragment extends Fragment implements OSMMapF
                 } else if (response.isInRide()) {
                     showError("Cannot Order Ride", "You are already in an active ride and cannot order a new one.");
                 } else {
-                    reorderRide();
+                    requireActivity().runOnUiThread(() -> openScheduleDialog());
                 }
             }
 
@@ -250,7 +253,47 @@ public class UserRideHistoryDetailedFragment extends Fragment implements OSMMapF
         });
     }
 
-    private void reorderRide() {
+    private void openScheduleDialog() {
+        FindRideScheduleFragment dialog = new FindRideScheduleFragment();
+        dialog.setOnRideScheduledListener((rideType, selectedTime) -> {
+            if ("ride_now".equals(rideType)) {
+                reorderRide(false, null);
+            } else {
+                reorderRide(true, parseScheduledTime(selectedTime));
+            }
+        });
+        dialog.show(getParentFragmentManager(), "scheduleReorder");
+    }
+
+    private LocalDateTime parseScheduledTime(String selectedTime) {
+        try {
+            // selectedTime format from FindRideScheduleFragment: "HH:MM AM" or "HH:MM PM"
+            String[] parts = selectedTime.trim().split(" ");
+            String[] timeParts = parts[0].split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1]);
+            String amPm = parts[1];
+
+            if ("PM".equals(amPm) && hour != 12) hour += 12;
+            if ("AM".equals(amPm) && hour == 12) hour = 0;
+
+            LocalDateTime result = LocalDateTime.now()
+                    .withHour(hour)
+                    .withMinute(minute)
+                    .withSecond(0)
+                    .withNano(0);
+
+            // If time has already passed today (e.g., near midnight edge case), move to tomorrow
+            if (result.isBefore(LocalDateTime.now())) {
+                result = result.plusDays(1);
+            }
+            return result;
+        } catch (Exception e) {
+            return LocalDateTime.now().plusMinutes(15);
+        }
+    }
+
+    private void reorderRide(boolean scheduled, LocalDateTime scheduledTime) {
         if (ride == null || ride.getDestinations() == null) {
             Toast.makeText(requireContext(), "Cannot reorder ride - missing destination data", Toast.LENGTH_SHORT).show();
             return;
@@ -289,8 +332,8 @@ public class UserRideHistoryDetailedFragment extends Fragment implements OSMMapF
         rideRequest.setVehicleType(com.example.lavugio_mobile.data.model.vehicle.VehicleType.STANDARD);
         rideRequest.setBabyFriendly(false);
         rideRequest.setPetFriendly(false);
-        rideRequest.setScheduledTime(null);
-        rideRequest.setScheduled(false);
+        rideRequest.setScheduled(scheduled);
+        rideRequest.setScheduledTime(scheduledTime);
         rideRequest.setEstimatedDurationSeconds(0);
         rideRequest.setDistance(0);
         rideRequest.setPrice((int) ride.getPrice());

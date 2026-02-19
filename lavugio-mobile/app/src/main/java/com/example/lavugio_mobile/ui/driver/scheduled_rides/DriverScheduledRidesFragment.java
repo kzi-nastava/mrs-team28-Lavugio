@@ -4,12 +4,10 @@ import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.lavugio_mobile.LavugioApp;
 import com.example.lavugio_mobile.R;
 import com.example.lavugio_mobile.models.Coordinates;
+import com.example.lavugio_mobile.ui.dialog.CancelRideDriverDialogFragment;
 import com.example.lavugio_mobile.models.FinishRide;
 import com.example.lavugio_mobile.models.ScheduledRideModel;
 import com.example.lavugio_mobile.services.DriverService;
@@ -344,7 +343,6 @@ public class DriverScheduledRidesFragment extends Fragment implements
         panicAlert.put("vehicleType", "Driver Vehicle");
         panicAlert.put("vehicleLicensePlate", "Check Driver Profile");
         panicAlert.put("message", "EMERGENCY: Driver triggered panic button during active ride");
-        panicAlert.put("timestamp", new java.util.Date().toString());
 
         return panicAlert;
     }
@@ -404,6 +402,8 @@ public class DriverScheduledRidesFragment extends Fragment implements
                         return;
                     }
 
+                    double actualDistance = computeActualDistance(currentRide, location);
+
                     FinishRide finishEarlyData = new FinishRide();
                     finishEarlyData.setRideId(rideId);
                     finishEarlyData.setFinalDestination(new Coordinates(
@@ -411,8 +411,7 @@ public class DriverScheduledRidesFragment extends Fragment implements
                             location.getLongitude()
                     ));
                     finishEarlyData.setFinishedEarly(true);
-                    finishEarlyData.setDistance(currentRide.getDistance() != null ?
-                            currentRide.getDistance() : 1.0);
+                    finishEarlyData.setDistance(actualDistance);
 
                     rideService.finishRide(finishEarlyData, new RideService.Callback<Void>() {
                         @Override
@@ -437,43 +436,13 @@ public class DriverScheduledRidesFragment extends Fragment implements
     }
 
     @Override
-    public void onDenyRide(long rideId) {
-        EditText input = new EditText(requireContext());
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        input.setHint("e.g., Passenger not at pickup location, health emergency, etc.");
-        input.setMinLines(2);
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Cancel Ride")
-                .setMessage("Please provide a reason for canceling this ride:")
-                .setView(input)
-                .setPositiveButton("Cancel Ride", (dialog, which) -> {
-                    String reason = input.getText().toString().trim();
-                    if (reason.isEmpty()) {
-                        showToast("Please provide a reason");
-                        return;
-                    }
-                    executeDenyRide(rideId, reason);
-                })
-                .setNegativeButton("Back", null)
-                .show();
-    }
-
-    private void executeDenyRide(long rideId, String reason) {
-        rideService.cancelRideByDriver(rideId, reason, new RideService.Callback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                Log.d(TAG, "Ride canceled successfully: " + rideId);
-                showToast("Ride canceled successfully");
-                removeRideFromList(rideId);
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                Log.e(TAG, "Failed to cancel ride: " + message);
-                showToast("Failed to cancel ride: " + message);
-            }
+    public void onCancelRide(long rideId) {
+        CancelRideDriverDialogFragment dialog = CancelRideDriverDialogFragment.newInstance(rideId);
+        dialog.setOnCancelSuccessListener(() -> {
+            Log.d(TAG, "Ride canceled successfully: " + rideId);
+            removeRideFromList(rideId);
         });
+        dialog.show(getChildFragmentManager(), "cancelRide");
     }
 
     @Override
@@ -532,6 +501,34 @@ public class DriverScheduledRidesFragment extends Fragment implements
             }
         }
         return null;
+    }
+
+    /**
+     * Calculates the actual distance traveled from the ride start to the driver's
+     * current GPS position using the Haversine formula.
+     * Falls back to the planned ride distance (or 1 km) if start coordinates are unavailable.
+     */
+    private double computeActualDistance(ScheduledRideModel ride, Location currentLocation) {
+        if (ride.getCheckpoints() != null && !ride.getCheckpoints().isEmpty()) {
+            Coordinates start = ride.getCheckpoints().get(0);
+            double dist = haversineKm(
+                    start.getLatitude(), start.getLongitude(),
+                    currentLocation.getLatitude(), currentLocation.getLongitude()
+            );
+            return Math.max(dist, 0.1); // minimum 0.1 km so price is always positive
+        }
+        return ride.getDistance() != null && ride.getDistance() > 0 ? ride.getDistance() : 1.0;
+    }
+
+    /** Returns the great-circle distance in kilometres between two lat/lng points. */
+    private double haversineKm(double lat1, double lon1, double lat2, double lon2) {
+        final double R = 6371.0;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
     private void showToast(String message) {

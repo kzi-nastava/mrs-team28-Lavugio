@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.lavugio_mobile.models.Coordinates;
+import com.example.lavugio_mobile.models.DeactivateDriverResponse;
 import com.example.lavugio_mobile.models.user.ChangePasswordDTO;
 import com.example.lavugio_mobile.models.user.DriverActiveTimeResponse;
 import com.example.lavugio_mobile.models.user.DriverEditProfileRequestDTO;

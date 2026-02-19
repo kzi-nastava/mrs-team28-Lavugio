@@ -422,6 +422,8 @@ public class OSMMapFragment extends Fragment {
             icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_busy);
         } else if (status.equals(DriverStatusEnum.RESERVED)) {
             icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_reserved);
+        } else if (status.equals(DriverStatusEnum.PANIC)) {
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_car_panic);
         }
         if (icon != null) marker.setIcon(icon);
 
