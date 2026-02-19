@@ -110,4 +110,6 @@ public class ApiClient {
     public static ChatApi getChatApi() {
         return retrofit.create(ChatApi.class);
     }
+
+    public static NotificationApi getNotificationApi(){return getInstance().create(NotificationApi.class); }
 }

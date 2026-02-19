@@ -217,10 +217,6 @@ public class RideOverviewFragment extends Fragment implements OSMMapFragment.Map
         if (startMarker != null) mapFragment.removeWaypoint(startMarker);
         if (endMarker   != null) mapFragment.removeWaypoint(endMarker);
 
-        startMarker = mapFragment.addClientMarker(toGeoPoint(checkpoints.get(0)));
-        endMarker   = mapFragment.addClientMarker(toGeoPoint(checkpoints.get(checkpoints.size() - 1)));
-
-        // Ponovo prikaži trenutnu lokaciju ako je vožnja aktivna i marker je bio prisutan
         if (overview.getStatus() == RideStatus.ACTIVE && lastClientLocation != null) {
             updateClientMarker(lastClientLocation);
         }
@@ -278,7 +274,6 @@ public class RideOverviewFragment extends Fragment implements OSMMapFragment.Map
     private void updateClientMarker(Coordinates coordinates) {
         if (mapFragment == null || !mapReady) return;
         if (rideOverview == null || rideOverview.getStatus() != RideStatus.ACTIVE) {
-            // Vožnja nije aktivna — ne prikazuj trenutnu lokaciju
             if (clientMarker != null) {
                 mapFragment.removeWaypoint(clientMarker);
                 clientMarker = null;

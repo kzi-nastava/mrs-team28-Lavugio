@@ -79,6 +79,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendFoundRideEmail(List<String> passengerEmails, Ride ride) {
         String subject = "New Ride Assigned!";
         String body = "A new ride has been assigned to you. Ride details:\n" +

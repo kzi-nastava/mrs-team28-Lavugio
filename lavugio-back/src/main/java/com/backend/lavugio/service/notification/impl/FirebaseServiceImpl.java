@@ -7,6 +7,8 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class FirebaseServiceImpl implements FirebaseService {
 
@@ -32,4 +34,38 @@ public class FirebaseServiceImpl implements FirebaseService {
             e.printStackTrace();
         }
     }
+
+    public void sendPushNotificationWithDataPayload(
+            String token,
+            String message,
+            String title,
+            Map<String, String> data
+    ) {
+        if (token == null || token.isEmpty()) {
+            System.err.println("FCM token is null or empty");
+            return;
+        }
+
+        Message.Builder builder = Message.builder()
+                .setToken(token)
+                .setNotification(
+                        Notification.builder()
+                                .setTitle(title)
+                                .setBody(message)
+                                .build()
+                );
+
+        if (data != null) {
+            data.forEach(builder::putData);
+        }
+
+        Message firebaseMessage = builder.build();
+
+        try {
+            FirebaseMessaging.getInstance().send(firebaseMessage);
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

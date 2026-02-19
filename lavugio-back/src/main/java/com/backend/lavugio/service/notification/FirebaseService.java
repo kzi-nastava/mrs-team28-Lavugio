@@ -1,5 +1,8 @@
 package com.backend.lavugio.service.notification;
 
+import java.util.Map;
+
 public interface FirebaseService {
-    public void sendPushNotification(String token, String message, String title);
+    void sendPushNotification(String token, String message, String title);
+    void sendPushNotificationWithDataPayload(String token, String message, String title, Map<String,String> payload);
 }

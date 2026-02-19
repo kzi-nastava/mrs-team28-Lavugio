@@ -12,6 +12,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -24,6 +25,7 @@ import com.example.lavugio_mobile.ui.GuestHomePageFragment;
 import com.example.lavugio_mobile.ui.chat.AdminChatFragment;
 import com.example.lavugio_mobile.ui.chat.LiveSupportFragment;
 import com.example.lavugio_mobile.ui.profile.ProfileFragment;
+import com.example.lavugio_mobile.ui.ride.RideOverviewFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -70,13 +72,16 @@ public class MainActivity extends AppCompatActivity {
 
         makeChatDraggable();
 
-        // ── Initial fragment ────────────────────────────────────────────────
         if (savedInstanceState == null) {
+            String type = getIntent().getStringExtra("type");
+
             if (!AuthService.getInstance().isAuthenticated()) {
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.content_container, new GuestHomePageFragment())
                         .commit();
+            } else if ("RIDE_OVERVIEW".equals(type)) {
+                handleIntent(getIntent());
             } else {
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
                         .commit();
             }
         }
+
 
         // ── FAB visibility follows auth state ───────────────────────────────
         AuthService.getInstance().getIsAuthenticated().observe(this, isAuthenticated -> {
@@ -263,5 +269,35 @@ public class MainActivity extends AppCompatActivity {
                         .postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
             }
         });
+    }
+
+    private void handleIntent(android.content.Intent intent) {
+        if (intent == null) return;
+
+        String type = intent.getStringExtra("type");
+        String rideId = intent.getStringExtra("rideId");
+
+        if ("RIDE_OVERVIEW".equals(type) && rideId != null) {
+
+            Bundle bundle = new Bundle();
+            bundle.putLong("rideId", Long.parseLong(rideId));
+
+            RideOverviewFragment fragment = new RideOverviewFragment();
+            fragment.setArguments(bundle);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull android.content.Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+        intent.removeExtra("type");
+        intent.removeExtra("rideId");
     }
 }

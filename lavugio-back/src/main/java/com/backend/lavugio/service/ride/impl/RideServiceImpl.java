@@ -20,8 +20,8 @@ import com.backend.lavugio.repository.ride.RideRepository;
 import com.backend.lavugio.repository.ride.ReviewRepository;
 import com.backend.lavugio.repository.ride.RideReportRepository;
 import com.backend.lavugio.repository.user.RegularUserRepository;
+import com.backend.lavugio.service.notification.FirebaseService;
 import com.backend.lavugio.service.pricing.PricingService;
-import com.backend.lavugio.service.ride.RideOverviewService;
 import com.backend.lavugio.service.ride.RideService;
 import com.backend.lavugio.service.ride.RideQueryService;
 import com.backend.lavugio.service.route.RideDestinationService;
@@ -40,7 +40,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -69,6 +67,7 @@ public class RideServiceImpl implements RideService {
     private final ReviewRepository reviewRepository;
     private final RideReportRepository rideReportRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final FirebaseService firebaseService;
 
     @Autowired
     public RideServiceImpl(RideRepository rideRepository,
@@ -84,7 +83,8 @@ public class RideServiceImpl implements RideService {
                            com.backend.lavugio.service.notification.NotificationService notificationService,
                            ReviewRepository reviewRepository,
                            RideReportRepository rideReportRepository,
-                           SimpMessagingTemplate simpMessagingTemplate) {
+                           SimpMessagingTemplate simpMessagingTemplate,
+                           FirebaseService firebaseService) {
         this.rideRepository = rideRepository;
         this.driverService = driverService;
         this.pricingService = pricingService;
@@ -99,6 +99,7 @@ public class RideServiceImpl implements RideService {
         this.reviewRepository = reviewRepository;
         this.rideReportRepository = rideReportRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.firebaseService = firebaseService;
     }
 
     @Override
@@ -240,6 +241,7 @@ public class RideServiceImpl implements RideService {
     @Transactional
     public Ride addPassengerToRide(Long rideId, Long passengerId) {
         Ride ride = getRideById(rideId);
+
         RegularUser passenger = regularUserRepository.findById(passengerId)
                 .orElseThrow(() -> new RuntimeException("Passenger not found with id: " + passengerId));
 
@@ -253,6 +255,7 @@ public class RideServiceImpl implements RideService {
 
         Notification notification = notificationService.createWebAddedToRideNotification(ride.getId(), passengerId);
         notificationService.sendNotificationToSocket(notification);
+        sendFireBaseNotification(passenger.getFcmToken(), ride.getId());
         ride.getPassengers().add(passenger);
         return rideRepository.save(ride);
     }
@@ -260,6 +263,7 @@ public class RideServiceImpl implements RideService {
     @Override
     @Transactional
     public Ride addPassengersToRide(Ride ride, List<String> passengerEmails) {
+
         Set<RegularUser> registeredPassengers = new HashSet<>();
         for (String passengerEmail : passengerEmails) {
             Optional<RegularUser> passenger = regularUserRepository.findByEmail(passengerEmail);
@@ -267,6 +271,7 @@ public class RideServiceImpl implements RideService {
                 continue;
             }
             passenger.ifPresent(registeredPassengers::add);
+            sendFireBaseNotification(passenger.get().getFcmToken(), ride.getId());
             Notification notification = notificationService.createWebAddedToRideNotification(ride.getId(), passenger.get().getId());
             notificationService.sendNotificationToSocket(notification);
         }
@@ -1057,6 +1062,21 @@ public class RideServiceImpl implements RideService {
         dto.setReports(reportInfoDTOs);
         
         return dto;
+    }
+
+    private void sendFireBaseNotification(String fcmToken, Long rideId){
+        if (fcmToken != null) {
+            Map<String, String> data = new HashMap<>();
+            data.put("type", "RIDE_OVERVIEW");
+            data.put("rideId", String.valueOf(rideId));
+
+            firebaseService.sendPushNotificationWithDataPayload(
+                    fcmToken,
+                    "You have been added to a ride",
+                    "New ride",
+                    data
+            );
+        }
     }
 
 }

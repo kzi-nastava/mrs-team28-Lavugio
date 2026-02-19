@@ -11,6 +11,7 @@ import com.backend.lavugio.model.route.RideDestination;
 import com.backend.lavugio.model.user.RegularUser;
 import com.backend.lavugio.repository.route.RideDestinationRepository;
 import com.backend.lavugio.repository.user.DriverRepository;
+import com.backend.lavugio.service.notification.FirebaseService;
 import com.backend.lavugio.service.notification.NotificationService;
 import com.backend.lavugio.service.ride.RideCompletionService;
 import com.backend.lavugio.service.ride.RideOverviewService;
@@ -25,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class RideCompletionServiceImpl implements RideCompletionService {
@@ -39,6 +38,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
     private final NotificationService notificationService;
     private final DriverRepository driverRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final FirebaseService firebaseService;
 
     @Autowired
     public RideCompletionServiceImpl(NotificationService notificationService,
@@ -47,7 +47,8 @@ public class RideCompletionServiceImpl implements RideCompletionService {
                                      EmailService emailService,
                                      RideOverviewService rideOverviewService,
                                      DriverRepository driverRepository,
-                                     SimpMessagingTemplate simpMessagingTemplate, RideDestinationRepository rideDestinationRepository) {
+                                     SimpMessagingTemplate simpMessagingTemplate, RideDestinationRepository rideDestinationRepository,
+                                     FirebaseService firebaseService) {
         this.rideDestinationService = rideDestinationService;
         this.rideService = rideService;
         this.emailService = emailService;
@@ -55,6 +56,7 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         this.rideOverviewService = rideOverviewService;
         this.driverRepository = driverRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.firebaseService = firebaseService;
     }
 
     @Transactional
@@ -144,6 +146,14 @@ public class RideCompletionServiceImpl implements RideCompletionService {
         for (RegularUser passenger : passengers) {
             Notification notification = notificationService.createWebRideFinishedNotification(rideId, passenger.getId());
             notificationService.sendNotificationToSocket(notification);
+            Map<String, String> data = new HashMap<>();
+            data.put("type", "RIDE_OVERVIEW");
+            data.put("rideId", String.valueOf(rideId));
+            firebaseService.sendPushNotificationWithDataPayload(passenger.getFcmToken(),
+                    "Your ride has been completed",
+                    "Ride completed",
+                    data
+                    );
         }
     }
 
