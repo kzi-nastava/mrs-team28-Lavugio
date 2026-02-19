@@ -28,11 +28,6 @@ import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
-/**
- * STOMP-over-SockJS WebSocket service for Android.
- * Uses NaikSoftware/StompProtocolAndroid — the Android equivalent
- * of Angular's @stomp/stompjs + SockJS.
- */
 public class WebSocketService {
 
     private static final String TAG = "WebSocketService";
@@ -42,6 +37,7 @@ public class WebSocketService {
     private StompClient stompClient;
     private SessionManager sessionManager;
     private boolean isConnectedFlag = false;
+    private boolean isReconnecting = false;
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -51,61 +47,80 @@ public class WebSocketService {
     // Queued subscriptions waiting for connection
     private final List<PendingSubscription> pendingSubscriptions = new ArrayList<>();
 
-    private Runnable onConnectCallback;
-    private Runnable onReconnectCallback; // čuva se za automatski reconnect
+    // FIX: čuvamo sve callback-ove za reconnect, ne samo jedan
+    private final List<Runnable> reconnectCallbacks = new ArrayList<>();
+
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
+
+    // ── Interfaces ────────────────────────────────────────────────────────
 
     public interface ParsedMessageCallback<T> {
         void onMessage(T body);
     }
 
-    // ── Inner classes ────────────────────────────────────
-
     public interface MessageCallback {
         void onMessage(String body);
     }
 
+    // ── StompSubscription ─────────────────────────────────────────────────
+
     /**
      * Handle to an active subscription. Call unsubscribe() to stop receiving messages.
+     * FIX: Nikad ne vraćamo null — vraćamo placeholder koji se popuni kad konekcija bude ready.
      */
-    public static class StompSubscription {
-        private final String id;
+    public class StompSubscription {
+        private String id; // može biti null dok je pending
         private final String destination;
-        private final WebSocketService service;
+        private boolean unsubscribed = false;
 
-        StompSubscription(String id, String destination, WebSocketService service) {
+        StompSubscription(String id, String destination) {
             this.id = id;
             this.destination = destination;
-            this.service = service;
+        }
+
+        void setId(String id) {
+            this.id = id;
+            // Ako je unsubscribe pozvan dok smo čekali konekciju
+            if (unsubscribed && id != null) {
+                WebSocketService.this.unsubscribe(id);
+            }
         }
 
         public String getId() { return id; }
         public String getDestination() { return destination; }
 
         public void unsubscribe() {
-            service.unsubscribe(this.id);
+            unsubscribed = true;
+            if (id != null) {
+                WebSocketService.this.unsubscribe(id);
+            } else {
+                // Ukloni iz pending liste
+                pendingSubscriptions.removeIf(p -> p.subscription == this);
+            }
         }
     }
 
     private static class PendingSubscription {
         final String destination;
         final MessageCallback callback;
+        final StompSubscription subscription; // referenca na placeholder
 
-        PendingSubscription(String destination, MessageCallback callback) {
+        PendingSubscription(String destination, MessageCallback callback, StompSubscription subscription) {
             this.destination = destination;
             this.callback = callback;
+            this.subscription = subscription;
         }
     }
 
-    // ── Setup ────────────────────────────────────────────
+    // ── Setup ─────────────────────────────────────────────────────────────
 
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
-    // ── Connect ──────────────────────────────────────────
+    // ── Connect ───────────────────────────────────────────────────────────
 
     @SuppressLint("CheckResult")
     public void connect(@Nullable Runnable onConnect) {
@@ -114,24 +129,27 @@ public class WebSocketService {
             return;
         }
 
-        this.onConnectCallback = onConnect;
+        // FIX: Ako je konekcija u toku, samo dodaj callback u listu
+        if (stompClient != null && !isConnectedFlag) {
+            if (onConnect != null) reconnectCallbacks.add(onConnect);
+            return;
+        }
 
-        // Create STOMP client over SockJS transport
+        if (onConnect != null) reconnectCallbacks.add(onConnect);
+
         stompClient = Stomp.over(
                 Stomp.ConnectionProvider.OKHTTP,
-                SOCKET_URL + "/websocket"  // SockJS requires /websocket suffix for raw WS
+                SOCKET_URL + "/websocket"
         );
 
         stompClient.withClientHeartbeat(10000);
         stompClient.withServerHeartbeat(10000);
 
-        // Build auth headers
         List<StompHeader> headers = new ArrayList<>();
         if (sessionManager != null && sessionManager.getToken() != null) {
             headers.add(new StompHeader("Authorization", "Bearer " + sessionManager.getToken()));
         }
 
-        // Listen to connection lifecycle
         Disposable lifecycleDisposable = stompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -141,26 +159,21 @@ public class WebSocketService {
                         case OPENED:
                             Log.d(TAG, "STOMP connection opened");
                             isConnectedFlag = true;
+                            isReconnecting = false;
 
-                            // Flush pending subscriptions
-                            List<PendingSubscription> pending =
-                                    new ArrayList<>(pendingSubscriptions);
+                            // Flush pending subscriptions i postavi im id
+                            List<PendingSubscription> pending = new ArrayList<>(pendingSubscriptions);
                             pendingSubscriptions.clear();
-
                             for (PendingSubscription sub : pending) {
-                                doSubscribe(sub.destination, sub.callback);
+                                StompSubscription handle = doSubscribe(sub.destination, sub.callback);
+                                sub.subscription.setId(handle.id); // FIX: povežemo placeholder sa pravim id-em
                             }
 
-                            // Run connect callback AFTER real connection
-                            if (onConnectCallback != null) {
-                                // Sačuvaj za reconnect prije nego što se nulluje
-                                onReconnectCallback = onConnectCallback;
-                                onConnectCallback.run();
-                                onConnectCallback = null;
-                            } else if (onReconnectCallback != null) {
-                                // Ovo je reconnect — ponovo postavi subscriptions
-                                Log.d(TAG, "Reconnected — re-running subscriptions");
-                                onReconnectCallback.run();
+                            // FIX: Pozovi sve registrovane callback-ove
+                            List<Runnable> callbacks = new ArrayList<>(reconnectCallbacks);
+                            reconnectCallbacks.clear();
+                            for (Runnable cb : callbacks) {
+                                cb.run();
                             }
                             break;
 
@@ -179,33 +192,37 @@ public class WebSocketService {
                 }, throwable -> {
                     Log.e(TAG, "STOMP lifecycle error", throwable);
                 });
+
         compositeDisposable.add(lifecycleDisposable);
-
-        // Connect
         stompClient.connect(headers);
-        // isConnectedFlag se postavlja tek u OPENED lifecycle eventu, ne ovdje
-
     }
 
     public void connect() {
         connect(null);
     }
 
-    // ── Subscribe ────────────────────────────────────────
+    // ── Subscribe ─────────────────────────────────────────────────────────
 
-    @Nullable
+    /**
+     * FIX: Uvek vraća non-null StompSubscription (placeholder pattern).
+     * Ako konekcija nije ready, subscription se popuni kada konekcija bude otvorena.
+     */
     public StompSubscription subscribe(String destination, MessageCallback callback) {
+        StompSubscription placeholder = new StompSubscription(null, destination);
+
         if (!isConnectedFlag || stompClient == null) {
             Log.d(TAG, "Not connected yet — queueing subscription to: " + destination);
-            pendingSubscriptions.add(new PendingSubscription(destination, callback));
+            pendingSubscriptions.add(new PendingSubscription(destination, callback, placeholder));
 
             if (stompClient == null) {
                 connect();
             }
-            return null;
+            return placeholder; // FIX: vraćamo placeholder, ne null
         }
 
-        return doSubscribe(destination, callback);
+        StompSubscription real = doSubscribe(destination, callback);
+        placeholder.setId(real.id);
+        return placeholder;
     }
 
     @SuppressLint("CheckResult")
@@ -229,10 +246,10 @@ public class WebSocketService {
         compositeDisposable.add(disposable);
 
         Log.d(TAG, "Subscribed to " + destination + " (id=" + subscriptionId + ")");
-        return new StompSubscription(subscriptionId, destination, this);
+        return new StompSubscription(subscriptionId, destination);
     }
 
-    // ── Unsubscribe ──────────────────────────────────────
+    // ── Unsubscribe ───────────────────────────────────────────────────────
 
     public void unsubscribe(String subscriptionId) {
         Disposable disposable = activeSubscriptions.remove(subscriptionId);
@@ -242,7 +259,7 @@ public class WebSocketService {
         }
     }
 
-    // ── Publish ──────────────────────────────────────────
+    // ── Publish ───────────────────────────────────────────────────────────
 
     @SuppressLint("CheckResult")
     public void publish(String destination, Object body) {
@@ -269,7 +286,7 @@ public class WebSocketService {
                 );
     }
 
-    // ── Disconnect ───────────────────────────────────────
+    // ── Disconnect ────────────────────────────────────────────────────────
 
     public void disconnect() {
         if (stompClient != null) {
@@ -280,37 +297,44 @@ public class WebSocketService {
         compositeDisposable.clear();
         activeSubscriptions.clear();
         pendingSubscriptions.clear();
+        reconnectCallbacks.clear(); // FIX: čistimo i callback listu
         isConnectedFlag = false;
-        onConnectCallback = null;
-        onReconnectCallback = null;
+        isReconnecting = false;
 
         Log.d(TAG, "Disconnected and cleared all subscriptions");
     }
 
-    // ── Status ───────────────────────────────────────────
+    // ── Status ────────────────────────────────────────────────────────────
 
     public boolean isConnected() {
         return stompClient != null && stompClient.isConnected();
     }
 
-    // ── Internal ─────────────────────────────────────────
+    // ── Internal ──────────────────────────────────────────────────────────
 
     private void handleDisconnect() {
         isConnectedFlag = false;
     }
 
     private void scheduleReconnect() {
+        // FIX: Sprečavamo višestruke reconnect timere
+        if (isReconnecting) return;
+        isReconnecting = true;
+
         Log.d(TAG, "Scheduling reconnect in " + RECONNECT_DELAY_MS + "ms");
         new android.os.Handler(android.os.Looper.getMainLooper())
                 .postDelayed(() -> {
                     if (!isConnected()) {
                         Log.d(TAG, "Attempting reconnect...");
-                        connect(null); // onReconnectCallback se poziva iz OPENED case-a
+                        isReconnecting = false;
+                        stompClient = null; // FIX: resetujemo klijent da connect() ne blokira
+                        connect(null);
+                    } else {
+                        isReconnecting = false;
                     }
                 }, RECONNECT_DELAY_MS);
     }
 
-    @Nullable
     public <T> StompSubscription subscribeJson(String destination, Class<T> clazz,
                                                ParsedMessageCallback<T> callback) {
         return subscribe(destination, body -> {
