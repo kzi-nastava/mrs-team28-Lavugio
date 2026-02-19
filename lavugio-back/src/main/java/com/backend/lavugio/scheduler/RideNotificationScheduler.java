@@ -16,7 +16,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -51,7 +53,13 @@ public class RideNotificationScheduler {
                 String fcmToken = ride.getCreator().getFcmToken();
                 Notification notification = notificationService.createWebRideReminderNotification(creatorId, ride.getCreator().getId());
                 notificationService.sendNotificationToSocket(notification);
-                firebaseService.sendPushNotification(fcmToken, "You have ride scheduled at " + ride.getStartDateTime().format(DATE_TIME_FORMATTER), TITLE);
+                Map<String, String> data = new HashMap<>();
+                data.put("type", "RIDE_OVERVIEW");
+                data.put("rideId", String.valueOf(ride.getId()));
+                firebaseService.sendPushNotificationWithDataPayload(fcmToken,
+                        "You have ride scheduled at " + ride.getStartDateTime().format(DATE_TIME_FORMATTER),
+                        TITLE,
+                        data);
             }
 
             rideRepository.save(ride);
