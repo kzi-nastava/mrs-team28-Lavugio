@@ -37,16 +37,11 @@ public class LavugioFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
         Log.d(TAG, "Notification received");
 
-        String title = null;
-        String body = null;
-
-        if (remoteMessage.getNotification() != null) {
-            title = remoteMessage.getNotification().getTitle();
-            body = remoteMessage.getNotification().getBody();
-        }
 
         Map<String, String> data = remoteMessage.getData();
 
+        String title = data.get("title");
+        String body = data.get("body");
         String type = data.get("type");
         String rideId = data.get("rideId");
 
@@ -123,7 +118,7 @@ public class LavugioFirebaseMessagingService extends FirebaseMessagingService {
                         .setContentText(body)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setAutoCancel(true)
-                        .setContentIntent(pendingIntent); // 🔥 OVO JE KLJUČNO
+                        .setContentIntent(pendingIntent);
 
         notificationManager.notify((int) System.currentTimeMillis(), builder.build());
     }
