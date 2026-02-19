@@ -254,7 +254,7 @@ public class ProfileFragment extends Fragment {
             addVehicleTitle("Vehicle Information");
             addEditableInfoRow("Make", profileData.getVehicleMake(), InputType.TYPE_CLASS_TEXT);
             addEditableInfoRow("Model", profileData.getVehicleModel(), InputType.TYPE_CLASS_TEXT);
-            addDropdownInfoRow("Vehicle Type", profileData.getVehicleType(), new String[]{"Standard", "Luxury", "Combi"});
+            addDropdownInfoRow("Vehicle Type", formatVehicleType(profileData.getVehicleType()), new String[]{"Standard", "Luxury", "Combi"});
             addEditableInfoRow("License Plate", profileData.getVehicleLicensePlate(), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
             addEditableInfoRow("Passenger Seats", profileData.getVehicleSeats().toString(), InputType.TYPE_CLASS_NUMBER);
             addEditableBooleanInfoRow("Pet Friendly", profileData.getVehiclePetFriendly());
@@ -267,6 +267,20 @@ public class ProfileFragment extends Fragment {
             viewModel.loadDriverActiveStatus(authService.getUserId());
         }
         addButtonRow();
+    }
+
+    private String formatVehicleType(String vehicleType) {
+        if (vehicleType == null) return "Unknown";
+        switch (vehicleType) {
+            case "STANDARD":
+                return "Standard";
+            case "LUXURY":
+                return "Luxury";
+            case "COMBI":
+                return "Combi";
+            default:
+                return vehicleType;
+        }
     }
 
     private void updateBlockedStatus(UserApi.BlockStatus blockStatus) {
